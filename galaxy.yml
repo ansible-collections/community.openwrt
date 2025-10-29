@@ -2,24 +2,24 @@
 # See https://docs.ansible.com/ansible/latest/dev_guide/collections_galaxy_meta.html
 
 namespace: community
-name: FIXME
+name: openwrt
 version: 0.1.0
 readme: README.md
 authors:
-  - YOUR NAME (github.com/YOURGITHUB)
-description: null
+  - Alexei Znamensky (github.com/russoz)
+description: >-
+  The community.openwrt collection provides Ansible code to manage OpenWrt devices.
 license_file: LICENSE
 tags:
   # tags so people can search for collections https://galaxy.ansible.com/search
   # tags are all lower-case, no spaces, no dashes.
-  - example1
-  - example2
+  - openwrt
   # You must have one of the tags in the following link
   # to satisfy Ansible Lint https://ansible.readthedocs.io/projects/lint/rules/galaxy
-repository: https://github.com/ansible-collections/community.REPO_NAME
-# documentation: https://github.com/ansible-collection-migration/community.REPO_NAME/tree/main/docs
-homepage: https://github.com/ansible-collections/community.REPO_NAME
-issues: https://github.com/ansible-collections/community.REPO_NAME/issues
+repository: https://github.com/ansible-collections/community.openwrt
+# documentation: https://github.com/ansible-collection-migration/community.openwrt/tree/main/docs
+homepage: https://github.com/ansible-collections/community.openwrt
+issues: https://github.com/ansible-collections/community.openwrt/issues
 build_ignore:
   # https://docs.ansible.com/ansible/devel/dev_guide/developing_collections_distributing.html#ignoring-files-and-folders
   - .gitignore
