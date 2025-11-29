@@ -1,0 +1,28 @@
+---
+- name: Configure Ansible connection settings for OpenWRT
+  ansible.builtin.set_fact:
+    openwrt_ssh: "{{ openwrt_ssh }}"
+    openwrt_scp: "{{ openwrt_scp }}"
+    openwrt_ssh_user: "{{ openwrt_ssh_user }}"
+    openwrt_ssh_host: "{{ openwrt_ssh_host }}"
+    openwrt_user_host: "{{ openwrt_ssh_user | quote }}@{{ openwrt_ssh_host | quote }}"
+    ansible_ssh_transfer_method: "{{ openwrt_ssh_transfer_method }}"
+    ansible_ssh_use_tty: "{{ openwrt_ssh_use_tty }}"
+    ansible_scp_if_ssh: "{{ openwrt_scp_if_ssh }}"
+    ansible_remote_tmp: "{{ openwrt_remote_tmp }}"
+  tags: always
+
+- name: Check for opkg availability
+  community.openwrt.command:
+    cmd: which opkg
+  register: _opkg_available
+  check_mode: false
+  changed_when: false
+  failed_when: false
+  when: openwrt_install_recommended_packages | bool
+
+- name: Install recommended packages for module compatibility
+  ansible.builtin.include_tasks: packages.yml
+  when:
+    - openwrt_install_recommended_packages | bool
+    - _opkg_available.rc == 0

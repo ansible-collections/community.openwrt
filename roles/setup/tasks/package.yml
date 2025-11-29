@@ -1,0 +1,13 @@
+---
+- name: "Check for command {{ item.key }}"
+  community.openwrt.command:
+    cmd: "which {{ item.key | quote }}"
+  register: _package
+  check_mode: false
+  changed_when: false
+  failed_when: false
+
+- name: "Install {{ item.value }} to provide {{ item.key }}"
+  community.openwrt.opkg:
+    name: "{{ item.value }}"
+  when: _package.rc != 0
