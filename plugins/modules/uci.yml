@@ -161,7 +161,7 @@ RETURN:
     description: the list form of result
     returned: when I(command=get)
     type: list
-    sample: ['0.pool.ntp.org','1.pool.ntp.org']
+    sample: ["0.pool.ntp.org", "1.pool.ntp.org"]
   config:
     description: config part of I(key)
     returned: when given
@@ -171,7 +171,7 @@ RETURN:
     description: section part of I(key)
     returned: when given
     type: string
-    sample: '@wifi-iface[0]'
+    sample: "@wifi-iface[0]"
   option:
     description: option part of I(key)
     returned: when given
