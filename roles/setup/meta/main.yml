@@ -11,4 +11,5 @@ galaxy_info:
     - networking
     - router
 
-dependencies: []
+dependencies:
+  - role: community.openwrt.common
