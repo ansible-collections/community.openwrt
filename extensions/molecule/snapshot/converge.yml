@@ -18,4 +18,3 @@
     - name: "Display gathered facts"
       ansible.builtin.debug:
         var: setup_result
-
