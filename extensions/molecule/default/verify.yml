@@ -1,0 +1,36 @@
+---
+# This is the verify playbook to test the collection
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Test command module
+      community.openwrt.command:
+        cmd: "echo 123"
+      register: command_result
+      changed_when: false
+
+    - name: Show command result
+      ansible.builtin.debug:
+        var: command_result
+        verbosity: 0
+
+    - name: Show command result keys
+      ansible.builtin.debug:
+        msg: "Keys in result: {{ command_result.keys() | list }}"
+
+    - name: Assert command stdout
+      ansible.builtin.assert:
+        that:
+          - command_result.stdout is defined
+          - command_result.stdout == "123"
+        success_msg: "Command module stdout works correctly"
+        fail_msg: "Command module stdout not working - result keys: {{ command_result.keys() | list }}"
+
+    # Note: The Python-based uci module requires Python on the target
+    # OpenWRT devices typically don't have Python installed
+    # The collection provides both Python (uci.py) and shell (uci.sh) versions
+    # For now, we're testing the shell-based modules which work without Python
+    
+    # TODO: Add test for shell-based UCI module once it's confirmed working

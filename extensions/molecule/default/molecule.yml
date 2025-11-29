@@ -1,0 +1,41 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: openwrt_latest
+    image: openwrt/rootfs:latest
+    command: sleep infinity
+    pre_build_image: true
+    network_mode: host
+  - name: openwrt_x86_64-24.10.4
+    image: openwrt/rootfs:x86_64-24.10.4
+    command: sleep infinity
+    pre_build_image: true
+    network_mode: host
+  - name: openwrt_x86_64-23.05.6
+    image: openwrt/rootfs:x86_64-23.05.6
+    command: sleep infinity
+    pre_build_image: true
+    network_mode: host
+  - name: openwrt_x86_64-22.03.7
+    image: openwrt/rootfs:x86_64-22.03.7
+    command: sleep infinity
+    pre_build_image: true
+    network_mode: host
+  - name: openwrt_x86_64-21.02.7
+    image: openwrt/rootfs:x86_64-21.02.7
+    command: sleep infinity
+    pre_build_image: true
+    network_mode: host
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_COLLECTIONS_PATH: "${HOME}/.ansible/collections:/usr/share/ansible/collections:${MOLECULE_SCENARIO_DIRECTORY}/../../../.."
+verifier:
+  name: ansible
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
