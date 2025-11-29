@@ -1,0 +1,32 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: openwrt_setup_x86_64-24.10.4
+    image: openwrt/rootfs:x86_64-24.10.4
+    command: sleep infinity
+    pre_build_image: true
+    published_ports:
+      - 0.0.0.0:2222:22/tcp
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      openwrt_setup_x86_64-24.10.4:
+        ansible_connection: ssh
+        ansible_host: 127.0.0.1
+        ansible_port: 2222
+        ansible_user: root
+        ansible_ssh_pass: ""
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAuthentication=no"
+        ansible_shell_type: sh
+  env:
+    ANSIBLE_COLLECTIONS_PATH: "${HOME}/.ansible/collections:/usr/share/ansible/collections:${MOLECULE_SCENARIO_DIRECTORY}/../../../.."
+verifier:
+  name: ansible
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
