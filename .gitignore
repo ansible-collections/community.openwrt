@@ -1,3 +1,7 @@
+*.bak
+*.bkp
+*~
+
 /tests/output/
 /changelogs/.plugin-cache.yaml
 
@@ -130,3 +134,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.vscode
+
+# pipenv
+Pipfile*
