@@ -4,7 +4,7 @@
 # Remove this section if the collection repository is not on GitHub, or if you do not want this
 # functionality for your collection.
 edit_on_github:
-  repository: ansible-collections/community.REPO_NAME
+  repository: ansible-collections/community.openwrt
   branch: main
   # If your collection root (the directory containing galaxy.yml) does not coincide with your
   # repository's root, you have to specify the path to the collection root here. For example,
@@ -25,7 +25,7 @@ edit_on_github:
 
 extra_links:
   - description: Report an issue
-    url: https://github.com/ansible-collections/community.REPO_NAME/issues/new/choose
+    url: https://github.com/ansible-collections/community.openwrt/issues/new/choose
 
 # Specify communication channels for your collection. We suggest to not specify more
 # than one place for communication per communication tool to avoid confusion.
