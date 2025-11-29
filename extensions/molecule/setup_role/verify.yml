@@ -57,3 +57,72 @@
       community.openwrt.command:
         cmd: sh -c '[ -x /bin/base64 ] && [ -x /usr/bin/sha1sum ]'
       changed_when: false
+
+    - name: Create test file on controller
+      delegate_to: localhost
+      ansible.builtin.copy:
+        content: |
+          This is a test file created by Molecule.
+          Timestamp: {{ ansible_date_time.iso8601 | default('N/A') }}
+          Device: {{ inventory_hostname }}
+        dest: /tmp/openwrt_test_file.txt
+        mode: '0644'
+
+    - name: Copy test file to remote using community.openwrt.copy
+      community.openwrt.copy:
+        src: /tmp/openwrt_test_file.txt
+        dest: /tmp/copied_test_file.txt
+        mode: '0600'
+      register: copy_result
+
+    - name: Assert copy was successful
+      ansible.builtin.assert:
+        that:
+          - copy_result is changed
+          - copy_result.dest == '/tmp/copied_test_file.txt'
+
+    - name: Slurp copied file to verify content
+      community.openwrt.slurp:
+        src: /tmp/copied_test_file.txt
+      register: copied_content
+
+    - name: Assert copied file contains expected content
+      ansible.builtin.assert:
+        that:
+          - "'This is a test file created by Molecule' in (copied_content['content'] | b64decode)"
+
+    - name: Test copy with content parameter
+      community.openwrt.copy:
+        content: "Direct content test\n"
+        dest: /tmp/content_test.txt
+      register: content_copy_result
+
+    - name: Assert content copy was successful
+      ansible.builtin.assert:
+        that:
+          - content_copy_result is changed
+
+    - name: Verify content from content parameter
+      community.openwrt.command:
+        cmd: cat /tmp/content_test.txt
+      register: content_cat
+      changed_when: false
+
+    - name: Assert content matches
+      ansible.builtin.assert:
+        that:
+          - content_cat.stdout == "Direct content test"
+
+    - name: Clean up test files on remote
+      community.openwrt.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/copied_test_file.txt
+        - /tmp/content_test.txt
+
+    - name: Clean up test file on controller
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: /tmp/openwrt_test_file.txt
+        state: absent
