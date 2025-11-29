@@ -18,7 +18,7 @@
     update_cache: true
   register: _update
   when: not _opkg_lists.stat.exists or
-      _epoch.stdout|int - _opkg_lists.stat.mtime > 86400
+    _epoch.stdout|int - _opkg_lists.stat.mtime > 86400
   failed_when: not _opkg_lists.stat.exists and _update.failed
   changed_when: not _update.failed
 

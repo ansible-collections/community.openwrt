@@ -5,11 +5,13 @@
 This role performs essential initialization tasks for using the `community.openwrt` collection:
 
 1. **Configures Ansible connection settings**:
+
    - Sets `ansible_remote_tmp` to `/tmp` to avoid flash wear on OpenWRT devices
    - Configures `ansible_ssh_transfer_method` to use SCP instead of SFTP (OpenWRT does not have SFTP by default)
    - Sets appropriate SSH connection options
 
 2. **Installs recommended packages** (optional):
+
    - `coreutils-base64` - For Base64 encoding/decoding
    - `coreutils-md5sum` - For MD5 checksums
    - `coreutils-sha1sum` - For SHA1 checksums
