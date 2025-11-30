@@ -93,6 +93,7 @@ TBD
 ## Using this collection
 
 <!--Include some quick examples that cover the most common use cases for your collection content. It can include the following examples of installation and upgrade (change community.openwrt correspondingly):-->
+TBD
 
 ### Installing the Collection from Ansible Galaxy
 
