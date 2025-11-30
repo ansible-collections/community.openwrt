@@ -103,8 +103,8 @@ class ActionModule(ActionBase):
         """Create a temporary file with the given content"""
         import tempfile
 
-        # Create temp file
-        fd, content_tempfile = tempfile.mkstemp(dir=self._loader.get_basedir())
+        # Create temp file in system temp directory
+        fd, content_tempfile = tempfile.mkstemp()
 
         # Write content to it
         with open(fd, "wb") as f:
