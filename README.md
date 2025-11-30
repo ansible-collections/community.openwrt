@@ -83,7 +83,13 @@ TBD
 ## External requirements
 
 <!-- List any external resources the collection depends on, for example minimum versions of an OS, libraries, or utilities. Do not list other Ansible collections here. -->
-TBD
+
+The collection is currently tested against OpenWRT versions:
+
+* 21.02
+* 22.03
+* 23.05
+* 24.10
 
 ## Included content
 
