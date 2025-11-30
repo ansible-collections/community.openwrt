@@ -175,12 +175,12 @@ jobs:
           - devel
         # - milestone
         python:
-          - '3.8'
           - '3.9'
           - '3.10'
           - '3.11'
           - '3.12'
           - '3.13'
+          - '3.14'
         include:
           # Add new versions announced in
           # https://github.com/ansible-collections/news-for-maintainers in a timely manner,
@@ -211,6 +211,32 @@ jobs:
             python: '3.12'
           - ansible: stable-2.18
             python: '3.13'
+          # ansible-core 2.19
+          - ansible: stable-2.19
+            python: '3.8'
+          - ansible: stable-2.19
+            python: '3.9'
+          - ansible: stable-2.19
+            python: '3.10'
+          - ansible: stable-2.19
+            python: '3.11'
+          - ansible: stable-2.19
+            python: '3.12'
+          - ansible: stable-2.19
+            python: '3.13'
+          # ansible-core 2.20
+          - ansible: stable-2.20
+            python: '3.9'
+          - ansible: stable-2.20
+            python: '3.10'
+          - ansible: stable-2.20
+            python: '3.11'
+          - ansible: stable-2.20
+            python: '3.12'
+          - ansible: stable-2.20
+            python: '3.13'
+          - ansible: stable-2.20
+            python: '3.14'
 
 
     steps:
