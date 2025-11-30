@@ -2,19 +2,18 @@
 - name: Converge
   hosts: all
   gather_facts: false
+  roles:
+    - role: community.openwrt.setup
+      vars:
+        openwrt_install_recommended_packages: true
   tasks:
-    - name: "Create /var/lock for opkg"
-      ansible.builtin.raw: "mkdir -p /var/lock"
+    - name: Create /var/lock for opkg
+      community.openwrt.command:
+        cmd: mkdir -p /var/lock
       changed_when: false
 
-    - name: "Include community.openwrt.setup role"
-      ansible.builtin.include_role:
-        name: community.openwrt.setup
-
-    - name: "Gather facts using community.openwrt.setup"
-      community.openwrt.setup:
-      register: setup_result
-
-    - name: "Display gathered facts"
-      ansible.builtin.debug:
-        var: setup_result
+    - name: Test connection after setup
+      community.openwrt.command:
+        cmd: uname
+      register: hostname_result
+      changed_when: false
