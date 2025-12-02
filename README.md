@@ -1,4 +1,4 @@
-# Community OpenWRT Collection
+# Community OpenWrt Collection
 
 <!-- Add CI and code coverage badges here. Samples included below. -->
 
@@ -11,7 +11,10 @@
 <!-- Put your collection's mission statement in here. Example follows. -->
 
 At the `community.openwrt`, our mission is to produce and maintain simple, flexible,
-and powerful open-source software tailored to manage and support OpenWRT devices.
+and powerful open-source software tailored to manage and support [OpenWrt](https://openwrt.org/) devices.
+
+This collection is originally based on the role `gekmihesg.openwrt`, maintained by [Markus Weippert](https://github.com/gekmihesg) until 2022.
+We acknowledge and we are grateful for the time and effort he dispensed to maintain that role over the years.
 
 We welcome members from all skill levels to participate actively in our open, inclusive, and vibrant community.
 Whether you are an expert or just beginning your journey with Ansible and `community.openwrt`,
