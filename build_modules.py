@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Build script to generate wrapped shell modules.
 
