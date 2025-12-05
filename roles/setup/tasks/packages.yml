@@ -1,0 +1,43 @@
+---
+- name: Check whether opkg caches need update
+  community.openwrt.stat:
+    path: "{{ openwrt_remote_opkg_lists_dir }}"
+  register: _opkg_lists
+
+- name: Get current system time
+  community.openwrt.command:
+    cmd: date +%s
+  register: _epoch
+  check_mode: false
+  changed_when: false
+  when: _opkg_lists.stat.exists
+
+- name: Update opkg cache
+  community.openwrt.opkg:
+    name: opkg
+    update_cache: true
+  register: _update
+  when: not _opkg_lists.stat.exists or
+    _epoch.stdout|int - _opkg_lists.stat.mtime > 86400
+  failed_when: not _opkg_lists.stat.exists and _update.failed
+  changed_when: not _update.failed
+
+- name: Check for openssl
+  community.openwrt.command:
+    cmd: which openssl
+  register: _openssl
+  check_mode: false
+  changed_when: false
+  failed_when: false
+
+- name: Install recommended packages if openssl is not available
+  ansible.builtin.include_tasks: package.yml
+  with_dict:
+    base64: coreutils-base64
+    md5sum: coreutils-md5sum
+    sha1sum: coreutils-sha1sum
+  when: _openssl.rc != 0
+
+- name: Avoid re-checking of packages
+  ansible.builtin.set_fact:
+    openwrt_install_recommended_packages: false

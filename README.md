@@ -1,5 +1,7 @@
-# Community OpenWRT Collection
+# Community OpenWrt Collection
+
 <!-- Add CI and code coverage badges here. Samples included below. -->
+
 [![CI](https://github.com/ansible-collections/community.openwrt/workflows/CI/badge.svg?event=push)](https://github.com/ansible-collections/community.openwrt/actions) [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.openwrt)](https://codecov.io/gh/ansible-collections/community.openwrt)
 
 <!-- Describe the collection and why a user would want to use it. What does the collection do? -->
@@ -9,7 +11,10 @@
 <!-- Put your collection's mission statement in here. Example follows. -->
 
 At the `community.openwrt`, our mission is to produce and maintain simple, flexible,
-and powerful open-source software tailored to manage and support OpenWRT devices.
+and powerful open-source software tailored to manage and support [OpenWrt](https://openwrt.org/) devices.
+
+This collection is originally based on the role `gekmihesg.openwrt`, maintained by [Markus Weippert](https://github.com/gekmihesg) until 2022.
+We acknowledge and we are grateful for the time and effort he dispensed to maintain that role over the years.
 
 We welcome members from all skill levels to participate actively in our open, inclusive, and vibrant community.
 Whether you are an expert or just beginning your journey with Ansible and `community.openwrt`,
@@ -27,12 +32,12 @@ If you encounter abusive behavior, please refer to the [policy violations](https
 If your collection is not present on the Ansible forum yet, please check out the existing [tags](https://forum.ansible.com/tags) and [groups](https://forum.ansible.com/g) - use what suits your collection. If there is no appropriate tag and group yet, please [request one](https://forum.ansible.com/t/requesting-a-forum-group/503/17).
 -->
 
-* Join the Ansible forum:
-  * [Get Help](https://forum.ansible.com/c/help/6): get help or help others. Please add appropriate tags if you start new discussions, for example the `YOUR TAG` tag.
-  * [Posts tagged with 'your tag'](https://forum.ansible.com/tag/YOUR_TAG): subscribe to participate in collection/technology-related conversations.
-  * [Refer to your forum group here if exists](https://forum.ansible.com/g/): by joining the team you will automatically get subscribed to the posts tagged with [your group forum tag here](https://forum.ansible.com/tags).
-  * [Social Spaces](https://forum.ansible.com/c/chat/4): gather and interact with fellow enthusiasts.
-  * [News & Announcements](https://forum.ansible.com/c/news/5): track project-wide announcements including social events. The [Bullhorn newsletter](https://docs.ansible.com/ansible/devel/community/communication.html#the-bullhorn), which is used to announce releases and important changes, can also be found here.
+- Join the Ansible forum:
+  - [Get Help](https://forum.ansible.com/c/help/6): get help or help others. Please add appropriate tags if you start new discussions, for example the `YOUR TAG` tag.
+  - [Posts tagged with 'your tag'](https://forum.ansible.com/tag/YOUR_TAG): subscribe to participate in collection/technology-related conversations.
+  - [Refer to your forum group here if exists](https://forum.ansible.com/g/): by joining the team you will automatically get subscribed to the posts tagged with [your group forum tag here](https://forum.ansible.com/tags).
+  - [Social Spaces](https://forum.ansible.com/c/chat/4): gather and interact with fellow enthusiasts.
+  - [News & Announcements](https://forum.ansible.com/c/news/5): track project-wide announcements including social events. The [Bullhorn newsletter](https://docs.ansible.com/ansible/devel/community/communication.html#the-bullhorn), which is used to announce releases and important changes, can also be found here.
 
 For more information about communication, see the [Ansible communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
 
@@ -50,9 +55,9 @@ Want to submit code changes? Take a look at the [Quick-start development guide](
 
 We also use the following guidelines:
 
-* [Collection review checklist](https://docs.ansible.com/ansible/devel/community/collection_contributors/collection_reviewing.html)
-* [Ansible development guide](https://docs.ansible.com/ansible/devel/dev_guide/index.html)
-* [Ansible collection development guide](https://docs.ansible.com/ansible/devel/dev_guide/developing_collections.html#contributing-to-collections)
+- [Collection review checklist](https://docs.ansible.com/ansible/devel/community/collection_contributors/collection_reviewing.html)
+- [Ansible development guide](https://docs.ansible.com/ansible/devel/dev_guide/index.html)
+- [Ansible collection development guide](https://docs.ansible.com/ansible/devel/dev_guide/developing_collections.html#contributing-to-collections)
 
 ## Collection maintenance
 
@@ -62,8 +67,8 @@ To learn how to maintain/become a maintainer of this collection, refer to the [M
 
 It is necessary for maintainers of this collection to be subscribed to:
 
-* The collection itself (the `Watch` button -> `All Activity` in the upper right corner of the repository's homepage).
-* The [news-for-maintainers repository](https://github.com/ansible-collections/news-for-maintainers).
+- The collection itself (the `Watch` button -> `All Activity` in the upper right corner of the repository's homepage).
+- The [news-for-maintainers repository](https://github.com/ansible-collections/news-for-maintainers).
 
 They also should be subscribed to Ansible's [The Bullhorn newsletter](https://docs.ansible.com/ansible/devel/community/communication.html#the-bullhorn).
 
@@ -78,31 +83,51 @@ Every voice is important. If you have something on your mind, create an issue or
 ## Tested with Ansible
 
 <!-- List the versions of Ansible the collection has been tested with. Must match what is in galaxy.yml. -->
+
 TBD
 
 ## External requirements
 
-<!-- List any external resources the collection depends on, for example minimum versions of an OS, libraries, or utilities. Do not list other Ansible collections here. -->
-TBD
+The collection is currently tested against OpenWRT versions:
+
+- 21.02
+- 22.03
+- 23.05
+- 24.10
+
+### SSH Connection Limitations
+
+OpenWRT versions prior to 24.10 have Dropbear SSH servers that are incompatible with modern SSH clients (OpenSSH 9.6+). While versions 22.03 and 23.05 have CVE-2023-48795 security patches backported, these patches do not provide full protocol compatibility with newer SSH clients.
+
+**Testing methodology:**
+
+- OpenWRT 24.10: SSH connections
+- OpenWRT 21.02, 22.03, 23.05: Docker connections (SSH incompatible)
+
+**Deprecation notice:** Support for OpenWRT versions prior to 24.10 will be removed in a future release due to SSH incompatibility.
 
 ## Included content
 
 <!-- Galaxy now usually displays full module and plugin docs within the UI. If you don't use Galaxy for your collection, you may need to either describe your plugins etc here, or point to an external docsite to cover that information. -->
+
 TBD
 
 ## Using this collection
 
 <!--Include some quick examples that cover the most common use cases for your collection content. It can include the following examples of installation and upgrade (change community.openwrt correspondingly):-->
+
 TBD
 
 ### Installing the Collection from Ansible Galaxy
 
 Before using this collection, you need to install it with the Ansible Galaxy command-line tool:
+
 ```bash
 ansible-galaxy collection install community.openwrt
 ```
 
 You can also include it in a `requirements.yml` file and install it with `ansible-galaxy collection install -r requirements.yml`, using the format:
+
 ```yaml
 ---
 collections:
@@ -110,6 +135,7 @@ collections:
 ```
 
 Note that if you install the collection from Ansible Galaxy, it will not be upgraded automatically when you upgrade the `ansible` package. To upgrade the collection to the latest available version, run the following command:
+
 ```bash
 ansible-galaxy collection install community.openwrt --upgrade
 ```
@@ -129,6 +155,7 @@ See the [changelog](https://github.com/ansible-collections/community.openwrt/tre
 ## Roadmap
 
 <!-- Optional. Include the roadmap for this collection, and the proposed release/versioning strategy so users can anticipate the upgrade/update cycle. -->
+
 There is no roadmap for this collection at this moment. One should be created and published if community feedback shows an appetite for it.
 
 ## More information

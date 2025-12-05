@@ -1,0 +1,28 @@
+---
+# Common handlers for OpenWRT operations
+# These handlers are available to any role that depends on community.openwrt.common
+
+- name: Setup wifi
+  community.openwrt.nohup:
+    command: /sbin/wifi
+    delay: 1
+
+- name: Reload wifi
+  community.openwrt.nohup:
+    command: /sbin/wifi reload
+    delay: 1
+
+- name: Restart network
+  community.openwrt.nohup:
+    command: /etc/init.d/network restart
+    delay: 1
+
+- name: Wait for connection
+  ansible.builtin.wait_for_connection:
+    timeout: "{{ openwrt_wait_for_connection_timeout | default(600) }}"
+    delay: 5
+  when: openwrt_wait_for_connection | default(true)
+  listen:
+    - Setup wifi
+    - Reload wifi
+    - Restart network

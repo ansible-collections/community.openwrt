@@ -1,0 +1,79 @@
+---
+# Copyright (c) 2017 Markus Weippert
+# GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION:
+  module: opkg
+  short_description: Manage packages with opkg on OpenWrt
+  description:
+    - The M(community.openwrt.opkg) module manages packages on OpenWrt using the opkg package manager.
+    - It can install, remove, and update packages.
+  author: Markus Weippert (@gekmihesg)
+  options:
+    name:
+      description:
+        - Name of the package(s) to install or remove.
+        - Multiple packages can be specified as a comma-separated list.
+      type: str
+      required: true
+      aliases:
+        - pkg
+    state:
+      description:
+        - Whether the package should be installed or removed.
+      type: str
+      choices:
+        - absent
+        - installed
+        - present
+        - removed
+      default: present
+    force:
+      description:
+        - Force option to pass to opkg.
+        - Valid values include V(depends), V(maintainer), V(reinstall), V(overwrite), V(downgrade), V(space), V(postinstall), V(remove), V(checksum), V(removal-of-dependent-packages).
+      type: str
+    update_cache:
+      description:
+        - Update the package cache (C(opkg update)) before performing the operation.
+      type: bool
+    autoremove:
+      description:
+        - Remove dependencies that are no longer required when removing a package.
+      type: bool
+    nodeps:
+      description:
+        - Do not follow dependencies.
+      type: bool
+  notes:
+    - This module is designed for OpenWrt devices without Python installed.
+
+EXAMPLES: |
+  - name: Install a package
+    community.openwrt.opkg:
+      name: vim
+      state: present
+
+  - name: Remove a package
+    community.openwrt.opkg:
+      name: vim
+      state: absent
+
+  - name: Install multiple packages
+    community.openwrt.opkg:
+      name: vim,curl,wget
+      state: present
+
+  - name: Update cache and install package
+    community.openwrt.opkg:
+      name: nginx
+      state: present
+      update_cache: true
+
+  - name: Force reinstall a package
+    community.openwrt.opkg:
+      name: busybox
+      state: present
+      force: reinstall
+
+RETURN: {}

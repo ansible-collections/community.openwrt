@@ -1,0 +1,27 @@
+---
+# Whether to install recommended packages (coreutils-sha1sum, coreutils-base64, etc.)
+# for better module compatibility
+openwrt_install_recommended_packages: true
+
+# Whether to wait for connection after network/wifi restart
+openwrt_wait_for_connection: true
+openwrt_wait_for_connection_timeout: 600
+
+# SSH/SCP helper variables for manual operations
+openwrt_ssh: "{{ ansible_ssh_executable | default('ssh') }} {{ ansible_ssh_common_args | default('') }} {{ ansible_ssh_extra_args | default('') }}"
+openwrt_scp: "{{ ansible_scp_executable | default('scp') }} {{ ansible_scp_common_args | default('') }} {{ ansible_scp_extra_args | default('') }}"
+openwrt_ssh_host: "{{ ansible_host | default(ansible_ssh_host | default(inventory_hostname)) }}"
+openwrt_ssh_user: "{{ ansible_user | default(ansible_ssh_user | default('root')) }}"
+
+# Use SCP instead of SFTP (OpenWRT doesn't have SFTP by default)
+openwrt_scp_if_ssh: smart
+openwrt_ssh_transfer_method: "{{ 'smart' if openwrt_scp_if_ssh == 'smart' else openwrt_scp_if_ssh | ternary('scp', 'sftp') }}"
+
+# Disable SSH TTY allocation
+openwrt_ssh_use_tty: false
+
+# Use /tmp for remote temporary files to avoid flash wear
+openwrt_remote_tmp: /tmp
+
+# Directory for opkg package lists cache
+openwrt_remote_opkg_lists_dir: /tmp/opkg-lists

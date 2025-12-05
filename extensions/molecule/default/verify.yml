@@ -1,0 +1,128 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  roles:
+    - role: community.openwrt.setup
+      vars:
+        openwrt_install_recommended_packages: false
+  tasks:
+    - name: Retrieve /etc/os-release
+      community.openwrt.slurp:
+        src: /etc/os-release
+      register: os_release_slurp
+
+    - name: Populate fact os_release
+      ansible.builtin.set_fact:
+        os_release: >-
+          {{
+            _os_release_dict.keys() | map('lower')
+            | zip(_os_release_dict.values())
+            | items2dict(key_name=0, value_name=1)
+          }}
+      vars:
+        _os_release_lines: "{{ os_release_slurp['content'] | b64decode | split('\n') }}"
+        _os_release_split: "{{ _os_release_lines | map('regex_search', '^([A-Z_0-9]+)=\"(.*)\"$', '\\1', '\\2') | reject('none') }}"
+        _os_release_dict: "{{ dict(_os_release_split) }}"
+
+    - name: Run simple command
+      community.openwrt.command:
+        cmd: "echo Holy canole,    it\\'s {{ os_release.name }}"
+      register: holy_canole
+      changed_when: false
+
+    - name: Assert Canole
+      ansible.builtin.assert:
+        that:
+          - holy_canole.stdout.startswith("Holy canole, it's OpenWrt")
+
+    - name: Read UCI
+      community.openwrt.uci:
+        command: get
+        key: dhcp.@dnsmasq[0].domainneeded
+      register: uci_dhcp_domainneeded
+
+    - name: Assert UCI can retrieve DHCP config
+      ansible.builtin.assert:
+        that:
+          - uci_dhcp_domainneeded.result == "1"
+
+    - name: Verify opkg is available
+      community.openwrt.command:
+        cmd: which opkg
+      register: opkg_result
+      changed_when: false
+
+    - name: Verify recommended packages were installed
+      community.openwrt.command:
+        cmd: sh -c '[ -x /bin/base64 ] && [ -x /usr/bin/sha1sum ]'
+      changed_when: false
+
+    - name: Create test file on controller
+      delegate_to: localhost
+      ansible.builtin.copy:
+        content: |
+          This is a test file created by Molecule.
+          Timestamp: {{ ansible_date_time.iso8601 | default('N/A') }}
+          Device: {{ inventory_hostname }}
+        dest: /tmp/openwrt_test_file.txt
+        mode: '0644'
+
+    - name: Copy test file to remote using community.openwrt.copy
+      community.openwrt.copy:
+        src: /tmp/openwrt_test_file.txt
+        dest: /tmp/copied_test_file.txt
+        mode: '0600'
+      register: copy_result
+
+    - name: Assert copy was successful
+      ansible.builtin.assert:
+        that:
+          - copy_result is changed
+          - copy_result.dest == '/tmp/copied_test_file.txt'
+
+    - name: Slurp copied file to verify content
+      community.openwrt.slurp:
+        src: /tmp/copied_test_file.txt
+      register: copied_content
+
+    - name: Assert copied file contains expected content
+      ansible.builtin.assert:
+        that:
+          - "'This is a test file created by Molecule' in (copied_content['content'] | b64decode)"
+
+    - name: Test copy with content parameter
+      community.openwrt.copy:
+        content: "Direct content test\n"
+        dest: /tmp/content_test.txt
+      register: content_copy_result
+
+    - name: Assert content copy was successful
+      ansible.builtin.assert:
+        that:
+          - content_copy_result is changed
+
+    - name: Verify content from content parameter
+      community.openwrt.command:
+        cmd: cat /tmp/content_test.txt
+      register: content_cat
+      changed_when: false
+
+    - name: Assert content matches
+      ansible.builtin.assert:
+        that:
+          - content_cat.stdout == "Direct content test"
+
+    - name: Clean up test files on remote
+      community.openwrt.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/copied_test_file.txt
+        - /tmp/content_test.txt
+
+    - name: Clean up test file on controller
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: /tmp/openwrt_test_file.txt
+        state: absent

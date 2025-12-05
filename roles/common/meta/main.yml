@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Markus Weippert
+  description: Common handlers for OpenWRT collection
+  company: community
+
+  license: GPL-3.0-or-later
+
+  min_ansible_version: "2.9"
+
+  platforms:
+    - name: OpenWrt
+      versions:
+        - all
+
+  galaxy_tags: []
+
+dependencies: []

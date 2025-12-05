@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: Alexei Znamensky, Markus Weippert
+  description: Configure Ansible for managing OpenWRT devices without Python
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.17'
+  platforms:
+    - name: GenericLinux
+  galaxy_tags:
+    - openwrt
+    - networking
+    - router
+
+dependencies:
+  - role: community.openwrt.common

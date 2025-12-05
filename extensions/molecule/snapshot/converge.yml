@@ -1,0 +1,20 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: "Create /var/lock for opkg"
+      ansible.builtin.raw: "mkdir -p /var/lock"
+      changed_when: false
+
+    - name: "Include community.openwrt.setup role"
+      ansible.builtin.include_role:
+        name: community.openwrt.setup
+
+    - name: "Gather facts using community.openwrt.setup"
+      community.openwrt.setup:
+      register: setup_result
+
+    - name: "Display gathered facts"
+      ansible.builtin.debug:
+        var: setup_result

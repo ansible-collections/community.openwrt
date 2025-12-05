@@ -1,0 +1,19 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: false
+  roles:
+    - role: community.openwrt.setup
+      vars:
+        openwrt_install_recommended_packages: true
+  tasks:
+    - name: Create /var/lock for opkg
+      community.openwrt.command:
+        cmd: mkdir -p /var/lock
+      changed_when: false
+
+    - name: Test connection after setup
+      community.openwrt.command:
+        cmd: uname
+      register: hostname_result
+      changed_when: false
