@@ -1,0 +1,60 @@
+---
+# Copyright (c) 2017 Markus Weippert
+# GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION:
+  module: stat
+  short_description: Retrieve file or file system status on OpenWrt targets
+  description:
+    - The M(community.openwrt.stat) module retrieves facts about files similar to the Linux stat command.
+    - It returns detailed information about file properties including permissions, ownership, size, and timestamps.
+  author: Markus Weippert (@gekmihesg)
+  options:
+    path:
+      description:
+        - The full path of the file/directory to get the facts of.
+      type: str
+      required: true
+    checksum_algorithm:
+      description:
+        - Algorithm to use for checksumming the file.
+      type: str
+      choices:
+        - md5
+        - sha1
+        - sha224
+        - sha256
+        - sha384
+        - sha512
+      default: sha1
+      aliases:
+        - checksum_algo
+        - checksum
+    get_checksum:
+      description:
+        - Whether to get the checksum of the file.
+        - Uses the algorithm specified in O(checksum_algorithm).
+      type: bool
+      default: true
+    get_md5:
+      description:
+        - Whether to get the MD5 checksum of the file.
+      type: bool
+      default: true
+    get_mime:
+      description:
+        - Whether to get the MIME type of the file.
+        - Note that this is not fully implemented and returns V(unknown).
+      type: bool
+      default: true
+    follow:
+      description:
+        - Whether to follow symlinks.
+      type: bool
+  notes:
+    - This module is designed for OpenWrt devices without Python installed.
+  supports_check_mode: true
+
+EXAMPLES: |
+
+RETURN:

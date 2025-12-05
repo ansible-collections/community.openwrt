@@ -1,0 +1,56 @@
+---
+# Copyright (c) 2021 Markus Weippert
+# GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION:
+  module: command
+  short_description: Execute commands on OpenWrt targets
+  description:
+    - The M(community.openwrt.command) module runs a command on the remote OpenWrt device.
+    - The command is executed directly or through a shell depending on the O(uses_shell) parameter.
+    - This module does not support check mode.
+  author: Markus Weippert (@gekmihesg)
+  options:
+    cmd:
+      description:
+        - The command to execute.
+        - Unlike M(ansible.builtin.command), this module does not allow free-form parameters.
+          You B(must) use the O(cmd) parameter.
+      type: str
+      required: true
+      aliases:
+        - raw_params
+        - _raw_params
+    uses_shell:
+      description:
+        - Whether to execute the command through a shell.
+        - If V(false), the command is executed directly.
+        - If V(true), the command is executed through the shell specified in O(executable).
+      type: bool
+      default: false
+      aliases:
+        - _uses_shell
+    chdir:
+      description:
+        - Change into this directory before running the command.
+      type: str
+    executable:
+      description:
+        - The shell to use when O(uses_shell) is V(true).
+        - Defaults to C(/bin/sh).
+      type: str
+    creates:
+      description:
+        - A filename or glob pattern.
+        - If it already exists, the command does not run.
+      type: str
+    removes:
+      description:
+        - A filename or glob pattern.
+        - If it does not exist, the command does not run.
+      type: str
+  notes:
+    - This module was crafted for OpenWrt devices with no Python installed, it uses shell scripts instead.
+
+EXAMPLES:
+RETURN:

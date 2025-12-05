@@ -1,0 +1,64 @@
+---
+# Copyright (c) 2017 Markus Weippert
+# GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION:
+  module: sysctl
+  short_description: Manage sysctl entries on OpenWrt targets
+  description:
+    - The M(community.openwrt.sysctl) module manages sysctl configuration on OpenWrt systems.
+    - It can modify both the running kernel parameters and the persistent configuration file.
+  author: Markus Weippert (@gekmihesg)
+  options:
+    name:
+      description:
+        - The sysctl key to manage.
+      type: str
+      required: true
+      aliases:
+        - key
+    value:
+      description:
+        - The value to set for the sysctl key.
+        - Required when O(state=present).
+      type: str
+      aliases:
+        - val
+    state:
+      description:
+        - Whether the sysctl entry should be present or absent in the configuration file.
+      type: str
+      choices:
+        - absent
+        - present
+      default: present
+    sysctl_file:
+      description:
+        - The sysctl configuration file to modify.
+      type: str
+      default: /etc/sysctl.conf
+    sysctl_set:
+      description:
+        - Whether to set the value in the running kernel.
+        - If V(false), only the configuration file is modified.
+      type: bool
+      default: false
+    reload:
+      description:
+        - Whether to reload the sysctl configuration after making changes.
+        - Only applies when O(state=present).
+      type: bool
+      default: true
+    ignore_errors:
+      description:
+        - Ignore errors when the sysctl key is unknown.
+      type: bool
+      aliases:
+        - ignoreerrors
+  notes:
+    - This module is designed for OpenWrt devices without Python installed.
+  supports_check_mode: true
+
+EXAMPLES: |
+
+RETURN:

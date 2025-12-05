@@ -1,0 +1,21 @@
+---
+# Copyright (c) 2017 Markus Weippert
+# GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
+
+DOCUMENTATION:
+  module: setup
+  short_description: Gather facts about OpenWrt systems
+  description:
+    - The M(community.openwrt.setup) module gathers facts about OpenWrt systems.
+    - It collects system information including distribution details, hostname, network interfaces, services, and device information through ubus.
+    - This module is automatically called by playbooks to gather useful variables about remote hosts.
+  author: Markus Weippert (@gekmihesg)
+  options: {}
+  notes:
+    - This module is designed for OpenWrt devices without Python installed.
+    - This module gathers OpenWrt-specific facts including C(ubus) data for network interfaces, devices, services, and system information.
+    - Facts are returned in the RV(ansible_facts) namespace.
+
+EXAMPLES: |
+
+RETURN:
