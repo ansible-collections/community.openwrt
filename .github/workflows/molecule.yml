@@ -106,6 +106,7 @@ jobs:
               with:
                   python-version: ${{ matrix.python }}
                   cache: "pip"
+                  cache-dependency-path: requirements-test.txt
 
             - name: Install ansible-core (${{ matrix.ansible }})
               run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
