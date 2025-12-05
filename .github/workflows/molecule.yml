@@ -46,22 +46,12 @@ jobs:
                 include:
                     # ansible-core 2.17
                     - ansible: stable-2.17
-                      python: "3.8"
-                    # - ansible: stable-2.17
-                    #   python: "3.9"
-                    # - ansible: stable-2.17
-                    #   python: "3.10"
-                    # - ansible: stable-2.17
-                    #   python: "3.11"
-                    # - ansible: stable-2.17
-                    #   python: "3.12"
+                      python: "3.10"
+                    - ansible: stable-2.17
+                      python: "3.11"
+                    - ansible: stable-2.17
+                      python: "3.12"
                     # # ansible-core 2.18
-                    # - ansible: stable-2.18
-                    #   python: "3.8"
-                    # - ansible: stable-2.18
-                    #   python: "3.9"
-                    # - ansible: stable-2.18
-                    #   python: "3.10"
                     # - ansible: stable-2.18
                     #   python: "3.11"
                     # - ansible: stable-2.18
@@ -70,24 +60,12 @@ jobs:
                     #   python: "3.13"
                     # # ansible-core 2.19
                     # - ansible: stable-2.19
-                    #   python: "3.8"
-                    # - ansible: stable-2.19
-                    #   python: "3.9"
-                    # - ansible: stable-2.19
-                    #   python: "3.10"
-                    # - ansible: stable-2.19
                     #   python: "3.11"
                     # - ansible: stable-2.19
                     #   python: "3.12"
                     # - ansible: stable-2.19
                     #   python: "3.13"
                     # # ansible-core 2.20
-                    # - ansible: stable-2.20
-                    #   python: "3.9"
-                    # - ansible: stable-2.20
-                    #   python: "3.10"
-                    # - ansible: stable-2.20
-                    #   python: "3.11"
                     # - ansible: stable-2.20
                     #   python: "3.12"
                     # - ansible: stable-2.20
@@ -106,14 +84,13 @@ jobs:
               with:
                   python-version: ${{ matrix.python }}
                   cache: "pip"
-                  cache-dependency-path: requirements-test.txt
 
             - name: Install ansible-core (${{ matrix.ansible }})
               run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
             - name: Install test dependencies
               working-directory: ansible_collections/community/openwrt
-              run: pip install -r requirements-test.txt --disable-pip-version-check
+              run: pip install -r requirements.txt --disable-pip-version-check
 
             - name: Install collection dependencies
               working-directory: ansible_collections/community/openwrt
