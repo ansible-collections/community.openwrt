@@ -32,3 +32,5 @@ build_ignore:
   - extensions/
   - Pipfile
   - Pipfile.lock
+  - build_templates/
+  - source_modules/
