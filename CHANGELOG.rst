@@ -1,5 +1,14 @@
-Will be updated by antsibull-changelog. Do not edit this manually!
+====================================================
+CHANGE THIS IN changelogs/config.yaml! Release Notes
+====================================================
 
-See https://ansible.readthedocs.io/projects/antsibull-changelog/changelogs/ for information on how to use antsibull-changelog.
+.. contents:: Topics
 
-Check out ``changelogs/config.yaml`` for its configuration. You need to change at least the ``title`` field in there.
+v0.1.0
+======
+
+Release Summary
+---------------
+
+This is the first release of the ``community.openwrt`` collection.
+The code in this collection was mostly brought over from gekmihesg.openwrt (Ansible role).
