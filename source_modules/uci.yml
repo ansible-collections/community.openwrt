@@ -6,7 +6,7 @@ DOCUMENTATION:
   module: uci
   short_description: Controls OpenWRTs UCI
   description:
-    - The M(uci) module is a Ansible wrapper for OpenWRTs C(uci).
+    - The M(community.openwrt.uci) module is a Ansible wrapper for OpenWRTs C(uci).
     - It supports all the command line functionality plus some extra commands.
   author: Markus Weippert (@gekmihesg)
   options:
@@ -155,7 +155,7 @@ RETURN:
   result:
     description: output of the C(uci) command
     returned: always
-    type: string
+    type: str
     sample: cfg12523
   result_list:
     description: the list form of result
@@ -165,20 +165,20 @@ RETURN:
   config:
     description: config part of I(key)
     returned: when given
-    type: string
+    type: str
     sample: wireless
   section:
     description: section part of I(key)
     returned: when given
-    type: string
+    type: str
     sample: "@wifi-iface[0]"
   option:
     description: option part of I(key)
     returned: when given
-    type: string
+    type: str
     sample: ssid
   command:
     description: command executed
     returned: always
-    type: string
+    type: str
     sample: section

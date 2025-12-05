@@ -5,6 +5,7 @@ This script reads the shell modules and wrapper.sh, then creates wrapped
 versions that combine them. The wrapped modules are what get included in
 the collection distribution.
 """
+
 from __future__ import annotations
 
 import shutil
@@ -22,7 +23,7 @@ def build_wrapped_modules():
 
     # Read the wrapper
     print(f"Reading wrapper from: {wrapper_path}")
-    with open(wrapper_path, 'r') as f:
+    with open(wrapper_path, "r") as f:
         wrapper_content = f.read()
 
     # Create modules directory
@@ -37,29 +38,29 @@ def build_wrapped_modules():
         print(f"  Wrapping {module_path.name}...")
 
         # Read the module
-        with open(module_path, 'r') as f:
+        with open(module_path, "r") as f:
             module_content = f.read()
 
         # Inject the module into the wrapper at the `. "$_script"` line
         wrapped_content = wrapper_content.replace(
-            '\n. "$_script"\n',
-            '\n' + module_content + '\n'
+            '\n. "$_script"\n', "\n" + module_content + "\n"
         )
 
         # Write the wrapped module to plugins/modules
         output_path = modules_dir / module_path.name
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             f.write(wrapped_content)
-
-        # Make it executable
-        output_path.chmod(0o755)
 
         print(f"    Created: {output_path}")
 
-    # Copy Python modules from source as-is
-    python_modules = list(source_modules_dir.glob("*.py"))
-    print(f"\nCopying {len(python_modules)} Python modules...")
-    for module_path in python_modules:
+    # Copy YAML modules from source as-is
+    other_files = (
+        list(source_modules_dir.glob("*.yml"))
+        + list(source_modules_dir.glob("*.yaml"))
+        + list(source_modules_dir.glob("*.md"))
+    )
+    print(f"\nCopying {len(other_files)} other files...")
+    for module_path in other_files:
         output_path = modules_dir / module_path.name
         shutil.copy2(module_path, output_path)
         print(f"  Copied: {module_path.name}")

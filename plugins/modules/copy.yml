@@ -54,7 +54,7 @@ DOCUMENTATION:
     mode:
       description:
         - Permissions of the destination file or directory.
-        - Can be specified as an octal number (for example, V('0644'), V('1777')) or symbolic mode (for example, V('u+rwx')).
+        - Can be specified as an octal number (for example, V('0644'), V('1777')) or symbolic mode (like V('u+rwx')).
         - When using octal notation, quote the value to ensure it is treated as a string.
         - The module attempts to convert numeric mode values to 4-digit octal format.
         - If not specified, the system default C(umask) determines permissions for new files.
