@@ -20,5 +20,21 @@ DOCUMENTATION:
     - This module does not support check mode.
 
 EXAMPLES: |
+  - name: Test connection to OpenWrt device
+    community.openwrt.ping:
+
+  - name: Test with custom data
+    community.openwrt.ping:
+      data: hello
 
 RETURN:
+  ping:
+    description: Response from the ping module.
+    returned: always
+    type: str
+    sample: pong
+  data:
+    description: The data that was sent to the module.
+    returned: when O(data) is provided
+    type: raw
+    sample: hello

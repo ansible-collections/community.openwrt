@@ -21,8 +21,35 @@ DOCUMENTATION:
   notes:
     - This module is designed for OpenWrt devices without Python installed.
     - The file is base64 encoded, which increases its size by approximately 33%.
-  supports_check_mode: true
 
 EXAMPLES: |
+  - name: Read a configuration file
+    community.openwrt.slurp:
+      src: /etc/config/network
+    register: network_config
+
+  - name: Decode the file content
+    ansible.builtin.debug:
+      msg: "{{ network_config.content | b64decode }}"
+
+  - name: Fetch a file for later use
+    community.openwrt.slurp:
+      src: /etc/dropbear/dropbear_rsa_host_key
+    register: ssh_key
 
 RETURN:
+  source:
+    description: Path to the file that was read.
+    returned: always
+    type: str
+    sample: /etc/config/network
+  content:
+    description: Base64 encoded content of the file.
+    returned: always
+    type: str
+    sample: IyBUaGlzIGlzIGEgdGVzdAo=
+  encoding:
+    description: The encoding used for the content.
+    returned: always
+    type: str
+    sample: base64

@@ -47,8 +47,33 @@ DOCUMENTATION:
       type: bool
   notes:
     - This module is designed for OpenWrt devices without Python installed.
-  supports_check_mode: true
 
 EXAMPLES: |
+  - name: Install a package
+    community.openwrt.opkg:
+      name: vim
+      state: present
 
-RETURN:
+  - name: Remove a package
+    community.openwrt.opkg:
+      name: vim
+      state: absent
+
+  - name: Install multiple packages
+    community.openwrt.opkg:
+      name: vim,curl,wget
+      state: present
+
+  - name: Update cache and install package
+    community.openwrt.opkg:
+      name: nginx
+      state: present
+      update_cache: true
+
+  - name: Force reinstall a package
+    community.openwrt.opkg:
+      name: busybox
+      state: present
+      force: reinstall
+
+RETURN: {}

@@ -76,8 +76,43 @@ DOCUMENTATION:
       type: str
   notes:
     - This module is designed for OpenWrt devices without Python installed.
-  supports_check_mode: true
 
 EXAMPLES: |
+  - name: Create a directory
+    community.openwrt.file:
+      path: /etc/config/custom
+      state: directory
+      mode: '0755'
+
+  - name: Create a symbolic link
+    community.openwrt.file:
+      src: /etc/config/network
+      path: /tmp/network.link
+      state: link
+
+  - name: Remove a file
+    community.openwrt.file:
+      path: /tmp/tempfile
+      state: absent
+
+  - name: Touch a file
+    community.openwrt.file:
+      path: /tmp/touched
+      state: touch
 
 RETURN:
+  path:
+    description: Path to the file or directory.
+    returned: always
+    type: str
+    sample: /etc/config/network
+  state:
+    description: The state of the file or directory.
+    returned: always
+    type: str
+    sample: file
+  appears_binary:
+    description: Whether the file appears to be binary.
+    returned: when O(diff_peek) is specified
+    type: bool
+    sample: false

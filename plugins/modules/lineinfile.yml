@@ -84,8 +84,29 @@ DOCUMENTATION:
       type: bool
   notes:
     - This module is designed for OpenWrt devices without Python installed.
-  supports_check_mode: true
 
 EXAMPLES: |
+  - name: Ensure a line is present in a file
+    community.openwrt.lineinfile:
+      path: /etc/config/network
+      line: "option dns '8.8.8.8'"
 
-RETURN:
+  - name: Replace a line matching a pattern
+    community.openwrt.lineinfile:
+      path: /etc/config/system
+      regex: '^\s*option hostname'
+      line: "option hostname 'newname'"
+
+  - name: Remove lines matching a pattern
+    community.openwrt.lineinfile:
+      path: /etc/config/firewall
+      regex: '^\s*option dest'
+      state: absent
+
+  - name: Insert line after match
+    community.openwrt.lineinfile:
+      path: /etc/hosts
+      line: 192.168.1.100 myhost
+      insertafter: '^127.0.0.1'
+
+RETURN: {}

@@ -36,8 +36,46 @@ DOCUMENTATION:
       type: str
   notes:
     - This module is designed for OpenWrt devices without Python installed.
-  supports_check_mode: true
 
 EXAMPLES: |
+  - name: Start the network service
+    community.openwrt.service:
+      name: network
+      state: started
+
+  - name: Stop the firewall service
+    community.openwrt.service:
+      name: firewall
+      state: stopped
+
+  - name: Restart the dnsmasq service
+    community.openwrt.service:
+      name: dnsmasq
+      state: restarted
+
+  - name: Enable a service to start on boot
+    community.openwrt.service:
+      name: uhttpd
+      enabled: true
+
+  - name: Disable a service from starting on boot
+    community.openwrt.service:
+      name: telnet
+      enabled: false
 
 RETURN:
+  name:
+    description: The name of the service.
+    returned: always
+    type: str
+    sample: network
+  state:
+    description: The current state of the service.
+    returned: when O(state) is specified
+    type: str
+    sample: started
+  enabled:
+    description: Whether the service is enabled to start on boot.
+    returned: when O(enabled) is specified
+    type: str
+    sample: "yes"
