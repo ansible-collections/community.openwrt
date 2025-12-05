@@ -1,4 +1,3 @@
-plugins/action/copy.py action-plugin-docs
 plugins/modules/command.sh shebang
 plugins/modules/command.sh validate-modules:invalid-extension
 plugins/modules/copy.sh shebang
