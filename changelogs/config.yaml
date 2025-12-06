@@ -34,7 +34,7 @@ sections:
   - Bugfixes
 - - known_issues
   - Known Issues
-title: CHANGE THIS IN changelogs/config.yaml!
+title: Community OpenWrt Release Notes
 trivial_section_name: trivial
 use_fqcn: true
 vcs: auto
