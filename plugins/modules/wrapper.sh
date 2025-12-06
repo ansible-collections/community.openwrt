@@ -7,6 +7,15 @@ _params="$1"
 
 . /usr/share/libubox/jshn.sh
 
+# If _script not set via positional arg, try to get it from JSON params
+if [ -z "$_script" ] && [ -f "$_params" ]; then
+    _temp_script=""
+    json_load "$(cat "$_params")"
+    json_get_var _temp_script _openwrt_script 2>/dev/null || true
+    json_cleanup
+    [ -n "$_temp_script" ] && _script="$_temp_script"
+fi
+
 _ANSIBLE_PARAMS="
     _ansible_version/s _ansible_no_log/b _ansible_module_name/s
     _ansible_syslog_facility/s _ansible_socket/s _ansible_verbosity/i

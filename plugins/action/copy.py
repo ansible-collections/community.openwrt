@@ -5,11 +5,12 @@ from __future__ import annotations
 
 from ansible.errors import AnsibleError
 from ansible.module_utils._text import to_bytes
-from ansible.plugins.action import ActionBase
 from ansible.utils.hashing import checksum
 
+from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import OpenwrtActionBase
 
-class ActionModule(ActionBase):
+
+class ActionModule(OpenwrtActionBase):
     """Action plugin for community.openwrt.copy module
 
     Handles file transfer from controller to remote OpenWRT device,
@@ -17,16 +18,15 @@ class ActionModule(ActionBase):
     backup, and other file operations.
     """
 
-    TRANSFERS_FILES = True
-
     def run(self, tmp=None, task_vars=None):
         """Execute the copy action plugin"""
 
         if task_vars is None:
             task_vars = {}
 
-        result = super(ActionModule, self).run(tmp, task_vars)
-        del tmp  # not used
+        # Initialize result from parent class but don't call parent run() yet
+        # We need to handle file transfer first
+        result = {}
 
         source = self._task.args.get("src", None)
         dest = self._task.args.get("dest", None)
@@ -68,35 +68,26 @@ class ActionModule(ActionBase):
             result["msg"] = f"Failed to checksum source file: {e}"
             return result
 
-        # Transfer the file to a temporary location on the remote
+        # Create remote temp directory
         try:
-            tmp_src = self._connection._shell.join_path(
-                self._connection._shell.tmpdir, "source"
-            )
+            tmp_dir = self._make_tmp_path()
+            tmp_src = self._connection._shell.join_path(tmp_dir, "source")
             self._transfer_file(source, tmp_src)
-            self._fixup_perms2((self._connection._shell.tmpdir, tmp_src))
+            self._fixup_perms2([tmp_src])
         except Exception as e:
             result["failed"] = True
             result["msg"] = f"Failed to transfer file: {e}"
             return result
 
         # Update task args to use the transferred file
-        new_module_args = self._task.args.copy()
-        new_module_args["src"] = tmp_src
+        self._task.args = self._task.args.copy()
+        self._task.args["src"] = tmp_src
 
         # Remove content from args if it was used (we've already created the file)
-        new_module_args.pop("content", None)
+        self._task.args.pop("content", None)
 
-        # Execute the shell-based copy module on the remote
-        result.update(
-            self._execute_module(
-                module_name="community.openwrt.copy",
-                module_args=new_module_args,
-                task_vars=task_vars,
-            )
-        )
-
-        return result
+        # Now call parent run() which will handle the wrapper mechanism
+        return super(ActionModule, self).run(tmp, task_vars)
 
     def _create_content_tempfile(self, content):
         """Create a temporary file with the given content"""
