@@ -27,10 +27,7 @@ class OpenwrtActionBase(ActionBase):
         result = super(OpenwrtActionBase, self).run(tmp, task_vars)
         del tmp  # not used directly
 
-        # Get the module name (e.g., 'uci' from 'community.openwrt.uci')
         module_name = self._task.action.split('.')[-1]
-
-        # Find the module script file
         try:
             module_script_path = self._find_module_script(module_name)
         except Exception as e:
@@ -38,10 +35,10 @@ class OpenwrtActionBase(ActionBase):
             result["msg"] = f"Failed to find module script: {e}"
             return result
 
-        # Transfer the module script to remote temp location
         try:
-            # Create remote temp directory
-            tmp_dir = self._make_tmp_path()
+            tmpdir = self._connection._shell.tmpdir
+            if tmpdir is None:
+                tmp_dir = self._make_tmp_path()
             remote_script = self._connection._shell.join_path(tmp_dir, f"{module_name}.sh")
             self._transfer_file(module_script_path, remote_script)
             self._fixup_perms2([remote_script])
@@ -50,11 +47,8 @@ class OpenwrtActionBase(ActionBase):
             result["msg"] = f"Failed to transfer module script: {e}"
             return result
 
-        # Prepare module args - add the script path for wrapper.sh
         module_args = self._task.args.copy()
         module_args["_openwrt_script"] = remote_script
-
-        # Execute wrapper.sh which will source and run the actual module
         result.update(
             self._execute_module(
                 module_name="community.openwrt.wrapper",
@@ -67,10 +61,9 @@ class OpenwrtActionBase(ActionBase):
 
     def _find_module_script(self, module_name):
         """Find the module's .sh file in the collection"""
-        # __file__ is at plugins/plugin_utils/openwrt_action.py
-        # We need to go to plugins/modules from here
-        plugin_utils_dir = os.path.dirname(os.path.abspath(__file__))  # plugins/plugin_utils
-        plugins_dir = os.path.dirname(plugin_utils_dir)  # plugins
+        plugins_dir = os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__))
+        )
         modules_dir = os.path.join(plugins_dir, "modules")
         module_path = os.path.join(modules_dir, f"{module_name}.sh")
 
