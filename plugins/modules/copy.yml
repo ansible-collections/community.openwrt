@@ -19,21 +19,21 @@ DOCUMENTATION:
         - Can be absolute or relative.
         - When relative, the file is searched in the C(files/) directory of the role or playbook.
         - Only regular files are supported. Directories cannot be copied recursively.
-        - Do not specify together with I(content) (only one is used if both are provided).
+        - Do not specify together with O(content) (only one is used if both are provided).
       type: path
     content:
       description:
-        - When used instead of I(src), sets the contents of a file directly to the specified value.
-        - Works only when I(dest) is a file. Creates the file if it does not exist.
-        - Do not specify together with I(src) (only one is used if both are provided).
+        - When used instead of O(src), sets the contents of a file directly to the specified value.
+        - Works only when O(dest) is a file. Creates the file if it does not exist.
+        - Do not specify together with O(src) (only one is used if both are provided).
       type: str
     dest:
       description:
         - Remote absolute path where the file is copied to.
-        - If I(dest) is a directory, the file is copied into that directory using the source file name.
-        - If I(dest) ends with "/", it is treated as a directory and is created if it does not exist.
-        - If I(dest) is a relative path, the starting directory is determined by the remote host.
-        - The parent directory of I(dest) must exist or the task fails.
+        - If O(dest) is a directory, the file is copied into that directory using the source file name.
+        - If O(dest) ends with "/", it is treated as a directory and is created if it does not exist.
+        - If O(dest) is a relative path, the starting directory is determined by the remote host.
+        - The parent directory of O(dest) must exist or the task fails.
       type: path
       required: true
     backup:
@@ -58,36 +58,36 @@ DOCUMENTATION:
         - When using octal notation, quote the value to ensure it is treated as a string.
         - The module attempts to convert numeric mode values to 4-digit octal format.
         - If not specified, the system default C(umask) determines permissions for new files.
-        - For existing files, permissions remain unchanged unless I(mode) is explicitly set.
-        - Not applied to symlinks when I(follow) is V(false).
+        - For existing files, permissions remain unchanged unless O(mode) is explicitly set.
+        - Not applied to symlinks when O(follow=false).
       type: str
     owner:
       description:
         - User name that should own the file.
         - Passed directly to the C(chown) command.
         - If not specified, ownership is not changed.
-        - Not applied to symlinks when I(follow) is V(false).
+        - Not applied to symlinks when O(follow=false).
       type: str
     group:
       description:
         - Group name that should own the file.
         - Passed directly to the C(chgrp) command.
         - If not specified, group ownership is not changed.
-        - Not applied to symlinks when I(follow) is V(false).
+        - Not applied to symlinks when O(follow=false).
       type: str
     follow:
       description:
         - Whether to follow symlinks when setting file attributes.
         - When V(false), symlinks are not followed and attributes are set on the link itself (where supported).
         - When V(true), attributes are set on the symlink target.
-        - Affects how I(mode), I(owner), and I(group) are applied.
+        - Affects how O(mode), O(owner), and O(group) are applied.
       type: bool
       default: false
     directory_mode:
       description:
         - Permissions to set on directories that are created during the copy operation.
-        - Used when I(dest) ends with "/" and the directory structure needs to be created.
-        - Follows the same format rules as I(mode).
+        - Used when O(dest) ends with "/" and the directory structure needs to be created.
+        - Follows the same format rules as O(mode).
         - If not specified, directories are created with system default permissions.
       type: str
     validate:
@@ -104,7 +104,7 @@ DOCUMENTATION:
     - Without the action plugin, only files already present on the remote device can be copied
       to other locations on the same device.
     - The shell-based implementation does not enforce mutually exclusive parameters.
-      If both I(src) and I(content) are provided, I(content) takes precedence.
+      If both O(src) and O(content) are provided, O(content) takes precedence.
     - Supports C(check_mode).
 
 EXAMPLES: |

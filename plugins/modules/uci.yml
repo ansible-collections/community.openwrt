@@ -41,69 +41,69 @@ DOCUMENTATION:
         - cmd
     config:
       description:
-        - Config part of the I(key).
-      default: extracted from I(key)
+        - Config part of the O(key).
+      default: extracted from O(key)
     find:
       description:
         - Value(s) to match sections against.
-        - Option value to find if I(option) is set. May be list.
-        - Dict of options/values if I(option) is not set. Values may be list.
+        - Option value to find if O(option) is set. May be list.
+        - Dict of options/values if O(option) is not set. Values may be list.
         - Lists are compared in order.
-        - Required when I(command=find) or I(command=section)
+        - Required when O(command=find) or O(command=section)
       aliases:
         - find_by
         - search
     keep_keys:
       description:
-        - Space seperated list or list of keys not in I(value) or I(find) to
-          keep when I(replace=yes).
+        - Space seperated list or list of keys not in O(value) or O(find) to
+          keep when O(replace=yes).
       aliases:
         - keep
     key:
       description:
         - The C(uci) key to operate on.
-        - Takes precedence over I(config), I(section) and I(option)
-      default: I(config).I(section).I(option)
+        - Takes precedence over O(config), O(section) and O(option)
+      default: O(config).O(section).O(option)
     merge:
       description:
-        - Whether to merge or replace when I(command=import)
+        - Whether to merge or replace when O(command=import)
       type: bool
       default: false
     name:
       description:
-        - New name when I(command=rename) or I(command=add).
-        - Desired name when I(command=section). If a matching section is
+        - New name when O(command=rename) or O(command=add).
+        - Desired name when O(command=section). If a matching section is
           found it is renamed, if not it is created with that name.
     option:
       description:
-        - Option part of the I(key).
-      default: extracted from I(key)
+        - Option part of the O(key).
+      default: extracted from O(key)
     replace:
       description:
-        - When I(command=set) or I(command=section), whether to delete all
-          options not mentioned in I(keep_keys), I(value) or find when
-          I(set_find=true).
+        - When O(command=set) or O(command=section), whether to delete all
+          options not mentioned in O(keep_keys), O(value) or find when
+          O(set_find=true).
       type: bool
       default: false
     section:
       description:
-        - Section part of the I(key).
-      default: extracted from I(key)
+        - Section part of the O(key).
+      default: extracted from O(key)
     set_find:
       description:
-        - When I(command=section) whether to set the options used to search
+        - When O(command=section) whether to set the options used to search
           a matching section in the newly created section when no match was
           found.
       type: bool
       default: false
     type:
       description:
-        - Section type for I(command=section), I(command=find) and
-          I(command=add).
-      default: I(section)
+        - Section type for O(command=section), O(command=find) and
+          O(command=add).
+      default: O(section)
     unique:
       description:
-        - When I(command=add_list), whether to add the value if it is already
+        - When O(command=add_list), whether to add the value if it is already
           contained in the list.
       type: bool
       default: false
@@ -159,21 +159,21 @@ RETURN:
     sample: cfg12523
   result_list:
     description: the list form of result
-    returned: when I(command=get)
+    returned: when O(command=get)
     type: list
     sample: ["0.pool.ntp.org", "1.pool.ntp.org"]
   config:
-    description: config part of I(key)
+    description: config part of O(key)
     returned: when given
     type: str
     sample: wireless
   section:
-    description: section part of I(key)
+    description: section part of O(key)
     returned: when given
     type: str
     sample: "@wifi-iface[0]"
   option:
-    description: option part of I(key)
+    description: option part of O(key)
     returned: when given
     type: str
     sample: ssid
