@@ -27,7 +27,7 @@ class OpenwrtActionBase(ActionBase):
         result = super(OpenwrtActionBase, self).run(tmp, task_vars)
         del tmp  # not used directly
 
-        module_name = self._task.action.split('.')[-1]
+        module_name = self._task.action.split(".")[-1]
         try:
             module_script_path = self._find_module_script(module_name)
         except Exception as e:
@@ -59,9 +59,8 @@ class OpenwrtActionBase(ActionBase):
 
     def _find_module_script(self, module_name):
         """Find the module's .sh file in the collection"""
-        plugins_dir = os.path.dirname(
-            os.path.dirname(os.path.abspath(__file__))
-        )
+        plugin_utils_dir = os.path.dirname(os.path.abspath(__file__))
+        plugins_dir = os.path.dirname(plugin_utils_dir)
         modules_dir = os.path.join(plugins_dir, "modules")
         module_path = os.path.join(modules_dir, f"{module_name}.sh")
 
