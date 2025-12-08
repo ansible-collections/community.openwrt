@@ -1,16 +1,3 @@
-plugins/action/command.py action-plugin-docs
-plugins/action/copy.py action-plugin-docs
-plugins/action/file.py action-plugin-docs
-plugins/action/lineinfile.py action-plugin-docs
-plugins/action/nohup.py action-plugin-docs
-plugins/action/opkg.py action-plugin-docs
-plugins/action/ping.py action-plugin-docs
-plugins/action/service.py action-plugin-docs
-plugins/action/setup.py action-plugin-docs
-plugins/action/slurp.py action-plugin-docs
-plugins/action/stat.py action-plugin-docs
-plugins/action/sysctl.py action-plugin-docs
-plugins/action/uci.py action-plugin-docs
 plugins/modules/command.sh shebang
 plugins/modules/command.sh validate-modules:invalid-extension
 plugins/modules/copy.sh shebang
