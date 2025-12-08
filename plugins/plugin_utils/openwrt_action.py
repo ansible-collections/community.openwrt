@@ -36,9 +36,7 @@ class OpenwrtActionBase(ActionBase):
             return result
 
         try:
-            tmpdir = self._connection._shell.tmpdir
-            if tmpdir is None:
-                tmp_dir = self._make_tmp_path()
+            tmp_dir = self._make_tmp_path()
             remote_script = self._connection._shell.join_path(tmp_dir, f"{module_name}.sh")
             self._transfer_file(module_script_path, remote_script)
             self._fixup_perms2([remote_script])
