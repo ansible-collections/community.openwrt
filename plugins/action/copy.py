@@ -24,8 +24,6 @@ class ActionModule(OpenwrtActionBase):
         if task_vars is None:
             task_vars = {}
 
-        # Initialize result from parent class but don't call parent run() yet
-        # We need to handle file transfer first
         result = {}
 
         source = self._task.args.get("src", None)
@@ -37,9 +35,12 @@ class ActionModule(OpenwrtActionBase):
             result["msg"] = "dest is required"
             return result
 
-        # Handle content parameter (create temp file with content)
+        if source and content is not None:
+            result["failed"] = True
+            result["msg"] = "source and content are mutually exclusive"
+            return result
+
         if content is not None:
-            # Create a temp file with the content
             try:
                 content_tempfile = self._create_content_tempfile(content)
                 source = content_tempfile
@@ -79,14 +80,9 @@ class ActionModule(OpenwrtActionBase):
             result["msg"] = f"Failed to transfer file: {e}"
             return result
 
-        # Update task args to use the transferred file
         self._task.args = self._task.args.copy()
         self._task.args["src"] = tmp_src
-
-        # Remove content from args if it was used (we've already created the file)
         self._task.args.pop("content", None)
-
-        # Now call parent run() which will handle the wrapper mechanism
         return super(ActionModule, self).run(tmp, task_vars)
 
     def _create_content_tempfile(self, content):
