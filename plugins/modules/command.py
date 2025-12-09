@@ -50,8 +50,6 @@ options:
       - A filename or glob pattern.
       - If it does not exist, the command does not run.
     type: str
-notes:
-  - This module was crafted for OpenWrt devices with no Python installed, it uses shell scripts instead.
 """
 
 EXAMPLES = r"""

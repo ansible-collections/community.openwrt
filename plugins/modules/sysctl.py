@@ -58,8 +58,6 @@ options:
     type: bool
     aliases:
       - ignoreerrors
-notes:
-  - This module is designed for OpenWrt devices without Python installed.
 """
 
 EXAMPLES = r"""

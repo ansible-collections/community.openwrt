@@ -49,8 +49,6 @@ options:
     description:
       - Do not follow dependencies.
     type: bool
-notes:
-  - This module is designed for OpenWrt devices without Python installed.
 """
 
 EXAMPLES = r"""

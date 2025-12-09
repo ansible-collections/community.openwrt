@@ -103,11 +103,6 @@ options:
     type: str
 notes:
   - This module does not support recursive directory copy. Only regular files can be copied.
-  - The action plugin enables copying from the Ansible controller to the remote OpenWRT device.
-  - Without the action plugin, only files already present on the remote device can be copied to other locations on the
-    same device.
-  - The shell-based implementation does not enforce mutually exclusive parameters. If both O(src) and O(content) are
-    provided, O(content) takes precedence.
   - Supports C(check_mode).
 """
 
