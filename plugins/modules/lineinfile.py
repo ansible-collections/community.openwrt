@@ -86,8 +86,6 @@ options:
     description:
       - Whether to follow symlinks.
     type: bool
-notes:
-  - This module is designed for OpenWrt devices without Python installed.
 """
 
 EXAMPLES = r"""

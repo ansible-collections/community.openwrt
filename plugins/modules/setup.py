@@ -16,7 +16,6 @@ description:
 author: Markus Weippert (@gekmihesg)
 options: {}
 notes:
-  - This module is designed for OpenWrt devices without Python installed.
   - This module gathers OpenWrt-specific facts including C(ubus) data for network interfaces, devices, services, and
     system information.
   - Facts are returned in the RV(ansible_facts) namespace.

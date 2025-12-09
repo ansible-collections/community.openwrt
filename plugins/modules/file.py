@@ -78,8 +78,6 @@ options:
     description:
       - Internal parameter for diff operations.
     type: str
-notes:
-  - This module is designed for OpenWrt devices without Python installed.
 """
 
 EXAMPLES = r"""

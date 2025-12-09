@@ -21,9 +21,6 @@ options:
     required: true
     aliases:
       - path
-notes:
-  - This module is designed for OpenWrt devices without Python installed.
-  - The file is base64 encoded, which increases its size by approximately 33%.
 """
 
 EXAMPLES = r"""
