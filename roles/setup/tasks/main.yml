@@ -18,7 +18,7 @@
   register: _opkg_available
   check_mode: false
   changed_when: false
-  failed_when: false
+  failed_when: _opkg_available.rc != 0
   when: openwrt_install_recommended_packages | bool
 
 - name: Install recommended packages for module compatibility
