@@ -40,6 +40,7 @@ jobs:
           - stable-2.18
           - stable-2.19
           - stable-2.20
+          - devel
         python:
           - "3.10"
           - "3.11"
@@ -66,6 +67,11 @@ jobs:
           - ansible: stable-2.20
             python: "3.10"
           - ansible: stable-2.20
+            python: "3.11"
+          # ansible-core 2.21 (devel) doesn't support Python 3.10 or 3.11
+          - ansible: devel
+            python: "3.10"
+          - ansible: devel
             python: "3.11"
 
     steps:
