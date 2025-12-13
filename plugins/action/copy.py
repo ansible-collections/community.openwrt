@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from tempfile import mkstemp
+
 from ansible.errors import AnsibleError
 from ansible.module_utils._text import to_bytes
 from ansible.utils.hashing import checksum
@@ -87,12 +89,8 @@ class ActionModule(OpenwrtActionBase):
 
     def _create_content_tempfile(self, content):
         """Create a temporary file with the given content"""
-        import tempfile
 
-        # Create temp file in system temp directory
-        fd, content_tempfile = tempfile.mkstemp()
-
-        # Write content to it
+        fd, content_tempfile = mkstemp()
         with open(fd, "wb") as f:
             f.write(to_bytes(content))
 
