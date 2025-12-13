@@ -21,8 +21,6 @@ attributes:
     support: full
   diff_mode:
     support: full
-  safe_file_operations:
-    support: full
 options:
   path:
     description:

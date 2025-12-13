@@ -20,8 +20,6 @@ attributes:
     support: full
   diff_mode:
     support: none
-  safe_file_operations:
-    support: full
 options:
   name:
     description:

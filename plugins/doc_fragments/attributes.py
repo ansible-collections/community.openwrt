@@ -58,4 +58,7 @@ options: {}
 attributes:
   safe_file_operations:
     description: Uses Ansible's strict file operation functions to ensure proper permissions and avoid data corruption.
+    support: none
+    details:
+      - This module uses basic shell commands for file operations and does not implement Ansible's atomic file operation functions.
 """
