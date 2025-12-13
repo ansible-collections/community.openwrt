@@ -12,6 +12,13 @@ description:
   - The M(community.openwrt.nohup) module start runs a command in a shell using OpenWRTs C(start-stop-daemon).
   - The module dispatches the command and return.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   command:
     description:

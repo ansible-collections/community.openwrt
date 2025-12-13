@@ -12,6 +12,9 @@ description:
   - The M(community.openwrt.ping) module tests the ability to log in to remote OpenWrt machines and execute commands.
   - This is a simple way to verify that your host is reachable and that you have valid credentials.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+  - community.openwrt.attributes.info_module
 options:
   data:
     description:

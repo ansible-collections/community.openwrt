@@ -12,6 +12,13 @@ description:
   - The M(community.openwrt.service) module controls services on OpenWrt using init scripts.
   - It can start, stop, restart, reload services and manage their enabled state.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   name:
     description:

@@ -12,6 +12,16 @@ description:
   - The M(community.openwrt.sysctl) module manages sysctl configuration on OpenWrt systems.
   - It can modify both the running kernel parameters and the persistent configuration file.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+  - community.openwrt.attributes.files
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
+  safe_file_operations:
+    support: full
 options:
   name:
     description:

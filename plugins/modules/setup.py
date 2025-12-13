@@ -14,11 +14,15 @@ description:
     information through ubus.
   - This module is automatically called by playbooks to gather useful variables about remote hosts.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+  - community.openwrt.attributes.facts
+  - community.openwrt.attributes.facts_module
 options: {}
 notes:
   - This module gathers OpenWrt-specific facts including C(ubus) data for network interfaces, devices, services, and
     system information.
-  - Facts are returned in the RV(ansible_facts) namespace.
+  - Facts are returned in the C(ansible_facts) namespace.
 """
 
 EXAMPLES = r"""
