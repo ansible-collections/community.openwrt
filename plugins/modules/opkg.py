@@ -12,6 +12,13 @@ description:
   - The M(community.openwrt.opkg) module manages packages on OpenWrt using the opkg package manager.
   - It can install, remove, and update packages.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   name:
     description:

@@ -12,6 +12,9 @@ description:
   - The M(community.openwrt.stat) module retrieves facts about files similar to the Linux stat command.
   - It returns detailed information about file properties including permissions, ownership, size, and timestamps.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+  - community.openwrt.attributes.info_module
 options:
   path:
     description:

@@ -12,6 +12,13 @@ description:
   - The M(community.openwrt.uci) module is a Ansible wrapper for OpenWRTs C(uci).
   - It supports all the command line functionality plus some extra commands.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: full
 options:
   autocommit:
     description:

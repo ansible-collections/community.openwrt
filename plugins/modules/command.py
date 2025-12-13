@@ -13,6 +13,13 @@ description:
   - The command is executed directly or through a shell depending on the O(uses_shell) parameter.
   - This module does not support check mode.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   cmd:
     description:

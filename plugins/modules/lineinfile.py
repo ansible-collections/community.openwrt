@@ -13,6 +13,16 @@ description:
     using a regular expression.
   - This is useful when you want to change a single line in a file.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+  - community.openwrt.attributes.files
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: full
+  safe_file_operations:
+    support: full
 options:
   path:
     description:

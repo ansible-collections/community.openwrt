@@ -12,6 +12,9 @@ description:
   - The M(community.openwrt.slurp) module reads a file from the OpenWrt target and encodes it in base64.
   - This is useful for fetching small files when base64 encoding is acceptable.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+  - community.openwrt.attributes.info_module
 options:
   src:
     description:

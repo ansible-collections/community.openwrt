@@ -12,6 +12,16 @@ description:
   - The M(community.openwrt.file) module sets attributes of files, symlinks, and directories.
   - It can also create or remove files, directories, and symbolic/hard links.
 author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+  - community.openwrt.attributes.files
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: full
+  safe_file_operations:
+    support: full
 options:
   path:
     description:
