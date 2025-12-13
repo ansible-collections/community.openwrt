@@ -109,6 +109,76 @@ jobs:
           # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
           pull-request-change-detection: false
 
+  molecule:
+    name: Molecule (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ansible:
+          - stable-2.17
+          - stable-2.18
+          - stable-2.19
+          - stable-2.20
+          - devel
+        python:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+        exclude:
+          # ansible-core 2.17 doesn't support Python 3.13+
+          - ansible: stable-2.17
+            python: "3.13"
+          - ansible: stable-2.17
+            python: "3.14"
+          # ansible-core 2.18 doesn't support Python 3.10 or 3.14
+          - ansible: stable-2.18
+            python: "3.10"
+          - ansible: stable-2.18
+            python: "3.14"
+          # ansible-core 2.19 doesn't support Python 3.10 or 3.14
+          - ansible: stable-2.19
+            python: "3.10"
+          - ansible: stable-2.19
+            python: "3.14"
+          # ansible-core 2.20 doesn't support Python 3.10 or 3.11
+          - ansible: stable-2.20
+            python: "3.10"
+          - ansible: stable-2.20
+            python: "3.11"
+          # ansible-core 2.21 (devel) doesn't support Python 3.10 or 3.11
+          - ansible: devel
+            python: "3.10"
+          - ansible: devel
+            python: "3.11"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/community/openwrt
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install ansible-core (${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+
+      - name: Install test dependencies
+        working-directory: ansible_collections/community/openwrt
+        run: pip install -r requirements-test.txt --disable-pip-version-check
+
+      - name: Run molecule tests (default scenario)
+        working-directory: ansible_collections/community/openwrt
+        run: molecule test --scenario-name default
+        env:
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
+
   ###
   # Unit tests (OPTIONAL)
   #
@@ -271,6 +341,7 @@ jobs:
 
     needs:
       - sanity
+      - molecule
       # - units
       # - integration
 
