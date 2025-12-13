@@ -36,42 +36,37 @@ jobs:
       fail-fast: false
       matrix:
         ansible:
-          - ""
+          - stable-2.17
+          - stable-2.18
+          - stable-2.19
+          - stable-2.20
         python:
-          - ""
-        target:
-          - ""
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
         exclude:
-          - ansible: ""
-        include:
-          # ansible-core 2.17
+          # ansible-core 2.17 doesn't support Python 3.13+
           - ansible: stable-2.17
-            python: "3.10"
+            python: "3.13"
           - ansible: stable-2.17
-            python: "3.11"
-          - ansible: stable-2.17
-            python: "3.12"
-          # # ansible-core 2.18
-          - ansible: stable-2.18
-            python: "3.11"
-          - ansible: stable-2.18
-            python: "3.12"
-          - ansible: stable-2.18
-            python: "3.13"
-          # # ansible-core 2.19
-          - ansible: stable-2.19
-            python: "3.11"
-          - ansible: stable-2.19
-            python: "3.12"
-          - ansible: stable-2.19
-            python: "3.13"
-          # # ansible-core 2.20
-          - ansible: stable-2.20
-            python: "3.12"
-          - ansible: stable-2.20
-            python: "3.13"
-          - ansible: stable-2.20
             python: "3.14"
+          # ansible-core 2.18 doesn't support Python 3.10 or 3.14
+          - ansible: stable-2.18
+            python: "3.10"
+          - ansible: stable-2.18
+            python: "3.14"
+          # ansible-core 2.19 doesn't support Python 3.10 or 3.14
+          - ansible: stable-2.19
+            python: "3.10"
+          - ansible: stable-2.19
+            python: "3.14"
+          # ansible-core 2.20 doesn't support Python 3.10 or 3.11
+          - ansible: stable-2.20
+            python: "3.10"
+          - ansible: stable-2.20
+            python: "3.11"
 
     steps:
       - name: Checkout code
@@ -83,20 +78,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-          cache: "pip"
 
       - name: Install ansible-core (${{ matrix.ansible }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
       - name: Install test dependencies
         working-directory: ansible_collections/community/openwrt
-        run: pip install -r requirements.txt --disable-pip-version-check
-
-      - name: Install collection dependencies
-        working-directory: ansible_collections/community/openwrt
-        run: |
-          ansible-galaxy collection install ansible.netcommon
-          ansible-galaxy collection install ansible.utils
+        run: pip install -r requirements-test.txt --disable-pip-version-check
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
