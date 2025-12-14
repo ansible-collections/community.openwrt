@@ -18,12 +18,11 @@ author:
 extends_documentation_fragment:
   - community.openwrt.attributes
   - community.openwrt.attributes.files
+  - community.openwrt.file_common_arguments
 attributes:
   check_mode:
     support: full
   diff_mode:
-    support: full
-  safe_file_operations:
     support: full
 options:
   src:
@@ -64,38 +63,6 @@ options:
     default: true
     aliases:
       - thirsty
-  mode:
-    description:
-      - Permissions of the destination file or directory.
-      - Can be specified as an octal number (for example, V('0644'), V('1777')) or symbolic mode (like V('u+rwx')).
-      - When using octal notation, quote the value to ensure it is treated as a string.
-      - The module attempts to convert numeric mode values to 4-digit octal format.
-      - If not specified, the system default C(umask) determines permissions for new files.
-      - For existing files, permissions remain unchanged unless O(mode) is explicitly set.
-      - Not applied to symlinks when O(follow=false).
-    type: str
-  owner:
-    description:
-      - User name that should own the file.
-      - Passed directly to the C(chown) command.
-      - If not specified, ownership is not changed.
-      - Not applied to symlinks when O(follow=false).
-    type: str
-  group:
-    description:
-      - Group name that should own the file.
-      - Passed directly to the C(chgrp) command.
-      - If not specified, group ownership is not changed.
-      - Not applied to symlinks when O(follow=false).
-    type: str
-  follow:
-    description:
-      - Whether to follow symlinks when setting file attributes.
-      - When V(false), symlinks are not followed and attributes are set on the link itself (where supported).
-      - When V(true), attributes are set on the symlink target.
-      - Affects how O(mode), O(owner), and O(group) are applied.
-    type: bool
-    default: false
   directory_mode:
     description:
       - Permissions to set on directories that are created during the copy operation.

@@ -16,12 +16,11 @@ author: Markus Weippert (@gekmihesg)
 extends_documentation_fragment:
   - community.openwrt.attributes
   - community.openwrt.attributes.files
+  - community.openwrt.file_common_arguments
 attributes:
   check_mode:
     support: full
   diff_mode:
-    support: full
-  safe_file_operations:
     support: full
 options:
   path:
@@ -80,22 +79,6 @@ options:
       - Without this option, the task fails if the file does not exist.
     type: bool
     default: false
-  mode:
-    description:
-      - The permissions the resulting file should have.
-    type: str
-  owner:
-    description:
-      - Name of the user that should own the file.
-    type: str
-  group:
-    description:
-      - Name of the group that should own the file.
-    type: str
-  follow:
-    description:
-      - Whether to follow symlinks.
-    type: bool
 """
 
 EXAMPLES = r"""
