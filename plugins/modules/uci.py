@@ -9,7 +9,7 @@ DOCUMENTATION = r"""
 module: uci
 short_description: Controls OpenWRTs UCI
 description:
-  - The M(community.openwrt.uci) module is a Ansible wrapper for OpenWRTs C(uci).
+  - The M(community.openwrt.uci) module is a Ansible wrapper for OpenWRT's C(uci).
   - It supports all the command line functionality plus some extra commands.
 author: Markus Weippert (@gekmihesg)
 extends_documentation_fragment:
@@ -27,8 +27,9 @@ options:
     default: false
   command:
     description:
-      - Command to execute. Execution takes place in a shell.
-    default: set if value else get
+      - C(uci) command to execute.
+      - The default is V(set) if O(value) is passed, otherwise the default is V(get).
+      - The V(get), V(export), and V(show) states should be factored out of this module into an C(_info) module.
     choices:
       - absent
       - add

@@ -7,10 +7,9 @@ from __future__ import annotations
 
 DOCUMENTATION = r"""
 module: slurp
-short_description: Read a file and encode it to base64 on OpenWrt targets
+short_description: Slurps a file from remote OpenWrt nodes
 description:
   - The M(community.openwrt.slurp) module reads a file from the OpenWrt target and encodes it in base64.
-  - This is useful for fetching small files when base64 encoding is acceptable.
 author: Markus Weippert (@gekmihesg)
 extends_documentation_fragment:
   - community.openwrt.attributes

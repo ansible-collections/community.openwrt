@@ -29,10 +29,6 @@ EXAMPLES = r"""
 - name: Gather facts from OpenWrt device
   community.openwrt.setup:
 
-- name: Display gathered facts
-  community.openwrt.setup:
-  register: openwrt_facts
-
 - name: Show distribution version
   ansible.builtin.debug:
     msg: "{{ ansible_distribution_version }}"

@@ -41,9 +41,18 @@ options:
   force:
     description:
       - Force option to pass to opkg.
-      - Valid values include V(depends), V(maintainer), V(reinstall), V(overwrite), V(downgrade), V(space),
-        V(postinstall), V(remove), V(checksum), V(removal-of-dependent-packages).
     type: str
+    choices:
+      - depends
+      - maintainer
+      - reinstall
+      - overwrite
+      - downgrade
+      - space
+      - postinstall
+      - remove
+      - checksum
+      - removal-of-dependent-packages
   update_cache:
     description:
       - Update the package cache (C(opkg update)) before performing the operation.
