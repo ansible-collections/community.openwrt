@@ -15,6 +15,7 @@ author: Markus Weippert (@gekmihesg)
 extends_documentation_fragment:
   - community.openwrt.attributes
   - community.openwrt.attributes.files
+  - community.openwrt.file_common_arguments
 attributes:
   check_mode:
     support: full
@@ -60,22 +61,6 @@ options:
       - Only works with O(state=directory).
     type: bool
     default: false
-  follow:
-    description:
-      - Whether to follow symlinks.
-    type: bool
-  mode:
-    description:
-      - The permissions the resulting file or directory should have.
-    type: str
-  owner:
-    description:
-      - Name of the user that should own the file/directory.
-    type: str
-  group:
-    description:
-      - Name of the group that should own the file/directory.
-    type: str
   original_basename:
     description:
       - Original basename to use when O(path) is a directory.

@@ -14,7 +14,6 @@ description:
 author: Markus Weippert (@gekmihesg)
 extends_documentation_fragment:
   - community.openwrt.attributes
-  - community.openwrt.attributes.files
 attributes:
   check_mode:
     support: full
