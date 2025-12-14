@@ -47,7 +47,7 @@ options:
     description:
       - Path of the file to link to.
       - Required for O(state=link) and O(state=hard).
-      - If not specified for links, the realpath of O(path) is used.
+      - For symbolic links, if not specified, the realpath of O(path) is used.
     type: str
   force:
     description:

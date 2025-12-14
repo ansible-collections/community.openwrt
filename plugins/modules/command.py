@@ -45,8 +45,8 @@ options:
   executable:
     description:
       - The shell to use when O(uses_shell) is V(true).
-      - Defaults to C(/bin/sh).
     type: str
+    default: /bin/sh
   creates:
     description:
       - A filename or glob pattern.

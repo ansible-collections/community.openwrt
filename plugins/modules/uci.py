@@ -53,7 +53,7 @@ options:
   config:
     description:
       - Config part of the O(key).
-    default: extracted from O(key)
+      - If not specified, extracted from O(key).
   find:
     description:
       - Value(s) to match sections against.
@@ -66,14 +66,14 @@ options:
       - search
   keep_keys:
     description:
-      - Space seperated list or list of keys not in O(value) or O(find) to keep when O(replace=yes).
+      - Space separated list or list of keys not in O(value) or O(find) to keep when O(replace=yes).
     aliases:
       - keep
   key:
     description:
       - The C(uci) key to operate on.
       - Takes precedence over O(config), O(section) and O(option).
-    default: O(config).O(section).O(option)
+      - If not specified, constructed as O(config).O(section).O(option).
   merge:
     description:
       - Whether to merge or replace when O(command=import).
@@ -87,7 +87,7 @@ options:
   option:
     description:
       - Option part of the O(key).
-    default: extracted from O(key)
+      - If not specified, extracted from O(key).
   replace:
     description:
       - When O(command=set) or O(command=section), whether to delete all options not mentioned in O(keep_keys), O(value)
@@ -97,7 +97,7 @@ options:
   section:
     description:
       - Section part of the O(key).
-    default: extracted from O(key)
+      - If not specified, extracted from O(key).
   set_find:
     description:
       - When O(command=section) whether to set the options used to search a matching section in the newly created
@@ -107,7 +107,7 @@ options:
   type:
     description:
       - Section type for O(command=section), O(command=find) and O(command=add).
-    default: O(section)
+      - If not specified, defaults to the value of O(section).
   unique:
     description:
       - When O(command=add_list), whether to add the value if it is already contained in the list.

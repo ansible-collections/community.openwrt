@@ -9,13 +9,13 @@ add_ubus_fact() {
     set -- ${1//!/ }
     ubus list "$2" > /dev/null 2>&1 || return
     local json="$($ubus call "$2" "$3" 2>/dev/null)"
-    echo -n "$seperator\"$1\":$json"
-    seperator=","
+    echo -n "$delimiter\"$1\":$json"
+    delimiter=","
 }
 
 main() {
     ubus="/bin/ubus"
-    seperator=","
+    delimiter=","
     echo '{"changed":false,"ansible_facts":'
     dist="OpenWRT"
     dist_version="NA"
@@ -56,8 +56,8 @@ main() {
             ; do
         add_ubus_fact "openwrt_$fact"
     done
-    echo "$seperator"'"openwrt_interfaces":{'
-    seperator=""
+    echo "$delimiter"'"openwrt_interfaces":{'
+    delimiter=""
     for net in $($ubus list); do
         [ "${net#network.interface.}" = "$net" ] ||
             add_ubus_fact "${net##*.}!$net!status"
