@@ -14,7 +14,7 @@ openwrt_ssh_host: "{{ ansible_host | default(ansible_ssh_host | default(inventor
 openwrt_ssh_user: "{{ ansible_user | default(ansible_ssh_user | default('root')) }}"
 
 # Use SCP instead of SFTP (OpenWRT doesn't have SFTP by default)
-openwrt_scp_if_ssh: smart
+openwrt_scp_if_ssh: true
 openwrt_ssh_transfer_method: "{{ 'smart' if openwrt_scp_if_ssh == 'smart' else openwrt_scp_if_ssh | ternary('scp', 'sftp') }}"
 
 # Disable SSH TTY allocation

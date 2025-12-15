@@ -1,10 +1,13 @@
 # Community OpenWrt Collection
 
-<!-- Add CI and code coverage badges here. Samples included below. -->
+[![CI](https://github.com/ansible-collections/community.openwrt/actions/workflows/ansible-test.yml/badge.svg)](https://github.com/ansible-collections/community.openwrt/actions/workflows/ansible-test.yml)
+[![Collection Docs (PUSH)](https://github.com/ansible-collections/community.openwrt/actions/workflows/docs-push.yml/badge.svg)](https://github.com/ansible-collections/community.openwrt/actions/workflows/docs-push.yml)
 
-[![CI](https://github.com/ansible-collections/community.openwrt/workflows/CI/badge.svg?event=push)](https://github.com/ansible-collections/community.openwrt/actions) [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.openwrt)](https://codecov.io/gh/ansible-collections/community.openwrt)
+<!--
+[![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.openwrt)](https://codecov.io/gh/ansible-collections/community.openwrt)
+ -->
 
-<!-- Describe the collection and why a user would want to use it. What does the collection do? -->
+This collection enables the automated configuration of your OpenWrt devices.
 
 ## Our mission
 
@@ -13,7 +16,7 @@
 At the `community.openwrt`, our mission is to produce and maintain simple, flexible,
 and powerful open-source software tailored to manage and support [OpenWrt](https://openwrt.org/) devices.
 
-This collection is originally based on the role `gekmihesg.openwrt`, maintained by [Markus Weippert](https://github.com/gekmihesg) until 2022.
+This Ansible collection is originally based on the role `gekmihesg.openwrt`, maintained by [Markus Weippert](https://github.com/gekmihesg) until 2022.
 We acknowledge and we are grateful for the time and effort he dispensed to maintain that role over the years.
 
 We welcome members from all skill levels to participate actively in our open, inclusive, and vibrant community.
@@ -28,13 +31,9 @@ If you encounter abusive behavior, please refer to the [policy violations](https
 
 ## Communication
 
-<!--
-If your collection is not present on the Ansible forum yet, please check out the existing [tags](https://forum.ansible.com/tags) and [groups](https://forum.ansible.com/g) - use what suits your collection. If there is no appropriate tag and group yet, please [request one](https://forum.ansible.com/t/requesting-a-forum-group/503/17).
--->
-
 - Join the Ansible forum:
-  - [Get Help](https://forum.ansible.com/c/help/6): get help or help others. Please add appropriate tags if you start new discussions, for example the `YOUR TAG` tag.
-  - [Posts tagged with 'your tag'](https://forum.ansible.com/tag/YOUR_TAG): subscribe to participate in collection/technology-related conversations.
+  - [Get Help](https://forum.ansible.com/c/help/6): get help or help others. Please add appropriate tags if you start new discussions, for example the `community-openwrt` tag.
+  - [Posts tagged with 'community-openwrt'](https://forum.ansible.com/tag/community-openwrt): subscribe to participate in collection/technology-related conversations.
   - [Refer to your forum group here if exists](https://forum.ansible.com/g/): by joining the team you will automatically get subscribed to the posts tagged with [your group forum tag here](https://forum.ansible.com/tags).
   - [Social Spaces](https://forum.ansible.com/c/chat/4): gather and interact with fellow enthusiasts.
   - [News & Announcements](https://forum.ansible.com/c/news/5): track project-wide announcements including social events. The [Bullhorn newsletter](https://docs.ansible.com/ansible/devel/community/communication.html#the-bullhorn), which is used to announce releases and important changes, can also be found here.
@@ -61,7 +60,7 @@ We also use the following guidelines:
 
 ## Collection maintenance
 
-The current maintainers are listed in the [MAINTAINERS](MAINTAINERS) file. If you have questions or need help, feel free to mention them in the proposals.
+<!-- The current maintainers are listed in the [MAINTAINERS](MAINTAINERS) file. If you have questions or need help, feel free to mention them in the proposals. -->
 
 To learn how to maintain/become a maintainer of this collection, refer to the [Maintainer guidelines](https://docs.ansible.com/ansible/devel/community/maintainers.html).
 
@@ -101,28 +100,64 @@ The collection is currently tested against OpenWRT versions:
 - 23.05
 - 24.10
 
-### SSH Connection Limitations
+Keep in mind that OpenWrt, per its
+[Support Status policy](https://openwrt.org/docs/guide-developer/security#support_status),
+support at most two different release numbers. In fact, OpenWrt 23.05 was
+[declared EOL](https://forum.openwrt.org/t/openwrt-23-05-6-service-release/239506) in Aug 2025.
 
-OpenWRT versions prior to 24.10 have Dropbear SSH servers that are incompatible with modern SSH clients (OpenSSH 9.6+). While versions 22.03 and 23.05 have CVE-2023-48795 security patches backported, these patches do not provide full protocol compatibility with newer SSH clients.
+Though this collection is tested against older versions of OpenWrt, it is likely that,
+in the future, it will synchronize support, to some extent, to that of the OpenWrt releases.
 
-**Testing methodology:**
+### Testing Requirements
+
+The test uses [Ansible Molecule](https://docs.ansible.com/projects/molecule/) to
+spin up containers running OpenWrt (there are images available for the `x86_64` architecture).
+
+Tests require:
+
+- a container runtime (docker, podman, containerd, etc...)
+- Python packages specified in [requirements-test.txt](./requirements-test.txt)
+
+#### SSH Connection Limitations
+
+OpenWRT versions prior to 24.10 have been failing while connecting to the containers using SSH.
+The client side uses OpenSSH 9.6+ whilst the OpenWrt images use a range of versions of Dropbear SSH server.
+There seems to be some incompatibility related to CVE-2023-48795, but OpenWrt 22.03 and 23.05
+have had security patches backported into them, so possibly some specific SSH configuration
+is missing for that to work.
+
+For the time being, the tests are being performed using:
 
 - OpenWRT 24.10: SSH connections
 - OpenWRT 21.02, 22.03, 23.05: Docker connections (SSH incompatible)
 
-**Deprecation notice:** Support for OpenWRT versions prior to 24.10 will be removed in a future release due to SSH incompatibility.
-
-## Included content
-
-<!-- Galaxy now usually displays full module and plugin docs within the UI. If you don't use Galaxy for your collection, you may need to either describe your plugins etc here, or point to an external docsite to cover that information. -->
-
-TBD
+All the offending OpenWrt releases are no longer supported by OpenWrt, so this is not a priority for this project.
 
 ## Using this collection
 
 <!--Include some quick examples that cover the most common use cases for your collection content. It can include the following examples of installation and upgrade (change community.openwrt correspondingly):-->
 
-TBD
+```yaml
+---
+- hosts: openwrt_devices
+  gather_facts: false
+  roles:
+    - community.openwrt.init
+  tasks:
+    - name: Gather OpenWRT facts
+      community.openwrt.setup:
+
+    - name: Install a package
+      community.openwrt.opkg:
+        name: luci
+        state: present
+
+    - name: Configure UCI settings
+      community.openwrt.uci:
+        command: set
+        key: system.@system[0].hostname
+        value: myrouter
+```
 
 ### Installing the Collection from Ansible Galaxy
 
@@ -146,10 +181,10 @@ Note that if you install the collection from Ansible Galaxy, it will not be upgr
 ansible-galaxy collection install community.openwrt --upgrade
 ```
 
-You can also install a specific version of the collection, for example, if you need to downgrade when something is broken in the latest version (please report an issue in this repository). Use the following syntax to install version `0.1.0`:
+You can also install a specific version of the collection, for example, if you need to downgrade when something is broken in the latest version (please report an issue in this repository). Use the following syntax to install version `0.3.0`:
 
 ```bash
-ansible-galaxy collection install community.openwrt:==0.1.0
+ansible-galaxy collection install community.openwrt:==0.3.0
 ```
 
 See [using Ansible collections](https://docs.ansible.com/ansible/devel/user_guide/collections_using.html) for more details.

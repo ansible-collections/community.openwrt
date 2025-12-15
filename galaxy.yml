@@ -7,7 +7,6 @@ version: 0.3.0
 readme: README.md
 authors:
   - Alexei Znamensky (github.com/russoz)
-  - Markus Weippert (github.com/gekmihesg)
 description: >-
   The community.openwrt collection provides Ansible code to manage OpenWrt devices.
   Supports OpenWRT devices without Python installed by using shell-based modules.
@@ -17,7 +16,7 @@ tags:
   - networking
   - router
 repository: https://github.com/ansible-collections/community.openwrt
-# documentation: https://github.com/ansible-collection-migration/community.openwrt/tree/main/docs
+documentation: https://ansible-collections.github.io/community.openwrt/branch/main/
 homepage: https://github.com/ansible-collections/community.openwrt
 issues: https://github.com/ansible-collections/community.openwrt/issues
 
