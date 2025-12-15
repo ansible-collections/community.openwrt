@@ -1,4 +1,4 @@
-# Ansible Role: community.openwrt.setup
+# Ansible Role: community.openwrt.init
 
 ## Description
 
@@ -44,7 +44,7 @@ openwrt_remote_tmp: /tmp
 - hosts: openwrt_devices
   gather_facts: false
   roles:
-    - community.openwrt.setup
+    - community.openwrt.init
   tasks:
     - name: Gather OpenWRT facts
       community.openwrt.setup:
