@@ -87,7 +87,7 @@ These variables control Ansible behavior:
 
     openwrt_scp_if_ssh:
         Whether to use ``scp`` instead of ``sftp`` for OpenWRT systems (sets ``ansible_scp_if_ssh``).
-        Value can be ``true``, ``false`` or ``smart``. (default: ``true``)
+        Value can be ``true``, ``false`` or ``smart``. (default: ``smart``)
 
     openwrt_remote_tmp:
         Ansibles ``remote_tmp`` (sets ``ansible_remote_tmp``) setting for OpenWRT systems.
