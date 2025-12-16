@@ -157,10 +157,10 @@ Handlers
 The collection providers some standard handlers you can use in your playbooks:
 
     Setup wifi
-        Runs `/sbin/wifi` to setup WiFi
+        Runs ``/sbin/wifi`` to setup WiFi
 
     Reload wifi
-        Runs `/sbin/wifi reload` to reload WiFi configuration
+        Runs ``/sbin/wifi reload`` to reload WiFi configuration
 
     Restart network
         Restarts the network service
