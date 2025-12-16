@@ -179,8 +179,8 @@ Update all module calls to include the ``community.openwrt`` namespace prefix.
    :header-rows: 1
    :widths: 50 50
 
-   * - Before
-     - After
+   * - gekmihesg.openwrt
+     - community.openwrt
    * - .. code-block:: yaml+jinja
 
           tasks:
