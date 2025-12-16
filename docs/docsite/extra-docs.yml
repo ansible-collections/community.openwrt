@@ -8,5 +8,5 @@ sections:
     toctree:
       - user_guide
       - migration_guide
-  - title: Developer Guides
-    toctree: []
+  # - title: Developer Guides
+  #   toctree: []
