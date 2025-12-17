@@ -223,25 +223,50 @@ Standard Mechanism
 
 Similar to the ``PARAMS`` variable, the return values must be declared in the ``RESPONSE_VARS`` variable.
 It should also be declared outside any function in the module, and its expected content is a string,
-with a space-delimited list of return value names. The name correspond to shell variable names, and the actual
-return value for each one of them is the value of the namesake variable itself.
+with a space-delimited list of return value names in the following format::
 
-Example:
+  NAME[/TYPE[/ALWAYS]]
+
+If the type is specified, then the return value will be rendered using the corresponding type in the resulting JSON output.
+Unlike Python or JSON, there is no "null" value, such as ``None`` or ``null`` to represent the lack of a value.
+The next best thing is to have a variable with no content, as in an empty string::
+
+  val=    # in shell this is
+  val=""  # the same as this
+
+Empty variables are not included in the output by default.
+However, if the ``ALWAYS`` element is passed (usually the letter ``a`` is used, see example),
+then the value is included regardless of being empty or not.
+
+The name correspond to shell variable names, and the actual return value for each one of them is the
+value of the namesake variable itself.
+
+Example (from ``community.openwrt.command``):
 
 .. code:: sh
 
-  RESPONSE_VARS="name value"
+  RESPONSE_VARS="
+      start
+      end
+      delta
+      cmd
+      stdout/str/a
+      stderr/str/a
+      rc/int/a
+  "
 
-This example will cause the script to return the values ``name`` and ``value`` containing, respectively,
-the shell values ``$name`` and ``$value``.
+The value of the shell variables ``start``, ``end``, etc will be passed as return values of the module.
+Note that ``stdout``, ``stderr`` and ``rc`` are typed, and they are always returned, which is expected
+of the ``command`` module.
 
-.. caution::
+.. note::
 
-  In shell scripts all variables are strings and there is no enforcing of the return types.
+  There is no support for specifying ``contains`` elements of return values of the type ``dict``.
 
 .. admonition:: TO-DO
 
   Write about ``FACT_VARS``
+
 
 Custom Mechanism
 -----------------
@@ -256,6 +281,7 @@ To your script, and it will refrain from generating the JSON output automaticall
 In that case, the module is responsible for writing the output JSON content to ``stdout``.
 
 See the file ``plugins/modules/setup.sh`` for an example of that mechanism.
+
 
 Additional constructs
 ----------------------
@@ -314,6 +340,7 @@ File, checksum and base64 utilities
 ..     fi
 ..   }
 
+
 Pathname helpers
 """""""""""""""""
 
@@ -339,6 +366,7 @@ Example:
       cp "$real_src" /tmp/ || fail "copy failed"
       changed
   }
+
 
 Diff and change detection
 """"""""""""""""""""""""""
