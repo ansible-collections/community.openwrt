@@ -27,75 +27,72 @@ plugins/modules/uci.sh validate-modules:invalid-extension
 plugins/modules/wrapper.sh shebang
 plugins/modules/wrapper.sh validate-modules:invalid-extension
 plugins/modules/command.sh shellcheck:SC2015
-plugins/modules/command.sh shellcheck:SC2034
-plugins/modules/command.sh shellcheck:SC2086
-plugins/modules/command.sh shellcheck:SC2154
-plugins/modules/copy.sh shellcheck:SC2016
-plugins/modules/copy.sh shellcheck:SC2034
-plugins/modules/copy.sh shellcheck:SC2059
-plugins/modules/copy.sh shellcheck:SC2086
-plugins/modules/copy.sh shellcheck:SC2091
-plugins/modules/copy.sh shellcheck:SC2154
-plugins/modules/copy.sh shellcheck:SC2166
-plugins/modules/copy.sh shellcheck:SC3060
-plugins/modules/file.sh shellcheck:SC2015
-plugins/modules/file.sh shellcheck:SC2034
-plugins/modules/file.sh shellcheck:SC2046
-plugins/modules/file.sh shellcheck:SC2086
-plugins/modules/file.sh shellcheck:SC2154
-plugins/modules/file.sh shellcheck:SC2166
-plugins/modules/file.sh shellcheck:SC3057
-plugins/modules/lineinfile.sh shellcheck:SC2015
-plugins/modules/lineinfile.sh shellcheck:SC2016
-plugins/modules/lineinfile.sh shellcheck:SC2034
-plugins/modules/lineinfile.sh shellcheck:SC2154
-plugins/modules/lineinfile.sh shellcheck:SC2166
-plugins/modules/nohup.sh shellcheck:SC2034
-plugins/modules/nohup.sh shellcheck:SC2154
-plugins/modules/opkg.sh shellcheck:SC2034
-plugins/modules/opkg.sh shellcheck:SC2086
-plugins/modules/opkg.sh shellcheck:SC2154
-plugins/modules/opkg.sh shellcheck:SC2166
-plugins/modules/ping.sh shellcheck:SC2034
-plugins/modules/ping.sh shellcheck:SC3060
-plugins/modules/service.sh shellcheck:SC2034
-plugins/modules/service.sh shellcheck:SC2154
-plugins/modules/setup.sh shellcheck:SC2012
-plugins/modules/setup.sh shellcheck:SC2015
-plugins/modules/setup.sh shellcheck:SC2034
-plugins/modules/setup.sh shellcheck:SC2086
-plugins/modules/setup.sh shellcheck:SC2155
-plugins/modules/setup.sh shellcheck:SC3060
-plugins/modules/slurp.sh shellcheck:SC2034
-plugins/modules/slurp.sh shellcheck:SC2154
-plugins/modules/stat.sh shellcheck:SC2034
-plugins/modules/stat.sh shellcheck:SC2046
-plugins/modules/stat.sh shellcheck:SC2086
-plugins/modules/stat.sh shellcheck:SC2154
-plugins/modules/stat.sh shellcheck:SC2166
-plugins/modules/sysctl.sh shellcheck:SC2005
-plugins/modules/sysctl.sh shellcheck:SC2034
-plugins/modules/sysctl.sh shellcheck:SC2046
-plugins/modules/sysctl.sh shellcheck:SC2086
-plugins/modules/sysctl.sh shellcheck:SC2154
-plugins/modules/sysctl.sh shellcheck:SC2162
-plugins/modules/sysctl.sh shellcheck:SC2166
-plugins/modules/sysctl.sh shellcheck:SC3057
-plugins/modules/sysctl.sh shellcheck:SC3060
-plugins/modules/uci.sh shellcheck:SC1087
-plugins/modules/uci.sh shellcheck:SC2015
-plugins/modules/uci.sh shellcheck:SC2034
-plugins/modules/uci.sh shellcheck:SC2046
-plugins/modules/uci.sh shellcheck:SC2086
-plugins/modules/uci.sh shellcheck:SC2154
-plugins/modules/uci.sh shellcheck:SC2166
-plugins/modules/uci.sh shellcheck:SC3018
-plugins/modules/wrapper.sh shellcheck:SC2012
-plugins/modules/wrapper.sh shellcheck:SC2015
-plugins/modules/wrapper.sh shellcheck:SC2034
-plugins/modules/wrapper.sh shellcheck:SC2046
-plugins/modules/wrapper.sh shellcheck:SC2086
-plugins/modules/wrapper.sh shellcheck:SC2119
-plugins/modules/wrapper.sh shellcheck:SC2120
-plugins/modules/wrapper.sh shellcheck:SC2155
-plugins/modules/wrapper.sh shellcheck:SC2166
+plugins/modules/copy.sh shellcheck:SC2016   # Single-quoted strings don't expand variables - https://www.shellcheck.net/wiki/SC2016
+plugins/modules/copy.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/copy.sh shellcheck:SC2059   # Avoid variable format strings in printf - https://www.shellcheck.net/wiki/SC2059
+plugins/modules/copy.sh shellcheck:SC2086   # Quote expansions to avoid word splitting - https://www.shellcheck.net/wiki/SC2086
+plugins/modules/copy.sh shellcheck:SC2091   # Prefer $(...) over backticks for command substitution - https://www.shellcheck.net/wiki/SC2091
+plugins/modules/copy.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/copy.sh shellcheck:SC2166   # Use separate tests instead of complex expressions - https://www.shellcheck.net/wiki/SC2166
+plugins/modules/copy.sh shellcheck:SC3060   # Shell-specific feature; check portability - https://www.shellcheck.net/wiki/SC3060
+plugins/modules/file.sh shellcheck:SC2015   # Prefer if/then over '&&'/'||' for control flow - https://www.shellcheck.net/wiki/SC2015
+plugins/modules/file.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/file.sh shellcheck:SC2046   # Quote command substitutions to prevent word splitting - https://www.shellcheck.net/wiki/SC2046
+plugins/modules/file.sh shellcheck:SC2086   # Quote expansions to avoid word splitting - https://www.shellcheck.net/wiki/SC2086
+plugins/modules/file.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/file.sh shellcheck:SC2166   # Use separate tests instead of complex expressions - https://www.shellcheck.net/wiki/SC2166
+plugins/modules/file.sh shellcheck:SC3057   # POSIX compatibility concern; check array/read usage - https://www.shellcheck.net/wiki/SC3057
+plugins/modules/lineinfile.sh shellcheck:SC2015   # Prefer if/then over '&&'/'||' for control flow - https://www.shellcheck.net/wiki/SC2015
+plugins/modules/lineinfile.sh shellcheck:SC2016   # Single-quoted strings don't expand variables - https://www.shellcheck.net/wiki/SC2016
+plugins/modules/lineinfile.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/lineinfile.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/lineinfile.sh shellcheck:SC2166   # Use separate tests instead of complex expressions - https://www.shellcheck.net/wiki/SC2166
+plugins/modules/nohup.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/nohup.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/opkg.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/opkg.sh shellcheck:SC2086   # Quote expansions to avoid word splitting - https://www.shellcheck.net/wiki/SC2086
+plugins/modules/opkg.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/opkg.sh shellcheck:SC2166   # Use separate tests instead of complex expressions - https://www.shellcheck.net/wiki/SC2166
+plugins/modules/ping.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/ping.sh shellcheck:SC3060   # Shell-specific feature; check portability - https://www.shellcheck.net/wiki/SC3060
+plugins/modules/service.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/service.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/setup.sh shellcheck:SC2012   # Don't parse 'ls' output; use globs - https://www.shellcheck.net/wiki/SC2012
+plugins/modules/setup.sh shellcheck:SC2015   # Prefer if/then over '&&'/'||' for control flow - https://www.shellcheck.net/wiki/SC2015
+plugins/modules/setup.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/setup.sh shellcheck:SC2086   # Quote expansions to avoid word splitting - https://www.shellcheck.net/wiki/SC2086
+plugins/modules/setup.sh shellcheck:SC2155   # Split declaration and assignment to avoid masking return values - https://www.shellcheck.net/wiki/SC2155
+plugins/modules/setup.sh shellcheck:SC3060   # Shell-specific feature; check portability - https://www.shellcheck.net/wiki/SC3060
+plugins/modules/slurp.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/slurp.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/stat.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/stat.sh shellcheck:SC2046   # Quote command substitutions to prevent word splitting - https://www.shellcheck.net/wiki/SC2046
+plugins/modules/stat.sh shellcheck:SC2086   # Quote expansions to avoid word splitting - https://www.shellcheck.net/wiki/SC2086
+plugins/modules/stat.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/stat.sh shellcheck:SC2166   # Use separate tests instead of complex expressions - https://www.shellcheck.net/wiki/SC2166
+plugins/modules/sysctl.sh shellcheck:SC2005   # Useless use of echo; use variable expansion instead - https://www.shellcheck.net/wiki/SC2005
+plugins/modules/sysctl.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/sysctl.sh shellcheck:SC2046   # Quote command substitutions to prevent word splitting - https://www.shellcheck.net/wiki/SC2046
+plugins/modules/sysctl.sh shellcheck:SC2086   # Quote expansions to avoid word splitting - https://www.shellcheck.net/wiki/SC2086
+plugins/modules/sysctl.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/sysctl.sh shellcheck:SC2162   # Use 'read -r' to avoid interpreting backslashes - https://www.shellcheck.net/wiki/SC2162
+plugins/modules/sysctl.sh shellcheck:SC2166   # Use separate tests instead of complex expressions - https://www.shellcheck.net/wiki/SC2166
+plugins/modules/sysctl.sh shellcheck:SC3057   # POSIX compatibility concern; check array/read usage - https://www.shellcheck.net/wiki/SC3057
+plugins/modules/sysctl.sh shellcheck:SC3060   # Shell-specific feature; check portability - https://www.shellcheck.net/wiki/SC3060
+plugins/modules/uci.sh shellcheck:SC1087   # Consider POSIX-compliant alternatives - https://www.shellcheck.net/wiki/SC1087
+plugins/modules/uci.sh shellcheck:SC2015   # Prefer if/then over '&&'/'||' for control flow - https://www.shellcheck.net/wiki/SC2015
+plugins/modules/uci.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/uci.sh shellcheck:SC2046   # Quote command substitutions to prevent word splitting - https://www.shellcheck.net/wiki/SC2046
+plugins/modules/uci.sh shellcheck:SC2086   # Quote expansions to avoid word splitting - https://www.shellcheck.net/wiki/SC2086
+plugins/modules/uci.sh shellcheck:SC2154   # Referenced but undefined variable - https://www.shellcheck.net/wiki/SC2154
+plugins/modules/uci.sh shellcheck:SC2166   # Use separate tests instead of complex expressions - https://www.shellcheck.net/wiki/SC2166
+plugins/modules/uci.sh shellcheck:SC3018   # Use local for function-scoped variables - https://www.shellcheck.net/wiki/SC3018
+plugins/modules/wrapper.sh shellcheck:SC2012   # Don't parse 'ls' output; use globs - https://www.shellcheck.net/wiki/SC2012
+plugins/modules/wrapper.sh shellcheck:SC2015   # Prefer if/then over '&&'/'||' for control flow - https://www.shellcheck.net/wiki/SC2015
+plugins/modules/wrapper.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
+plugins/modules/wrapper.sh shellcheck:SC2046   # Quote command substitutions to prevent word splitting - https://www.shellcheck.net/wiki/SC2046
+plugins/modules/wrapper.sh shellcheck:SC2086   # Quote expansions to avoid word splitting - https://www.shellcheck.net/wiki/SC2086
+plugins/modules/wrapper.sh shellcheck:SC2119   # Function called without required arguments - https://www.shellcheck.net/wiki/SC2119
+plugins/modules/wrapper.sh shellcheck:SC2120   # Function doesn't use arguments - https://www.shellcheck.net/wiki/SC2120
+plugins/modules/wrapper.sh shellcheck:SC2155   # Split declaration and assignment to avoid masking return values - https://www.shellcheck.net/wiki/SC2155
+plugins/modules/wrapper.sh shellcheck:SC2166   # Use separate tests instead of complex expressions - https://www.shellcheck.net/wiki/SC2166
