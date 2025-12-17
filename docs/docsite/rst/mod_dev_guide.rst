@@ -358,8 +358,8 @@ Diff and change detection
 .. .. code-block:: sh
 
 ..   main() {
-..     _diff_before="$(cat /etc/config/foo)"
-..     _diff_after="${_diff_before/old/new}"
+..     _ diff _ before="$(cat /etc/config/foo)"
+..     _ diff _ after="${_diff_before/old/new}"
 ..     set_diff "$_diff_before" "$_diff_after" "before header" "after header"
 ..     changed
 ..   }
