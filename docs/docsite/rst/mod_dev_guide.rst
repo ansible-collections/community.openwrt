@@ -121,9 +121,7 @@ Parameter parsing
 """"""""""""""""""
 
 Module parameters must be declared by setting the ``PARAMS`` variable.
-It is a string, with a space-delimited list of parameters declared in a specific format:
-
-.. code-block::
+It is a string, with a space-delimited list of parameters declared in a specific format::
 
   NAME[=ALIAS1[=ALIAS2[=...]]]/TYPE/[REQ]/DEFAULT
 
@@ -133,7 +131,7 @@ Example (from ``sysctl``):
   :header-rows: 1
   :widths: 50 50
 
-  * - PARAMS
+  * - shell-based module
     - Python equivalent
   * - .. code-block:: sh
 
