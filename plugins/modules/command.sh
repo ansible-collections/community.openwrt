@@ -15,9 +15,9 @@ export RESPONSE_VARS="
     start end delta cmd
     stdout/str/a stderr/str/a rc/int/a
 "
+cmd=
 
 init() {
-    cmd=""
     export stdout=""
     export stderr=""
     export start=""

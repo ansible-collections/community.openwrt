@@ -31,6 +31,10 @@
       register: holy_canole
       changed_when: false
 
+    - name: Show the canole
+      ansible.builtin.debug:
+        var: holy_canole
+
     - name: Assert Canole
       ansible.builtin.assert:
         that:
