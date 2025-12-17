@@ -26,7 +26,6 @@ plugins/modules/uci.sh shebang
 plugins/modules/uci.sh validate-modules:invalid-extension
 plugins/modules/wrapper.sh shebang
 plugins/modules/wrapper.sh validate-modules:invalid-extension
-plugins/modules/command.sh shellcheck:SC2015
 plugins/modules/copy.sh shellcheck:SC2016   # Single-quoted strings don't expand variables - https://www.shellcheck.net/wiki/SC2016
 plugins/modules/copy.sh shellcheck:SC2034   # Unused variable - https://www.shellcheck.net/wiki/SC2034
 plugins/modules/copy.sh shellcheck:SC2059   # Avoid variable format strings in printf - https://www.shellcheck.net/wiki/SC2059
