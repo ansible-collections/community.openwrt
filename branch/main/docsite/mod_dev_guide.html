@@ -353,17 +353,40 @@ Regardless of that, it is a nice addition to the toolbox.</p>
 <h4>Standard Mechanism<a class="headerlink" href="#standard-mechanism" title="Link to this heading"></a></h4>
 <p>Similar to the <code class="docutils literal notranslate"><span class="pre">PARAMS</span></code> variable, the return values must be declared in the <code class="docutils literal notranslate"><span class="pre">RESPONSE_VARS</span></code> variable.
 It should also be declared outside any function in the module, and its expected content is a string,
-with a space-delimited list of return value names. The name correspond to shell variable names, and the actual
-return value for each one of them is the value of the namesake variable itself.</p>
-<p>Example:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">RESPONSE_VARS</span><span class="o">=</span><span class="s2">&quot;name value&quot;</span>
+with a space-delimited list of return value names in the following format:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">NAME[/TYPE[/ALWAYS]]</span>
 </pre></div>
 </div>
-<p>This example will cause the script to return the values <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">value</span></code> containing, respectively,
-the shell values <code class="docutils literal notranslate"><span class="pre">$name</span></code> and <code class="docutils literal notranslate"><span class="pre">$value</span></code>.</p>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>In shell scripts all variables are strings and there is no enforcing of the return types.</p>
+<p>If the type is specified, then the return value will be rendered using the corresponding type in the resulting JSON output.
+Unlike Python or JSON, there is no “null” value, such as <code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">null</span></code> to represent the lack of a value.
+The next best thing is to have a variable with no content, as in an empty string:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">val=</span><span class="w">    </span><span class="c1"># in shell this is</span>
+<span class="l l-Scalar l-Scalar-Plain">val=&quot;&quot;</span><span class="w">  </span><span class="c1"># the same as this</span>
+</pre></div>
+</div>
+<p>Empty variables are not included in the output by default.
+However, if the <code class="docutils literal notranslate"><span class="pre">ALWAYS</span></code> element is passed (usually the letter <code class="docutils literal notranslate"><span class="pre">a</span></code> is used, see example),
+then the value is included regardless of being empty or not.</p>
+<p>The name correspond to shell variable names, and the actual return value for each one of them is the
+value of the namesake variable itself.</p>
+<p>Example (from <code class="docutils literal notranslate"><span class="pre">community.openwrt.command</span></code>):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">RESPONSE_VARS</span><span class="o">=</span><span class="s2">&quot;</span>
+<span class="s2">    start</span>
+<span class="s2">    end</span>
+<span class="s2">    delta</span>
+<span class="s2">    cmd</span>
+<span class="s2">    stdout/str/a</span>
+<span class="s2">    stderr/str/a</span>
+<span class="s2">    rc/int/a</span>
+<span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>The value of the shell variables <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code>, etc will be passed as return values of the module.
+Note that <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code> and <code class="docutils literal notranslate"><span class="pre">rc</span></code> are typed, and they are always returned, which is expected
+of the <code class="docutils literal notranslate"><span class="pre">command</span></code> module.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no support for specifying <code class="docutils literal notranslate"><span class="pre">contains</span></code> elements of return values of the type <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
 </div>
 <div class="admonition-to-do admonition">
 <p class="admonition-title">TO-DO</p>
