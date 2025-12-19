@@ -1,10 +1,4 @@
 ---
-dependency:
-  name: galaxy
-  options:
-    ignore-certs: True
-    ignore-errors: True
-    requirements-file: collections.yml
 driver:
   name: docker
 platforms:
@@ -31,7 +25,6 @@ provisioner:
         ansible_remote_tmp: /tmp/.ansible/tmp
 scenario:
   test_sequence:
-    - dependency
     - create
     - converge
     - verify
