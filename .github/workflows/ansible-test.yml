@@ -300,7 +300,7 @@ jobs:
           # codecov-token: ${{ secrets.CODECOV_TOKEN }}
           # OPTIONAL If your integration tests require code
           # from other collections, install them like this
-          test-deps: ansible.netcommon
+          test-deps: ansible.posix, community.docker
           # OPTIONAL If set to true, will test only against changed files,
           # which should improve CI performance. See limitations on
           # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
@@ -315,7 +315,7 @@ jobs:
       - sanity
       - molecule
       # - units
-      # - integration
+      - integration
 
     runs-on: ubuntu-latest
 
