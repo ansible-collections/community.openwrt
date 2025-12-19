@@ -13,8 +13,6 @@ provisioner:
   name: ansible
   env:
     ANSIBLE_COLLECTIONS_PATH: "${HOME}/.ansible/collections:/usr/share/ansible/collections:${MOLECULE_SCENARIO_DIRECTORY}/../../../.."
-verifier:
-  name: ansible
 lint: |
   set -e
   yamllint .

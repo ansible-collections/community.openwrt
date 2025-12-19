@@ -35,8 +35,6 @@ platforms:
       - openwrt
 provisioner:
   name: ansible
-  playbooks:
-    converge: ${MOLECULE_PLAYBOOK:-converge.yml}
   inventory:
     host_vars:
       openwrt_x86_64-24.10.4:
@@ -62,8 +60,6 @@ provisioner:
         ansible_remote_tmp: /tmp/.ansible/tmp
   env:
     ANSIBLE_COLLECTIONS_PATH: "${HOME}/.ansible/collections:/usr/share/ansible/collections:${MOLECULE_SCENARIO_DIRECTORY}/../../../.."
-verifier:
-  name: ansible
 lint: |
   set -e
   yamllint .
