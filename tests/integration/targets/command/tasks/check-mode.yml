@@ -1,0 +1,16 @@
+---
+# Check-mode tests for command module
+- name: Run command with check mode
+  community.openwrt.command:
+    cmd: "echo checked"
+  check_mode: false
+  register: check_out
+
+- name: Display check result
+  ansible.builtin.debug:
+    var: check_out
+
+- name: Ensure check produced no change
+  ansible.builtin.assert:
+    that:
+      - "check_out is changed"
