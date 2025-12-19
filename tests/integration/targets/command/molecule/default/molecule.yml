@@ -29,8 +29,6 @@ provisioner:
         ansible_port: 2224
         ansible_shell_type: sh
         ansible_remote_tmp: /tmp/.ansible/tmp
-  env:
-    ANSIBLE_COLLECTIONS_PATH: "${HOME}/.ansible/collections:/usr/share/ansible/collections:${MOLECULE_SCENARIO_DIRECTORY}/../../../.."
 scenario:
   test_sequence:
     - dependency
