@@ -9,14 +9,13 @@ ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 TARGET_DIR="$SCRIPT_DIR"
 SCENARIO="${MOLECULE_SCENARIO:-default}"
 # OpenWrt version used for this integration test (can be overridden by env)
-OPENWRT_VERSION="${OPENWRT_VERSION:-24.10.4}"
-export OPENWRT_VERSION
+export OPENWRT_VERSION="${OPENWRT_VERSION:-24.10.4}"
 MOL_DIR="$ROOT/molecule"
 created_copy=0
 
 source virtualenv.sh
 
-pip install -r ${ROOT}/requirements-test.txt
+pip install -r "${ROOT}/../../../../../../requirements-test.txt"
 
 cleanup() {
     if [ "$created_copy" = "1" ] && [ -d "$MOL_DIR" ]; then
