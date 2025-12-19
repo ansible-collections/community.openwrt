@@ -1,5 +1,6 @@
-molecule[lint]
+molecule
 molecule-plugins[docker]
 docker
 yamllint
 ansible-lint
+andebox
