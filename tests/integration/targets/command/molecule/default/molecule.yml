@@ -17,7 +17,6 @@ provisioner:
   inventory:
     host_vars:
       "openwrt_x86_64-${OPENWRT_VERSION}":
-
         ansible_user: root
         ansible_connection: ssh
         ansible_host: 127.0.0.1
