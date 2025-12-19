@@ -14,6 +14,8 @@ export OPENWRT_VERSION
 MOL_DIR="$ROOT/molecule"
 created_copy=0
 
+pip install -r ${ROOT}/requirements-test.txt
+
 cleanup() {
     if [ "$created_copy" = "1" ] && [ -d "$MOL_DIR" ]; then
         rm -rf "$MOL_DIR" || true
