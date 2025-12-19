@@ -1,6 +1,10 @@
 ---
 dependency:
   name: galaxy
+  options:
+    ignore-certs: True
+    ignore-errors: True
+    requirements-file: collections.yml
 driver:
   name: docker
 platforms:
@@ -29,6 +33,7 @@ provisioner:
     ANSIBLE_COLLECTIONS_PATH: "${HOME}/.ansible/collections:/usr/share/ansible/collections:${MOLECULE_SCENARIO_DIRECTORY}/../../../.."
 scenario:
   test_sequence:
+    - dependency
     - create
     - converge
     - verify
