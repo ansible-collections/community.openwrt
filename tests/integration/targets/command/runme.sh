@@ -14,6 +14,8 @@ export OPENWRT_VERSION
 MOL_DIR="$ROOT/molecule"
 created_copy=0
 
+source virtualenv.sh
+
 pip install -r ${ROOT}/requirements-test.txt
 
 cleanup() {
