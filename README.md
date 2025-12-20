@@ -138,6 +138,12 @@ For the time being, the tests are being performed using:
 
 All the offending OpenWrt releases are no longer supported by OpenWrt, so this is not a priority for this project.
 
+## Included content
+
+Please check the included content on the [Ansible Galaxy page for this collection](https://galaxy.ansible.com/ui/repo/published/community/openwrt/docs/)
+
+<!-- or the [documentation on the Ansible docs site](https://docs.ansible.com/projects/ansible/latest/collections/community/openwrt/). -->
+
 ## Using this collection
 
 <!--Include some quick examples that cover the most common use cases for your collection content. It can include the following examples of installation and upgrade (change community.openwrt correspondingly):-->
