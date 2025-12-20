@@ -1,0 +1,32 @@
+{
+  "name": "community.openwrt devcontainer",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "python.pythonPath": "/usr/local/bin/python"
+      },
+      "extensions": [
+        "chrislajoie.vscode-modelines",
+        "esbenp.prettier-vscode",
+        "michelemelluso.gitignore",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "oderwat.indent-rainbow",
+        "redhat.ansible",
+        "redhat.vscode-yaml",
+        "trond-snekvik.simple-rst",
+        "wayou.vscode-todo-highlight"
+      ]
+    }
+  },
+  "remoteUser": "vscode",
+  "postCreateCommand": "pip install -r requirements-test.txt"
+}
