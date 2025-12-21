@@ -110,11 +110,16 @@ jobs:
           pull-request-change-detection: false
 
   molecule:
-    name: Molecule (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    name: Molecule (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+owrt${{ matrix.openwrt }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        openwrt:
+          - "21.02.7"
+          - "22.03.7"
+          - "23.05.6"
+          - "24.10.4"
         ansible:
           - stable-2.17
           - stable-2.18
@@ -172,12 +177,13 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
-      - name: Run molecule tests (default scenario)
+      - name: Run molecule tests
         working-directory: ansible_collections/community/openwrt
         run: molecule test --scenario-name default
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
+          OPENWRT_VERSION: ${{ matrix.openwrt }}
 
   ###
   # Unit tests (OPTIONAL)
