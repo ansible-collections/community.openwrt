@@ -8,6 +8,9 @@ platforms:
     image: "openwrt/rootfs:x86_64-${OPENWRT_VERSION}"
     command: sh -c 'mkdir -p /var/lock; sleep infinity'
     pre_build_image: true
+provisioner:
+  env:
+    ANSIBLE_COLLECTIONS_PATH: "${HOME}/.ansible/collections:/usr/share/ansible/collections:${MOLECULE_SCENARIO_DIRECTORY}/../../../.."
 scenario:
   test_sequence:
     - create
