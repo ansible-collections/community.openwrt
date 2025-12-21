@@ -174,7 +174,7 @@ jobs:
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
-        run: molecule test --scenario-name default
+        run: molecule -vv test --scenario-name default
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
