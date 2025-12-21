@@ -3,6 +3,8 @@
 set -euo pipefail
 [ "${DEBUG:-}" != "" ] && set -x
 
+verboses="${1:-}"
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 TARGET_DIR="$SCRIPT_DIR"
@@ -18,6 +20,10 @@ echo TARGET_DIR="$TARGET_DIR"
 source virtualenv.sh
 
 pip install molecule 'molecule-plugins[docker]'
+
+[ -x /usr/bin/docker ] || {
+    sudo apt-get update && sudo apt-get install -y docker.io
+}
 
 cleanup() {
     if [ "$created_copy" = "1" ] && [ -d "$MOL_DIR" ]; then
@@ -45,7 +51,8 @@ if ! command -v molecule >/dev/null 2>&1; then
     exit 1
 fi
 
-molecule -v test -s "$SCENARIO"
+# shellcheck disable=SC2086
+molecule $verboses test -s "$SCENARIO"
 rc=$?
 cleanup
 exit $rc
