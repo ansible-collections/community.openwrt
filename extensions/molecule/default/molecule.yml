@@ -1,4 +1,6 @@
 ---
+dependency:
+  name: galaxy
 driver:
   name: docker
 platforms:
