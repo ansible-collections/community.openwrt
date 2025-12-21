@@ -1,36 +1,6 @@
 ---
-- name: Prepare OpenWRT container for SSH access (24.10.4 only)
-  hosts: openwrt_x86_64-24.10.4
-  gather_facts: false
-  tasks:
-    - name: Install dropbear SSH server using docker exec
-      ansible.builtin.command:
-        cmd: |
-          docker exec {{ inventory_hostname }} sh -c '
-            mkdir -p /var/lock
-            opkg update
-            opkg install dropbear
-            passwd -d root
-          '
-      delegate_to: localhost
-      changed_when: true
-
-    - name: Start dropbear in background
-      ansible.builtin.command:
-        cmd: docker exec -d {{ inventory_hostname }} /usr/sbin/dropbear -R -F -B -p 22
-      delegate_to: localhost
-      changed_when: true
-
-    - name: Wait for SSH to be available
-      ansible.builtin.wait_for:
-        port: "{{ ansible_port }}"
-        host: 127.0.0.1
-        delay: 2
-        timeout: 30
-      delegate_to: localhost
-
 - name: Prepare OpenWRT container (Docker connection only)
-  hosts: openwrt_x86_64-23.05.6,openwrt_x86_64-22.03.7,openwrt_x86_64-21.02.7
+  hosts: all
   gather_facts: false
   tasks:
     - name: Create /var/lock directory
