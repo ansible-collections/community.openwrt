@@ -15,6 +15,7 @@
       },
       "extensions": [
         "chrislajoie.vscode-modelines",
+        "eamodio.gitlens",
         "esbenp.prettier-vscode",
         "michelemelluso.gitignore",
         "ms-python.python",
