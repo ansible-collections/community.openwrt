@@ -21,4 +21,4 @@ pip install molecule 'molecule-plugins[docker]'
 }
 
 # shellcheck disable=SC2086
-molecule -c ../config.yml $verboses test
+molecule $verboses test
