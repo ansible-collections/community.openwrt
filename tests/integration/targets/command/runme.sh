@@ -11,7 +11,8 @@ set -uo pipefail
 verboses="${1:-}"
 
 export OPENWRT_VERSION="${OPENWRT_VERSION:-24.10.4}"
-export ANSIBLE_ROLES_PATH="$(pwd)"
+export ANSIBLE_ROLES_PATH
+ANSIBLE_ROLES_PATH="$(pwd)"
 
 source virtualenv.sh
 pip install molecule 'molecule-plugins[docker]'
