@@ -2,5 +2,5 @@
 - name: Verify
   hosts: all
   gather_facts: false
-  tasks:
-    - ansible.builtin.include_tasks: ../../tasks/main.yml
+  roles:
+    - role: test
