@@ -3,7 +3,7 @@
 - name: Run command with check mode
   community.openwrt.command:
     cmd: "echo checked"
-  check_mode: false
+  check_mode: true
   register: check_out
 
 - name: Display check result
