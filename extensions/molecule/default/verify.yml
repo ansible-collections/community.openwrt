@@ -131,3 +131,30 @@
       ansible.builtin.file:
         path: /tmp/openwrt_test_file.txt
         state: absent
+
+    - name: Apk install package
+      community.openwrt.apk:
+        name: htop
+      when: _apk_available.rc == 0
+
+    - name: Apk check package is installed
+      community.openwrt.command:
+        cmd: which htop
+        uses_shell: true
+      when: _apk_available.rc == 0
+      register: _htop_installed
+      failed_when: _htop_installed.rc != 0
+
+    - name: Apk uninstall package
+      community.openwrt.apk:
+        name: htop
+        state: absent
+      when: _apk_available.rc == 0
+
+    - name: Apk check package is uninstalled
+      community.openwrt.command:
+        cmd: which htop
+        uses_shell: true
+      when: _apk_available.rc == 0
+      register: _htop_installed
+      failed_when: _htop_installed.rc == 0
