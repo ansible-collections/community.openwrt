@@ -51,10 +51,10 @@
         that:
           - uci_dhcp_domainneeded.result == "1"
 
-    - name: Verify opkg is available
+    - name: Verify opkg or apk is available
       community.openwrt.command:
-        cmd: which opkg
-      register: opkg_result
+        cmd: "which opkg || which apk"
+        uses_shell: true
       changed_when: false
 
     - name: Verify recommended packages were installed
