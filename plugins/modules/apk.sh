@@ -1,6 +1,6 @@
 #!/bin/sh
 # shellcheck shell=ash
-# Copyright (c) 2024 Krzysztof Bialek/Markus Weippert
+# Copyright (c) 2025 Krzysztof Bialek/Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
 PARAMS="
