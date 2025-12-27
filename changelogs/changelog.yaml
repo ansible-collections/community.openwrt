@@ -56,3 +56,17 @@ releases:
         name: wrapper
         namespace: ''
     release_date: '2025-12-14'
+  0.3.0:
+    changes:
+      release_summary: 'Add ``.devcontainer`` setup.
+
+        Create User and Module Dev Guides.
+
+        Generate collection docs in GitHub.
+
+        Simplify collection-level molecule tests.
+
+        Rename setup role to ``community.openwrt.init``.'
+    fragments:
+      - 0.3.0.yml
+    release_date: '2025-12-27'
