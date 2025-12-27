@@ -21,9 +21,7 @@ install_packages() {
     _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"
     
     for pkg; do
-        if ! query_package "$pkg"; then
-            pkgs_to_install="$pkgs_to_install $pkg"
-        fi
+        query_package "$pkg" || pkgs_to_install="$pkgs_to_install $pkg"
     done
 
     [ -n "$pkgs_to_install" ] || return 0
@@ -44,9 +42,7 @@ remove_packages() {
     _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"
 
     for pkg; do
-        if query_package "$pkg"; then
-            pkgs_to_remove="$pkgs_to_remove $pkg"
-        fi
+        query_package "$pkg" && pkgs_to_remove="$pkgs_to_remove $pkg"
     done
 
     [ -n "$pkgs_to_remove" ] || return 0
@@ -68,26 +64,9 @@ main() {
         *) fail "state must be present or absent";;
     esac
 
-    # Map boolean update_cache to apk flag
-    if [ "$update_cache" = "True" ] || [ "$update_cache" = "yes" ]; then
-        update_cache="--update-cache"
-    else
-        update_cache=""
-    fi
-
-    # Map no_cache (common in apk)
-    if [ "$no_cache" = "True" ] || [ "$no_cache" = "yes" ]; then
-        no_cache="--no-cache"
-    else
-        no_cache=""
-    fi
-
-    # Handle force (apk uses --force-broken-world for dependency issues)
-    if [ "$force_broken_world" = "True" ] || [ "$force_broken_world" = "yes" ]; then
-        force_broken_world="--force-broken-world"
-    else
-        force_broken_world=""
-    fi
+    [ "$update_cache" = "1" ] && update_cache="--update-cache" || update_cache=""
+    [ "$no_cache" = "1" ] && no_cache="--no-cache" || no_cache=""
+    [ "$force_broken_world" = "1" ] && force_broken_world="--force-broken-world" || force_broken_world=""
 
     case "$state" in
         present|installed) install_packages;;
