@@ -1,0 +1,12 @@
+minor_changes:
+  - command - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - copy - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - file - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - lineinfile - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - opkg - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - service - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - slurp - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - stat - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - sysctl - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - uci - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+  - wrapper - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
