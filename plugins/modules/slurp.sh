@@ -13,9 +13,12 @@ init() {
     encoding=""
 }
 
-main() {
+validate() {
     [ -e "$src" ] || fail "file not found: $src"
     [ -r "$src" ] || fail "file not readable: $src"
+}
+
+main() {
     try base64 "$src"
     content="$_result"
     encoding="base64"

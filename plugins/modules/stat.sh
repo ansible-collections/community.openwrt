@@ -3,60 +3,6 @@
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-PARAMS="
-    checksum_algorithm=checksum_algo=checksum/str//sha1
-    get_checksum/bool//true
-    get_md5/bool//true
-    get_mime/bool//true
-    path/str/r
-"
-RESPONSE_VARS="
-    charset/str
-    checksum/str
-    ctime/int
-    dev/int
-    executable/bool
-    exists/bool
-    gid/int
-    gr_name/str
-    inode/int
-    isblk/bool
-    ischr/bool
-    isdir/bool
-    isfifo/bool
-    isgid/bool
-    islnk/bool
-    isreg/bool
-    issock/bool
-    isuid/bool
-    lnk_source/str
-    md5/str
-    mime_type/str
-    mode/str
-    mtime/int
-    nlink/int
-    pw_name/str
-    readable/bool
-    rgrp/bool
-    roth/bool
-    rusr/bool
-    size/int
-    uid/int
-    wgrp/bool
-    woth/bool
-    writeable/bool
-    wusr/bool
-    xgrp/bool
-    xoth/bool
-    xusr/bool
-"
-
-init() {
-    local var
-    for var in $RESPONSE_VARS; do eval "${var%%/*}=\"\""; done
-    RESPONSE_VARS="path/str $RESPONSE_VARS"
-}
-
 parse_priv() {
     local priv="$1"
     local part="$2"
@@ -67,6 +13,60 @@ parse_priv() {
     mode="$mode$octal"
     [ -z "${priv#??[-x]}" ] || high=$((high + high_mod))
     high_mod=$((high_mod / 2))
+}
+
+init() {
+    local var
+    PARAMS="
+        checksum_algorithm=checksum_algo=checksum/str//sha1
+        get_checksum/bool//true
+        get_md5/bool//true
+        get_mime/bool//true
+        path/str/r
+    "
+    RESPONSE_VARS="
+        charset/str
+        checksum/str
+        ctime/int
+        dev/int
+        executable/bool
+        exists/bool
+        gid/int
+        gr_name/str
+        inode/int
+        isblk/bool
+        ischr/bool
+        isdir/bool
+        isfifo/bool
+        isgid/bool
+        islnk/bool
+        isreg/bool
+        issock/bool
+        isuid/bool
+        lnk_source/str
+        md5/str
+        mime_type/str
+        mode/str
+        mtime/int
+        nlink/int
+        pw_name/str
+        readable/bool
+        rgrp/bool
+        roth/bool
+        rusr/bool
+        size/int
+        uid/int
+        wgrp/bool
+        woth/bool
+        writeable/bool
+        wusr/bool
+        xgrp/bool
+        xoth/bool
+        xusr/bool
+    "
+
+    for var in $RESPONSE_VARS; do eval "${var%%/*}=\"\""; done
+    RESPONSE_VARS="path/str $RESPONSE_VARS"
 }
 
 main() {

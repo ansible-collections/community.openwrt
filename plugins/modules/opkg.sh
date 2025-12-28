@@ -3,15 +3,6 @@
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-PARAMS="
-    name=pkg/str/r
-    state/str//present
-    force/str
-    update_cache/bool
-    autoremove/bool
-    nodeps/bool
-"
-
 query_package() {
     [ -n "$(opkg status "$1")" ]
 }
@@ -42,7 +33,18 @@ remove_packages() {
     done
 }
 
-main() {
+init() {
+    PARAMS="
+        name=pkg/str/r
+        state/str//present
+        force/str
+        update_cache/bool
+        autoremove/bool
+        nodeps/bool
+    "
+}
+
+validate() {
     case "$state" in
         present|installed|absent|removed) :;;
         *) fail "state must be present or absent";;
@@ -55,6 +57,9 @@ main() {
         esac
         force=" --force-$force"
     }
+}
+
+main() {
     [ -z "$autoremove" ] || {
         autoremove=" --autoremove"
     }

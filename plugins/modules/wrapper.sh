@@ -39,6 +39,7 @@ N="
 T="	"
 
 init() { :; }
+validate() { :; }
 main() { :; }
 cleanup() { :; }
 
@@ -359,8 +360,9 @@ base64() {
 json_set_namespace result
 json_init
 . "$_script"
+init || fail "module init failed"
 _parse_params
 _support_check_mode
-init || fail "module init failed"
+validate || fail "module validation failed"
 _init_done="1"
 main

@@ -3,14 +3,6 @@
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-PARAMS="
-    enabled/bool
-    name/str/r
-    pattern/str
-    state/str
-"
-RESPONSE_VARS="name enabled state"
-
 is_running() {
     [ -z "$pattern" ] || { pgrep -f "$pattern" >/dev/null 2>&1; return $?; }
     "$init_script" running >/dev/null 2>&1
@@ -56,9 +48,22 @@ set_state() {
     }
 }
 
-main() {
+init() {
+    PARAMS="
+        enabled/bool
+        name/str/r
+        pattern/str
+        state/str
+    "
+    RESPONSE_VARS="name enabled state"
+}
+
+validate() {
     init_script="/etc/init.d/$name"
     [ -f "$init_script" ] || fail "service $name does not exist"
+}
+
+main() {
     [ -z "$_orig_enabled" ] || set_enabled
     [ -z "$state" ] || set_state
 }

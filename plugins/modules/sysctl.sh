@@ -3,23 +3,6 @@
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-PARAMS="
-    ignore_errors=ignoreerrors/bool
-    name=key/str/r
-    reload/bool//true
-    state/str//present
-    sysctl_file/str
-    sysctl_set/bool//false
-    value=val/str
-"
-RESPONSE_VARS="name value"
-
-init() {
-    sysctl="/sbin/sysctl"
-    default_sysctl_file="/etc/sysctl.conf"
-    tmp_file=""
-}
-
 sysctl_set() {
     local result
     [ "$(echo $($sysctl -n "$name"))" = "$value" ] || {
@@ -58,17 +41,34 @@ sysctl_write() {
     }
 }
 
-main() {
-    local result
+init() {
+    PARAMS="
+        ignore_errors=ignoreerrors/bool
+        name=key/str/r
+        reload/bool//true
+        state/str//present
+        sysctl_file/str
+        sysctl_set/bool//false
+        value=val/str
+    "
+    RESPONSE_VARS="name value"
+
+    sysctl="/sbin/sysctl"
+    default_sysctl_file="/etc/sysctl.conf"
+    tmp_file=""
+}
+
+validate() {
     [ -n "$sysctl_file" ] || sysctl_file="$default_sysctl_file"
     case "$state" in
         absent) :;;
-        present)
-            [ -n "$value" ] ||
-                fail "value must be given with state present";;
+        present) [ -n "$value" ] || fail "value must be given with state present";;
         *) fail "state must be present or absent";;
     esac
+}
 
+main() {
+    local result
     [ -w "$sysctl_file" ] || fail "sysctl file $sysctl_file not writeable"
     [ "$state" = "present" ] || ignore_errors="y"
     [ -n "$ignore_errors" -a -z "$sysctl_set" ] ||

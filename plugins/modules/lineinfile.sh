@@ -3,18 +3,20 @@
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-PARAMS="
-    backrefs/bool//false
-    create/bool//false
-    insertafter/str
-    insertbefore/str
-    line=value/str
-    path=dest=destfile=name/str/r
-    regex=regexp/str
-    state/str//present
-    $FILE_PARAMS
-"
-RESPONSE_VARS=""
+init() {
+    PARAMS="
+        backrefs/bool//false
+        create/bool//false
+        insertafter/str
+        insertbefore/str
+        line=value/str
+        path=dest=destfile=name/str/r
+        regex=regexp/str
+        state/str//present
+        $FILE_PARAMS
+    "
+    RESPONSE_VARS=""
+}
 
 escape_slash() {
     echo "$1" | sed -e 's|^/|\\/|;:a;s|\([^\]\(\\\\\)*\)/|\1\\/|g;ta;q'
@@ -99,25 +101,29 @@ line_absent() {
     [ -n "$_ansible_check_mode" -o -z "$CHANGED" ] || save_changes "$new"
 }
 
-main() {
-    case "$state" in
-        absent|present) :;;
-        *) fail "state must be absent or present";;
-    esac
-    [ -n "$regex" ] &&
-        line_match="$(escape_slash "$regex")" ||
-        line_match="^$(escape_chars "$line" '/.[*^$()+?{|')\$"
-    [ ! -d "$file" ] || fail "path $path is a directory"
+validate() {
     case "$state" in
         present)
-            [ -z "$backrefs" -o -n "$regex" ] ||
-                fail "regexp is required with backrefs"
+            [ -z "$backrefs" -o -n "$regex" ] || fail "regexp is required with backrefs"
             [ -n "$line" ] || fail "line is required with state present"
-            line_present;;
+            ;;
         absent)
-            [ -n "$line" -o -n "$regex" ] ||
-                fail "line or regexp is required with state absent"
-            line_absent;;
+            [ -n "$line" -o -n "$regex" ] || fail "line or regexp is required with state absent"
+            ;;
+        *) fail "state must be absent or present";;
+    esac
+    [ ! -d "$file" ] || fail "path $path is a directory"
+}
+
+main() {
+    if [ -n "$regex" ]; then
+        line_match="$(escape_slash "$regex")"
+    else
+        line_match="^$(escape_chars "$line" '/.[*^$()+?{|')\$"
+    fi
+    case "$state" in
+        present) line_present;;
+        absent) line_absent;;
     esac
     set_file_attributes "$path" "" "y"
 }
