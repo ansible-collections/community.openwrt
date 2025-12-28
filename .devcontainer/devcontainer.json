@@ -1,9 +1,6 @@
 {
   "name": "community.openwrt devcontainer",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
+  "image": "mcr.microsoft.com/devcontainers/python:3.14-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
@@ -29,5 +26,7 @@
     }
   },
   "remoteUser": "vscode",
-  "postCreateCommand": "pip install -r requirements-test.txt"
+  "postCreateCommand": ".devcontainer/setup.sh",
+  "workspaceFolder": "/workspace/ansible_collections/community/openwrt",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/ansible_collections/community/openwrt,type=bind"
 }
