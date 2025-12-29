@@ -4,6 +4,18 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v0.3.0
+======
+
+Release Summary
+---------------
+
+Add ``.devcontainer`` setup.
+Create User and Module Dev Guides.
+Generate collection docs in GitHub.
+Simplify collection-level molecule tests.
+Rename setup role to ``community.openwrt.init``.
+
 v0.2.0
 ======
 
