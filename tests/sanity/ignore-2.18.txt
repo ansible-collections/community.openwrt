@@ -1,3 +1,5 @@
+plugins/modules/apk.sh shebang
+plugins/modules/apk.sh validate-modules:invalid-extension
 plugins/modules/command.sh shebang
 plugins/modules/command.sh validate-modules:invalid-extension
 plugins/modules/copy.sh shebang
@@ -26,6 +28,8 @@ plugins/modules/uci.sh shebang
 plugins/modules/uci.sh validate-modules:invalid-extension
 plugins/modules/wrapper.sh shebang
 plugins/modules/wrapper.sh validate-modules:invalid-extension
+plugins/modules/apk.sh shellcheck:SC2086
+plugins/modules/apk.sh shellcheck:SC2154
 plugins/modules/copy.sh shellcheck:SC2016
 plugins/modules/copy.sh shellcheck:SC2034
 plugins/modules/copy.sh shellcheck:SC2059
