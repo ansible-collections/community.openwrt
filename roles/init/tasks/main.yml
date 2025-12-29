@@ -32,13 +32,9 @@
 
 - name: Check for package manager availability
   ansible.builtin.set_fact:
-    _package_manager_available: "{{ _opkg_available.rc == 0 or _apk_available.rc == 0 }}"
-  failed_when: (openwrt_install_recommended_packages | bool) and not _package_manager_available
+    _package_manager_type: "{{ 'apk' if _apk_available.rc == 0 else 'opkg' if _opkg_available.rc == 0 else None }}"
+  failed_when: (openwrt_install_recommended_packages | bool) and not _package_manager_type
 
 - name: Install recommended packages for module compatibility
-  ansible.builtin.include_tasks: packages-apk.yml
-  when: (openwrt_install_recommended_packages | bool) and _apk_available.rc == 0
-
-- name: Install recommended packages for module compatibility
-  ansible.builtin.include_tasks: packages.yml
-  when: (openwrt_install_recommended_packages | bool) and _opkg_available.rc == 0 and _apk_available.rc != 0
+  ansible.builtin.include_tasks: packages-{{ _package_manager_type }}.yml
+  when: (openwrt_install_recommended_packages | bool)
