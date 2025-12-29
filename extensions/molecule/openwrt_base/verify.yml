@@ -1,8 +1,0 @@
----
-- name: Verify
-  hosts: all
-  gather_facts: false
-  tasks:
-    - name: No-op verify
-      ansible.builtin.debug:
-        msg: "openwrt_base verify completed"

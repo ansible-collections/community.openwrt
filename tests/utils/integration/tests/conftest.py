@@ -14,7 +14,7 @@ def run_openwrt_test():
         cmd = (
             [sys.executable, "-m", "molecule"]
             + verbosity.split()
-            + ["test", "--scenario-name", "default"]
+            + ["test", "--scenario-name", "integration_test"]
         )
         proc = subprocess.run(cmd)
         if proc.returncode != 0:
