@@ -13,6 +13,12 @@ REPO_ROOT="$(cd "$OUTPUT_DIR/../../../../" && pwd)"
 # shellcheck disable=SC2155
 export TEST_TARGET_NAME="$(basename "$SCRIPT_DIR")"
 
+source virtualenv.sh
+pip install molecule 'molecule-plugins[docker]'
+[ -x /usr/bin/docker ] || {
+    sudo apt-get update && sudo apt-get install -y docker.io
+}
+
 # shellcheck disable=SC2164
 cd "$REPO_ROOT"
 pytest -s tests/utils/integration/tests
