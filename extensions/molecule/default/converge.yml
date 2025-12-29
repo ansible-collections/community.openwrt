@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Run module-specific role provided by TEST_TARGET_ROLE
+      include_role:
+        name: "{{ lookup('env', 'TEST_TARGET_ROLE') }}"

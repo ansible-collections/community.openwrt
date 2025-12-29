@@ -24,3 +24,10 @@ scenario:
     - create
     - verify
     - destroy
+
+# Ensure generated ansible.cfg allows legacy/broken conditionals used by some drivers
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      allow_broken_conditionals: True

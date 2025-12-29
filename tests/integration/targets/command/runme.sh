@@ -2,23 +2,19 @@
 #
 # Entry-point used by ansible-test integration
 #
-# Here it triggers the molecule test
+# Here it triggers pytest which uses pytest-ansible/molecule fixtures
 #
 
 set -uo pipefail
 [ "${DEBUG:-}" != "" ] && set -x
 
-verboses="${1:-}"
+export CLI_VERBOSITY="${1:-}"
 
 export OPENWRT_VERSION="${OPENWRT_VERSION:-24.10.4}"
-export ANSIBLE_ROLES_PATH
-ANSIBLE_ROLES_PATH="$(pwd)"
 
-source virtualenv.sh
-pip install molecule 'molecule-plugins[docker]'
-[ -x /usr/bin/docker ] || {
-    sudo apt-get update && sudo apt-get install -y docker.io
-}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../../../../../../../" && pwd)"
 
-# shellcheck disable=SC2086
-molecule $verboses test
+export TEST_TARGET_NAME="$(basename "$SCRIPT_DIR")"
+
+(cd "$REPO_ROOT"; pytest -s tests/utils/integration/tests )

@@ -1,0 +1,15 @@
+---
+driver:
+  name: docker
+platforms:
+  - name: openwrt-instance
+    image: "openwrt/rootfs:x86_64:${OPENWRT_VERSION:-24.10.4}"
+    command: sh -c "mkdir -p /var/lock; sleep infinity"
+    pre_build_image: true
+scenario:
+  test_sequence:
+    - dependency
+    - create
+    - converge
+    - verify
+    - destroy
