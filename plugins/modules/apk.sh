@@ -64,9 +64,9 @@ main() {
         *) fail "state must be present or absent";;
     esac
 
-    [ "$update_cache" = "1" ] && update_cache="--update-cache" || update_cache=""
-    [ "$no_cache" = "1" ] && no_cache="--no-cache" || no_cache=""
-    [ "$force_broken_world" = "1" ] && force_broken_world="--force-broken-world" || force_broken_world=""
+    [ -z "$update_cache" ] || update_cache="--update-cache"
+    [ -z "$no_cache" ] || no_cache="--no-cache"
+    [ -z "$force_broken_world" ] || force_broken_world="--force-broken-world"
 
     case "$state" in
         present|installed) install_packages;;
