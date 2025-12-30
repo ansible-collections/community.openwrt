@@ -133,7 +133,7 @@
         state: absent
 
     - name: Apk tests
-      when: _apk_available.rc == 0
+      when: openwrt_package_manager == 'apk'
       block:
         - name: Apk install package
           community.openwrt.apk:
