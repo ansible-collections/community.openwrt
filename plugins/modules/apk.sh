@@ -10,6 +10,7 @@ query_package() {
 
 install_packages() {
     local _IFS pkg pkgs_to_install
+    # shellcheck disable=SC2154,SC2086
     _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"
     
     for pkg; do
@@ -26,7 +27,7 @@ install_packages() {
         stderr="$(cat "$err")"
         # Verify installation
         for pkg in $pkgs_to_install; do
-            query_package "$pkg" || fail "failed to install $pkg: $_result"
+            query_package "$pkg" || fail "failed to install $pkg: $stdout $stderr"
         done
     }
     changed
@@ -34,6 +35,7 @@ install_packages() {
 
 remove_packages() {
     local _IFS pkg pkgs_to_remove
+    # shellcheck disable=SC2154,SC2086
     _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"
 
     for pkg; do
@@ -50,7 +52,7 @@ remove_packages() {
         stderr="$(cat "$err")"
         # Verify removal
         for pkg in $pkgs_to_remove; do
-            ! query_package "$pkg" || fail "failed to remove $pkg: $_result"
+            ! query_package "$pkg" || fail "failed to remove $pkg: $stdout $stderr"
         done
     }
     changed
@@ -77,6 +79,7 @@ init() {
 }
 
 validate() {
+    # shellcheck disable=SC2154
     case "$state" in
         present|installed|absent|removed) :;;
         *) fail "state must be present or absent";;
