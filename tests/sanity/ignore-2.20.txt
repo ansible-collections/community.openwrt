@@ -28,8 +28,6 @@ plugins/modules/uci.sh shebang
 plugins/modules/uci.sh validate-modules:invalid-extension
 plugins/modules/wrapper.sh shebang
 plugins/modules/wrapper.sh validate-modules:invalid-extension
-plugins/modules/apk.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
-plugins/modules/apk.sh shellcheck:SC2154   # var is referenced but not assigned - https://www.shellcheck.net/wiki/SC2154
 plugins/modules/copy.sh shellcheck:SC2016   # Expressions don't expand in single quotes, use double quotes for that - https://www.shellcheck.net/wiki/SC2016
 plugins/modules/copy.sh shellcheck:SC2059   # Don't use variables in the `printf` format string. Use `printf "..%s.." "$foo"` - https://www.shellcheck.net/wiki/SC2059
 plugins/modules/copy.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
