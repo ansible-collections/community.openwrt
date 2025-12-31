@@ -81,6 +81,10 @@ validate() {
         present|installed|absent|removed) :;;
         *) fail "state must be present or absent";;
     esac
+
+    if [ -n "$update_cache" ] && [ -n "$no_cache" ]; then
+        fail "update_cache and no_cache parameters are mutually exclusive"
+    fi
 }
 
 main() {
