@@ -23,7 +23,7 @@ options:
   name:
     description:
       - Name of the package(s) to install or remove.
-      - Multiple packages can be specified as a comma-separated list.
+      - Multiple packages can be specified as a comma-separated list with no spaces, e.g. curl,wget
     type: str
     required: true
     aliases:
