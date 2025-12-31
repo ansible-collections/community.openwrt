@@ -3,14 +3,6 @@
 # Copyright (c) 2025 Krzysztof Bialek/Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-PARAMS="
-    name=pkg/str/r
-    state/str//present
-    update_cache/bool
-    no_cache/bool
-    force_broken_world/bool
-"
-
 query_package() {
     # apk info returns 0 if installed, 1 if not
     apk info -e "$1" >/dev/null 2>&1
@@ -58,12 +50,24 @@ remove_packages() {
     changed
 }
 
-main() {
+init() {
+    PARAMS="
+        name=pkg/str/r
+        state/str//present
+        update_cache/bool
+        no_cache/bool
+        force_broken_world/bool
+    "
+}
+
+validate() {
     case "$state" in
         present|installed|absent|removed) :;;
         *) fail "state must be present or absent";;
     esac
+}
 
+main() {
     [ -z "$update_cache" ] || update_cache="--update-cache"
     [ -z "$no_cache" ] || no_cache="--no-cache"
     [ -z "$force_broken_world" ] || force_broken_world="--force-broken-world"
