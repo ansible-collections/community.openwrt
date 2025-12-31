@@ -16,16 +16,19 @@ PARAMS="
 RESPONSE_VARS="src dest md5sum=md5sum_src checksum backup_file"
 
 init() {
-    md5sum_src=""
-    checksum=""
-    backup_file=""
+    export md5sum_src=""
+    export checksum=""
+    export backup_file=""
+}
+
+validate()  {
+    [ -e "$src" ] || fail "Source $src not found"
+    [ -r "$src" ] || fail "Source $src not readable"
+    [ ! -d "$src" ] || fail "Remote copy does not support recursive copy of directory: $src"
 }
 
 main() {
     local tmp _IFS
-    [ -e "$src" ] || fail "Source $src not found"
-    [ -r "$src" ] || fail "Source $src not readable"
-    [ ! -d "$src" ] || fail "Remote copy does not support recursive copy of directory: $src"
 
     checksum_src="$(dgst sha1 "$src")" || :
     md5sum_src="$(md5 "$src")"

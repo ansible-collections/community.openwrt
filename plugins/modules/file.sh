@@ -3,22 +3,6 @@
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-PARAMS="
-    diff_peek/str
-    force/bool//false
-    original_basename=_original_basename/str
-    path=dest=name/str/r
-    recurse/bool//false
-    src/str
-    state/str
-    $FILE_PARAMS
-"
-RESPONSE_VARS="state path appears_binary/bool"
-
-init() {
-    appears_binary=""
-}
-
 get_state() {
     local state
     state="$(ls -ld -- "$1" 2>/dev/null)" && {
@@ -35,6 +19,21 @@ get_state() {
 get_inode() {
     set -- $(ls -id -- "$1")
     echo "$1"
+}
+
+init() {
+    PARAMS="
+        diff_peek/str
+        force/bool//false
+        original_basename=_original_basename/str
+        path=dest=name/str/r
+        recurse/bool//false
+        src/str
+        state/str
+        $FILE_PARAMS
+    "
+    RESPONSE_VARS="state path appears_binary/bool"
+    export appears_binary=""
 }
 
 main() {

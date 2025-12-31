@@ -23,24 +23,6 @@ PARAMS="
 "
 RESPONSE_VARS="result=_result command config section option"
 
-init() {
-    state_path=""
-    [ -z "$_ansible_check_mode" ] || state_path="$(mktemp -d)" ||
-        fail "could not create state path"
-    changes="$(uci_change_hash)"
-    case "$_type_keep_keys" in
-        object) fail "keep_keys must be list or string";;
-        array) json_get_values keep_keys "$_keep_keys" || :;;
-    esac
-    [ -z "$key" ] &&
-        key="${config:+$config${section:+.$section${option:+.$option}}}" ||
-        { oIFS="$IFS"; IFS="."; set -- $key; IFS="$oIFS"
-            config="$1"; section="$2"; option="$3"; }
-    [ -z "$_ansible_diff" -o -z "$config" ] ||
-        set_diff "$(uci export "$config")"
-    [ -n "$command" ] || { [ -z "$value" ] && command="get" || command="set"; }
-}
-
 uci() {
     [ -z "$state_path" ] || set -- -P "$state_path" "$@"
     command uci "$@"
@@ -308,6 +290,25 @@ uci_autocommit() {
         [ -n "$config" ] && uci commit "$config" || uci commit
     } || uci_revert
 }
+
+validate() {
+    state_path=""
+    [ -z "$_ansible_check_mode" ] || state_path="$(mktemp -d)" ||
+        fail "could not create state path"
+    changes="$(uci_change_hash)"
+    case "$_type_keep_keys" in
+        object) fail "keep_keys must be list or string";;
+        array) json_get_values keep_keys "$_keep_keys" || :;;
+    esac
+    [ -z "$key" ] &&
+        key="${config:+$config${section:+.$section${option:+.$option}}}" ||
+        { oIFS="$IFS"; IFS="."; set -- $key; IFS="$oIFS"
+            config="$1"; section="$2"; option="$3"; }
+    [ -z "$_ansible_diff" -o -z "$config" ] ||
+        set_diff "$(uci export "$config")"
+    [ -n "$command" ] || { [ -z "$value" ] && command="get" || command="set"; }
+}
+
 
 main() {
     case "$command" in
