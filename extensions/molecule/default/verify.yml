@@ -138,6 +138,19 @@
         - name: Apk install package
           community.openwrt.apk:
             name: htop
+          register:
+            _apk_result
+          failed_when: _apk_result.rc != 0
+
+        - name: Apk assert install package stdout
+          ansible.builtin.assert:
+            that: "'Installing htop' in _apk_result.stdout"
+            fail_msg: "Unexpected stdout {{ _apk_result.stdout }}"
+
+        - name: Apk assert install package stderr
+          ansible.builtin.assert:
+            that: "not _apk_result.stderr"
+            fail_msg: "Unexpected stderr {{ _apk_result.stderr }}"
 
         - name: Apk check package is installed
           community.openwrt.command:
@@ -157,3 +170,23 @@
             uses_shell: true
           register: _htop_installed
           failed_when: _htop_installed.rc == 0
+
+        - name: Apk install package with error
+          block:
+            - name: Apk try install missing package
+              community.openwrt.apk:
+                name: foobar
+              register:
+                _apk_result
+              failed_when: _apk_result.rc != 1
+
+            - name: Apk assert install missing package stdout
+              ansible.builtin.assert:
+                that: "not _apk_result.stdout"
+                fail_msg: "Unexpected stdout {{ _apk_result.stdout }}"
+
+            - name: Apk assert install missing package stderr
+              ansible.builtin.assert:
+                that: "'foobar (no such package)' in _apk_result.stderr"
+                fail_msg: "Unexpected stderr {{ _apk_result.stderr }}"
+

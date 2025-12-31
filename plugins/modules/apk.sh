@@ -20,7 +20,10 @@ install_packages() {
 
     [ -n "$_ansible_check_mode" ] || {
         # shellcheck disable=SC2086
-        try apk add $update_cache $no_cache $force_broken_world $pkgs_to_install
+        apk $update_cache $no_cache $force_broken_world add $pkgs_to_install >"$out" 2>"$err"
+        rc=$?
+        stdout="$(cat "$out")"
+        stderr="$(cat "$err")"
         # Verify installation
         for pkg in $pkgs_to_install; do
             query_package "$pkg" || fail "failed to install $pkg: $_result"
@@ -41,7 +44,10 @@ remove_packages() {
 
     [ -n "$_ansible_check_mode" ] || {
         # shellcheck disable=SC2086
-        try apk del $no_cache $pkgs_to_remove
+        apk $no_cache del $pkgs_to_remove >"$out" 2>"$err"
+        rc=$?
+        stdout="$(cat "$out")"
+        stderr="$(cat "$err")"
         # Verify removal
         for pkg in $pkgs_to_remove; do
             ! query_package "$pkg" || fail "failed to remove $pkg: $_result"
@@ -58,6 +64,16 @@ init() {
         no_cache/bool
         force_broken_world/bool
     "
+    RESPONSE_VARS="
+        stdout/str/a
+        stderr/str/a
+        rc/int/a
+    "
+
+    export stdout=""
+    export stderr=""
+    export rc="0"
+    out="$(mktemp)" && err="$(mktemp)"
 }
 
 validate() {
