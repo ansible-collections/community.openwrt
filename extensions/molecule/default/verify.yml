@@ -155,7 +155,6 @@
         - name: Apk check package is installed
           community.openwrt.command:
             cmd: which htop
-            uses_shell: true
           register: _htop_installed
           failed_when: _htop_installed.rc != 0
 
@@ -167,7 +166,6 @@
         - name: Apk check package is uninstalled
           community.openwrt.command:
             cmd: which htop
-            uses_shell: true
           register: _htop_installed
           failed_when: _htop_installed.rc == 0
 
