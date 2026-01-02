@@ -11,9 +11,7 @@ query_package() {
 install_packages() {
     local _IFS pkg pkgs_to_install
     # shellcheck disable=SC2154,SC2086
-    {
-        _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"
-    }
+    { _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"; }
     
     for pkg; do
         query_package "$pkg" || pkgs_to_install="$pkgs_to_install $pkg"
@@ -38,9 +36,7 @@ install_packages() {
 remove_packages() {
     local _IFS pkg pkgs_to_remove
     # shellcheck disable=SC2154,SC2086
-    {
-        _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"
-    }
+    { _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"; }
 
     for pkg; do
         query_package "$pkg" && pkgs_to_remove="$pkgs_to_remove $pkg"
