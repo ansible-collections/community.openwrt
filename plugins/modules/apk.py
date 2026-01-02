@@ -40,7 +40,7 @@ options:
     default: present
   update_cache:
     description:
-      - Update the package cache (C(apk update)) before performing the operation. Mutually exclusive with (C(no_cache)).
+      - Update the package cache (C(apk update)) before performing the operation. Mutually exclusive with (O(no_cache)).
     type: bool
     default: false
   no_cache:
