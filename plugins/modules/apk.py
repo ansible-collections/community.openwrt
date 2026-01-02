@@ -45,7 +45,7 @@ options:
     default: false
   no_cache:
     description:
-      - Do not use a local cache files, fetch from index directly. Mutually exclusive with (C(update_cache)).
+      - Do not use a local cache files, fetch from index directly. Mutually exclusive with (O(update_cache)).
     type: bool
     default: false
   force_broken_world:
