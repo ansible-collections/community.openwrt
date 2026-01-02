@@ -72,10 +72,11 @@ init() {
         rc/int/a
     "
 
-    export stdout=""
-    export stderr=""
-    export rc="0"
-    out="$(mktemp)" && err="$(mktemp)"
+    stdout=""
+    stderr=""
+    rc="0"
+    out="$(mktemp)" 
+    err="$(mktemp)"
 }
 
 validate() {
