@@ -79,20 +79,4 @@ EXAMPLES = r"""
     no_cache: true
 """
 
-RETURN = r"""
-stdout:
-  description: apk standard output.
-  returned: always
-  type: str
-  sample: Foo foo foo
-stderr:
-  description: apk standard error.
-  returned: always
-  type: str
-  sample: ""
-rc:
-  description: apk return code.
-  returned: always
-  type: int
-  sample: 0
-"""
+RETURN = r""""""
