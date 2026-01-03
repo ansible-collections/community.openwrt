@@ -9,7 +9,7 @@
 
 ## Warning
 
-While community.openwrt 1.0.0 is not released, there is no strong commitment to backward compatibility - breaking changes may be introduced without further warnings.
+While community.openwrt 1.0.0 is not released, there is no strong commitment to backward compatibility - breaking changes may be introduced without further notices.
 
 We appreciate the feedback from users during this phase, but keep in mind that this collection is **not yet deemed ready for production** workloads.
 
