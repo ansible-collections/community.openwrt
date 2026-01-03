@@ -99,7 +99,7 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../command_module.html">community.openwrt.command module – Execute commands on OpenWrt targets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../copy_module.html">community.openwrt.copy module – Copy files to remote OpenWRT devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copy_module.html">community.openwrt.copy module – Copy files to remote OpenWrt devices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../file_module.html">community.openwrt.file module – Manage files and file properties on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lineinfile_module.html">community.openwrt.lineinfile module – Manage lines in text files on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../nohup_module.html">community.openwrt.nohup module – Starts a command in background and returns</a></li>
@@ -110,8 +110,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../slurp_module.html">community.openwrt.slurp module – Slurps a file from remote OpenWrt nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../stat_module.html">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sysctl_module.html">community.openwrt.sysctl module – Manage sysctl entries on OpenWrt targets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWRTs UCI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWRT shell-based modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -158,7 +158,7 @@ please check the <a class="reference internal" href="migration_guide.html#ansibl
 <span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">community.openwrt.init</span>
 <span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather OpenWRT facts</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather OpenWrt facts</span>
 <span class="w">      </span><span class="nt">community.openwrt.setup</span><span class="p">:</span>
 
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install a package</span>
@@ -206,10 +206,10 @@ run in other versions as well, but we strongly recommend using
 <p>These variables control Ansible behavior:</p>
 <blockquote>
 <div><dl class="simple">
-<dt>openwrt_scp_if_ssh:</dt><dd><p>Whether to use <code class="docutils literal notranslate"><span class="pre">scp</span></code> instead of <code class="docutils literal notranslate"><span class="pre">sftp</span></code> for OpenWRT systems (sets <code class="docutils literal notranslate"><span class="pre">ansible_scp_if_ssh</span></code>).
+<dt>openwrt_scp_if_ssh:</dt><dd><p>Whether to use <code class="docutils literal notranslate"><span class="pre">scp</span></code> instead of <code class="docutils literal notranslate"><span class="pre">sftp</span></code> for OpenWrt systems (sets <code class="docutils literal notranslate"><span class="pre">ansible_scp_if_ssh</span></code>).
 Value can be <code class="docutils literal notranslate"><span class="pre">true</span></code>, <code class="docutils literal notranslate"><span class="pre">false</span></code> or <code class="docutils literal notranslate"><span class="pre">smart</span></code>. (default: <code class="docutils literal notranslate"><span class="pre">smart</span></code>)</p>
 </dd>
-<dt>openwrt_remote_tmp:</dt><dd><p>Ansibles <code class="docutils literal notranslate"><span class="pre">remote_tmp</span></code> (sets <code class="docutils literal notranslate"><span class="pre">ansible_remote_tmp</span></code>) setting for OpenWRT systems.
+<dt>openwrt_remote_tmp:</dt><dd><p>Ansibles <code class="docutils literal notranslate"><span class="pre">remote_tmp</span></code> (sets <code class="docutils literal notranslate"><span class="pre">ansible_remote_tmp</span></code>) setting for OpenWrt systems.
 Setting to <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> helps prevent flash wear on target device. (default: <code class="docutils literal notranslate"><span class="pre">/tmp</span></code>)</p>
 </dd>
 </dl>
@@ -305,7 +305,7 @@ Because of that, it is recommended that you disable
 in your <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code> file, or make sure to always set <code class="docutils literal notranslate"><span class="pre">gather_facts=false</span></code>.</p>
 <p>That being said, you can retrieve facts from your OpenWrt device using the module <code class="docutils literal notranslate"><span class="pre">community.openwrt.setup</span></code>.
 It is as easy as:</p>
-<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather OpenWRT facts</span>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather OpenWrt facts</span>
 <span class="w">  </span><span class="nt">community.openwrt.setup</span><span class="p">:</span>
 </pre></div>
 </div>
