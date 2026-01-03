@@ -8,9 +8,9 @@ from __future__ import annotations
 
 DOCUMENTATION = r"""
 module: copy
-short_description: Copy files to remote OpenWRT devices
+short_description: Copy files to remote OpenWrt devices
 description:
-  - The M(community.openwrt.copy) module copies a file from the Ansible controller to remote OpenWRT devices.
+  - The M(community.openwrt.copy) module copies a file from the Ansible controller to remote OpenWrt devices.
   - The C(content) parameter supports Jinja2 variable interpolation.
 author:
   - Markus Weippert (@gekmihesg)

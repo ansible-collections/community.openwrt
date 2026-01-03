@@ -17,7 +17,7 @@ main() {
     ubus="/bin/ubus"
     delimiter=","
     echo '{"changed":false,"ansible_facts":'
-    dist="OpenWRT"
+    dist="OpenWrt"
     dist_version="NA"
     dist_release="NA"
     test -f /etc/openwrt_release && {
@@ -38,7 +38,7 @@ main() {
     json_add_string ansible_distribution_major_version "$dist_major"
     json_add_string ansible_distribution_release "$dist_release"
     json_add_string ansible_distribution_version "$dist_version"
-    json_add_string ansible_os_family OpenWRT
+    json_add_string ansible_os_family OpenWrt
     json_add_boolean ansible_is_chroot "$([ -r /proc/1/root/. ] &&
         { [ / -ef /proc/1/root/. ]; echo $?; } ||
         { [ "$(ls -di / | awk '{print $1}')" -eq 2 ]; echo $?; }

@@ -7,12 +7,23 @@
 [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.openwrt)](https://codecov.io/gh/ansible-collections/community.openwrt)
  -->
 
+## Warning
+
+While community.openwrt 1.0.0 is not released, there is no strong commitment to backward compatibility - breaking changes may be introduced without further notices.
+
+We appreciate the feedback from users during this phase, but keep in mind that this collection is **not yet deemed ready for production** workloads.
+
+## Description
+
 This collection enables the automated configuration of your OpenWrt devices.
 
 We encourage new users to read the [User Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/user_guide.html).
 
 If you are migrating from the `gekmihesg.openwrt` role, please read the
 [Migration Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_guide.html).
+
+Check the [complete documentation](https://ansible-collections.github.io/community.openwrt/branch/main/index.html) for the collection.
+Please note that this documentation reflects the state of the development branch.
 
 ## Our mission
 
@@ -98,7 +109,7 @@ The collection is currently tested with `ansible-core` versions:
 
 ## External requirements
 
-The collection is currently tested against OpenWRT versions:
+The collection is currently tested against OpenWrt versions:
 
 - 21.02
 - 22.03
@@ -125,28 +136,19 @@ Tests require:
 
 #### SSH Connection Limitations
 
-OpenWRT versions prior to 24.10 have been failing while connecting to the containers using SSH.
+OpenWrt versions prior to 24.10 have been failing while connecting to the containers using SSH.
 The client side uses OpenSSH 9.6+ whilst the OpenWrt images use a range of versions of Dropbear SSH server.
 There seems to be some incompatibility related to CVE-2023-48795, but OpenWrt 22.03 and 23.05
 have had security patches backported into them, so possibly some specific SSH configuration
 is missing for that to work.
 
-For the time being, the tests are being performed using:
-
-- OpenWRT 24.10: SSH connections
-- OpenWRT 21.02, 22.03, 23.05: Docker connections (SSH incompatible)
-
-All the offending OpenWrt releases are no longer supported by OpenWrt, so this is not a priority for this project.
+The tests are being performed using docker connections.
 
 ## Included content
 
 Please check the included content on the [Ansible Galaxy page for this collection](https://galaxy.ansible.com/ui/repo/published/community/openwrt/docs/)
 
-<!-- or the [documentation on the Ansible docs site](https://docs.ansible.com/projects/ansible/latest/collections/community/openwrt/). -->
-
 ## Using this collection
-
-<!--Include some quick examples that cover the most common use cases for your collection content. It can include the following examples of installation and upgrade (change community.openwrt correspondingly):-->
 
 ```yaml
 ---
@@ -155,7 +157,7 @@ Please check the included content on the [Ansible Galaxy page for this collectio
   roles:
     - community.openwrt.init
   tasks:
-    - name: Gather OpenWRT facts
+    - name: Gather OpenWrt facts
       community.openwrt.setup:
 
     - name: Install a package

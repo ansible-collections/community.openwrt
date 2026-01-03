@@ -15,7 +15,7 @@ from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action i
 class ActionModule(OpenwrtActionBase):
     """Action plugin for community.openwrt.copy module
 
-    Handles file transfer from controller to remote OpenWRT device,
+    Handles file transfer from controller to remote OpenWrt device,
     then invokes the shell-based copy module to handle permissions,
     backup, and other file operations.
     """

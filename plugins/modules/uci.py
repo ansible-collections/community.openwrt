@@ -7,9 +7,9 @@ from __future__ import annotations
 
 DOCUMENTATION = r"""
 module: uci
-short_description: Controls OpenWRTs UCI
+short_description: Controls OpenWrt UCI
 description:
-  - The M(community.openwrt.uci) module is a Ansible wrapper for OpenWRT's C(uci).
+  - The M(community.openwrt.uci) module is a Ansible wrapper for OpenWrt's C(uci).
   - It supports all the command line functionality plus some extra commands.
 author: Markus Weippert (@gekmihesg)
 extends_documentation_fragment:

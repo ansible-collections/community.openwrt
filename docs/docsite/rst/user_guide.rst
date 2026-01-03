@@ -32,7 +32,7 @@ To get started with ``community.openwrt`` you can simply run a playbook like:
       roles:
         - community.openwrt.init
       tasks:
-        - name: Gather OpenWRT facts
+        - name: Gather OpenWrt facts
           community.openwrt.setup:
 
         - name: Install a package
@@ -86,11 +86,11 @@ OpenWrt control variables
 These variables control Ansible behavior:
 
     openwrt_scp_if_ssh:
-        Whether to use ``scp`` instead of ``sftp`` for OpenWRT systems (sets ``ansible_scp_if_ssh``).
+        Whether to use ``scp`` instead of ``sftp`` for OpenWrt systems (sets ``ansible_scp_if_ssh``).
         Value can be ``true``, ``false`` or ``smart``. (default: ``smart``)
 
     openwrt_remote_tmp:
-        Ansibles ``remote_tmp`` (sets ``ansible_remote_tmp``) setting for OpenWRT systems.
+        Ansibles ``remote_tmp`` (sets ``ansible_remote_tmp``) setting for OpenWrt systems.
         Setting to ``/tmp`` helps prevent flash wear on target device. (default: ``/tmp``)
 
 This variable is used when including the ``community.openwrt.init`` role:
@@ -196,7 +196,7 @@ It is as easy as:
 
 ..  code-block:: yaml+jinja
 
-    - name: Gather OpenWRT facts
+    - name: Gather OpenWrt facts
       community.openwrt.setup:
 
 

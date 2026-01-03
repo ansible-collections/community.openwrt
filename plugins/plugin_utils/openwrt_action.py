@@ -8,9 +8,9 @@ from ansible.plugins.action import ActionBase
 
 
 class OpenwrtActionBase(ActionBase):
-    """Base action plugin for OpenWRT modules
+    """Base action plugin for OpenWrt modules
 
-    This action plugin wraps shell-based OpenWRT modules by:
+    This action plugin wraps shell-based OpenWrt modules by:
     1. Reading the module's .sh file content
     2. Transferring it to the remote target
     3. Executing the wrapper.sh module with the script path as argument
@@ -19,7 +19,7 @@ class OpenwrtActionBase(ActionBase):
     """
 
     def run(self, tmp=None, task_vars=None):
-        """Execute the OpenWRT module via wrapper"""
+        """Execute the OpenWrt module via wrapper"""
 
         if task_vars is None:
             task_vars = {}

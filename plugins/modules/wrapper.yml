@@ -4,10 +4,10 @@
 
 DOCUMENTATION:
   module: wrapper
-  short_description: Internal wrapper module for OpenWRT shell-based modules
+  short_description: Internal wrapper module for OpenWrt shell-based modules
   version_added: "0.2.0"
   description:
-    - This is an internal module used by the OpenWRT collection's action plugins.
+    - This is an internal module used by the OpenWrt collection's action plugins.
     - It serves as a runtime wrapper that sources and executes shell-based module scripts.
     - End users should not call this module directly.
     - The action plugins transfer the appropriate module script and invoke this wrapper
@@ -22,7 +22,7 @@ DOCUMENTATION:
   notes:
     - This module is part of the internal implementation of the community.openwrt collection.
     - It should not be invoked directly in playbooks.
-    - All OpenWRT modules (command, copy, file, uci, etc.) use this wrapper mechanism internally.
+    - All OpenWrt modules (command, copy, file, uci, etc.) use this wrapper mechanism internally.
   seealso:
     - module: community.openwrt.command
     - module: community.openwrt.uci

@@ -1,5 +1,5 @@
 ---
-- name: Configure Ansible connection settings for OpenWRT
+- name: Configure Ansible connection settings for OpenWrt
   ansible.builtin.set_fact:
     openwrt_ssh: "{{ openwrt_ssh }}"
     openwrt_scp: "{{ openwrt_scp }}"

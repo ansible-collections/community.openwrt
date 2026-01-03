@@ -9,7 +9,7 @@ DOCUMENTATION = r"""
 module: nohup
 short_description: Starts a command in background and returns
 description:
-  - The M(community.openwrt.nohup) module start runs a command in a shell using OpenWRTs C(start-stop-daemon).
+  - The M(community.openwrt.nohup) module start runs a command in a shell using OpenWrt's C(start-stop-daemon).
   - The module dispatches the command and return.
 author: Markus Weippert (@gekmihesg)
 extends_documentation_fragment:

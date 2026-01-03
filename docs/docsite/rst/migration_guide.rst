@@ -90,11 +90,11 @@ role before using their modules and handlers.
 The initialization role sets up the necessary environment, installs recommended packages,
 configures variables, and registers handlers.
 
-.. note::
+..  note::
 
-   The ``gekmihesg.openwrt`` role required all target hosts to be members of an
-   ``openwrt`` group. The ``community.openwrt`` collection has no such requirement - you can
-   use any group name or host pattern you prefer.
+    The ``gekmihesg.openwrt`` role required all target hosts to be members of an
+    ``openwrt`` group. The ``community.openwrt`` collection has no such requirement - you can
+    use any group name or host pattern you prefer.
 
 
 Namespace
@@ -228,7 +228,7 @@ Update all module calls to include the ``community.openwrt`` namespace prefix.
 Step 4: Handler References
 """""""""""""""""""""""""""
 
-Handlers references remain exactly the same, just make sure you have included the ``community.openwrt.init`` role
+Handlers references remain the same, just make sure you have included the ``community.openwrt.init`` role
 for them to be available.
 
 ..  code-block:: yaml+jinja
@@ -240,6 +240,9 @@ for them to be available.
         value: "6"
       notify: Reload wifi
 
+..  note::
+
+    The names of some handlers that were entirely lower case have been capitalized.
 
 Variables
 ^^^^^^^^^
