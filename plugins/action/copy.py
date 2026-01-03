@@ -6,7 +6,7 @@ from __future__ import annotations
 from tempfile import mkstemp
 
 from ansible.errors import AnsibleError
-from ansible.module_utils._text import to_bytes
+from ansible.module_utils.common.text.converters import to_bytes
 from ansible.utils.hashing import checksum
 
 from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import OpenwrtActionBase
