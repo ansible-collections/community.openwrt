@@ -1,5 +1,5 @@
 ---
-# Common handlers for OpenWRT operations
+# Common handlers for OpenWrt operations
 # These handlers are available to any role that depends on community.openwrt.common
 
 - name: Setup wifi

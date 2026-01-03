@@ -8,8 +8,8 @@ readme: README.md
 authors:
   - Alexei Znamensky (github.com/russoz)
 description: >-
-  The community.openwrt collection provides Ansible code to manage OpenWrt devices.
-  Supports OpenWRT devices without Python installed by using shell-based modules.
+  The community.openwrt collection enables management of OpenWrt devices
+  without Python installed by using shell-based modules.
 license_file: LICENSE
 tags:
   - openwrt

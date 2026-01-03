@@ -63,7 +63,7 @@ ansible_facts:
     ansible_os_family:
       description: The OS family.
       type: str
-      sample: OpenWRT
+      sample: OpenWrt
     ansible_is_chroot:
       description: Whether the system is running in a chroot.
       type: bool
