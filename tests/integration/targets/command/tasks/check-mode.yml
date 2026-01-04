@@ -6,11 +6,8 @@
   check_mode: true
   register: check_out
 
-- name: Display check result
-  ansible.builtin.debug:
-    var: check_out
-
 - name: Ensure check produced no change
   ansible.builtin.assert:
     that:
-      - "check_out is changed"
+      - check_out is not changed
+      - check_out is skipped
