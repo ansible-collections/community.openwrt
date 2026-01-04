@@ -4,7 +4,6 @@
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
 init() {
-    SUPPORTS_CHECK_MODE=""  # effectively False
     PARAMS="
         cmd=raw_params=_raw_params/str/r
         uses_shell=_uses_shell/bool//false
@@ -28,6 +27,7 @@ init() {
 }
 
 validate() {
+    no_check_mode
     [ -n "$executable" ] || executable="/bin/sh"
 }
 
