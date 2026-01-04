@@ -4,7 +4,8 @@
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
 init() {
-    export PARAMS="
+    SUPPORTS_CHECK_MODE=""  # effectively False
+    PARAMS="
         cmd=raw_params=_raw_params/str/r
         uses_shell=_uses_shell/bool//false
         chdir/str
@@ -12,17 +13,17 @@ init() {
         creates/str
         removes/str
     "
-    export RESPONSE_VARS="
+    RESPONSE_VARS="
         start end delta cmd
         stdout/str/a stderr/str/a rc/int/a
     "
     cmd=
-    export stdout=""
-    export stderr=""
-    export start=""
-    export end=""
-    export delta=""
-    export rc="0"
+    stdout=""
+    stderr=""
+    start=""
+    end=""
+    delta=""
+    rc="0"
     out="$(mktemp)" && err="$(mktemp)"
 }
 
