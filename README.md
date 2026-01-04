@@ -115,6 +115,7 @@ The collection is currently tested against OpenWrt versions:
 - 22.03
 - 23.05
 - 24.10
+- 25.12-rc1
 
 Keep in mind that OpenWrt, per its
 [Support Status policy](https://openwrt.org/docs/guide-developer/security#support_status),
