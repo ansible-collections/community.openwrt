@@ -200,6 +200,15 @@ _support_check_mode() {
     exit 0
 }
 
+no_check_mode() {
+    if [ -z "$_ansible_check_mode" ]; then
+        return 0
+    fi
+    SKIPPED="1"
+    MESSAGE="module does not support check mode"
+    exit 0
+}
+
 json_select_real() {
     local real_var
     json_get_var real_var "_$1"
