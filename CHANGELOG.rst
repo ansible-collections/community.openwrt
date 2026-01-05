@@ -4,6 +4,36 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v0.4.0
+======
+
+Release Summary
+---------------
+
+Establish mechanism for integration testing.
+Add support to the ``apk`` package manager.
+Modules now have lifecycle functions ``init()`` and ``validate()``.
+
+Minor Changes
+-------------
+
+- command - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- copy - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- file - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- lineinfile - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- opkg - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- service - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- slurp - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- stat - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- sysctl - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- uci - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+- wrapper - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47, https://github.com/ansible-collections/community.openwrt/pull/67).
+
+New Modules
+-----------
+
+- community.openwrt.apk - Manage packages with apk on OpenWrt.
+
 v0.3.0
 ======
 
@@ -62,7 +92,7 @@ Minor Changes
 New Modules
 -----------
 
-- community.openwrt.wrapper - Internal wrapper module for OpenWRT shell-based modules.
+- community.openwrt.wrapper - Internal wrapper module for OpenWrt shell-based modules.
 
 v0.1.0
 ======

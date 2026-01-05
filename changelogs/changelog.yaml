@@ -52,7 +52,7 @@ releases:
       - 0.2.0.yml
       - 14-wrapper-revamp.yml
     modules:
-      - description: Internal wrapper module for OpenWRT shell-based modules.
+      - description: Internal wrapper module for OpenWrt shell-based modules.
         name: wrapper
         namespace: ''
     release_date: '2025-12-14'
@@ -70,3 +70,41 @@ releases:
     fragments:
       - 0.3.0.yml
     release_date: '2025-12-27'
+  0.4.0:
+    changes:
+      minor_changes:
+        - command - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - copy - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - file - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - lineinfile - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - opkg - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - service - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - slurp - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - stat - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - sysctl - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - uci - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+        - wrapper - use functions ``init()`` and ``validate()`` (https://github.com/ansible-collections/community.openwrt/issues/47,
+          https://github.com/ansible-collections/community.openwrt/pull/67).
+      release_summary: 'Establish mechanism for integration testing.
+
+        Add support to the ``apk`` package manager.
+
+        Modules now have lifecycle functions ``init()`` and ``validate()``.'
+    fragments:
+      - 0.4.0.yml
+      - 67-init-validate.yml
+    modules:
+      - description: Manage packages with apk on OpenWrt.
+        name: apk
+        namespace: ''
+    release_date: '2026-01-06'
