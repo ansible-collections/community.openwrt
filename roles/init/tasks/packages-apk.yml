@@ -1,0 +1,17 @@
+---
+- name: Check for openssl
+  community.openwrt.command:
+    cmd: which openssl
+  register: _openssl
+  check_mode: false
+  changed_when: false
+  failed_when: false
+
+- name: Install recommended packages if openssl is not available
+  community.openwrt.apk:
+    name: coreutils-base64,coreutils-md5sum,coreutils-sha1sum
+  when: _openssl.rc != 0
+
+- name: Avoid re-checking of packages
+  ansible.builtin.set_fact:
+    openwrt_install_recommended_packages: false

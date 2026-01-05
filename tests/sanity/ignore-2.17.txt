@@ -1,3 +1,5 @@
+plugins/modules/apk.sh shebang
+plugins/modules/apk.sh validate-modules:invalid-extension
 plugins/modules/command.sh shebang
 plugins/modules/command.sh validate-modules:invalid-extension
 plugins/modules/copy.sh shebang

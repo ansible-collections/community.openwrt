@@ -18,11 +18,23 @@
   register: _opkg_available
   check_mode: false
   changed_when: false
-  failed_when: _opkg_available.rc != 0
+  failed_when: false
   when: openwrt_install_recommended_packages | bool
 
+- name: Check for apk availability
+  community.openwrt.command:
+    cmd: which apk
+  register: _apk_available
+  check_mode: false
+  changed_when: false
+  failed_when: false
+  when: openwrt_install_recommended_packages | bool
+
+- name: Check for package manager availability
+  ansible.builtin.set_fact:
+    openwrt_package_manager: "{{ 'apk' if _apk_available.rc == 0 else 'opkg' if _opkg_available.rc == 0 else None }}"
+  failed_when: (openwrt_install_recommended_packages | bool) and not openwrt_package_manager
+
 - name: Install recommended packages for module compatibility
-  ansible.builtin.include_tasks: packages.yml
-  when:
-    - openwrt_install_recommended_packages | bool
-    - _opkg_available.rc == 0
+  ansible.builtin.include_tasks: packages-{{ openwrt_package_manager }}.yml
+  when: (openwrt_install_recommended_packages | bool)

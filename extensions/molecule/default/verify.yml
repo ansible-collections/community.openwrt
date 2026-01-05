@@ -51,10 +51,10 @@
         that:
           - uci_dhcp_domainneeded.result == "1"
 
-    - name: Verify opkg is available
+    - name: Verify opkg or apk is available
       community.openwrt.command:
-        cmd: which opkg
-      register: opkg_result
+        cmd: "which opkg || which apk"
+        uses_shell: true
       changed_when: false
 
     - name: Verify recommended packages were installed
@@ -131,3 +131,68 @@
       ansible.builtin.file:
         path: /tmp/openwrt_test_file.txt
         state: absent
+
+    - name: Apk tests
+      when: openwrt_package_manager == 'apk'
+      block:
+        - name: Apk install package
+          community.openwrt.apk:
+            name: htop
+          register:
+            _apk_result
+          failed_when: _apk_result.rc != 0
+
+        - name: Apk assert install package stdout
+          ansible.builtin.assert:
+            that: "'Installing htop' in _apk_result.stdout"
+            fail_msg: "Unexpected stdout {{ _apk_result.stdout }}"
+
+        - name: Apk assert install package stderr
+          ansible.builtin.assert:
+            that: "not _apk_result.stderr"
+            fail_msg: "Unexpected stderr {{ _apk_result.stderr }}"
+
+        - name: Apk check package is installed
+          community.openwrt.command:
+            cmd: which htop
+          register: _htop_installed
+          failed_when: _htop_installed.rc != 0
+
+        - name: Apk uninstall package
+          community.openwrt.apk:
+            name: htop
+            state: absent
+
+        - name: Apk check package is uninstalled
+          community.openwrt.command:
+            cmd: which htop
+          register: _htop_installed
+          failed_when: _htop_installed.rc == 0
+
+        - name: Apk install package with error
+          block:
+            - name: Apk try install missing package
+              community.openwrt.apk:
+                name: foobar
+              register:
+                _apk_result
+              failed_when: _apk_result.rc != 1
+
+            - name: Apk assert install missing package stdout
+              ansible.builtin.assert:
+                that: "not _apk_result.stdout"
+                fail_msg: "Unexpected stdout {{ _apk_result.stdout }}"
+
+            - name: Apk assert install missing package stderr
+              ansible.builtin.assert:
+                that: "'foobar (no such package)' in _apk_result.stderr"
+                fail_msg: "Unexpected stderr {{ _apk_result.stderr }}"
+
+        - name: Apk update_cache and no_cache are mutually exclusive
+          community.openwrt.apk:
+            name: htop
+            update_cache: true
+            no_cache: true
+          register:
+            _apk_result
+          failed_when: _apk_result.msg != "update_cache and no_cache parameters are mutually exclusive"
