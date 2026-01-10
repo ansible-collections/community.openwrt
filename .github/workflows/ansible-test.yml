@@ -63,7 +63,7 @@ jobs:
     name: Sanity (Ⓐ${{ matrix.ansible }})
     strategy:
       matrix:
-        ansible:
+        ansible: &ansible-versions
           # It's important that Sanity is tested against all stable-X.Y branches
           # Testing against `devel` may fail as new tests are added.
           # An alternative to `devel` is the `milestone` branch with
@@ -112,22 +112,17 @@ jobs:
   molecule:
     name: >-
       Molecule - collection-level tests
-      (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+owrt${{ matrix.openwrt }}+M[${{ matrix.scenario }}])
+      (OWrt${{ matrix.openwrt }}+Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+M[${{ matrix.scenario }}])
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        openwrt:
+        openwrt: &openwrt-versions
           - "25.12.0-rc1"
           - "24.10.4"
           - "23.05.6"
-        ansible:
-          - stable-2.17
-          - stable-2.18
-          - stable-2.19
-          - stable-2.20
-          - devel
-        python:
+        ansible: *ansible-versions
+        python: &python-versions
           - "3.10"
           - "3.11"
           - "3.12"
@@ -135,29 +130,24 @@ jobs:
           - "3.14"
         scenario:
           - default
-        exclude:
-          &ansible_python_exclusions # ansible-core 2.17 doesn't support Python 3.13+
-          - ansible: stable-2.17
+        exclude: &ansible-python-exclusions
+          - ansible: stable-2.17 # ansible-core 2.17 doesn't support Python 3.13+
             python: "3.13"
           - ansible: stable-2.17
             python: "3.14"
-          # ansible-core 2.18 doesn't support Python 3.10 or 3.14
-          - ansible: stable-2.18
+          - ansible: stable-2.18 # ansible-core 2.18 doesn't support Python 3.10 or 3.14
             python: "3.10"
           - ansible: stable-2.18
             python: "3.14"
-          # ansible-core 2.19 doesn't support Python 3.10 or 3.14
-          - ansible: stable-2.19
+          - ansible: stable-2.19 # ansible-core 2.19 doesn't support Python 3.10 or 3.14
             python: "3.10"
           - ansible: stable-2.19
             python: "3.14"
-          # ansible-core 2.20 doesn't support Python 3.10 or 3.11
-          - ansible: stable-2.20
+          - ansible: stable-2.20 # ansible-core 2.20 doesn't support Python 3.10 or 3.11
             python: "3.10"
           - ansible: stable-2.20
             python: "3.11"
-          # ansible-core 2.21 (devel) doesn't support Python 3.10 or 3.11
-          - ansible: devel
+          - ansible: devel # ansible-core 2.21 (devel) doesn't support Python 3.10 or 3.11
             python: "3.10"
           - ansible: devel
             python: "3.11"
@@ -250,19 +240,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ansible:
-          - stable-2.17
-          - stable-2.18
-          - stable-2.19
-          - stable-2.20
-          - devel
-        python:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-        exclude: *ansible_python_exclusions
+        ansible: *ansible-versions
+        python: *python-versions
+        exclude: *ansible-python-exclusions
 
     steps:
       - name: >-
