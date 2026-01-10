@@ -1,0 +1,68 @@
+---
+- name: "Copy content to a temporary location"
+  community.openwrt.copy:
+    content: "test content"
+    dest: "/tmp/test_copy_file.txt"
+  register: copy_out
+
+- name: Assert copy was changed
+  ansible.builtin.assert:
+    that:
+      - copy_out is changed
+      - copy_out.dest == "/tmp/test_copy_file.txt"
+
+- name: "Copy the same file again (should be idempotent)"
+  community.openwrt.copy:
+    content: "test content"
+    dest: "/tmp/test_copy_file.txt"
+  register: copy_out2
+
+- name: Assert second copy was not changed
+  ansible.builtin.assert:
+    that:
+      - copy_out2 is not changed
+
+- name: Create a dummy file on controller
+  ansible.builtin.copy:
+    content: "dummy file content from controller"
+    dest: "/tmp/dummy_source_file.txt"
+  delegate_to: localhost
+  run_once: true
+  register: dummy_file
+
+- name: Copy file from controller to remote
+  community.openwrt.copy:
+    src: "{{ dummy_file.dest }}"
+    dest: "/tmp/test_copy_remote_file.txt"
+  register: copy_src_out
+
+- name: Assert file copy was changed
+  ansible.builtin.assert:
+    that:
+      - copy_src_out is changed
+      - copy_src_out.dest == "/tmp/test_copy_remote_file.txt"
+
+- name: Print content of remote file
+  community.openwrt.command:
+    cmd: cat /tmp/test_copy_remote_file.txt
+  register: cat_remote
+
+- name: Assert content of copied file
+  ansible.builtin.assert:
+    that:
+      - cat_remote.stdout == "dummy file content from controller"
+
+- name: Clean up test files (controller)
+  ansible.builtin.file:
+    path: /tmp/dummy_source_file.txt
+    state: absent
+  delegate_to: localhost
+  run_once: true
+
+- name: Clean up test files (remote)
+  community.openwrt.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/tmp/test_copy_file.txt"
+    - "/tmp/test_copy_remote_file.txt"
