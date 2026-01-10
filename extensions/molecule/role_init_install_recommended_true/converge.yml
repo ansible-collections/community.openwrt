@@ -1,0 +1,8 @@
+---
+- name: Verify init role works without installing recommended packages
+  hosts: all
+  gather_facts: false
+  roles:
+    - role: community.openwrt.init
+      vars:
+        openwrt_install_recommended_packages: false
