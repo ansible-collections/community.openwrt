@@ -1,0 +1,76 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: "Create a test file for lineinfile"
+  community.openwrt.copy:
+    content: |
+      line1
+      line2
+      line3
+    dest: "/tmp/test_lineinfile.txt"
+  register: test_file_create
+
+- name: "Add a new line to the file"
+  community.openwrt.lineinfile:
+    path: "/tmp/test_lineinfile.txt"
+    line: "new line"
+    state: present
+  register: lineinfile_add
+
+- name: Assert line was added
+  ansible.builtin.assert:
+    that:
+      - lineinfile_add is changed
+
+- name: "Add the same line again (should be idempotent)"
+  community.openwrt.lineinfile:
+    path: "/tmp/test_lineinfile.txt"
+    line: "new line"
+    state: present
+  register: lineinfile_add2
+
+- name: Assert adding same line was not changed
+  ansible.builtin.assert:
+    that:
+      - lineinfile_add2 is not changed
+
+- name: "Verify line is in the file"
+  community.openwrt.command:
+    cmd: grep -c "new line" /tmp/test_lineinfile.txt
+  register: grep_result
+
+- name: Assert grep found the line
+  ansible.builtin.assert:
+    that:
+      - grep_result.stdout == "1"
+
+- name: "Replace a line in the file"
+  community.openwrt.lineinfile:
+    path: "/tmp/test_lineinfile.txt"
+    regexp: "^line2$"
+    line: "line2 modified"
+    state: present
+  register: lineinfile_replace
+
+- name: Assert line was replaced
+  ansible.builtin.assert:
+    that:
+      - lineinfile_replace is changed
+
+- name: "Remove a line from the file"
+  community.openwrt.lineinfile:
+    path: "/tmp/test_lineinfile.txt"
+    regexp: "^line1$"
+    state: absent
+  register: lineinfile_remove
+
+- name: Assert line was removed
+  ansible.builtin.assert:
+    that:
+      - lineinfile_remove is changed
+
+- name: "Clean up test file"
+  community.openwrt.file:
+    path: "/tmp/test_lineinfile.txt"
+    state: absent

@@ -1,0 +1,36 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: "Create a file"
+  community.openwrt.file:
+    path: "/tmp/test_file.txt"
+    state: touch
+  register: file_create
+
+- name: Assert file was created
+  ansible.builtin.assert:
+    that:
+      - file_create is changed
+
+- name: "Remove the file"
+  community.openwrt.file:
+    path: "/tmp/test_file.txt"
+    state: absent
+  register: file_remove
+
+- name: Assert file was removed
+  ansible.builtin.assert:
+    that:
+      - file_remove is changed
+
+- name: "Remove non-existent file (should be idempotent)"
+  community.openwrt.file:
+    path: "/tmp/test_file.txt"
+    state: absent
+  register: file_remove2
+
+- name: Assert removing non-existent file was not changed
+  ansible.builtin.assert:
+    that:
+      - file_remove2 is not changed

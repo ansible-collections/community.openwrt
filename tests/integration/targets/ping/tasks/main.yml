@@ -1,0 +1,24 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: "Ping the remote host"
+  community.openwrt.ping:
+  register: ping_result
+
+- name: Assert ping succeeded
+  ansible.builtin.assert:
+    that:
+      - ping_result is succeeded
+      - ping_result.ping == "pong"
+
+- name: "Ping with custom data"
+  community.openwrt.ping:
+    data: "hello"
+  register: ping_data_result
+
+- name: Assert ping with data succeeded
+  ansible.builtin.assert:
+    that:
+      - ping_data_result is succeeded
+      - ping_data_result.data == "hello"
