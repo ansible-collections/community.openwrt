@@ -110,9 +110,7 @@ jobs:
           pull-request-change-detection: false
 
   molecule:
-    name: >-
-      Molecule - collection-level tests
-      (OWrt${{ matrix.openwrt }}+Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+M[${{ matrix.scenario }}])
+    name: M - OpenWrt ${{ matrix.openwrt }} (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+M[${{ matrix.scenario }}])
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
