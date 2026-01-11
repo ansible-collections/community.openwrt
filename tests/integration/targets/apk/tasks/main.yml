@@ -1,0 +1,43 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Initialize packaging system
+  ansible.builtin.include_role:
+    name: community.openwrt.init
+
+- name: "Gather system facts to get OpenWrt version"
+  community.openwrt.setup:
+
+- name: "Skip apk tests for OpenWrt < 25.12"
+  ansible.builtin.meta: end_play
+  when: ansible_distribution_major_version < '25'
+
+- name: "Install a package (htop)"
+  community.openwrt.apk:
+    name: "htop"
+    state: present
+  register: apk_install
+
+- name: Assert package install succeeded
+  ansible.builtin.assert:
+    that:
+      - apk_install is succeeded
+
+- name: "Verify package is installed"
+  community.openwrt.command:
+    cmd: apk info -e htop
+  register: apk_verify
+  failed_when: apk_verify.rc != 0
+
+- name: "Remove the package"
+  community.openwrt.apk:
+    name: "htop"
+    state: absent
+  register: apk_remove
+
+- name: Assert package removal succeeded
+  ansible.builtin.assert:
+    that:
+      - apk_remove is succeeded
