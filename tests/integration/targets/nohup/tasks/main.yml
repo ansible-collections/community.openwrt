@@ -1,0 +1,37 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Remove /tmp/nohup-test.txt
+  community.openwrt.file:
+    path: /tmp/nohup-test.txt
+    state: absent
+
+- name: "Run a command with nohup"
+  community.openwrt.nohup:
+    cmd: touch /tmp/nohup-test.txt
+    delay: 10
+  register: nohup_result
+
+- name: Assert nohup succeeded
+  ansible.builtin.assert:
+    that:
+      - nohup_result is succeeded
+
+- name: Verify nohup command has not executed
+  community.openwrt.stat:
+    path: /tmp/nohup-test.txt
+  register: stat_result1
+  failed_when: stat_result1.stat.exists
+
+- name: Wait 15 seconds
+  ansible.builtin.pause:
+    seconds: 15
+  delegate_to: localhost
+
+- name: Verify nohup command has executed
+  community.openwrt.stat:
+    path: /tmp/nohup-test.txt
+  register: stat_result2
+  failed_when: not stat_result2.stat.exists

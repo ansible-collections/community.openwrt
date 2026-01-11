@@ -1,0 +1,45 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: "Set a UCI configuration value"
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: main
+    option: max_connections
+    value: "150"
+  register: uci_set
+
+- name: Assert UCI set succeeded
+  ansible.builtin.assert:
+    that:
+      - uci_set is succeeded
+
+- name: "Get the UCI configuration value"
+  community.openwrt.uci:
+    command: get
+    config: uhttpd
+    section: main
+    option: max_connections
+  register: uci_get
+
+- name: Assert UCI get succeeded
+  ansible.builtin.assert:
+    that:
+      - uci_get is succeeded
+      - uci_get.result == "150"
+
+- name: "Delete the UCI configuration value"
+  community.openwrt.uci:
+    command: delete
+    config: uhttpd
+    section: main
+    option: max_connections
+  register: uci_delete
+
+- name: Assert UCI delete succeeded
+  ansible.builtin.assert:
+    that:
+      - uci_delete is succeeded
