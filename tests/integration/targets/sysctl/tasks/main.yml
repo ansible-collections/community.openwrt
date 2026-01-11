@@ -1,0 +1,41 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: "Get current sysctl value"
+  community.openwrt.command:
+    cmd: sysctl -n net.ipv4.ip_forward
+  register: current_value
+
+- name: "Set a sysctl parameter"
+  community.openwrt.sysctl:
+    name: net.ipv4.ip_forward
+    value: 0
+
+- name: "Set a sysctl parameter"
+  community.openwrt.sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+  register: sysctl_result
+
+- name: Assert sysctl changed
+  ansible.builtin.assert:
+    that:
+      - sysctl_result is changed
+
+- name: "Verify the sysctl value was set"
+  community.openwrt.command:
+    cmd: sysctl -n net.ipv4.ip_forward
+  register: new_value
+
+- name: Assert sysctl value matches
+  ansible.builtin.assert:
+    that:
+      - new_value.stdout == "1"
+
+- name: "Revert to original value"
+  community.openwrt.sysctl:
+    name: net.ipv4.ip_forward
+    value: "{{ current_value.stdout }}"
+    sysctl_file: /etc/sysctl.conf

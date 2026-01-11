@@ -1,0 +1,32 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: "Create a test file for stat"
+  community.openwrt.copy:
+    content: "stat test content"
+    dest: "/tmp/test_stat.txt"
+  register: test_file
+
+- name: "Get file stats"
+  community.openwrt.stat:
+    path: "/tmp/test_stat.txt"
+  register: stat_result
+
+- name: Assert stat succeeded
+  ansible.builtin.assert:
+    that:
+      - stat_result is succeeded
+      - stat_result.stat is defined
+      - stat_result.stat.exists
+
+- name: "Verify file is regular file"
+  ansible.builtin.assert:
+    that:
+      - stat_result.stat.isreg
+
+- name: "Clean up test file"
+  community.openwrt.file:
+    path: "/tmp/test_stat.txt"
+    state: absent

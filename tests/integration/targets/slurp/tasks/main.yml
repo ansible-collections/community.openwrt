@@ -1,0 +1,31 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: "Create a test file to slurp"
+  community.openwrt.copy:
+    content: "slurp test content"
+    dest: "/tmp/test_slurp.txt"
+  register: test_file
+
+- name: "Slurp file contents"
+  community.openwrt.slurp:
+    src: "/tmp/test_slurp.txt"
+  register: slurp_result
+
+- name: Assert slurp succeeded
+  ansible.builtin.assert:
+    that:
+      - slurp_result is succeeded
+      - slurp_result.content is defined
+
+- name: "Verify file content (base64 decoded)"
+  ansible.builtin.assert:
+    that:
+      - slurp_result.content | b64decode == "slurp test content"
+
+- name: "Clean up test file"
+  community.openwrt.file:
+    path: "/tmp/test_slurp.txt"
+    state: absent
