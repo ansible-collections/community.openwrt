@@ -8,6 +8,11 @@ import os
 from ansible.plugins.action import ActionBase
 
 
+class ModuleNotFound(Exception):
+    def __init__(self, name, path):
+        super(self, f"Module script for {name} not found: {path}")
+
+
 class OpenwrtActionBase(ActionBase):
     """Base action plugin for OpenWrt modules
 
@@ -31,19 +36,10 @@ class OpenwrtActionBase(ActionBase):
         module_name = self._task.action.split(".")[-1]
         try:
             module_script_path = self._find_module_script(module_name)
+            remote_script = self._transfer_module_script(module_name, module_script_path)
         except Exception as e:
             result["failed"] = True
-            result["msg"] = f"Failed to find module script: {e}"
-            return result
-
-        try:
-            tmp_dir = self._make_tmp_path()
-            remote_script = self._connection._shell.join_path(tmp_dir, f"{module_name}.sh")
-            self._transfer_file(module_script_path, remote_script)
-            self._fixup_perms2([remote_script])
-        except Exception as e:
-            result["failed"] = True
-            result["msg"] = f"Failed to transfer module script: {e}"
+            result["msg"] = str(e)
             return result
 
         module_args = self._task.args.copy()
@@ -66,6 +62,16 @@ class OpenwrtActionBase(ActionBase):
         module_path = os.path.join(modules_dir, f"{module_name}.sh")
 
         if not os.path.exists(module_path):
-            raise Exception(f"Module script not found: {module_path}")
+            raise ModuleNotFound(module_name, module_path)
 
         return module_path
+
+    def _transfer_module_script(self, module_name, module_script_path):
+        try:
+            tmp_dir = self._make_tmp_path()
+            remote_script = self._connection._shell.join_path(tmp_dir, f"{module_name}.sh")
+            self._transfer_file(module_script_path, remote_script)
+            self._fixup_perms2([remote_script])
+            return remote_script
+        except Exception as e:
+            raise Exception(f"Failed to transfer module script: {e}") from e
