@@ -63,7 +63,7 @@ main() {
     tmp="$(dirname -- "$dest")"
     [ -e "$dest" ] && {
         [ ! -h "$dest" -o -z "$follow" ] || dest="$(realpath "$dest")"
-        [ -n "$force" ] || fail "file already exists"
+        [ -n "$force" ] || return 0
         [ ! -r "$dest" ] || md5sum_dest="$(md5 "$dest")"
     } || [ -d "$tmp" ] || fail "Destination directory $tmp does not exist"
     [ -w "$tmp" ] || fail "Destination $tmp not writeable"
