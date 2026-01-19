@@ -7,12 +7,9 @@
   ansible.builtin.include_role:
     name: community.openwrt.init
 
-- name: "Gather system facts to get OpenWrt version"
-  community.openwrt.setup:
-
-- name: "Skip apk tests for OpenWrt < 25.12"
+- name: Skip tests when package manager is not apk
   ansible.builtin.meta: end_play
-  when: ansible_distribution_major_version < '25'
+  when: openwrt_package_manager != "apk"
 
 - name: "Install a package (htop)"
   community.openwrt.apk:
