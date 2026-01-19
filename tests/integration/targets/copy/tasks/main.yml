@@ -5,7 +5,7 @@
     dest: "/tmp/test_copy_file.txt"
   register: copy_out
 
-- name: Assert copy was changed
+- name: Assert copy_out was changed
   ansible.builtin.assert:
     that:
       - copy_out is changed
@@ -17,10 +17,50 @@
     dest: "/tmp/test_copy_file.txt"
   register: copy_out2
 
-- name: Assert second copy was not changed
+- name: Assert copy_out2 was not changed
   ansible.builtin.assert:
     that:
       - copy_out2 is not changed
+
+- name: "Copy different content to the same file again with force=false, should fail"
+  community.openwrt.copy:
+    content: "different test content for copy_out3a"
+    dest: "/tmp/test_copy_file.txt"
+    force: false
+  register: copy_out3a
+  ignore_errors: true
+
+- name: Assert copy_out3a failed
+  ansible.builtin.assert:
+    that:
+      - copy_out3a is failed
+      - >-
+        "file already exists" in copy_out3a.msg
+
+- name: "Copy the same file again with different content (default force=true)"
+  community.openwrt.copy:
+    content: "different test content for copy_out3b"
+    dest: "/tmp/test_copy_file.txt"
+  register: copy_out3b
+
+- name: Assert copy_out3b was changed
+  ansible.builtin.assert:
+    that:
+      - copy_out3b is changed
+
+- name: "Copy the same copy_out3b content and force=false"
+  community.openwrt.copy:
+    content: "different test content for copy_out3b"
+    dest: "/tmp/test_copy_file.txt"
+    force: false
+  register: copy_out3c
+  ignore_errors: true # @TODO bug reported in #94
+
+- name: Assert copy_out3c was changed
+  ansible.builtin.assert:
+    that:
+      - copy_out3c is not changed
+  ignore_errors: true # @TODO bug reported in #94
 
 - name: Create a dummy file on controller
   ansible.builtin.copy:
