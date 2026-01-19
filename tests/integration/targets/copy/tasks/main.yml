@@ -60,7 +60,7 @@
   ansible.builtin.assert:
     that:
       - copy_out3c is not changed
-  ignore_errors: true # @TODO bug reported in #94
+      - copy_out3c is failed # @TODO bug reported in #94, it should not be failed
 
 - name: Create a dummy file on controller
   ansible.builtin.copy:
