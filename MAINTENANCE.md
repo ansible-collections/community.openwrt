@@ -6,12 +6,6 @@ This document describes _how_ and _when_ community.openwrt is released and maint
 
 This collection uses [Semantic Versioning](https://semver.org/).
 
-> Given a version number MAJOR.MINOR.PATCH, increment the:
->
-> 1. MAJOR version when you make incompatible API changes
-> 1. MINOR version when you add functionality in a backward compatible manner
-> 1. PATCH version when you make backward compatible bug fixes
-
 ## Dependencies
 
 The release and support of community.openwrt will be aligned with those of both OpenWrt and `ansible-core`.
@@ -22,17 +16,7 @@ The release and support of community.openwrt will be aligned with those of both 
 
 The [OpenWrt project](https://openwrt.org/) does not follow a fixed schedule, but it has a [Support Status](https://openwrt.org/docs/guide-developer/security#support_status) documentation.
 
-And we quote:
-
-> A major release will be **Supported** after its initial release.
->
-> When the next major release is published, the previous version will move into **Security Maintenance** status.
->
-> A major release will move into **End of Life** status one year after the initial release, or 6 months after the next major release, whichever date is later. The project aims to do a final minor release at the end of the support cycle.
-
 The project has its own version numbering scheme, as stated in its [Release history](https://openwrt.org/about/history#release_history) documentation.
-
-> Stable release version numbers are made from the year and the month when a new stable branch was created. An additional third number indicates a service or interim release from that branch.
 
 It typically rolls out one release per year, and a number of service releases as needed during the lifetime of that release. Historically, the actual release happens a number of months after the stable branch numbering.
 
