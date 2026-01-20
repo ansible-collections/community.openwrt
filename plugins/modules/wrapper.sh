@@ -212,6 +212,9 @@ changed() {
 
 unchanged() {
     CHANGED=""
+}
+
+succeed() {
     [ -n "$*" ] && MESSAGE="$*"
     exit 0
 }
