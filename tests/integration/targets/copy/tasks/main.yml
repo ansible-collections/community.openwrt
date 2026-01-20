@@ -22,18 +22,18 @@
     that:
       - copy_out2 is not changed
 
-- name: "Copy different content to the same file again with force=false, should fail"
+- name: "Copy different content to the same file again with force=false, should not change"
   community.openwrt.copy:
     content: "different test content for copy_out3a"
     dest: "/tmp/test_copy_file.txt"
     force: false
   register: copy_out3a
-  ignore_errors: true
 
-- name: Assert copy_out3a failed
+- name: Assert copy_out3a was not changed
   ansible.builtin.assert:
     that:
-      - copy_out3a is failed
+      - copy_out3a is not changed
+      - copy_out3a is succeeded
       - >-
         "file already exists" in copy_out3a.msg
 
@@ -54,13 +54,14 @@
     dest: "/tmp/test_copy_file.txt"
     force: false
   register: copy_out3c
-  ignore_errors: true # @TODO bug reported in #94
 
-- name: Assert copy_out3c was changed
+- name: Assert copy_out3c was not changed
   ansible.builtin.assert:
     that:
       - copy_out3c is not changed
-      - copy_out3c is failed # @TODO bug reported in #94, it should not be failed
+      - copy_out3c is succeeded
+      - >-
+        "file already exists" in copy_out3c.msg
 
 - name: Create a dummy file on controller
   ansible.builtin.copy:
