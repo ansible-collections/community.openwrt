@@ -84,6 +84,7 @@
 - name: Print content of remote file
   community.openwrt.command:
     cmd: cat /tmp/test_copy_remote_file.txt
+    uses_shell: true
   register: cat_remote
 
 - name: Assert content of copied file
