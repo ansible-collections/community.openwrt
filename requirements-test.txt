@@ -4,4 +4,3 @@ docker
 yamllint
 ansible-lint
 andebox
-pytest-ansible
