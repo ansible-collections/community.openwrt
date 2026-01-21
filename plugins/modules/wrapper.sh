@@ -215,7 +215,7 @@ unchanged() {
 }
 
 succeed() {
-    [ -n "$@" ] && MESSAGE="$@"
+    [ -n "$*" ] && MESSAGE="$*"
     exit 0
 }
 
