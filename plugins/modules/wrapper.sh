@@ -210,6 +210,15 @@ changed() {
     CHANGED="1"
 }
 
+unchanged() {
+    CHANGED=""
+}
+
+succeed() {
+    [ -n "$*" ] && MESSAGE="$*"
+    exit 0
+}
+
 fail() {
     MESSAGE="$*"
     exit 1

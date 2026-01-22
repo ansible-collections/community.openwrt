@@ -22,45 +22,44 @@
     that:
       - copy_out2 is not changed
 
-- name: "Copy different content to the same file again with force=false, should fail"
+- name: "Copy the same file again with different content (default force=true explicitly set)"
   community.openwrt.copy:
-    content: "different test content for copy_out3a"
+    content: "different test content for copy_out3"
     dest: "/tmp/test_copy_file.txt"
-    force: false
-  register: copy_out3a
-  ignore_errors: true
+    force: true
+  register: copy_out3
 
-- name: Assert copy_out3a failed
+- name: Assert copy_out3 was changed
   ansible.builtin.assert:
     that:
-      - copy_out3a is failed
+      - copy_out3 is changed
+
+- name: "Copy content to a new file with force=false"
+  community.openwrt.copy:
+    content: "test content"
+    dest: "/tmp/test_copy_noforce.txt"
+    force: false
+  register: copy_new_noforce
+
+- name: Assert copy_new_noforce was changed
+  ansible.builtin.assert:
+    that:
+      - copy_new_noforce is changed
+      - copy_new_noforce.dest == "/tmp/test_copy_noforce.txt"
+
+- name: "Copy content to existing file with force=false"
+  community.openwrt.copy:
+    content: "different test content"
+    dest: "/tmp/test_copy_noforce.txt"
+    force: false
+  register: copy_existing_noforce
+
+- name: Assert copy_existing_noforce was not changed
+  ansible.builtin.assert:
+    that:
+      - copy_existing_noforce is not changed
       - >-
-        "file already exists" in copy_out3a.msg
-
-- name: "Copy the same file again with different content (default force=true)"
-  community.openwrt.copy:
-    content: "different test content for copy_out3b"
-    dest: "/tmp/test_copy_file.txt"
-  register: copy_out3b
-
-- name: Assert copy_out3b was changed
-  ansible.builtin.assert:
-    that:
-      - copy_out3b is changed
-
-- name: "Copy the same copy_out3b content and force=false"
-  community.openwrt.copy:
-    content: "different test content for copy_out3b"
-    dest: "/tmp/test_copy_file.txt"
-    force: false
-  register: copy_out3c
-  ignore_errors: true # @TODO bug reported in #94
-
-- name: Assert copy_out3c was changed
-  ansible.builtin.assert:
-    that:
-      - copy_out3c is not changed
-      - copy_out3c is failed # @TODO bug reported in #94, it should not be failed
+        "file already exists" in copy_existing_noforce.msg
 
 - name: Create a dummy file on controller
   ansible.builtin.copy:
@@ -85,6 +84,7 @@
 - name: Print content of remote file
   community.openwrt.command:
     cmd: cat /tmp/test_copy_remote_file.txt
+    uses_shell: true
   register: cat_remote
 
 - name: Assert content of copied file
@@ -106,3 +106,4 @@
   loop:
     - "/tmp/test_copy_file.txt"
     - "/tmp/test_copy_remote_file.txt"
+    - "/tmp/test_copy_noforce.txt"
