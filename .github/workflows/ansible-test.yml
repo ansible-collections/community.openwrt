@@ -116,7 +116,7 @@ jobs:
       fail-fast: false
       matrix:
         openwrt: &openwrt-versions
-          - "25.12.0-rc2"
+          - "25.12.0-rc3"
           - "24.10.4"
           - "23.05.6"
         ansible: *ansible-versions
