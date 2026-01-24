@@ -32,10 +32,10 @@ Upon releasing a major version, support is updated:
 
 The collection will release minor versions periodically, between major versions.
 
-- release will happen shortly after (may vary depending on circumstances) community.general `x.y.0` releases, or roughly every four weeks
-- RMs may skip a minor release if no changes were made in the previous period
+- release will happen shortly after (may vary depending on circumstances) community.general `x.y.0` releases, or roughly every four weeks.
+- RMs may skip a minor release if no new features were added in the previous period.
 
-There is no dependency between community.openwrt and community.general, their releases are being used as a benchmark/reminder for the release scheduling in this collection.
+There is no dependency between community.openwrt and community.general, their releases are being used as a benchmark/reminder for the release scheduling of this collection.
 
 ### Patch versions
 
@@ -51,7 +51,7 @@ There is no dependency between community.openwrt and community.general, their re
 Note that these policies have been copied literally from community.general, and they are not without caveats:
 
 - the collection just starting its lifetime: there is no measurement, subjective or otherwise, to the demand for deprecating features in the code base
-- the shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins
+- the shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins, so the **deprecation is documentary only**. Until that mechanism is implemented, there is no deprecation warnings sent to the users or developers.
 
 ## Collection Release Process
 
