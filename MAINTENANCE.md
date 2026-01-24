@@ -30,7 +30,12 @@ Upon releasing a major version, support is updated:
 
 ### Minor versions
 
-Periodic releases between major versions. Frequency TBD.
+The collection will release minor versions periodically, between major versions.
+
+- release will happen shortly after (may vary depending on circumstances) community.general `x.y.0` releases, or roughly every four weeks
+- RMs may skip a minor release if no changes were made in the previous period
+
+There is no dependency between community.openwrt and community.general, their releases are being used as a benchmark/reminder for the release scheduling in this collection.
 
 ### Patch versions
 
@@ -53,7 +58,7 @@ Note that these policies have been copied literally from community.general, and 
 The collection uses the [Releasing collections without release branches](https://docs.ansible.com/projects/ansible/latest/community/collection_contributors/collection_release_without_branches.html)
 process.
 
-### Changelogs
+## Changelogs
 
 Per the process mentioned above, changelogs are generated using the [antsibull-changelog](https://github.com/ansible-community/antsibull-changelog) tool. Check its documentation for details.
 
