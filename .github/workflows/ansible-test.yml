@@ -75,7 +75,6 @@ jobs:
           # Add new versions announced in
           # https://github.com/ansible-collections/news-for-maintainers in a timely manner,
           # consider dropping testing against EOL versions and versions you don't support.
-          - stable-2.17
           - stable-2.18
           - stable-2.19
           - stable-2.20
@@ -121,7 +120,6 @@ jobs:
           - "23.05.6"
         ansible: *ansible-versions
         python: &python-versions
-          - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
@@ -131,10 +129,6 @@ jobs:
           - role_init_install_recommended_false
           - role_init_install_recommended_true
         exclude: &ansible-python-exclusions
-          - ansible: stable-2.17 # ansible-core 2.17 doesn't support Python 3.13+
-            python: "3.13"
-          - ansible: stable-2.17
-            python: "3.14"
           - ansible: stable-2.18 # ansible-core 2.18 doesn't support Python 3.10 or 3.14
             python: "3.10"
           - ansible: stable-2.18

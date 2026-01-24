@@ -101,7 +101,6 @@ Every voice is important. If you have something on your mind, create an issue or
 
 The collection is currently tested with `ansible-core` versions:
 
-- 2.17
 - 2.18
 - 2.19
 - 2.20
@@ -111,8 +110,6 @@ The collection is currently tested with `ansible-core` versions:
 
 The collection is currently tested against OpenWrt versions:
 
-- 21.02
-- 22.03
 - 23.05
 - 24.10
 - 25.12-rc2
