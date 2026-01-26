@@ -13,6 +13,11 @@ class ModuleNotFound(Exception):
         super(self, f"Module script for {name} not found: {path}")
 
 
+class ModuleTransferFailed(Exception):
+    def __init__(self, msg):
+        super(self, f"Failed to transfer module script: {msg}")
+
+
 class OpenwrtActionBase(ActionBase):
     """Base action plugin for OpenWrt modules
 
@@ -74,4 +79,4 @@ class OpenwrtActionBase(ActionBase):
             self._fixup_perms2([remote_script])
             return remote_script
         except Exception as e:
-            raise Exception(f"Failed to transfer module script: {e}") from e
+            raise ModuleTransferFailed(str(e)) from e
