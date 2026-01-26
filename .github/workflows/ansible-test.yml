@@ -129,20 +129,12 @@ jobs:
           - role_init_install_recommended_false
           - role_init_install_recommended_true
         exclude: &ansible-python-exclusions
-          - ansible: stable-2.18 # ansible-core 2.18 doesn't support Python 3.10 or 3.14
-            python: "3.10"
           - ansible: stable-2.18
             python: "3.14"
-          - ansible: stable-2.19 # ansible-core 2.19 doesn't support Python 3.10 or 3.14
-            python: "3.10"
           - ansible: stable-2.19
             python: "3.14"
-          - ansible: stable-2.20 # ansible-core 2.20 doesn't support Python 3.10 or 3.11
-            python: "3.10"
           - ansible: stable-2.20
             python: "3.11"
-          - ansible: devel # ansible-core 2.21 (devel) doesn't support Python 3.10 or 3.11
-            python: "3.10"
           - ansible: devel
             python: "3.11"
 
