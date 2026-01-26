@@ -8,6 +8,7 @@ sections:
     toctree:
       - user_guide
       - migration_guide
+      - migration_apk_guide
   - title: Developer Guides
     toctree:
       - mod_dev_guide
