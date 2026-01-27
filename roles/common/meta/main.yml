@@ -3,7 +3,7 @@ galaxy_info:
   author: Alexei Znamensky, Markus Weippert
   description: Common handlers for community.openwrt
   license: GPL-3.0-or-later
-  min_ansible_version: '2.17'
+  min_ansible_version: '2.18'
   platforms:
     - name: OpenWrt
   galaxy_tags:
