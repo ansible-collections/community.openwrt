@@ -173,7 +173,7 @@ As a consequence, there is no consolidated mechanism to validate parameters or t
 <li><p>Debuggability is harder: stack traces and structured errors are not available; logs depend on <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">-x</span></code> tracing and are noisy.</p></li>
 <li><p>Ansible unit tests are base in <code class="docutils literal notranslate"><span class="pre">pytest</span></code> and it is not trivial to run sophisticated shell-script tests in that scenario.</p></li>
 <li><p>Both unit and integration tests are impacted by the fact that this collection requires non-standard container images to run the tests.</p></li>
-<li><p>Testing is slower and narrower: meaningful coverage needs molecule/container. Cross-version verification (21.02/22.03/23.05/24.10) takes time.</p></li>
+<li><p>Testing is slower and narrower: meaningful coverage needs molecule/container. Cross-version verification takes time.</p></li>
 <li><p>Security hardening is manual: input sanitization, temporary file handling, and permission fixes (see wrapper script) must be explicitly coded; Python’s safer defaults and libraries are absent.</p></li>
 </ul>
 <p>Most of these challenges have not been solved yet, some may never be. But they clearly show that there is a lot of room for improvements.</p>
