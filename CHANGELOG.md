@@ -2,23 +2,33 @@
 
 **Topics**
 
-- <a href="#v0-4-0">v0\.4\.0</a>
+- <a href="#v0-5-0">v0\.5\.0</a>
     - <a href="#release-summary">Release Summary</a>
+- <a href="#v0-4-0">v0\.4\.0</a>
+    - <a href="#release-summary-1">Release Summary</a>
     - <a href="#minor-changes">Minor Changes</a>
     - <a href="#new-modules">New Modules</a>
 - <a href="#v0-3-0">v0\.3\.0</a>
-    - <a href="#release-summary-1">Release Summary</a>
-- <a href="#v0-2-0">v0\.2\.0</a>
     - <a href="#release-summary-2">Release Summary</a>
+- <a href="#v0-2-0">v0\.2\.0</a>
+    - <a href="#release-summary-3">Release Summary</a>
     - <a href="#minor-changes-1">Minor Changes</a>
     - <a href="#new-modules-1">New Modules</a>
 - <a href="#v0-1-0">v0\.1\.0</a>
-    - <a href="#release-summary-3">Release Summary</a>
+    - <a href="#release-summary-4">Release Summary</a>
+
+<a id="v0-5-0"></a>
+## v0\.5\.0
+
+<a id="release-summary"></a>
+### Release Summary
+
+First GA release of the collection\.
 
 <a id="v0-4-0"></a>
 ## v0\.4\.0
 
-<a id="release-summary"></a>
+<a id="release-summary-1"></a>
 ### Release Summary
 
 Establish mechanism for integration testing\.
@@ -48,7 +58,7 @@ Modules now have lifecycle functions <code>init\(\)</code> and <code>validate\(\
 <a id="v0-3-0"></a>
 ## v0\.3\.0
 
-<a id="release-summary-1"></a>
+<a id="release-summary-2"></a>
 ### Release Summary
 
 Add <code>\.devcontainer</code> setup\.
@@ -60,7 +70,7 @@ Rename setup role to <code>community\.openwrt\.init</code>\.
 <a id="v0-2-0"></a>
 ## v0\.2\.0
 
-<a id="release-summary-2"></a>
+<a id="release-summary-3"></a>
 ### Release Summary
 
 Use action plugins to \"wrap\" shell\-based modules\.
@@ -108,7 +118,7 @@ Mark <code>shell\=ash</code> for <code>shellcheck</code>\.
 <a id="v0-1-0"></a>
 ## v0\.1\.0
 
-<a id="release-summary-3"></a>
+<a id="release-summary-4"></a>
 ### Release Summary
 
 This is the first release of the <code>community\.openwrt</code> collection\.
