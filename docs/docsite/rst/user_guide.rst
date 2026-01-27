@@ -53,15 +53,9 @@ Requirements
 Check the collection's `README <https://github.com/ansible-collections/community.openwrt?tab=readme-ov-file>`_
 for the supported versions of Ansible and OpenWrt.
 
-The modules in this collection are all written in shell script (more specifically ``ash``,
-used in OpenWrt devices). The control node requires Python and follows  ``ansible-core``
-`support matrix <https://docs.ansible.com/projects/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix>`_.
+The modules in this collection are all written in shell script (more specifically ``ash``, used in OpenWrt devices). The control node requires Python.
 
 This collection is tested using OpenWrt container images for the ``x86_64`` architecture.
-As of Dec 2025, it supports OpenWrt versions: 21.02, 22.03, 23.05, and 24.10. It is likely going to
-run in other versions as well, but we strongly recommend using
-`supported versions <https://openwrt.org/docs/guide-developer/security#support_status>`_ of OpenWrt.
-
 
 Additional packages
 """""""""""""""""""

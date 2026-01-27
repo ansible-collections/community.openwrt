@@ -38,7 +38,7 @@ Using shell-based modules on the target instead of Python brings a few practical
 * Debuggability is harder: stack traces and structured errors are not available; logs depend on ``set -x`` tracing and are noisy.
 * Ansible unit tests are base in ``pytest`` and it is not trivial to run sophisticated shell-script tests in that scenario.
 * Both unit and integration tests are impacted by the fact that this collection requires non-standard container images to run the tests.
-* Testing is slower and narrower: meaningful coverage needs molecule/container. Cross-version verification (21.02/22.03/23.05/24.10) takes time.
+* Testing is slower and narrower: meaningful coverage needs molecule/container. Cross-version verification takes time.
 * Security hardening is manual: input sanitization, temporary file handling, and permission fixes (see wrapper script) must be explicitly coded; Python's safer defaults and libraries are absent.
 
 Most of these challenges have not been solved yet, some may never be. But they clearly show that there is a lot of room for improvements.
