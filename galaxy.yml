@@ -3,7 +3,7 @@
 
 namespace: community
 name: openwrt
-version: 0.5.0
+version: 1.0.0
 readme: README.md
 authors:
   - Alexei Znamensky (github.com/russoz)
