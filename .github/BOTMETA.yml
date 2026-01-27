@@ -1,0 +1,116 @@
+---
+# Copyright (c) Ansible Project
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+notifications: true
+automerge: true
+files:
+  changelogs/: {}
+  changelogs/fragments/:
+    support: community
+  $actions:
+    labels: action
+    maintainers: $team_repo_mgrs
+  $doc_fragments/:
+    labels: docs_fragments
+    maintainers: $team_repo_mgrs
+  $module_utils/:
+    labels: module_utils
+    maintainers: $team_repo_mgrs
+  $modules/apk.py:
+    maintainers: kbialek
+  $modules/apk.sh:
+    maintainers: $team_repo_mgrs
+  $modules/command.py:
+    maintainers: $team_repo_mgrs
+  $modules/command.sh:
+    maintainers: $team_repo_mgrs
+  $modules/copy.py:
+    maintainers: $team_repo_mgrs
+  $modules/copy.sh:
+    maintainers: $team_repo_mgrs
+  $modules/file.py:
+    maintainers: $team_repo_mgrs
+  $modules/file.sh:
+    maintainers: $team_repo_mgrs
+  $modules/lineinfile.py:
+    maintainers: $team_repo_mgrs
+  $modules/lineinfile.sh:
+    maintainers: $team_repo_mgrs
+  $modules/nohup.py:
+    maintainers: $team_repo_mgrs
+  $modules/nohup.sh:
+    maintainers: $team_repo_mgrs
+  $modules/opkg.py:
+    maintainers: $team_repo_mgrs
+  $modules/opkg.sh:
+    maintainers: $team_repo_mgrs
+  $modules/ping.py:
+    maintainers: $team_repo_mgrs
+  $modules/ping.sh:
+    maintainers: $team_repo_mgrs
+  $modules/service.py:
+    maintainers: $team_repo_mgrs
+  $modules/service.sh:
+    maintainers: $team_repo_mgrs
+  $modules/setup.py:
+    maintainers: $team_repo_mgrs
+  $modules/setup.sh:
+    maintainers: $team_repo_mgrs
+  $modules/slurp.py:
+    maintainers: $team_repo_mgrs
+  $modules/slurp.sh:
+    maintainers: $team_repo_mgrs
+  $modules/stat.py:
+    maintainers: $team_repo_mgrs
+  $modules/stat.sh:
+    maintainers: $team_repo_mgrs
+  $modules/sysctl.py:
+    maintainers: $team_repo_mgrs
+  $modules/sysctl.sh:
+    maintainers: $team_repo_mgrs
+  $modules/uci.py:
+    maintainers: $team_repo_mgrs
+  $modules/uci.sh:
+    maintainers: $team_repo_mgrs
+  $modules/wrapper.sh:
+    maintainers: $team_repo_mgrs
+  $modules/wrapper.yml:
+    maintainers: $team_repo_mgrs
+  $plugin_utils/openwrt_action.py:
+    maintainers: $team_repo_mgrs
+  #########################
+  docs/docsite/rst/migration_guide.rst:
+    maintainers: $team_repo_mgrs
+  docs/docsite/rst/mod_dev_guide.rst:
+    maintainers: $team_repo_mgrs
+  docs/docsite/rst/user_guide.rst:
+    maintainers: $team_repo_mgrs
+  #########################
+  tests/:
+    labels: tests
+  tests/integration:
+    labels: integration
+    support: community
+  tests/unit/:
+    labels: unit
+    support: community
+  tests/utils/:
+    labels: unit
+    maintainers: $team_repo_mgrs
+macros:
+  actions: plugins/action
+  becomes: plugins/become
+  caches: plugins/cache
+  callbacks: plugins/callback
+  connections: plugins/connection
+  doc_fragments: plugins/doc_fragments
+  filters: plugins/filter
+  inventories: plugins/inventory
+  lookups: plugins/lookup
+  module_utils: plugins/module_utils
+  modules: plugins/modules
+  plugin_utils: plugins/plugin_utils
+  tests: plugins/test
+  team_repo_mgrs: russoz
