@@ -21,7 +21,7 @@ files:
   $modules/apk.py:
     maintainers: kbialek
   $modules/apk.sh:
-    maintainers: $team_repo_mgrs
+    maintainers: kbialek
   $modules/command.py:
     maintainers: $team_repo_mgrs
   $modules/command.sh:
