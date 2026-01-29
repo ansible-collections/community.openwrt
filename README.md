@@ -7,12 +7,6 @@
 [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.openwrt)](https://codecov.io/gh/ansible-collections/community.openwrt)
  -->
 
-## Warning
-
-While community.openwrt 1.0.0 is not released, there is no strong commitment to backward compatibility - breaking changes may be introduced without further notices.
-
-We appreciate the feedback from users during this phase, but keep in mind that this collection is **not yet deemed ready for production** workloads.
-
 ## Description
 
 This collection enables the automated configuration of your OpenWrt devices.
