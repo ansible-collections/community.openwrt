@@ -4,9 +4,9 @@ Users of OpenWRT devices need a consistent and maintained set of ansible compone
 
 # What
 
-`community.openwrt` is an Ansible collection supporting OpenWRT devices. It has no code in it yet, but it is meant to be based on the no longer maintained ansible role `gekmihesg.openwrt` - accessible in this workspace under the `ansible-openwrt` proejct directory.
+`community.openwrt` is an Ansible collection supporting OpenWRT devices. It has no code in it yet, but it is meant to be based on the no longer maintained ansible role `gekmihesg.openwrt` - accessible in this workspace under the `ansible-openwrt` project directory.
 
-The collection will support Ansible 2.17 onwards.
+The collection will support Ansible 2.18 onwards.
 
 # How
 

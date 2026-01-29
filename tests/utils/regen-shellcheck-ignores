@@ -131,7 +131,7 @@ def regen_lines(tox_target: str, ignore_version: str) -> None:
         except OSError as e:
             print(f"ERROR appending to {ignore_file}: {e}", file=sys.stderr)
 
-    print(f"\n")
+    print("\n")
 
 
 def main() -> None:
@@ -142,7 +142,6 @@ def main() -> None:
         )
         sys.exit(1)
 
-    regen_lines("ac217", "2.17")
     regen_lines("ac218", "2.18")
     regen_lines("ac219", "2.19")
     regen_lines("ac220", "2.20")
