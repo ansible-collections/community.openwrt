@@ -131,7 +131,7 @@ def regen_lines(tox_target: str, ignore_version: str) -> None:
         except OSError as e:
             print(f"ERROR appending to {ignore_file}: {e}", file=sys.stderr)
 
-    print(f"\n")
+    print("\n")
 
 
 def main() -> None:
