@@ -4,6 +4,14 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.0.0
+======
+
+Release Summary
+---------------
+
+First GA release of the community.openwrt collection.
+
 v0.4.0
 ======
 

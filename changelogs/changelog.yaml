@@ -108,3 +108,9 @@ releases:
         name: apk
         namespace: ''
     release_date: '2026-01-06'
+  1.0.0:
+    changes:
+      release_summary: First GA release of the community.openwrt collection.
+    fragments:
+      - 1.0.0.yml
+    release_date: '2026-01-29'
