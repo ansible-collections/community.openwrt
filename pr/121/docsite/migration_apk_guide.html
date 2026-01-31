@@ -131,7 +131,7 @@
   <section id="openwrt-25-x-package-manager-changes">
 <span id="ansible-collections-community-openwrt-docsite-apk-opkg-guide"></span><h1>OpenWrt 25.x Package Manager changes<a class="headerlink" href="#openwrt-25-x-package-manager-changes" title="Link to this heading"></a></h1>
 <p>With OpenWrt 25.x the Package Manager changed from <code class="docutils literal notranslate"><span class="pre">opkg</span></code> to <code class="docutils literal notranslate"><span class="pre">apk</span></code> (apk is used in Alpine Linux).
-The announcement as made here: &lt;<a class="reference external" href="https://openwrt.org/releases/25.12/notes-25.12.0-rc1">https://openwrt.org/releases/25.12/notes-25.12.0-rc1</a>&gt;.</p>
+The announcement was made here: &lt;<a class="reference external" href="https://openwrt.org/releases/25.12/notes-25.12.0-rc1">https://openwrt.org/releases/25.12/notes-25.12.0-rc1</a>&gt;.</p>
 <p>Major changes can be found here: &lt;<a class="reference external" href="https://openwrt.org/docs/guide-user/additional-software/opkg-to-apk-cheatsheet">https://openwrt.org/docs/guide-user/additional-software/opkg-to-apk-cheatsheet</a>&gt;</p>
 <section id="playbooks-supporting-only-apk">
 <h2>Playbooks supporting only apk<a class="headerlink" href="#playbooks-supporting-only-apk" title="Link to this heading"></a></h2>
@@ -149,6 +149,7 @@ The announcement as made here: &lt;<a class="reference external" href="https://o
 <span class="w">      </span><span class="nt">community.openwrt.apk</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">luci</span>
 <span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
+<span class="w">        </span><span class="nt">update_cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
 </section>
@@ -160,17 +161,18 @@ The announcement as made here: &lt;<a class="reference external" href="https://o
 <span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">community.openwrt.init</span>
 <span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install software (apk)</span>
-<span class="w">      </span><span class="nt">community.openwrt.apk</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install package</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">community.openwrt.</span><span class="cp">{{</span> <span class="nv">openwrt_package_manager</span> <span class="cp">}}</span>
+<span class="w">      </span><span class="nt">args</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">luci</span>
 <span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
-<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openwrt_package_manager == &#39;apk&#39;</span>
+<span class="w">        </span><span class="nt">update_cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install software (legacy opkg)</span>
-<span class="w">      </span><span class="nt">community.openwrt.opkg</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove package</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">community.openwrt.</span><span class="cp">{{</span> <span class="nv">openwrt_package_manager</span> <span class="cp">}}</span>
+<span class="w">      </span><span class="nt">args</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">luci</span>
-<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
-<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openwrt_package_manager == &#39;opkg&#39;</span>
+<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
 </pre></div>
 </div>
 </section>
