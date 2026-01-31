@@ -10,7 +10,7 @@ OpenWrt 25.x Package Manager changes
 ====================================
 
 With OpenWrt 25.x the Package Manager changed from ``opkg`` to ``apk`` (apk is used in Alpine Linux).
-The announcement as made here: <https://openwrt.org/releases/25.12/notes-25.12.0-rc1>.
+The announcement was made here: <https://openwrt.org/releases/25.12/notes-25.12.0-rc1>.
 
 Major changes can be found here: <https://openwrt.org/docs/guide-user/additional-software/opkg-to-apk-cheatsheet>
 
