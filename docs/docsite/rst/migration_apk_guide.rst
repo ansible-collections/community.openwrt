@@ -34,6 +34,7 @@ Playbooks supporting only apk
           community.openwrt.apk:
             name: luci
             state: present
+            update_cache: true
 
 
 Playbooks supporting both apk and legacy opkg
@@ -47,15 +48,15 @@ Playbooks supporting both apk and legacy opkg
       roles:
         - community.openwrt.init
       tasks:
-        - name: Install software (apk)
-          community.openwrt.apk:
+        - name: Install package
+          action: community.openwrt.{{ openwrt_package_manager }}
+          args:
             name: luci
             state: present
-          when: openwrt_package_manager == 'apk'
+            update_cache: true
 
-        - name: Install software (legacy opkg)
-          community.openwrt.opkg:
+        - name: Remove package
+          action: community.openwrt.{{ openwrt_package_manager }}
+          args:
             name: luci
-            state: present
-          when: openwrt_package_manager == 'opkg'
-
+            state: absent
