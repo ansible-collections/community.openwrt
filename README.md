@@ -103,7 +103,7 @@ The collection is currently tested against OpenWrt versions:
 
 - 23.05 ([EOL](https://forum.openwrt.org/t/openwrt-23-05-6-service-release/239506))
 - 24.10
-- 25.12-rc3
+- 25.12 (Release Candidate)
 
 Keep in mind that OpenWrt
 [supports only two or three different release numbers](https://openwrt.org/docs/guide-developer/security#support_status).
