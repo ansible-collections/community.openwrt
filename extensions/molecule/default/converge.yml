@@ -273,13 +273,8 @@
           community.openwrt.command:
             cmd: service cron running
           changed_when: false
-          failed_when: false
+          failed_when: cron_running.rc != 0
           register: cron_running
-
-        - name: Assert cron service running
-          ansible.builtin.assert:
-            that:
-              - cron_running.rc == 0
 
         - name: Stop cron service
           community.openwrt.service:
@@ -290,13 +285,8 @@
           community.openwrt.command:
             cmd: service cron running
           changed_when: false
-          failed_when: false
+          failed_when: cron_state.rc == 0
           register: cron_state
-
-        - name: Assert cron service state
-          ansible.builtin.assert:
-            that:
-              - cron_state.rc != 0
 
         - name: Clean up - remove crontab file
           community.openwrt.file:
