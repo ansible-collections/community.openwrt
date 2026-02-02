@@ -266,3 +266,29 @@
           ansible.builtin.assert:
             that:
               - cron_state.rc != 0
+
+    - name: Sysctl tests
+      vars:
+        sysctl_file: /etc/sysctl.conf
+        sysctl_setting_name: fs.file-max
+        sysctl_setting_value: 396480
+      block:
+
+        - name: Set `fs.file-max` with sysctl
+          community.openwrt.sysctl:
+            sysctl_file: "{{ sysctl_file }}"
+            state: present
+            name: "{{ sysctl_setting_name }}"
+            value: "{{ sysctl_setting_value }}"
+
+        - name: Check sysctl setting exists
+          community.openwrt.lineinfile:
+            path: "{{ sysctl_file }}"
+            line: "{{ sysctl_setting_name + '=' + sysctl_setting_value | string }}"
+          check_mode: true
+          register: sysctl_setting_check
+
+        - name: Assert sysctl setting exists
+          ansible.builtin.assert:
+            that:
+              - sysctl_setting_check.changed == false
