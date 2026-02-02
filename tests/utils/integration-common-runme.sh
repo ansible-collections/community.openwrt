@@ -13,10 +13,12 @@ case "$CLI_VERBOSITY" in
 esac
 OPENWRT_VERSION="${OPENWRT_VERSION:-24.10.4}"
 
-export TEST_TARGET_NAME OPENWRT_VERSION
+export TEST_TARGET_ROLE OPENWRT_VERSION
 
 # shellcheck disable=SC2164
 cd "$OUTPUT_DIR/../../../../"
+
+TEST_TARGET_ROLE="$(pwd)/tests/integration/targets/$TEST_TARGET_NAME"
 
 source virtualenv.sh
 pip install molecule 'molecule-plugins[docker]'

@@ -8,7 +8,7 @@
     name: community.openwrt.init
 
 - name: Skip tests when package manager is not apk
-  ansible.builtin.meta: end_play
+  ansible.builtin.meta: end_host
   when: openwrt_package_manager != "apk"
 
 - name: "Install a package (htop)"
