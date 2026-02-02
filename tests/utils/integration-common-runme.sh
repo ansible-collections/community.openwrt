@@ -8,7 +8,7 @@
 TEST_TARGET_NAME="$1"
 CLI_VERBOSITY="${2-}"
 case "$CLI_VERBOSITY" in
-    -v|-vv|-vvv|-vvvv) :;;
+    -v|-vv|-vvv|-vvvv|"") :;;
     *) echo "runme.sh: invalid parameter ($CLI_VERBOSITY)" >&2; exit 1 ;;
 esac
 OPENWRT_VERSION="${OPENWRT_VERSION:-24.10.4}"

@@ -115,7 +115,7 @@ jobs:
       fail-fast: false
       matrix:
         openwrt: &openwrt-versions
-          - "25.12.0-rc3"
+          - "25.12.0-rc4"
           - "24.10.4"
           - "23.05.6"
         ansible: *ansible-versions
@@ -255,6 +255,7 @@ jobs:
           # which should improve CI performance. See limitations on
           # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
           pull-request-change-detection: false
+          coverage: never
 
   check: # This job does nothing and is only used for the branch protection
     # or multi-stage CI jobs, like making sure that all tests pass before
