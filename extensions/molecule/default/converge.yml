@@ -72,6 +72,13 @@
         that:
           - uci_dhcp_dnsmasq_rebind_protection.result == "0"
 
+    - name: Clean up - set rebind_protection value (UCI)
+      community.openwrt.uci:
+        command: set
+        key: dhcp.@dnsmasq[0]
+        value:
+          rebind_protection: 1
+
     - name: Verify recommended packages were installed
       community.openwrt.command:
         cmd: 'sleep 3; [ -x /bin/base64 ] && [ -x /usr/bin/sha1sum ]'
@@ -216,6 +223,13 @@
       when: "(os_release.version_id | lower == 'snapshot') or (os_release.version_id is version('22.03', '>='))"
       block:
 
+        - name: Create crontab file
+          community.openwrt.file:
+            path: /etc/crontabs/root
+            state: touch
+            content: |
+              * * * * * /bin/echo "Holy canole,    it\\'s {{ os_release.name }}"
+
         - name: Disable cron service
           community.openwrt.service:
             name: cron
@@ -250,6 +264,23 @@
             that:
               - cron_enabled.rc == 0
 
+        - name: Start cron service
+          community.openwrt.service:
+            name: cron
+            state: started
+
+        - name: Check cron running  # noqa: command-instead-of-module
+          community.openwrt.command:
+            cmd: service cron running
+          changed_when: false
+          failed_when: false
+          register: cron_running
+
+        - name: Assert cron service running
+          ansible.builtin.assert:
+            that:
+              - cron_running.rc == 0
+
         - name: Stop cron service
           community.openwrt.service:
             name: cron
@@ -266,6 +297,11 @@
           ansible.builtin.assert:
             that:
               - cron_state.rc != 0
+
+        - name: Clean up - remove crontab file
+          community.openwrt.file:
+            path: /etc/crontabs/root
+            state: absent
 
     - name: Sysctl tests
       vars:
@@ -289,6 +325,25 @@
           register: sysctl_setting_check
 
         - name: Assert sysctl setting exists
+          ansible.builtin.assert:
+            that:
+              - sysctl_setting_check.changed == false
+
+        - name: Clean up - remove `fs.file-max` with sysctl
+          community.openwrt.sysctl:
+            sysctl_file: "{{ sysctl_file }}"
+            state: absent
+            name: "{{ sysctl_setting_name }}"
+
+        - name: Check sysctl setting absent
+          community.openwrt.lineinfile:
+            path: "{{ sysctl_file }}"
+            line: "{{ sysctl_setting_name + '=' + sysctl_setting_value | string }}"
+            state: absent
+          check_mode: true
+          register: sysctl_setting_check
+
+        - name: Assert sysctl setting absent
           ansible.builtin.assert:
             that:
               - sysctl_setting_check.changed == false
