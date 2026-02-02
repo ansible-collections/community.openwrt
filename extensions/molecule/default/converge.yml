@@ -320,7 +320,7 @@
         - name: Check sysctl setting exists
           community.openwrt.lineinfile:
             path: "{{ sysctl_file }}"
-            line: "{{ sysctl_setting_name + '=' + sysctl_setting_value | string }}"
+            line: "{{ sysctl_setting_name }}={{ sysctl_setting_value }}"
           check_mode: true
           register: sysctl_setting_check
 
