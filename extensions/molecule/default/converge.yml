@@ -211,3 +211,58 @@
           register:
             _apk_result
           failed_when: _apk_result.msg != "update_cache and no_cache parameters are mutually exclusive"
+
+    - name: Service management tests
+      when: "(os_release.version_id | lower == 'snapshot') or (os_release.version_id is version('22.03', '>='))"
+      block:
+
+        - name: Disable cron service
+          community.openwrt.service:
+            name: cron
+            enabled: false
+
+        - name: Check cron enabled  # noqa: command-instead-of-module
+          community.openwrt.command:
+            cmd: service cron enabled
+          changed_when: false
+          failed_when: false
+          register: cron_enabled
+
+        - name: Assert cron service status
+          ansible.builtin.assert:
+            that:
+              - cron_enabled.rc != 0
+
+        - name: Enable cron service
+          community.openwrt.service:
+            name: cron
+            enabled: true
+
+        - name: Check cron enabled  # noqa: command-instead-of-module
+          community.openwrt.command:
+            cmd: service cron enabled
+          changed_when: false
+          failed_when: false
+          register: cron_enabled
+
+        - name: Assert cron service status
+          ansible.builtin.assert:
+            that:
+              - cron_enabled.rc == 0
+
+        - name: Stop cron service
+          community.openwrt.service:
+            name: cron
+            state: stopped
+
+        - name: Check cron running  # noqa: command-instead-of-module
+          community.openwrt.command:
+            cmd: service cron running
+          changed_when: false
+          failed_when: false
+          register: cron_state
+
+        - name: Assert cron service state
+          ansible.builtin.assert:
+            that:
+              - cron_state.rc != 0
