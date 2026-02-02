@@ -26,7 +26,7 @@
       vars:
         _os_release_lines: "{{ os_release_slurp['content'] | b64decode | split('\n') }}"
         _os_release_split: "{{ _os_release_lines | map('regex_search', '^([A-Z_0-9]+)=\"(.*)\"$', '\\1', '\\2') | reject('none') }}"
-        _os_release_dict: "{{ dict(_os_release_split) }}"
+        _os_release_dict: "{{ dict(_os_release_split) }}"  # noqa: jinja
 
     - name: Run simple command
       community.openwrt.command:
@@ -53,6 +53,24 @@
       ansible.builtin.assert:
         that:
           - uci_dhcp_domainneeded.result == "1"
+
+    - name: Write UCI
+      community.openwrt.uci:
+        command: set
+        key: dhcp.@dnsmasq[0]
+        value:
+          rebind_protection: 0
+
+    - name: Read written value UCI
+      community.openwrt.uci:
+        command: get
+        key: dhcp.@dnsmasq[0].rebind_protection
+      register: uci_dhcp_dnsmasq_rebind_protection
+
+    - name: Assert rebind_protection value (UCI)
+      ansible.builtin.assert:
+        that:
+          - uci_dhcp_dnsmasq_rebind_protection.result == "0"
 
     - name: Verify recommended packages were installed
       community.openwrt.command:
