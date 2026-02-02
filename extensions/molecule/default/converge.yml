@@ -59,25 +59,25 @@
         command: set
         key: dhcp.@dnsmasq[0]
         value:
-          rebind_protection: 0
+          domain: test
 
     - name: Read written value UCI
       community.openwrt.uci:
         command: get
-        key: dhcp.@dnsmasq[0].rebind_protection
-      register: uci_dhcp_dnsmasq_rebind_protection
+        key: dhcp.@dnsmasq[0].domain
+      register: uci_dhcp_dnsmasq_domain
 
-    - name: Assert rebind_protection value (UCI)
+    - name: Assert domain value (UCI)
       ansible.builtin.assert:
         that:
-          - uci_dhcp_dnsmasq_rebind_protection.result == "0"
+          - uci_dhcp_dnsmasq_domain.result == "test"
 
-    - name: Clean up - set rebind_protection value (UCI)
+    - name: Clean up - set domain value (UCI)
       community.openwrt.uci:
         command: set
         key: dhcp.@dnsmasq[0]
         value:
-          rebind_protection: 1
+          domain: lan
 
     - name: Verify recommended packages were installed
       community.openwrt.command:
