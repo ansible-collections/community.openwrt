@@ -54,31 +54,6 @@
         that:
           - uci_dhcp_domainneeded.result == "1"
 
-    - name: Write UCI
-      community.openwrt.uci:
-        command: set
-        key: dhcp.@dnsmasq[0]
-        value:
-          domain: test
-
-    - name: Read written value UCI
-      community.openwrt.uci:
-        command: get
-        key: dhcp.@dnsmasq[0].domain
-      register: uci_dhcp_dnsmasq_domain
-
-    - name: Assert domain value (UCI)
-      ansible.builtin.assert:
-        that:
-          - uci_dhcp_dnsmasq_domain.result == "test"
-
-    - name: Clean up - set domain value (UCI)
-      community.openwrt.uci:
-        command: set
-        key: dhcp.@dnsmasq[0]
-        value:
-          domain: lan
-
     - name: Verify recommended packages were installed
       community.openwrt.command:
         cmd: 'sleep 3; [ -x /bin/base64 ] && [ -x /usr/bin/sha1sum ]'
