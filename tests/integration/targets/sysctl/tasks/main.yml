@@ -39,3 +39,47 @@
     name: net.ipv4.ip_forward
     value: "{{ current_value.stdout }}"
     sysctl_file: /etc/sysctl.conf
+
+- name: Tests persisting sysctl setting in sysctl.conf file
+  vars:
+    sysctl_file: /etc/sysctl.conf
+    sysctl_setting_name: fs.file-max
+    sysctl_setting_value: 396480
+  block:
+    - name: Set `fs.file-max` with sysctl
+      community.openwrt.sysctl:
+        sysctl_file: "{{ sysctl_file }}"
+        state: present
+        name: "{{ sysctl_setting_name }}"
+        value: "{{ sysctl_setting_value }}"
+
+    - name: Check sysctl setting exists
+      community.openwrt.lineinfile:
+        path: "{{ sysctl_file }}"
+        line: "{{ sysctl_setting_name }}={{ sysctl_setting_value }}"
+      check_mode: true
+      register: sysctl_setting_check
+
+    - name: Assert sysctl setting exists
+      ansible.builtin.assert:
+        that:
+          - sysctl_setting_check.changed == false
+
+    - name: Clean up - remove `fs.file-max` with sysctl
+      community.openwrt.sysctl:
+        sysctl_file: "{{ sysctl_file }}"
+        state: absent
+        name: "{{ sysctl_setting_name }}"
+
+    - name: Check sysctl setting absent
+      community.openwrt.lineinfile:
+        path: "{{ sysctl_file }}"
+        line: "{{ sysctl_setting_name }}={{ sysctl_setting_value }}"
+        state: absent
+      check_mode: true
+      register: sysctl_setting_check
+
+    - name: Assert sysctl setting absent
+      ansible.builtin.assert:
+        that:
+          - sysctl_setting_check.changed == false
