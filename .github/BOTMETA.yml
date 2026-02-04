@@ -70,6 +70,10 @@ files:
     maintainers: $team_repo_mgrs
   $modules/sysctl.sh:
     maintainers: $team_repo_mgrs
+  $modules/tempfile.py:
+    maintainers: $team_repo_mgrs
+  $modules/tempfile.sh:
+    maintainers: $team_repo_mgrs
   $modules/uci.py:
     maintainers: $team_repo_mgrs
   $modules/uci.sh:
