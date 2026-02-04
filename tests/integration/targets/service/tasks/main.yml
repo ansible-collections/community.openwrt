@@ -1,0 +1,64 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Create crontab file
+  community.openwrt.file:
+    path: /etc/crontabs/root
+    state: touch
+    content: |
+      * * * * * /bin/echo "Holy canole,    it\\'s OpenWrt"
+
+- name: Disable cron service
+  community.openwrt.service:
+    name: cron
+    enabled: false
+
+- name: Check cron enabled
+  community.openwrt.command:
+    cmd: service cron enabled
+  changed_when: false
+  failed_when: cron_enabled.rc == 0
+  register: cron_enabled
+
+- name: Enable cron service
+  community.openwrt.service:
+    name: cron
+    enabled: true
+
+- name: Check cron enabled
+  community.openwrt.command:
+    cmd: service cron enabled
+  changed_when: false
+  failed_when: cron_enabled.rc != 0
+  register: cron_enabled
+
+- name: Start cron service
+  community.openwrt.service:
+    name: cron
+    state: started
+
+- name: Check cron running
+  community.openwrt.command:
+    cmd: service cron running
+  changed_when: false
+  failed_when: cron_running.rc != 0
+  register: cron_running
+
+- name: Stop cron service
+  community.openwrt.service:
+    name: cron
+    state: stopped
+
+- name: Check cron running
+  community.openwrt.command:
+    cmd: service cron running
+  changed_when: false
+  failed_when: cron_state.rc == 0
+  register: cron_state
+
+- name: Clean up - remove crontab file
+  community.openwrt.file:
+    path: /etc/crontabs/root
+    state: absent
