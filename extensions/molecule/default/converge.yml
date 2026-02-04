@@ -26,7 +26,7 @@
       vars:
         _os_release_lines: "{{ os_release_slurp['content'] | b64decode | split('\n') }}"
         _os_release_split: "{{ _os_release_lines | map('regex_search', '^([A-Z_0-9]+)=\"(.*)\"$', '\\1', '\\2') | reject('none') }}"
-        _os_release_dict: "{{ dict(_os_release_split) }}"  # noqa: jinja
+        _os_release_dict: "{{ _os_release_split | items2dict(key_name=0, value_name=1) }}"
 
     - name: Run simple command
       community.openwrt.command:
