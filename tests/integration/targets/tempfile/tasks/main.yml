@@ -1,0 +1,57 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Create temp file
+  community.openwrt.tempfile:
+    state: file
+    prefix: test
+  register: test_tempfile
+
+- name: Get temp file stats
+  community.openwrt.stat:
+    path: "{{ test_tempfile.path }}"
+  register: test_file_check_result
+
+- name: Assert temp file exists
+  ansible.builtin.assert:
+    that:
+      - test_file_check_result.stat.exists
+
+- name: Assert `/tmp` value is part of temp file path
+  ansible.builtin.assert:
+    that:
+      - test_tempfile.path | regex_search("/tmp")
+
+- name: Remove tempfile
+  community.openwrt.file:
+    path: "{{ test_tempfile.path }}"
+    state: absent
+
+- name: Create temp directory
+  community.openwrt.tempfile:
+    state: directory
+    prefix: test
+    path: "/var"
+  register: test_tempdir
+
+- name: Get temp dir stats
+  community.openwrt.stat:
+    path: "{{ test_tempdir.path }}"
+  register: test_dir_check_result
+
+- name: Assert temp dir exists
+  ansible.builtin.assert:
+    that:
+      - test_dir_check_result.stat.exists
+
+- name: Assert `/var` value is part of temp dir path
+  ansible.builtin.assert:
+    that:
+      - test_tempdir.path | regex_search("/var")
+
+- name: Remove tempdir
+  community.openwrt.file:
+    path: "{{ test_tempdir.path }}"
+    state: absent
