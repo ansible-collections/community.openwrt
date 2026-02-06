@@ -49,19 +49,14 @@ It provides:
 Support for Standard Ansible Modules
 """"""""""""""""""""""""""""""""""""
 
-Because ``gekmihesg.openwrt`` monkey patched Ansible, many of the standard Ansible modules 
-continued to work as normal on OpenWrt devices while not requiring Python to be installed on them. 
-This collection instead uses shell scripts to create new modules without any Python requirement. 
-If you are migrating playbooks that utilize standard Ansible modules, you should be aware that 
-not all modules have been ported or have an equivalent replacment.
+Because ``gekmihesg.openwrt`` `monkey patched <https://en.wikipedia.org/wiki/Monkey_patch>`_ Ansible, 
+many of the standard Ansible modules continued to work as normal on OpenWrt devices while not 
+requiring Python to be installed on them. This collection instead uses shell scripts to create new 
+modules without any Python requirement. If you are migrating playbooks that utilize standard Ansible 
+modules, you should be aware that not all modules have been ported or have an equivalent replacment.
 
-Examples include:
-
-* ansible.builtin.fetch
-* ansible.builtin.lineinfile
-* ansible.builtin.template
-
-These modules will typically fail with an error such as: 
+This would include any standard module in the ``ansible.builtin.*`` collection such as ``fetch``,
+``lineinfile``, ``template``, etc. These modules will typically fail with an error such as: 
 ``Task failed: Action failed: The module interpreter '/usr/bin/python3' was not found``
 
 Installation
