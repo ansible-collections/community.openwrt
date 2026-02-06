@@ -32,6 +32,8 @@ options:
       - Prefix of the file or directory name.
     type: str
     default: ansible
+notes:
+  - This module always returns C(changed=true) because it creates a new temporary file or directory each time it runs.
 """
 
 EXAMPLES = r"""
