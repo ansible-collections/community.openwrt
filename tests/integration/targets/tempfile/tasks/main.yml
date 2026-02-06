@@ -46,6 +46,7 @@
   ansible.builtin.assert:
     that:
       - test_dir_check_result.stat.exists
+      - test_dir_check_result.stat.isdir
 
 - name: Assert `/var` value is part of temp dir path
   ansible.builtin.assert:
