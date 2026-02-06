@@ -25,7 +25,6 @@ options:
   path:
     description:
       - Location where the temporary file or directory should be created.
-      - If path is not specified, the default system temporary directory (C(/tmp)) will be used.
     type: path
     default: /tmp
   prefix:
