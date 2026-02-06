@@ -29,7 +29,6 @@ options:
   prefix:
     description:
       - Prefix of the file or directory name.
-      - The default prefix is C(ansible).
     type: str
     default: ansible
 """
