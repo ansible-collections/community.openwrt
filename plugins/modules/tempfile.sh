@@ -23,7 +23,7 @@ main() {
     fi
     mktemp_cmd="${mktemp_cmd} -p ${path}"
     if [ -n "${prefix}" ]; then
-        mktemp_cmd="${mktemp_cmd} ${prefix}XXXXXX"
+        mktemp_cmd="${mktemp_cmd} ${prefix}.XXXXXX"
     fi
     if [ -n "${_ansible_check_mode}" ]; then
         changed
