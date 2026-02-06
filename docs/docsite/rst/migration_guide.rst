@@ -46,8 +46,10 @@ It provides:
 * Multiple roles (``community.openwrt.init``, ``community.openwrt.common``)
 * Handlers and plugins organized in a standard collection structure
 
-Support for Standard Ansible Modules
-""""""""""""""""""""""""""""""""""""
+No Support for Standard Ansible Modules
+"""""""""""""""""""""""""""""""""""""""
+
+Migrated playbooks MUST only use modules in the ``community.openwrt.*`` namespace.
 
 Because ``gekmihesg.openwrt`` `monkey patched <https://en.wikipedia.org/wiki/Monkey_patch>`_ Ansible, 
 many of the standard Ansible modules continued to work as normal on OpenWrt devices while not 
