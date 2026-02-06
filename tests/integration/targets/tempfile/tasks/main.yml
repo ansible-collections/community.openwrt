@@ -51,7 +51,7 @@
 - name: Assert `/var` value is part of temp dir path
   ansible.builtin.assert:
     that:
-      - test_tempdir.path | regex_search("/var")
+      - test_tempdir.path.startswith("/var/test")
 
 - name: Remove tempdir
   community.openwrt.file:
