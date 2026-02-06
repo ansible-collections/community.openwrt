@@ -11,6 +11,7 @@ short_description: Creates temporary files and directories on OpenWrt nodes
 description:
   - The M(community.openwrt.tempfile) module creates temporary files and directories on the OpenWrt target.
 author: Ilya Bogdanov (@zeerayne)
+version_added: 1.1.0
 extends_documentation_fragment:
   - community.openwrt.attributes
   - community.openwrt.attributes.info_module
