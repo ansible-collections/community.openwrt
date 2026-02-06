@@ -14,16 +14,14 @@
     path: "{{ test_tempfile.path }}"
   register: test_file_check_result
 
-- name: Assert temp file exists
+- name: Assert temp file created correctly
   ansible.builtin.assert:
     that:
       - test_file_check_result.stat.exists
+      - test_tempfile.path.startswith("/tmp/test.")
       - test_file_check_result.stat.isreg
-
-- name: Assert `/tmp` value is part of temp file path
-  ansible.builtin.assert:
-    that:
-      - test_tempfile.path.startswith("/tmp/test")
+      - test_file_check_result.stat.isuid
+      - test_file_check_result.stat.isgid
 
 - name: Remove tempfile
   community.openwrt.file:
@@ -42,16 +40,14 @@
     path: "{{ test_tempdir.path }}"
   register: test_dir_check_result
 
-- name: Assert temp dir exists
+- name: Assert temp dir created correctly
   ansible.builtin.assert:
     that:
       - test_dir_check_result.stat.exists
+      - test_tempdir.path.startswith("/var/test.")
       - test_dir_check_result.stat.isdir
-
-- name: Assert `/var` value is part of temp dir path
-  ansible.builtin.assert:
-    that:
-      - test_tempdir.path.startswith("/var/test")
+      - test_dir_check_result.stat.isuid
+      - test_dir_check_result.stat.isgid
 
 - name: Remove tempdir
   community.openwrt.file:
