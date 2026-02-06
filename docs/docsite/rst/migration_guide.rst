@@ -298,7 +298,7 @@ Here is a complete before-and-after example to illustrate the migration:
                   command: set
                   key: system.@system[0].hostname
                   value: myrouter
-                notify: Reload network
+                notify: Restart network
      - .. code-block:: yaml+jinja
 
           ---
@@ -325,7 +325,7 @@ Here is a complete before-and-after example to illustrate the migration:
                   command: set
                   key: system.@system[0].hostname
                   value: myrouter
-                notify: Reload network
+                notify: Restart network
 
 
 Testing Your Migration
