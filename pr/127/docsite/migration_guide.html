@@ -78,7 +78,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#key-differences">Key Differences</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#structure">Structure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#support-for-standard-ansible-modules">Support for Standard Ansible Modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#no-support-for-standard-ansible-modules">No Support for Standard Ansible Modules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace">Namespace</a></li>
@@ -183,8 +183,9 @@ It provides:</p>
 <li><p>Handlers and plugins organized in a standard collection structure</p></li>
 </ul>
 </section>
-<section id="support-for-standard-ansible-modules">
-<h3>Support for Standard Ansible Modules<a class="headerlink" href="#support-for-standard-ansible-modules" title="Link to this heading"></a></h3>
+<section id="no-support-for-standard-ansible-modules">
+<h3>No Support for Standard Ansible Modules<a class="headerlink" href="#no-support-for-standard-ansible-modules" title="Link to this heading"></a></h3>
+<p>Migrated playbooks MUST only use modules in the <code class="docutils literal notranslate"><span class="pre">community.openwrt.*</span></code> namespace.</p>
 <p>Because <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> <a class="reference external" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patched</a> Ansible,
 many of the standard Ansible modules continued to work as normal on OpenWrt devices while not
 requiring Python to be installed on them. This collection instead uses shell scripts to create new
