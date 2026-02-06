@@ -149,6 +149,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">community.openwrt</span></code>.</p>
 <p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">community.openwrt.tempfile</span></code>.</p>
 </div>
+<p class="ansible-version-added">New in community.openwrt 1.1.0</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
@@ -182,7 +183,6 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <a class="ansibleOptionLink" href="#parameter-path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Location where the temporary file or directory should be created.</p>
-<p>If path is not specified, the default system temporary directory (<code class="docutils literal notranslate"><span class="pre">/tmp</span></code>) will be used.</p>
 <p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;/tmp&quot;</span></code></p>
 </div></td>
 </tr>
