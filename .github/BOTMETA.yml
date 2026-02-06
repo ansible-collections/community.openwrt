@@ -71,9 +71,9 @@ files:
   $modules/sysctl.sh:
     maintainers: $team_repo_mgrs
   $modules/tempfile.py:
-    maintainers: $team_repo_mgrs
+    maintainers: zeerayne
   $modules/tempfile.sh:
-    maintainers: $team_repo_mgrs
+    maintainers: zeerayne
   $modules/uci.py:
     maintainers: $team_repo_mgrs
   $modules/uci.sh:
