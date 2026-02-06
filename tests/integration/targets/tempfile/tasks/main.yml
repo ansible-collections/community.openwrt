@@ -18,6 +18,7 @@
   ansible.builtin.assert:
     that:
       - test_file_check_result.stat.exists
+      - test_file_check_result.stat.isreg
 
 - name: Assert `/tmp` value is part of temp file path
   ansible.builtin.assert:
