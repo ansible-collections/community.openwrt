@@ -185,18 +185,13 @@ It provides:</p>
 </section>
 <section id="support-for-standard-ansible-modules">
 <h3>Support for Standard Ansible Modules<a class="headerlink" href="#support-for-standard-ansible-modules" title="Link to this heading"></a></h3>
-<p>Because <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> monkey patched Ansible, many of the standard Ansible modules
-continued to work as normal on OpenWrt devices while not requiring Python to be installed on them.
-This collection instead uses shell scripts to create new modules without any Python requirement.
-If you are migrating playbooks that utilize standard Ansible modules, you should be aware that
-not all modules have been ported or have an equivalent replacment.</p>
-<p>Examples include:</p>
-<ul class="simple">
-<li><p>ansible.builtin.fetch</p></li>
-<li><p>ansible.builtin.lineinfile</p></li>
-<li><p>ansible.builtin.template</p></li>
-</ul>
-<p>These modules will typically fail with an error such as:
+<p>Because <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> <a class="reference external" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patched</a> Ansible,
+many of the standard Ansible modules continued to work as normal on OpenWrt devices while not
+requiring Python to be installed on them. This collection instead uses shell scripts to create new
+modules without any Python requirement. If you are migrating playbooks that utilize standard Ansible
+modules, you should be aware that not all modules have been ported or have an equivalent replacment.</p>
+<p>This would include any standard module in the <code class="docutils literal notranslate"><span class="pre">ansible.builtin.*</span></code> collection such as <code class="docutils literal notranslate"><span class="pre">fetch</span></code>,
+<code class="docutils literal notranslate"><span class="pre">lineinfile</span></code>, <code class="docutils literal notranslate"><span class="pre">template</span></code>, etc. These modules will typically fail with an error such as:
 <code class="docutils literal notranslate"><span class="pre">Task</span> <span class="pre">failed:</span> <span class="pre">Action</span> <span class="pre">failed:</span> <span class="pre">The</span> <span class="pre">module</span> <span class="pre">interpreter</span> <span class="pre">'/usr/bin/python3'</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">found</span></code></p>
 </section>
 <section id="installation">
