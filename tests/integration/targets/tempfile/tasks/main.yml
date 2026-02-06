@@ -22,7 +22,7 @@
 - name: Assert `/tmp` value is part of temp file path
   ansible.builtin.assert:
     that:
-      - test_tempfile.path | regex_search("/tmp")
+      - test_tempfile.path.startswith("/tmp/test")
 
 - name: Remove tempfile
   community.openwrt.file:
