@@ -53,3 +53,21 @@
   community.openwrt.file:
     path: "{{ test_tempdir.path }}"
     state: absent
+
+- name: Temp file with check mode
+  community.openwrt.tempfile:
+    state: file
+    prefix: test
+  check_mode: true
+  register: test_tempfile_check_mode
+
+- name: Get temp file stats in check mode
+  community.openwrt.stat:
+    path: "{{ test_tempfile_check_mode.path }}"
+  register: test_file_check_result_check_mode
+
+- name: Assert temp file check mode creates nothing
+  ansible.builtin.assert:
+    that:
+      - not test_file_check_result_check_mode.stat.exists
+      - test_tempfile_check_mode.path.startswith("/tmp/test.")

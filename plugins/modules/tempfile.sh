@@ -22,12 +22,11 @@ main() {
         path="/tmp"
     fi
     mktemp_cmd="${mktemp_cmd} -p ${path}"
+    if [ -n "${_ansible_check_mode}" ]; then
+        mktemp_cmd="${mktemp_cmd} -u"
+    fi
     if [ -n "${prefix}" ]; then
         mktemp_cmd="${mktemp_cmd} ${prefix}.XXXXXX"
-    fi
-    if [ -n "${_ansible_check_mode}" ]; then
-        changed
-        return
     fi
     {
         IFS=$'\n\027' read -r -d $'\027' stderr;
