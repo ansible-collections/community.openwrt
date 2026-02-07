@@ -14,7 +14,11 @@ author: Ilya Bogdanov (@zeerayne)
 version_added: 1.1.0
 extends_documentation_fragment:
   - community.openwrt.attributes
-  - community.openwrt.attributes.info_module
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
   state:
     description:
