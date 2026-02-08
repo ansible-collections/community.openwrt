@@ -3,4 +3,8 @@ source-path=SCRIPTDIR
 # Allow opening any 'source'd file, even if not specified as input
 external-sources=true
 
-disable=SC2034,SC3060,SC3057,SC3018
+# unused variables - PARAMS is picked up on this, that will always happen in all modules
+disable=SC2034
+
+# constructs are compatible with ash
+disable=SC3060,SC3057,SC3018
