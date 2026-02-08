@@ -24,7 +24,7 @@ Upon releasing a major version, support is updated:
   - If OpenWrt has a release candidate (rc) published for an upcoming release by the time of the community.openwrt release, it may or may not be supported by the collection, at the discretion of the RMs.
     - If an `rc` version is included in the support, it will be replaced by the official release when available.
   - The automated tests use OpenWrt images with their full version number, including service release (see below for the reference about their numbering scheme). The service number for those images will be updated to match the last available release, but that will happen on a best-effort basis. At any given time, the collection might be testing against one or two service releases prior to the latest one.
-- **ansible-core:** all the versions that are End of Life.
+- **ansible-core:** drop support for all versions that are End of Life.
 - **community.openwrt:** drop support for all previous major versions of the collection.
   - Note that dropping previous major versions of community.openwrt itself simplifies its maintenance process considerably. This is going to be revisited if demand for backports builds up.
 
