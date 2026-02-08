@@ -3,8 +3,11 @@
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-PARAMS="data/any"
-RESPONSE_VARS="ping data"
+init() {
+    PARAMS="data/any"
+    RESPONSE_VARS="ping data"
+    SUPPORTS_CHECK_MODE=""
+}
 
 __exit() {
     [ -z "$NO_EXIT_JSON" ] || return $?

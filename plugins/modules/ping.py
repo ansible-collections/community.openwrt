@@ -15,6 +15,11 @@ author: Markus Weippert (@gekmihesg)
 extends_documentation_fragment:
   - community.openwrt.attributes
   - community.openwrt.attributes.info_module
+attributes:
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
   data:
     description:
