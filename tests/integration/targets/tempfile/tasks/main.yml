@@ -1,0 +1,73 @@
+# Copyright (c) 2026, Ilya Bogdanov (@zeerayne)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Create temp file
+  community.openwrt.tempfile:
+    state: file
+    prefix: test
+  register: test_tempfile
+
+- name: Get temp file stats
+  community.openwrt.stat:
+    path: "{{ test_tempfile.path }}"
+  register: test_file_check_result
+
+- name: Assert temp file created correctly
+  ansible.builtin.assert:
+    that:
+      - test_file_check_result.stat.exists
+      - test_tempfile.path.startswith("/tmp/test.")
+      - test_file_check_result.stat.isreg
+      - test_file_check_result.stat.isuid
+      - test_file_check_result.stat.isgid
+
+- name: Remove tempfile
+  community.openwrt.file:
+    path: "{{ test_tempfile.path }}"
+    state: absent
+
+- name: Create temp directory
+  community.openwrt.tempfile:
+    state: directory
+    prefix: test
+    path: "/var"
+  register: test_tempdir
+
+- name: Get temp dir stats
+  community.openwrt.stat:
+    path: "{{ test_tempdir.path }}"
+  register: test_dir_check_result
+
+- name: Assert temp dir created correctly
+  ansible.builtin.assert:
+    that:
+      - test_dir_check_result.stat.exists
+      - test_tempdir.path.startswith("/var/test.")
+      - test_dir_check_result.stat.isdir
+      - test_dir_check_result.stat.isuid
+      - test_dir_check_result.stat.isgid
+
+- name: Remove tempdir
+  community.openwrt.file:
+    path: "{{ test_tempdir.path }}"
+    state: absent
+
+- name: Temp file with check mode
+  community.openwrt.tempfile:
+    state: file
+    prefix: test
+  check_mode: true
+  register: test_tempfile_check_mode
+
+- name: Get temp file stats in check mode
+  community.openwrt.stat:
+    path: "{{ test_tempfile_check_mode.path }}"
+  register: test_file_check_result_check_mode
+
+- name: Assert temp file check mode creates nothing
+  ansible.builtin.assert:
+    that:
+      - not test_file_check_result_check_mode.stat.exists
+      - test_tempfile_check_mode.path.startswith("/tmp/test.")
