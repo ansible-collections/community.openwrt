@@ -1,0 +1,2 @@
+bugfixes:
+  - ping - module code must indicate it does not support check mode (https://github.com/ansible-collections/community.openwrt/pull/132).
