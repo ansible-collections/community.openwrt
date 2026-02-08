@@ -49,17 +49,34 @@ It provides:
 No Support for Standard Ansible Modules
 """""""""""""""""""""""""""""""""""""""
 
-Migrated playbooks MUST only use modules in the ``community.openwrt.*`` namespace.
+Migrated playbooks **MUST** use modules in the ``community.openwrt`` namespace to function correctly on devices without Python.
 
-Because ``gekmihesg.openwrt`` `monkey patched <https://en.wikipedia.org/wiki/Monkey_patch>`_ Ansible, 
-many of the standard Ansible modules continued to work as normal on OpenWrt devices while not 
-requiring Python to be installed on them. This collection instead uses shell scripts to create new 
-modules without any Python requirement. If you are migrating playbooks that utilize standard Ansible 
-modules, you should be aware that not all modules have been ported or have an equivalent replacment.
+In the legacy ``gekmihesg.openwrt`` role, a `monkey patch <https://en.wikipedia.org/wiki/Monkey_patch>`_
+intercepted tasks calling standard modules (e.g., ``lineinfile``) and redirected them to shell-script
+equivalents. This allowed execution on hosts without Python.
 
-This would include any standard module in the ``ansible.builtin.*`` collection such as ``fetch``,
-``lineinfile``, ``template``, etc. These modules will typically fail with an error such as: 
-``Task failed: Action failed: The module interpreter '/usr/bin/python3' was not found``
+This collection does **not** include monkey patching. If you are migrating playbooks that utilize
+standard Ansible modules (such as ``ansible.builtin.*``), you must update them to use the
+equivalent ``community.openwrt.*`` implementation.
+
+Attempting to use standard modules like ``fetch`` or ``template`` 
+(see `Issue #63 <https://github.com/ansible-collections/community.openwrt/issues/63>`_)
+will typically fail with an error indicating missing Python:
+
+   ``Task failed: Action failed: The module interpreter '/usr/bin/python3' was not found``
+
+**Workarounds**
+
+There are some easy work-arounds until native equivalents are added to ``community.openwrt``. 
+For example, you can use the ``lookup`` plugin along with ``community.openwrt.copy``  
+as a replacement for ``ansible.builtin.template``:
+
+.. code-block:: yaml+jinja
+
+    - name: Generate template and copy to device
+      community.openwrt.copy:
+        content: "{{ lookup('template', 'config_template.j2') }}"
+        dest: /etc/app/config.json
 
 Installation
 """"""""""""
