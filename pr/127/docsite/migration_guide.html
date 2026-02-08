@@ -185,15 +185,29 @@ It provides:</p>
 </section>
 <section id="no-support-for-standard-ansible-modules">
 <h3>No Support for Standard Ansible Modules<a class="headerlink" href="#no-support-for-standard-ansible-modules" title="Link to this heading"></a></h3>
-<p>Migrated playbooks MUST only use modules in the <code class="docutils literal notranslate"><span class="pre">community.openwrt.*</span></code> namespace.</p>
-<p>Because <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> <a class="reference external" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patched</a> Ansible,
-many of the standard Ansible modules continued to work as normal on OpenWrt devices while not
-requiring Python to be installed on them. This collection instead uses shell scripts to create new
-modules without any Python requirement. If you are migrating playbooks that utilize standard Ansible
-modules, you should be aware that not all modules have been ported or have an equivalent replacment.</p>
-<p>This would include any standard module in the <code class="docutils literal notranslate"><span class="pre">ansible.builtin.*</span></code> collection such as <code class="docutils literal notranslate"><span class="pre">fetch</span></code>,
-<code class="docutils literal notranslate"><span class="pre">lineinfile</span></code>, <code class="docutils literal notranslate"><span class="pre">template</span></code>, etc. These modules will typically fail with an error such as:
-<code class="docutils literal notranslate"><span class="pre">Task</span> <span class="pre">failed:</span> <span class="pre">Action</span> <span class="pre">failed:</span> <span class="pre">The</span> <span class="pre">module</span> <span class="pre">interpreter</span> <span class="pre">'/usr/bin/python3'</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">found</span></code></p>
+<p>Migrated playbooks <strong>MUST</strong> use modules in the <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> namespace to function correctly on devices without Python.</p>
+<p>In the legacy <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> role, a <a class="reference external" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patch</a>
+intercepted tasks calling standard modules (e.g., <code class="docutils literal notranslate"><span class="pre">lineinfile</span></code>) and redirected them to shell-script
+equivalents. This allowed execution on hosts without Python.</p>
+<p>This collection does <strong>not</strong> include monkey patching. If you are migrating playbooks that utilize
+standard Ansible modules (such as <code class="docutils literal notranslate"><span class="pre">ansible.builtin.*</span></code>), you must update them to use the
+equivalent <code class="docutils literal notranslate"><span class="pre">community.openwrt.*</span></code> implementation.</p>
+<p>Attempting to use standard modules like <code class="docutils literal notranslate"><span class="pre">fetch</span></code> or <code class="docutils literal notranslate"><span class="pre">template</span></code>
+(see <a class="reference external" href="https://github.com/ansible-collections/community.openwrt/issues/63">Issue #63</a>)
+will typically fail with an error indicating missing Python:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">Task</span> <span class="pre">failed:</span> <span class="pre">Action</span> <span class="pre">failed:</span> <span class="pre">The</span> <span class="pre">module</span> <span class="pre">interpreter</span> <span class="pre">'/usr/bin/python3'</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">found</span></code></p>
+</div></blockquote>
+<p><strong>Workarounds</strong></p>
+<p>There are some easy work-arounds until native equivalents are added to <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code>.
+For example, you can use the <code class="docutils literal notranslate"><span class="pre">lookup</span></code> plugin along with <code class="docutils literal notranslate"><span class="pre">community.openwrt.copy</span></code>
+as a replacement for <code class="docutils literal notranslate"><span class="pre">ansible.builtin.template</span></code>:</p>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Generate template and copy to device</span>
+<span class="w">  </span><span class="nt">community.openwrt.copy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">lookup</span><span class="o">(</span><span class="s1">&#39;template&#39;</span><span class="o">,</span> <span class="s1">&#39;config_template.j2&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/app/config.json</span>
+</pre></div>
+</div>
 </section>
 <section id="installation">
 <h3>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h3>
@@ -474,7 +488,7 @@ set when including the initialization role, as shown in the complete example bel
 <span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">set</span>
 <span class="w">        </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system.@system[0].hostname</span>
 <span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myrouter</span>
-<span class="w">      </span><span class="nt">notify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reload network</span>
+<span class="w">      </span><span class="nt">notify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Restart network</span>
 </pre></div>
 </div>
 </td>
@@ -502,7 +516,7 @@ set when including the initialization role, as shown in the complete example bel
 <span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">set</span>
 <span class="w">        </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system.@system[0].hostname</span>
 <span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myrouter</span>
-<span class="w">      </span><span class="nt">notify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reload network</span>
+<span class="w">      </span><span class="nt">notify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Restart network</span>
 </pre></div>
 </div>
 </td>
