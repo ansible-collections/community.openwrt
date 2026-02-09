@@ -9,10 +9,11 @@
 # it relies on `andebox`, which is included in the `requirements-test.txt` file
 # and it is already installed in the devcontainer.
 
+import html
+import re
 import subprocess
 import sys
 import urllib.request
-import html
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -70,7 +71,7 @@ def retrieve_sc_description(sc_code):
 def regen_lines(tox_target: str, ignore_version: str) -> None:
     ignore_file = Path("tests/sanity") / f"ignore-{ignore_version}.txt"
 
-    print(f"BEGIN: {ignore_file}")
+    print(f"BEGIN: {ignore_file} ({tox_target}/{ignore_version})")
     print("  remove shellcheck lines", end="", flush=True)
 
     # Remove shellcheck lines
@@ -135,17 +136,33 @@ def regen_lines(tox_target: str, ignore_version: str) -> None:
 
 
 def main() -> None:
-    if not Path("tests/sanity").is_dir():
+    if not (sanity_dir := Path("tests") / "sanity").is_dir():
         print(
             "ERROR: You must run this script from the top directory of the project",
             file=sys.stderr,
         )
         sys.exit(1)
 
-    regen_lines("ac218", "2.18")
-    regen_lines("ac219", "2.19")
-    regen_lines("ac220", "2.20")
-    regen_lines("dev", "2.21")
+    tox_targets = []
+    ignore_versions = []
+    ig_version_re = re.compile(r".*/ignore-(?P<version>\d\.\d+)\.txt")
+
+    def get_version(filename):
+        if not (match := ig_version_re.search(filename)):
+            raise ValueError(f"ignore filename not recognized: {filename}")
+        version = match.group("version")
+        return f"ac{version.replace('.', '')}", version
+
+    for ignore_file in (ignore_files := sorted(sanity_dir.glob("ignore-*.txt")))[:-1]:
+        tox_target, ignore_version = get_version(str(ignore_file))
+        tox_targets.append(tox_target)
+        ignore_versions.append(ignore_version)
+
+    tox_targets.append("dev")
+    ignore_versions.append(get_version(str(ignore_files[-1]))[1])
+
+    for tox, ver in zip(tox_targets, ignore_versions):
+        regen_lines(tox, ver)
 
 
 if __name__ == "__main__":
