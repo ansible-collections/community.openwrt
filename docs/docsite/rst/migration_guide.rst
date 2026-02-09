@@ -65,7 +65,8 @@ will typically fail with an error indicating missing Python:
 
    ``Task failed: Action failed: The module interpreter '/usr/bin/python3' was not found``
 
-**Workarounds**
+Workarounds
+-----------
 
 There are some easy work-arounds until native equivalents are added to ``community.openwrt``. 
 For example, you can use the ``lookup`` plugin along with ``community.openwrt.copy``  
