@@ -20,6 +20,7 @@ Also by the nature of OpenWrt and its CLI-based ``uci`` tool, you need to be ver
 this ecosystem works. Even the creation of a Wifi passwort or a simple forwarding rule can
 be challenging.
 
+Below is a list of topics we intend to write How-To documents about. The ones that are not linked to another page are to be considered To-Be-Done (TBD), and they should be added incrementally. Contributions are welcome!
 
 Initial Setup
 ^^^^^^^^^^^^^
