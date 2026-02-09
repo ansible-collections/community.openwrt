@@ -16,7 +16,7 @@ OpenWrt has a very small footprint there is no python available it is a design r
 to no force you to install it. Based on this limitation a lot of ansible pattern and default roles
 are not available or will fail. However there are ``community.openwrt`` specific roles.
 
-Also by the nature of OpenWrt and it's cli based ``uci`` tool, you need to be very familiar how
+Also by the nature of OpenWrt and its CLI-based ``uci`` tool, you need to be very familiar how
 this ecosystem works. Even the creation of a Wifi passwort or a simple forwarding rule can
 be challenging.
 
