@@ -148,18 +148,18 @@ def main() -> None:
     ig_version_re = re.compile(r".*/ignore-(?P<version>\d\.\d+)\.txt")
 
     def get_version(filename):
-        if not (match := ig_version_re.search(filename)):
+        if not (match := ig_version_re.search(str(filename))):
             raise ValueError(f"ignore filename not recognized: {filename}")
         version = match.group("version")
         return f"ac{version.replace('.', '')}", version
 
     for ignore_file in (ignore_files := sorted(sanity_dir.glob("ignore-*.txt")))[:-1]:
-        tox_target, ignore_version = get_version(str(ignore_file))
+        tox_target, ignore_version = get_version(ignore_file)
         tox_targets.append(tox_target)
         ignore_versions.append(ignore_version)
 
     tox_targets.append("dev")
-    ignore_versions.append(get_version(str(ignore_files[-1]))[1])
+    ignore_versions.append(get_version(ignore_files[-1])[1])
 
     for tox, ver in zip(tox_targets, ignore_versions):
         regen_lines(tox, ver)
