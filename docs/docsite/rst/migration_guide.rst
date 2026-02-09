@@ -52,7 +52,7 @@ No Support for Standard Ansible Modules
 Migrated playbooks **MUST** use modules in the ``community.openwrt`` namespace to function correctly on devices without Python.
 
 In the legacy ``gekmihesg.openwrt`` role, a `monkey patch <https://en.wikipedia.org/wiki/Monkey_patch>`_
-intercepted tasks calling standard modules (e.g., ``lineinfile``) and redirected them to shell-script
+intercepted tasks calling standard modules (for example ``lineinfile``) and redirected them to shell-script
 equivalents. This allowed execution on hosts without Python.
 
 This collection does **not** include monkey patching. If you are migrating playbooks that utilize
