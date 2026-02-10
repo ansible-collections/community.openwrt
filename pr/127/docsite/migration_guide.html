@@ -78,7 +78,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#key-differences">Key Differences</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#structure">Structure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#no-support-for-standard-ansible-modules">No Support for Standard Ansible Modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#no-support-for-standard-ansible-modules">No Support for Standard Ansible Modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#workarounds">Workarounds</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace">Namespace</a></li>
@@ -187,7 +190,7 @@ It provides:</p>
 <h3>No Support for Standard Ansible Modules<a class="headerlink" href="#no-support-for-standard-ansible-modules" title="Link to this heading"></a></h3>
 <p>Migrated playbooks <strong>MUST</strong> use modules in the <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> namespace to function correctly on devices without Python.</p>
 <p>In the legacy <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> role, a <a class="reference external" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patch</a>
-intercepted tasks calling standard modules (e.g., <code class="docutils literal notranslate"><span class="pre">lineinfile</span></code>) and redirected them to shell-script
+intercepted tasks calling standard modules (for example <code class="docutils literal notranslate"><span class="pre">lineinfile</span></code>) and redirected them to shell-script
 equivalents. This allowed execution on hosts without Python.</p>
 <p>This collection does <strong>not</strong> include monkey patching. If you are migrating playbooks that utilize
 standard Ansible modules (such as <code class="docutils literal notranslate"><span class="pre">ansible.builtin.*</span></code>), you must update them to use the
@@ -198,7 +201,8 @@ will typically fail with an error indicating missing Python:</p>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">Task</span> <span class="pre">failed:</span> <span class="pre">Action</span> <span class="pre">failed:</span> <span class="pre">The</span> <span class="pre">module</span> <span class="pre">interpreter</span> <span class="pre">'/usr/bin/python3'</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">found</span></code></p>
 </div></blockquote>
-<p><strong>Workarounds</strong></p>
+<section id="workarounds">
+<h4>Workarounds<a class="headerlink" href="#workarounds" title="Link to this heading"></a></h4>
 <p>There are some easy work-arounds until native equivalents are added to <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code>.
 For example, you can use the <code class="docutils literal notranslate"><span class="pre">lookup</span></code> plugin along with <code class="docutils literal notranslate"><span class="pre">community.openwrt.copy</span></code>
 as a replacement for <code class="docutils literal notranslate"><span class="pre">ansible.builtin.template</span></code>:</p>
@@ -208,6 +212,7 @@ as a replacement for <code class="docutils literal notranslate"><span class="pre
 <span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/app/config.json</span>
 </pre></div>
 </div>
+</section>
 </section>
 <section id="installation">
 <h3>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h3>
