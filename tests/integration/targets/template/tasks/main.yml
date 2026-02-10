@@ -1,0 +1,71 @@
+# Copyright (c) 2026, Ilya Bogdanov (@zeerayne)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: "Create file from template"
+  community.openwrt.template:
+    src: "tpl.j2"
+    dest: "/tmp/template.test"
+  register: template_out
+
+- name: Assert template_out has all expected keys
+  ansible.builtin.assert:
+    that:
+      - "'changed' in template_out"
+      - "'dest' in template_out"
+      - "'md5sum' in template_out"
+      - "'src' in template_out"
+
+- name: Assert template_out was changed
+  ansible.builtin.assert:
+    that:
+      - template_out is changed
+      - template_out.dest == "/tmp/template.test"
+
+- name: "Create file from template again (should be idempotent)"
+  community.openwrt.template:
+    src: "tpl.j2"
+    dest: "/tmp/template.test"
+  register: template_out2
+
+- name: Assert template_out2 was not changed
+  ansible.builtin.assert:
+    that:
+      - template_out2 is not changed
+
+- name: Print content of remote template file
+  community.openwrt.command:
+    cmd: cat /tmp/template.test
+    uses_shell: true
+  register: cat_remote
+
+- name: "Verify rendered template content"
+  ansible.builtin.assert:
+    that:
+      - cat_remote.stdout == lookup('template', 'tpl.j2')
+
+- name: "Create file from template again with force=no with different content"
+  vars:
+    template_test_var: "This is a different test template variable value"
+  community.openwrt.template:
+    src: "tpl.j2"
+    dest: "/tmp/template.test"
+    force: false
+  register: template_out3
+
+- name: Assert template_out3 was not changed
+  ansible.builtin.assert:
+    that:
+      - template_out3 is not changed
+
+- name: Test validation with cat
+  community.openwrt.template:
+    src: "tpl.j2"
+    dest: "/tmp/template.test"
+    validate: cat %s
+
+- name: Clean up test file
+  community.openwrt.file:
+    path: "/tmp/template.test"
+    state: absent
