@@ -20,12 +20,18 @@ from jinja2.defaults import (
 
 from ansible import constants as C
 from ansible.config.manager import ensure_type
-from ansible.errors import AnsibleError, AnsibleActionFail
+from ansible.errors import AnsibleError, AnsibleActionFail, AnsibleFileNotFound
 from ansible.module_utils.common.text.converters import to_bytes, to_text, to_native
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.plugins.action import ActionBase
-from ansible.template import trust_as_template
-from ansible._internal._templating import _template_vars
+try:
+    from ansible.template import trust_as_template
+    from ansible._internal._templating import _template_vars
+    generate_ansible_template_vars = None
+    should_use_compat = False
+except ImportError:
+    from ansible.template import generate_ansible_template_vars
+    should_use_compat = True
 
 
 class ActionModule(ActionBase):
@@ -99,8 +105,23 @@ class ActionModule(ActionBase):
             if mode == 'preserve':
                 mode = '0%03o' % stat.S_IMODE(os.stat(source).st_mode)
 
-            # template the source data locally & get ready to transfer
-            template_data = trust_as_template(self._loader.get_text_file_contents(source))
+            if should_use_compat:
+                # Get vault decrypted tmp file
+                try:
+                    tmp_source = self._loader.get_real_file(source)
+                except AnsibleFileNotFound as e:
+                    raise AnsibleActionFail("could not find src=%s, %s" % (source, to_text(e)))
+                b_tmp_source = to_bytes(tmp_source, errors='surrogate_or_strict')
+
+                # template the source data locally & get ready to transfer
+                with open(b_tmp_source, 'rb') as f:
+                    try:
+                        template_data = to_text(f.read(), errors='surrogate_or_strict')
+                    except UnicodeError:
+                        raise AnsibleActionFail("Template source files must be utf-8 encoded")
+            else:
+                # template the source data locally & get ready to transfer
+                template_data = trust_as_template(self._loader.get_text_file_contents(source))
 
             # set jinja2 internal search path for includes
             searchpath = task_vars.get('ansible_search_path', [])
@@ -116,12 +137,15 @@ class ActionModule(ActionBase):
 
             # add ansible 'template' vars
             temp_vars = task_vars.copy()
-            temp_vars.update(_template_vars.generate_ansible_template_vars(
-                path=self._task.args.get('src', None),
-                fullpath=source,
-                dest_path=dest,
-                include_ansible_managed='ansible_managed' not in temp_vars,  # do not clobber ansible_managed when set by the user
-            ))
+            if should_use_compat:
+                temp_vars.update(generate_ansible_template_vars(self._task.args.get('src', None), source, dest))
+            else:
+                temp_vars.update(_template_vars.generate_ansible_template_vars(
+                    path=self._task.args.get('src', None),
+                    fullpath=source,
+                    dest_path=dest,
+                    include_ansible_managed='ansible_managed' not in temp_vars,  # do not clobber ansible_managed when set by the user
+                ))
 
             overrides = dict(
                 block_start_string=block_start_string,
