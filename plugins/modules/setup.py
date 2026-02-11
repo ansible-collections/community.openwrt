@@ -23,6 +23,16 @@ notes:
   - This module gathers OpenWrt-specific facts including C(ubus) data for network interfaces, devices, services, and
     system information.
   - Facts are returned in the C(ansible_facts) namespace.
+  - The C(ansible_date_time) was added in community.openwrt 1.1.0.
+  - The facts C(ansible_date_time.iso8601_micro) and C(ansible_date_time.iso8601_basic) are meant to include
+    microseconds, but the busybox implementation of C(date) does not provide time with that precision, so those
+    facts are reported with V(000000) as the value for the microseconds fraction.
+  - In M(ansible.builtin.setup), the fact C(ansible_date_time.epoch_int) is the epoch number, transformed to C(int),
+    and then back to C(str), which is ineffective in a shell script. The fact is provided to ensure compatibility
+    with the standard module, but its value is always the same as of C(ansible_date_time.epoch).
+  - Conversely, C(ansible_date_time.tz_dst) is obtained through an internal Python function, so in order to
+    provide compatibility, that fact is returned by M(community.openwrt.setup) with the exact same value as
+    C(ansible_date_time.tz).
 """
 
 EXAMPLES = r"""
