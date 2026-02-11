@@ -3,7 +3,57 @@
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-NO_EXIT_JSON="1"
+init() {
+    NO_EXIT_JSON="1"
+    DATE_TIME_VARS="
+        date/str
+        day/str
+        epoch/str
+        epoch_int/str
+        hour/str
+        iso8601/str
+        iso8601_basic/str
+        iso8601_basic_short/str
+        iso8601_micro/str
+        minute/str
+        month/str
+        second/str
+        time/str
+        tz/str
+        tz_dst/str
+        tz_offset/str
+        weekday/str
+        weekday_number/str
+        weeknumber/str
+        year/str
+    "
+}
+
+set_datetime_vars() {
+    local now=$(date +%s)
+    local utcnow=$(date -u +%s -d "@$now")
+
+    year=$(date +%Y -d "@$now")
+    month=$(date +%m -d "@$now")
+    weekday=$(date +%A -d "@$now")
+    weekday_number=$(date +%w -d "@$now")
+    weeknumber=$(date +%W -d "@$now")
+    day=$(date +%d -d "@$now")
+    hour=$(date +%H -d "@$now")
+    minute=$(date +%M -d "@$now")
+    second=$(date +%S -d "@$now")
+    epoch=$(date +%s -d "@$now")
+    epoch_int=$(date +%s -d "@$now")
+    date=$(date +%Y-%m-%d)
+    time=$(date +%H:%M:%S)
+    iso8601_micro=$(date +%Y-%m-%dT%H:%M:%S.000000Z "@$utcnow")
+    iso8601=$(date +%Y-%m-%dT%H:%M:%SZ "@$utcnow")
+    iso8601_basic=$(date +%Y%m%dT%H%M%S000000 "@$now")
+    iso8601_basic_short=$(date +%Y%m%dT%H%M%S "@$now")
+    tz=$(date +%Z)
+    tz_dst=$(date +%Z)
+    tz_offset=$(date +%z)
+}
 
 add_ubus_fact() {
     set -- ${1//!/ }
@@ -14,6 +64,7 @@ add_ubus_fact() {
 }
 
 main() {
+    set_datetime_vars
     ubus="/bin/ubus"
     delimiter=","
     echo '{"changed":false,"ansible_facts":'
@@ -48,6 +99,10 @@ main() {
         { [ / -ef /proc/1/root/. ]; echo $?; } ||
         { [ "$(ls -di / | awk '{print $1}')" -eq 2 ]; echo $?; }
         )"
+    json_add_object ansible_date_time
+    _exit_add_vars $DATE_TIME_VARS
+    json_close_object
+
     dist_facts="$(json_dump)"
     json_cleanup
     json_set_namespace result
