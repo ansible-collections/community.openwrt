@@ -87,6 +87,8 @@ files:
     maintainers: $team_repo_mgrs
   docs/docsite/rst/user_guide.rst:
     maintainers: $team_repo_mgrs
+  docs/docsite/rst/howto_guide.rst:
+    maintainers: $team_repo_mgrs
   #########################
   tests/:
     labels: tests
