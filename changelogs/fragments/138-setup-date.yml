@@ -1,0 +1,2 @@
+minor_changes:
+  - setup - collect ``ansible_date_time`` facts as well (https://github.com/ansible-collections/community.openwrt/issues/52, https://github.com/ansible-collections/community.openwrt/pull/138)`
