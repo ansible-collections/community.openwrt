@@ -88,7 +88,7 @@ files:
   docs/docsite/rst/user_guide.rst:
     maintainers: $team_repo_mgrs
   docs/docsite/rst/howto_guide.rst:
-    maintainers: $team_repo_mgrs
+    maintainers: egandro
   #########################
   tests/:
     labels: tests
