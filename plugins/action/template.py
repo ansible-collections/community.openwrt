@@ -1,204 +1,70 @@
 # Copyright: (c) 2026, Ilya Bogdanov (@zeerayne)
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
+import ast
+import inspect
+import textwrap
 
-from __future__ import annotations
-
-import os
-import shutil
-import stat
-import tempfile
-
-from jinja2.defaults import (
-    BLOCK_END_STRING,
-    BLOCK_START_STRING,
-    COMMENT_END_STRING,
-    COMMENT_START_STRING,
-    VARIABLE_END_STRING,
-    VARIABLE_START_STRING,
-)
-
-from ansible import constants as C
-from ansible.config.manager import ensure_type
-from ansible.errors import AnsibleError, AnsibleActionFail, AnsibleFileNotFound
-from ansible.module_utils.common.text.converters import to_bytes, to_text, to_native
-from ansible.module_utils.parsing.convert_bool import boolean
-from ansible.plugins.action import ActionBase
-try:
-    from ansible.template import trust_as_template
-    from ansible._internal._templating import _template_vars
-    generate_ansible_template_vars = None
-    should_use_compat = False
-except ImportError:
-    from ansible.template import generate_ansible_template_vars
-    should_use_compat = True
+from ansible.plugins.action.template import ActionModule as TemplateActionModule
 
 
-class ActionModule(ActionBase):
+def patch_and_create_class(original_cls):
+    source = textwrap.dedent(inspect.getsource(original_cls))
+    tree = ast.parse(source)
 
-    TRANSFERS_FILES = True
-    DEFAULT_NEWLINE_SEQUENCE = "\n"
-    COPY_ACTION = 'community.openwrt.copy'
+    class AnsibleActionTransformer(ast.NodeTransformer):
+        def visit_Assign(self, node):
+            # Find line: copy_action = self._shared_loader_obj.action_loader.get('ansible.legacy.copy', ...)
+            # Check that this is an assignment to the variable copy_action
+            if (isinstance(node.targets[0], ast.Name) and node.targets[0].id == 'copy_action'):
 
-    def run(self, tmp=None, task_vars=None):
-        """ handler for template operations """
+                # Check that this is a call to .get('ansible.legacy.copy', ...)
+                if (isinstance(node.value, ast.Call) and
+                        isinstance(node.value.args[0], ast.Constant) and
+                        node.value.args[0].value == 'ansible.legacy.copy'):
+                    # Create NEW line 1: new_task.action = 'community.openwrt.copy'
+                    line1 = ast.Assign(
+                        targets=[ast.Attribute(value=ast.Name(id='new_task', ctx=ast.Load()), attr='action', ctx=ast.Store())],
+                        value=ast.Constant(value='community.openwrt.copy')
+                    )
 
-        if task_vars is None:
-            task_vars = dict()
+                    # Modify OLD line: change argument in .get()
+                    node.value.args[0].value = 'community.openwrt.copy'
 
-        super(ActionModule, self).run(tmp, task_vars)
-        del tmp  # tmp no longer has any effect
+                    # Return list of two lines (they will replace one old line)
+                    return [line1, node]
 
-        # Options type validation
-        # strings
-        for s_type in ('src', 'dest', 'state', 'newline_sequence', 'variable_start_string', 'variable_end_string', 'block_start_string',
-                       'block_end_string', 'comment_start_string', 'comment_end_string'):
-            if s_type in self._task.args:
-                value = ensure_type(self._task.args[s_type], 'string')
-                if value is not None and not isinstance(value, str):
-                    raise AnsibleActionFail("%s is expected to be a string, but got %s instead" % (s_type, type(value)))
-                self._task.args[s_type] = value
+            return self.generic_visit(node)
 
-        # booleans
-        try:
-            follow = boolean(self._task.args.get('follow', False), strict=False)
-            trim_blocks = boolean(self._task.args.get('trim_blocks', True), strict=False)
-            lstrip_blocks = boolean(self._task.args.get('lstrip_blocks', False), strict=False)
-        except TypeError as e:
-            raise AnsibleActionFail(to_native(e))
-
-        # assign to local vars for ease of use
-        source = self._task.args.get('src', None)
-        dest = self._task.args.get('dest', None)
-        state = self._task.args.get('state', None)
-        newline_sequence = self._task.args.get('newline_sequence', self.DEFAULT_NEWLINE_SEQUENCE)
-        variable_start_string = self._task.args.get('variable_start_string', VARIABLE_START_STRING)
-        variable_end_string = self._task.args.get('variable_end_string', VARIABLE_END_STRING)
-        block_start_string = self._task.args.get('block_start_string', BLOCK_START_STRING)
-        block_end_string = self._task.args.get('block_end_string', BLOCK_END_STRING)
-        comment_start_string = self._task.args.get('comment_start_string', COMMENT_START_STRING)
-        comment_end_string = self._task.args.get('comment_end_string', COMMENT_END_STRING)
-        output_encoding = self._task.args.get('output_encoding', 'utf-8') or 'utf-8'
-
-        wrong_sequences = ["\\n", "\\r", "\\r\\n"]
-        allowed_sequences = ["\n", "\r", "\r\n"]
-
-        # We need to convert unescaped sequences to proper escaped sequences for Jinja2
-        if newline_sequence in wrong_sequences:
-            newline_sequence = allowed_sequences[wrong_sequences.index(newline_sequence)]
-
-        try:
-            # logical validation
-            if state is not None:
-                raise AnsibleActionFail("'state' cannot be specified on a template")
-            elif source is None or dest is None:
-                raise AnsibleActionFail("src and dest are required")
-            elif newline_sequence not in allowed_sequences:
-                raise AnsibleActionFail("newline_sequence needs to be one of: \n, \r or \r\n")
-            else:
-                try:
-                    source = self._find_needle('templates', source)
-                except AnsibleError as e:
-                    raise AnsibleActionFail(to_text(e))
-
-            mode = self._task.args.get('mode', None)
-            if mode == 'preserve':
-                mode = '0%03o' % stat.S_IMODE(os.stat(source).st_mode)
-
-            if should_use_compat:
-                # Get vault decrypted tmp file
-                try:
-                    tmp_source = self._loader.get_real_file(source)
-                except AnsibleFileNotFound as e:
-                    raise AnsibleActionFail("could not find src=%s, %s" % (source, to_text(e)))
-                b_tmp_source = to_bytes(tmp_source, errors='surrogate_or_strict')
-
-                # template the source data locally & get ready to transfer
-                with open(b_tmp_source, 'rb') as f:
-                    try:
-                        template_data = to_text(f.read(), errors='surrogate_or_strict')
-                    except UnicodeError:
-                        raise AnsibleActionFail("Template source files must be utf-8 encoded")
-            else:
-                # template the source data locally & get ready to transfer
-                template_data = trust_as_template(self._loader.get_text_file_contents(source))
-
-            # set jinja2 internal search path for includes
-            searchpath = task_vars.get('ansible_search_path', [])
-            searchpath.extend([self._loader._basedir, os.path.dirname(source)])
-
-            # We want to search into the 'templates' subdir of each search path in
-            # addition to our original search paths.
-            newsearchpath = []
-            for p in searchpath:
-                newsearchpath.append(os.path.join(p, 'templates'))
-                newsearchpath.append(p)
-            searchpath = newsearchpath
-
-            # add ansible 'template' vars
-            temp_vars = task_vars.copy()
-            if should_use_compat:
-                temp_vars.update(generate_ansible_template_vars(self._task.args.get('src', None), source, dest))
-            else:
-                temp_vars.update(_template_vars.generate_ansible_template_vars(
-                    path=self._task.args.get('src', None),
-                    fullpath=source,
-                    dest_path=dest,
-                    include_ansible_managed='ansible_managed' not in temp_vars,  # do not clobber ansible_managed when set by the user
-                ))
-
-            overrides = dict(
-                block_start_string=block_start_string,
-                block_end_string=block_end_string,
-                variable_start_string=variable_start_string,
-                variable_end_string=variable_end_string,
-                comment_start_string=comment_start_string,
-                comment_end_string=comment_end_string,
-                trim_blocks=trim_blocks,
-                lstrip_blocks=lstrip_blocks,
-                newline_sequence=newline_sequence,
-            )
-
-            data_templar = self._templar.copy_with_new_env(searchpath=searchpath, available_variables=temp_vars)
-            resultant = data_templar.template(template_data, escape_backslashes=False, overrides=overrides)
-
-            if resultant is None:
-                resultant = ''
-
-            new_task = self._task.copy()
-            # mode is either the mode from task.args or the mode of the source file if the task.args
-            # mode == 'preserve'
-            new_task.args['mode'] = mode
-
-            # remove 'template only' options:
-            for remove in ('newline_sequence', 'block_start_string', 'block_end_string', 'variable_start_string', 'variable_end_string',
-                           'comment_start_string', 'comment_end_string', 'trim_blocks', 'lstrip_blocks', 'output_encoding'):
-                new_task.args.pop(remove, None)
-
-            local_tempdir = tempfile.mkdtemp(dir=C.DEFAULT_LOCAL_TMP)
-
-            try:
-                result_file = os.path.join(local_tempdir, os.path.basename(source))
-                with open(to_bytes(result_file, errors='surrogate_or_strict'), 'wb') as f:
-                    f.write(to_bytes(resultant, encoding=output_encoding, errors='surrogate_or_strict'))
-
-                new_task.args.update(
-                    dict(
-                        src=result_file,
-                        dest=dest,
-                        follow=follow,
-                    ),
+        def visit_Call(self, node):
+            # Replace super(ActionModule, self) with super()
+            # This is necessary because the class has been renamed, and ActionModule references the ORIGINAL class from globals
+            if (isinstance(node.func, ast.Name) and node.func.id == 'super' and
+                    len(node.args) == 2 and
+                    isinstance(node.args[0], ast.Name) and node.args[0].id == 'ActionModule' and
+                    isinstance(node.args[1], ast.Name) and node.args[1].id == 'self'):
+                return ast.Call(
+                    func=ast.Name(id='super', ctx=ast.Load()),
+                    args=[],
+                    keywords=[]
                 )
-                new_task.action = self.COPY_ACTION
-                copy_action = self._shared_loader_obj.action_loader.get(self.COPY_ACTION,
-                                                                        task=new_task,
-                                                                        connection=self._connection,
-                                                                        play_context=self._play_context,
-                                                                        loader=self._loader,
-                                                                        templar=self._templar,
-                                                                        shared_loader_obj=self._shared_loader_obj)
-                return copy_action.run(task_vars=task_vars)
-            finally:
-                shutil.rmtree(to_bytes(local_tempdir, errors='surrogate_or_strict'))
-        finally:
-            self._remove_tmp_path(self._connection._shell.tmpdir)
+            return self.generic_visit(node)
+
+    # Apply transformation
+    new_tree = AnsibleActionTransformer().visit(tree)
+    new_tree.body[0].name = "PatchedTemplateActionModule"  # Rename class to avoid conflicts
+
+    # Fix line numbers (required for compilation)
+    ast.fix_missing_locations(new_tree)
+
+    # Compile
+    code = compile(new_tree, filename="<ast_patch>", mode="exec")
+    namespace = {}
+    # Pass globals of the original module so the class can see imports (ansible, etc.)
+    exec(code, inspect.getmodule(original_cls).__dict__, namespace)
+
+    return namespace["PatchedTemplateActionModule"]
+
+
+class ActionModule(patch_and_create_class(TemplateActionModule)):
+    pass
