@@ -11,7 +11,8 @@
 
 This collection enables the automated configuration of your OpenWrt devices.
 
-We encourage new users to read the [User Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/user_guide.html).
+We encourage new users to read the [User Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/user_guide.html)
+and the [How-To Guides](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/howto_guide.html).
 
 If you are migrating from the `gekmihesg.openwrt` role, please read the
 [Migration Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_guide.html).
