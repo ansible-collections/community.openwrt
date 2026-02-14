@@ -3,13 +3,15 @@
 # Copyright (c) 2026 Ilya Bogdanov
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-PARAMS="
-    path/str//
-    prefix/str//ansible
-    state/str//file
-"
+init() {
+    PARAMS="
+        path/str//
+        prefix/str//ansible
+        state/str//file
+    "
 
-RESPONSE_VARS="path"
+    RESPONSE_VARS="path"
+}
 
 main() {
     local mktemp_cmd="mktemp"
