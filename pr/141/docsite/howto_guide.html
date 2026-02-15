@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community OpenWrt How-To Guide &mdash; Community.OpenWrt Collection  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Community OpenWrt Module Developer Guide" href="mod_dev_guide.html" />
+    <link rel="prev" title="OpenWrt 25.x Package Manager changes" href="migration_apk_guide.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="https://ansible-collections.github.io/community.openwrt/branch/main/" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">Community.OpenWrt Collection Docs</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Community.OpenWrt Collection
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">Community OpenWrt User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">Community OpenWrt Migration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_apk_guide.html">OpenWrt 25.x Package Manager changes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Community OpenWrt How-To Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#initial-setup">Initial Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#real-hardware">Real Hardware</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vm-as-a-router-on-a-hypervisors-proxmox-showcase">VM as a router on a hypervisors (Proxmox showcase)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ssh-installation">SSH Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ssl-certificates">SSL Certificates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wifi-setup">Wifi Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vpn">VPN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-networking">Advanced networking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hardware">Hardware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#firmware-update">Firmware Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backup-restore">Backup/Restore</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mod_dev_guide.html">Community OpenWrt Module Developer Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apk_module.html">community.openwrt.apk module – Manage packages with apk on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_module.html">community.openwrt.command module – Execute commands on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copy_module.html">community.openwrt.copy module – Copy files to remote OpenWrt devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_module.html">community.openwrt.file module – Manage files and file properties on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lineinfile_module.html">community.openwrt.lineinfile module – Manage lines in text files on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nohup_module.html">community.openwrt.nohup module – Starts a command in background and returns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opkg_module.html">community.openwrt.opkg module – Manage packages with opkg on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ping_module.html">community.openwrt.ping module – Verify ability to communicate with OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_module.html">community.openwrt.service module – Manage services on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_module.html">community.openwrt.setup module – Gather facts about OpenWrt systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../slurp_module.html">community.openwrt.slurp module – Slurps a file from remote OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stat_module.html">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sysctl_module.html">community.openwrt.sysctl module – Manage sysctl entries on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Community.OpenWrt Collection</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Community OpenWrt How-To Guide</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <section id="community-openwrt-how-to-guide">
+<span id="ansible-collections-community-openwrt-docsite-howto-guide"></span><h1>Community OpenWrt How-To Guide<a class="headerlink" href="#community-openwrt-how-to-guide" title="Link to this heading"></a></h1>
+<p>Welcome to the Community OpenWrt How-To Guide! This is a collection of recipes that will help you
+using the <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> role in real world scenarios.</p>
+<p>Most OpenWrt devices have a very small footprint and there is no space available to install Python. Based on this constraint, virtually all of the standard Ansible modules are not available.</p>
+<p>It is a design rule of <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> not to require Python, rather providing modules based on shell scripts (<code class="docutils literal notranslate"><span class="pre">/bin/sh</span></code>) instead.</p>
+<p>Also by the nature of OpenWrt and its CLI-based <code class="docutils literal notranslate"><span class="pre">uci</span></code> tool, you need to be very familiar how
+this ecosystem works. Even the creation of a Wifi passwort or a simple forwarding rule can
+be challenging.</p>
+<p>Below is a list of topics we intend to write How-To documents about. The ones that are not linked to another page are to be considered To-Be-Done (TBD), and they should be added incrementally. Contributions are welcome!</p>
+<section id="initial-setup">
+<h2>Initial Setup<a class="headerlink" href="#initial-setup" title="Link to this heading"></a></h2>
+<section id="real-hardware">
+<h3>Real Hardware<a class="headerlink" href="#real-hardware" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Consult the official hardware guide at &lt;<a class="reference external" href="https://openwrt.org/toh/start">https://openwrt.org/toh/start</a>&gt;.</p></li>
+<li><p>Ensure the device is flashed with a compatible OpenWrt firmware image.</p></li>
+<li><p>Default configurations define separate WAN and LAN interfaces; wireless is disabled by default.</p></li>
+<li><p>LAN interfaces typically have an active DHCP server enabled.</p></li>
+<li><p>The LuCI web interface is accessible at <code class="docutils literal notranslate"><span class="pre">&lt;http://192.168.1.1&gt;</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Note</strong>: Single-interface hardware (e.g., Raspberry Pi) typically defaults the Ethernet port to the LAN zone.
+Establishing WAN connectivity requires configuring the onboard WiFi or a USB network adapter.
+Be aware that USB adapters often require drivers missing from the base image; bootstrapping initial connectivity
+for such hardware is an advanced topic and beyond the scope of this guide.</p>
+<p>Verify connectivity via ping, LuCI, or SSH at <code class="docutils literal notranslate"><span class="pre">192.168.1.1</span></code> (default: <code class="docutils literal notranslate"><span class="pre">root</span></code> / no password).
+Consult the OpenWrt documentation for further device-specific instructions.</p>
+</section>
+<section id="vm-as-a-router-on-a-hypervisors-proxmox-showcase">
+<h3>VM as a router on a hypervisors (Proxmox showcase)<a class="headerlink" href="#vm-as-a-router-on-a-hypervisors-proxmox-showcase" title="Link to this heading"></a></h3>
+<p>You need the <code class="docutils literal notranslate"><span class="pre">community.proxmox</span> <span class="pre">&lt;https://docs.ansible.com/projects/ansible/latest/collections/community/proxmox/index.html&gt;</span></code> role.</p>
+<p><strong>Download Image</strong></p>
+<p>Unfortunately <code class="docutils literal notranslate"><span class="pre">community.proxmox.proxmox_template</span></code> can only download iso, lxc templates or ova. So we use ssh to proxmox.</p>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">proxmox</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">become</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="c1">#openwrt_version: &quot;24.10.5&quot;</span>
+<span class="w">    </span><span class="nt">openwrt_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;25.12.0-rc4&quot;</span>
+<span class="w">    </span><span class="c1"># this is the default &quot;local&quot; storage iso path</span>
+<span class="w">    </span><span class="nt">iso_storage_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/var/lib/vz/template/iso&quot;</span>
+<span class="w">    </span><span class="nt">openwrt_image_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://downloads.openwrt.org/releases/</span><span class="cp">{{</span> <span class="nv">openwrt_version</span> <span class="cp">}}</span><span class="s">/targets/x86/64/openwrt-</span><span class="cp">{{</span> <span class="nv">openwrt_version</span> <span class="cp">}}</span><span class="s">-x86-64-generic-ext4-combined.img.gz&quot;</span>
+<span class="w">    </span><span class="nt">openwrt_filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;openwrt-</span><span class="cp">{{</span> <span class="nv">openwrt_version</span> <span class="cp">}}</span><span class="s">-x86-64-generic-ext4-combined.img.gz&quot;</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install OpenWRT image</span>
+<span class="w">      </span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">cd </span><span class="cp">{{</span> <span class="nv">iso_storage_path</span> <span class="cp">}}</span>
+<span class="w">        </span><span class="no">wget -q &quot;</span><span class="cp">{{</span> <span class="nv">openwrt_image_url</span> <span class="cp">}}</span><span class="no">&quot;</span>
+<span class="w">        </span><span class="no">gunzip -f &quot;</span><span class="cp">{{</span> <span class="nv">openwrt_filename</span> <span class="cp">}}</span><span class="no">&quot;</span>
+<span class="w">      </span><span class="nt">args</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">creates</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">iso_storage_path</span> <span class="cp">}}</span><span class="s">/</span><span class="cp">{{</span> <span class="nv">openwrt_filename</span> <span class="o">|</span> <span class="nf">replace</span><span class="o">(</span><span class="s1">&#39;.gz&#39;</span><span class="o">,</span> <span class="s1">&#39;&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="s">&quot;</span>
+</pre></div>
+</div>
+<p><strong>Create the VM</strong></p>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">proxmox_api_user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root@pam</span>
+<span class="w">    </span><span class="nt">proxmox_api_token_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-token-id</span>
+<span class="w">    </span><span class="nt">proxmox_api_token_secret</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xxxxxx-xxxxx-xxxxxx-xxxx</span>
+<span class="w">    </span><span class="nt">proxmox_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pve.example.com:8006&quot;</span>
+<span class="w">    </span><span class="nt">proxmox_vm_storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+
+<span class="w">    </span><span class="nt">proxmox_vm_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8563</span>
+<span class="w">    </span><span class="nt">proxmox_vm_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dummy-openwrt</span>
+<span class="w">    </span><span class="nt">proxmox_vm_node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pve</span>
+
+<span class="w">    </span><span class="nt">iso_storage_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/var/lib/vz/template/iso&quot;</span>
+
+<span class="w">    </span><span class="nt">openwrt_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;25.12.0-rc4&quot;</span>
+<span class="w">    </span><span class="nt">openwrt_image</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;openwrt-</span><span class="cp">{{</span> <span class="nv">openwrt_version</span> <span class="cp">}}</span><span class="s">-x86-64-generic-ext4-combined.img&quot;</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove VM if it exists</span>
+<span class="w">      </span><span class="nt">community.proxmox.proxmox_kvm</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">api_user</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_api_user</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">api_token_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_api_token_id</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">api_token_secret</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_api_token_secret</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_host</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">vmid</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_vm_id</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+<span class="w">        </span><span class="nt">force</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create OpenWrt VM</span>
+<span class="w">      </span><span class="nt">community.proxmox.proxmox_kvm</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">api_user</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_api_user</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">api_token_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_api_token_id</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">api_token_secret</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_api_token_secret</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_host</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">vmid</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_vm_id</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_vm_name</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">node</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_vm_node</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_vm_storage</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
+<span class="w">        </span><span class="nt">scsihw</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">virtio-scsi-single</span>
+<span class="w">        </span><span class="nt">net</span><span class="p">:</span>
+<span class="w">          </span><span class="c1"># careful here</span>
+<span class="w">          </span><span class="c1"># LAN</span>
+<span class="w">          </span><span class="nt">net0</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;virtio,bridge=vmbrXXX&#39;</span>
+<span class="w">          </span><span class="c1"># WAN</span>
+<span class="w">          </span><span class="nt">net1</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;virtio,bridge=vmbrYYY&#39;</span>
+<span class="w">        </span><span class="nt">cores</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+
+<span class="w">    </span><span class="c1"># this uses SSH - if you know how to use ``community.proxmox.proxmox_disk`` create a ticket via github</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check VM configuration for scsi0</span>
+<span class="w">      </span><span class="nt">ansible.builtin.command</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;qm</span><span class="nv"> </span><span class="s">config</span><span class="nv"> </span><span class="cp">{{</span> <span class="nv">proxmox_vm_id</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vm_config</span>
+<span class="w">      </span><span class="nt">delegate_to</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_vm_node</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">      </span><span class="nt">become</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">changed_when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Import OpenWrt image and set boot order</span>
+<span class="w">      </span><span class="nt">ansible.builtin.shell</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">qm set </span><span class="cp">{{</span> <span class="nv">proxmox_vm_id</span> <span class="cp">}}</span><span class="no"> --scsi0 </span><span class="cp">{{</span> <span class="nv">proxmox_vm_storage</span> <span class="cp">}}</span><span class="no">:0,import-from=&quot;</span><span class="cp">{{</span> <span class="nv">iso_storage_path</span> <span class="cp">}}</span><span class="no">/</span><span class="cp">{{</span> <span class="nv">openwrt_image</span> <span class="cp">}}</span><span class="no">&quot;,discard=on,cache=writeback,format=qcow2</span>
+<span class="w">        </span><span class="no">qm set </span><span class="cp">{{</span> <span class="nv">proxmox_vm_id</span> <span class="cp">}}</span><span class="no"> --boot order=scsi0</span>
+<span class="w">      </span><span class="nt">delegate_to</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_vm_node</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">      </span><span class="nt">become</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;&#39;scsi0:&#39;</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">vm_config.stdout&quot;</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">import_result</span>
+</pre></div>
+</div>
+<p><strong>Further VM Bootstrapping Automation</strong></p>
+<ul class="simple">
+<li><p>Challenge: <code class="docutils literal notranslate"><span class="pre">192.168.1.1</span></code> might be not routed. The <code class="docutils literal notranslate"><span class="pre">WAN</span></code> device has a firewall for http(s) and ssh.</p></li>
+<li><p>Limitation: <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> requires SSH and cannot bootstrap the device.</p></li>
+<li><p>Solution: On Proxmox, use <code class="docutils literal notranslate"><span class="pre">serial0</span></code> instead of the VGA display and automate with <code class="docutils literal notranslate"><span class="pre">ansible.builtin.expect</span></code>.</p></li>
+</ul>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Make Terminal serial console</span>
+<span class="w">  </span><span class="nt">ansible.builtin.shell</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">qm shutdown </span><span class="cp">{{</span> <span class="nv">proxmox_vm_openwrt_vmid</span> <span class="cp">}}</span><span class="no"> || true</span>
+<span class="w">    </span><span class="no">qm set </span><span class="cp">{{</span> <span class="nv">proxmox_vm_openwrt_vmid</span> <span class="cp">}}</span><span class="no"> --serial0 socket --vga serial0</span>
+<span class="w">    </span><span class="no"># close any terminal on the Proxmox UI</span>
+<span class="w">    </span><span class="no">qm start </span><span class="cp">{{</span> <span class="nv">proxmox_vm_openwrt_vmid</span> <span class="cp">}}</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set SSH</span>
+<span class="w">  </span><span class="nt">ansible.builtin.expect</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">delegate_to</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">proxmox_vm_node</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">  </span><span class="nt">become</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">command</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;qm</span><span class="nv"> </span><span class="s">terminal</span><span class="nv"> </span><span class="cp">{{</span> <span class="nv">proxmox_vm_id</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="nt">responses</span><span class="p">:</span>
+<span class="w">        </span><span class="s">&quot;xxx&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;yyy&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ssh-installation">
+<h2>SSH Installation<a class="headerlink" href="#ssh-installation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Bootstrap</p></li>
+<li><p>Initial SSH Key Installation</p></li>
+</ul>
+</section>
+<section id="ssl-certificates">
+<h2>SSL Certificates<a class="headerlink" href="#ssl-certificates" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>redirect http to https</p></li>
+<li><p>acme support</p></li>
+<li><p>Install existing ssl certificates</p></li>
+</ul>
+</section>
+<section id="wifi-setup">
+<h2>Wifi Setup<a class="headerlink" href="#wifi-setup" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>2Ghz / 5Ghz</p></li>
+<li><p>Passwords</p></li>
+<li><p>Additional Guest Network + isolation</p></li>
+</ul>
+</section>
+<section id="vpn">
+<h2>VPN<a class="headerlink" href="#vpn" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Wireguard Server</p></li>
+<li><p>Wireguard Client</p></li>
+<li><p>NordVPN or similar</p></li>
+<li><p>Netbird</p></li>
+<li><p>Tailscale</p></li>
+<li><p>Tinc</p></li>
+</ul>
+</section>
+<section id="advanced-networking">
+<h2>Advanced networking<a class="headerlink" href="#advanced-networking" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>VLAN</p></li>
+<li><p>VLAN per Hardware Port</p></li>
+<li><p>Routing</p></li>
+<li><p>Firewall, Port forwarding</p></li>
+</ul>
+</section>
+<section id="hardware">
+<h2>Hardware<a class="headerlink" href="#hardware" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Configure the hardware button do do cool things</p></li>
+<li><p>Configure the LEDs</p></li>
+</ul>
+</section>
+<section id="firmware-update">
+<h2>Firmware Update<a class="headerlink" href="#firmware-update" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>CLI / UI Tool installation</p></li>
+</ul>
+</section>
+<section id="backup-restore">
+<h2>Backup/Restore<a class="headerlink" href="#backup-restore" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Backup</p></li>
+<li><p>Restore</p></li>
+<li><p>Crontab</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="migration_apk_guide.html" class="btn btn-neutral float-left" title="OpenWrt 25.x Package Manager changes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mod_dev_guide.html" class="btn btn-neutral float-right" title="Community OpenWrt Module Developer Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Community.OpenWrt Contributors.</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>
