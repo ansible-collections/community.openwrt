@@ -32,7 +32,7 @@ Real Hardware
  - Ensure the device is flashed with a compatible OpenWrt firmware image.
  - Default configurations define separate WAN and LAN interfaces; wireless is disabled by default.
  - LAN interfaces typically have an active DHCP server enabled.
- - The LuCI web interface is accessible at `http://192.168.1.1`.
+ - The LuCI web interface is accessible at ``<http://192.168.1.1>``.
 
 **Note**: Single-interface hardware (e.g., Raspberry Pi) typically defaults the Ethernet port to the LAN zone.
 Establishing WAN connectivity requires configuring the onboard WiFi or a USB network adapter.
@@ -45,7 +45,7 @@ Consult the OpenWrt documentation for further device-specific instructions.
 VM as a router on a hypervisors (Proxmox showcase)
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
-You need the `community.proxmox <https://docs.ansible.com/projects/ansible/latest/collections/community/proxmox/index.html>` role.
+You need the ``community.proxmox <https://docs.ansible.com/projects/ansible/latest/collections/community/proxmox/index.html>`` role.
 
 **Download Image**
 
@@ -128,7 +128,7 @@ Unfortunately ``community.proxmox.proxmox_template`` can only download iso, lxc 
             cores: 2
             memory: 512
 
-        # this uses SSH - if you know how to use `community.proxmox.proxmox_disk` create a ticket via github
+        # this uses SSH - if you know how to use ``community.proxmox.proxmox_disk`` create a ticket via github
 
         - name: Check VM configuration for scsi0
           ansible.builtin.command: "qm config {{ proxmox_vm_id }}"
@@ -149,7 +149,7 @@ Unfortunately ``community.proxmox.proxmox_template`` can only download iso, lxc 
 
 **Further VM Bootstrapping Automation**
 
-- Challenge: ``192.168.1.1`` might be not routed. The `WAN`device has a firewall for http(s) and ssh.
+- Challenge: ``192.168.1.1`` might be not routed. The ``WAN`` device has a firewall for http(s) and ssh.
 - Limitation: ``community.openwrt`` requires SSH and cannot bootstrap the device.
 - Solution: On Proxmox, use ``serial0`` instead of the VGA display and automate with ``ansible.builtin.expect``.
 
