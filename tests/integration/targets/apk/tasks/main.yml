@@ -7,34 +7,33 @@
   ansible.builtin.include_role:
     name: community.openwrt.init
 
-- name: Skip tests when package manager is not apk
-  ansible.builtin.meta: end_host
-  when: openwrt_package_manager != "apk"
+- name: Run tests when package manager is apk
+  when: openwrt_package_manager == "apk"
+  block:
+    - name: "Install a package (htop)"
+      community.openwrt.apk:
+        name: "htop"
+        state: present
+      register: apk_install
 
-- name: "Install a package (htop)"
-  community.openwrt.apk:
-    name: "htop"
-    state: present
-  register: apk_install
+    - name: Assert package install succeeded
+      ansible.builtin.assert:
+        that:
+          - apk_install is succeeded
 
-- name: Assert package install succeeded
-  ansible.builtin.assert:
-    that:
-      - apk_install is succeeded
+    - name: "Verify package is installed"
+      community.openwrt.command:
+        cmd: apk info -e htop
+      register: apk_verify
+      failed_when: apk_verify.rc != 0
 
-- name: "Verify package is installed"
-  community.openwrt.command:
-    cmd: apk info -e htop
-  register: apk_verify
-  failed_when: apk_verify.rc != 0
+    - name: "Remove the package"
+      community.openwrt.apk:
+        name: "htop"
+        state: absent
+      register: apk_remove
 
-- name: "Remove the package"
-  community.openwrt.apk:
-    name: "htop"
-    state: absent
-  register: apk_remove
-
-- name: Assert package removal succeeded
-  ansible.builtin.assert:
-    that:
-      - apk_remove is succeeded
+    - name: Assert package removal succeeded
+      ansible.builtin.assert:
+        that:
+          - apk_remove is succeeded
