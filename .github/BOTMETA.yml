@@ -18,6 +18,9 @@ files:
   $module_utils/:
     labels: module_utils
     maintainers: $team_repo_mgrs
+  $modules/:
+    ignored: gekmihesg
+    maintainers: $team_repo_mgrs
   $modules/apk.py:
     maintainers: kbialek
   $modules/apk.sh:
