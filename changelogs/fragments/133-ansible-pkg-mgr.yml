@@ -1,2 +1,3 @@
 minor_changes:
   - setup - report ``ansible_pkg_mgr`` fact with the detected package manager used (https://github.com/ansible-collections/community.openwrt/pull/136).
+  - init role - enable check mode in the task checking package manager compatibility (https://github.com/ansible-collections/community.openwrt/pull/136).
