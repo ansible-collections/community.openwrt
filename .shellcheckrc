@@ -7,4 +7,4 @@ external-sources=true
 disable=SC2034
 
 # constructs are compatible with ash
-disable=SC3060,SC3057,SC3018
+disable=SC3060,SC3057,SC3018,SC3003,SC3045
