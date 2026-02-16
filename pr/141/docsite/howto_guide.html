@@ -82,7 +82,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#vm-as-a-router-on-a-hypervisors-proxmox-showcase">VM as a router on a hypervisors (Proxmox showcase)</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#ssh-installation">SSH Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ssh-installation">SSH Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bootstrap">Bootstrap</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#ssl-certificates">SSL Certificates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#wifi-setup">Wifi Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vpn">VPN</a></li>
@@ -291,14 +294,91 @@ Consult the OpenWrt documentation for further device-specific instructions.</p>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;yyy&quot;</span>
 </pre></div>
 </div>
+<p>You also need to install <code class="docutils literal notranslate"><span class="pre">qemu-ga</span></code> (QEMU Guest Agent) in OpenWrt to simplify Proxmox interaction with the VM.
+This can also be done in Ansible.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># legacy OpenWrt 24.x</span>
+<span class="c1"># opkg update</span>
+<span class="c1"># opkg install qemu-ga</span>
+
+<span class="c1"># OpenWrt &gt;= 25.x</span>
+apt<span class="w"> </span>update
+apt<span class="w"> </span>add<span class="w"> </span>-q<span class="w"> </span>qemu-ga
+
+service<span class="w"> </span>qemu-ga<span class="w"> </span><span class="nb">enable</span>
+<span class="c1"># you have to reboot</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="ssh-installation">
 <h2>SSH Installation<a class="headerlink" href="#ssh-installation" title="Link to this heading"></a></h2>
+<section id="bootstrap">
+<h3>Bootstrap<a class="headerlink" href="#bootstrap" title="Link to this heading"></a></h3>
+<p><strong>Manual SSH installation</strong></p>
 <ul class="simple">
-<li><p>Bootstrap</p></li>
-<li><p>Initial SSH Key Installation</p></li>
+<li><p>Click here (or your use your own IP) <code class="docutils literal notranslate"><span class="pre">&lt;http://192.168.1.1&gt;</span></code>.</p></li>
+<li><p>If https redirects are enabled, you might get a certificate warning. Please ignore this.</p></li>
+<li><p>Login was <code class="docutils literal notranslate"><span class="pre">root</span></code> / no password (check the documentation of your image for other default passwords).</p></li>
+<li><p>OpenWrt might ask you to change the password.</p></li>
+<li><p>Click on System/Administration/Router Password</p></li>
+<li><p>Change your Router Password.</p></li>
+<li><p>Click on System/Administration/SSH Access (if you don’t see this - follow the instructions)</p></li>
+<li><p>Enable <code class="docutils literal notranslate"><span class="pre">Enable</span> <span class="pre">Instance</span></code></p></li>
+<li><p>Disable the <code class="docutils literal notranslate"><span class="pre">Password</span> <span class="pre">authentication</span></code></p></li>
+<li><p>Disable <code class="docutils literal notranslate"><span class="pre">Allow</span> <span class="pre">root</span> <span class="pre">logins</span> <span class="pre">with</span> <span class="pre">passwords</span></code></p></li>
+<li><p>Click on System/Administration/SSH-Keys</p></li>
+<li><p>Add your SSH Key here</p></li>
 </ul>
+<p>If you have no SSH Access in the Admin menu, you might need to install dropbear</p>
+<ul class="simple">
+<li><p>Your OpenWrt router needs internet access.</p></li>
+<li><p>Click on System/Software/Update Lists. Confirm with Dismiss.</p></li>
+<li><p>In the Filter box type in <code class="docutils literal notranslate"><span class="pre">dropbear</span></code></p></li>
+<li><p>Press the <code class="docutils literal notranslate"><span class="pre">Install...</span></code> button.</p></li>
+<li><p>Click System/Reboot/Perform Reboot</p></li>
+<li><p>After reboot, perform the steps System/Administration/SSH Access mentioned before</p></li>
+</ul>
+<p>Troubleshooting</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">dropbear</span></code> service might not be enabled.</p></li>
+<li><p>Click System/Startup</p></li>
+<li><p>Check if <code class="docutils literal notranslate"><span class="pre">dropbear</span></code> is in the list. If it’s <code class="docutils literal notranslate"><span class="pre">Disabled</span></code> click on the button to enable it.</p></li>
+<li><p>Click on the <code class="docutils literal notranslate"><span class="pre">Start</span></code> / <code class="docutils literal notranslate"><span class="pre">Restart</span></code> button.</p></li>
+<li><p>If SSH is still not available on <code class="docutils literal notranslate"><span class="pre">192.168.1.1</span></code> check the firewall rules.</p></li>
+</ul>
+<p>Reboot the system and ensure that you can login via ssh keys.</p>
+<p><strong>Ansible based SSH Key Installation</strong></p>
+<ul class="simple">
+<li><p>TBD</p></li>
+</ul>
+<p><strong>Advanced SSH Key Installation</strong></p>
+<ul class="simple">
+<li><p>You might have a board that only has a serial port terminal access.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># set root password</span>
+passwd
+
+<span class="c1"># install dropbear</span>
+
+<span class="c1"># legacy OpenWrt 24.x</span>
+<span class="c1"># opkg update</span>
+<span class="c1"># opkg install dropbear</span>
+
+<span class="c1"># OpenWrt &gt;= 25.x</span>
+apt<span class="w"> </span>update
+apt<span class="w"> </span>add<span class="w"> </span>-q<span class="w"> </span>dropbear
+
+service<span class="w"> </span>dropbear<span class="w"> </span><span class="nb">enable</span>
+service<span class="w"> </span>dropbear<span class="w"> </span>start
+
+<span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;your ssh key content&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>/etc/dropbear/authorized_keys
+
+uci<span class="w"> </span><span class="nb">set</span><span class="w"> </span>dropbear.@dropbear<span class="o">[</span><span class="m">0</span><span class="o">]</span>.PasswordAuth<span class="o">=</span><span class="s1">&#39;off&#39;</span>
+uci<span class="w"> </span><span class="nb">set</span><span class="w"> </span>dropbear.@dropbear<span class="o">[</span><span class="m">0</span><span class="o">]</span>.RootPasswordAuth<span class="o">=</span><span class="s1">&#39;off&#39;</span>
+uci<span class="w"> </span>commit<span class="w"> </span>dropbear
+</pre></div>
+</div>
+</section>
 </section>
 <section id="ssl-certificates">
 <h2>SSL Certificates<a class="headerlink" href="#ssl-certificates" title="Link to this heading"></a></h2>
