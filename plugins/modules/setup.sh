@@ -39,6 +39,11 @@ main() {
     json_add_string ansible_distribution_release "$dist_release"
     json_add_string ansible_distribution_version "$dist_version"
     json_add_string ansible_os_family OpenWrt
+    if which apk > /dev/null 2>&1; then
+        json_add_string ansible_pkg_mgr "apk"
+    elif which opkg > /dev/null 2>&1; then
+        json_add_string ansible_pkg_mgr "opkg"
+    fi
     json_add_boolean ansible_is_chroot "$([ -r /proc/1/root/. ] &&
         { [ / -ef /proc/1/root/. ]; echo $?; } ||
         { [ "$(ls -di / | awk '{print $1}')" -eq 2 ]; echo $?; }
