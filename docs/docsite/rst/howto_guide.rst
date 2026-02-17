@@ -42,7 +42,7 @@ for such hardware is an advanced topic and beyond the scope of this guide.
 Verify connectivity via ping, LuCI, or SSH at ``192.168.1.1`` (default: ``root`` / no password).
 Consult the OpenWrt documentation for further device-specific instructions.
 
-VM as a router on a hypervisors (Proxmox showcase)
+VM as a router on hypervisors (Proxmox showcase)
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
 You need the ``community.proxmox <https://docs.ansible.com/projects/ansible/latest/collections/community/proxmox/index.html>`` role.
