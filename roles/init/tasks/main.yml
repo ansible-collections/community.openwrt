@@ -35,6 +35,7 @@
   ansible.builtin.set_fact:
     openwrt_package_manager: "{{ 'apk' if has_apk else ('opkg' if has_opkg else None) }}"
   failed_when: not openwrt_package_manager
+  check_mode: false
 
 - name: Install recommended packages for module compatibility
   when: openwrt_install_recommended_packages | bool
