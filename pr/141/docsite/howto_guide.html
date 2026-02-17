@@ -79,7 +79,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Community OpenWrt How-To Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#initial-setup">Initial Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#real-hardware">Real Hardware</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vm-as-a-router-on-a-hypervisors-proxmox-showcase">VM as a router on a hypervisors (Proxmox showcase)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vm-as-a-router-on-hypervisors-proxmox-showcase">VM as a router on hypervisors (Proxmox showcase)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ssh-installation">SSH Installation</a><ul>
@@ -113,6 +113,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../slurp_module.html">community.openwrt.slurp module – Slurps a file from remote OpenWrt nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../stat_module.html">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sysctl_module.html">community.openwrt.sysctl module – Manage sysctl entries on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tempfile_module.html">community.openwrt.tempfile module – Creates temporary files and directories on OpenWrt nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
@@ -166,15 +167,15 @@ be challenging.</p>
 <li><p>The LuCI web interface is accessible at <code class="docutils literal notranslate"><span class="pre">&lt;http://192.168.1.1&gt;</span></code>.</p></li>
 </ul>
 </div></blockquote>
-<p><strong>Note</strong>: Single-interface hardware (e.g., Raspberry Pi) typically defaults the Ethernet port to the LAN zone.
+<p><strong>Note</strong>: Single-interface hardware (for example, Raspberry Pi) typically defaults the Ethernet port to the LAN zone.
 Establishing WAN connectivity requires configuring the onboard WiFi or a USB network adapter.
 Be aware that USB adapters often require drivers missing from the base image; bootstrapping initial connectivity
 for such hardware is an advanced topic and beyond the scope of this guide.</p>
 <p>Verify connectivity via ping, LuCI, or SSH at <code class="docutils literal notranslate"><span class="pre">192.168.1.1</span></code> (default: <code class="docutils literal notranslate"><span class="pre">root</span></code> / no password).
 Consult the OpenWrt documentation for further device-specific instructions.</p>
 </section>
-<section id="vm-as-a-router-on-a-hypervisors-proxmox-showcase">
-<h3>VM as a router on a hypervisors (Proxmox showcase)<a class="headerlink" href="#vm-as-a-router-on-a-hypervisors-proxmox-showcase" title="Link to this heading"></a></h3>
+<section id="vm-as-a-router-on-hypervisors-proxmox-showcase">
+<h3>VM as a router on hypervisors (Proxmox showcase)<a class="headerlink" href="#vm-as-a-router-on-hypervisors-proxmox-showcase" title="Link to this heading"></a></h3>
 <p>You need the <code class="docutils literal notranslate"><span class="pre">community.proxmox</span> <span class="pre">&lt;https://docs.ansible.com/projects/ansible/latest/collections/community/proxmox/index.html&gt;</span></code> role.</p>
 <p><strong>Download Image</strong></p>
 <p>Unfortunately <code class="docutils literal notranslate"><span class="pre">community.proxmox.proxmox_template</span></code> can only download iso, lxc templates or ova. So we use ssh to proxmox.</p>
@@ -365,8 +366,8 @@ passwd
 <span class="c1"># opkg install dropbear</span>
 
 <span class="c1"># OpenWrt &gt;= 25.x</span>
-apt<span class="w"> </span>update
-apt<span class="w"> </span>add<span class="w"> </span>-q<span class="w"> </span>dropbear
+apk<span class="w"> </span>update
+apk<span class="w"> </span>add<span class="w"> </span>-q<span class="w"> </span>dropbear
 
 service<span class="w"> </span>dropbear<span class="w"> </span><span class="nb">enable</span>
 service<span class="w"> </span>dropbear<span class="w"> </span>start
