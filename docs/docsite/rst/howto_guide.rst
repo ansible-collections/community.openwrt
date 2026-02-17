@@ -34,7 +34,7 @@ Real Hardware
  - LAN interfaces typically have an active DHCP server enabled.
  - The LuCI web interface is accessible at ``<http://192.168.1.1>``.
 
-**Note**: Single-interface hardware (e.g., Raspberry Pi) typically defaults the Ethernet port to the LAN zone.
+**Note**: Single-interface hardware (for example, Raspberry Pi) typically defaults the Ethernet port to the LAN zone.
 Establishing WAN connectivity requires configuring the onboard WiFi or a USB network adapter.
 Be aware that USB adapters often require drivers missing from the base image; bootstrapping initial connectivity
 for such hardware is an advanced topic and beyond the scope of this guide.
