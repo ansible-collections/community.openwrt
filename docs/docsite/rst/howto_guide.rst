@@ -249,8 +249,8 @@ Reboot the system and ensure that you can login via ssh keys.
     # opkg install dropbear
 
     # OpenWrt >= 25.x
-    apt update
-    apt add -q dropbear
+    apk update
+    apk add -q dropbear
 
     service dropbear enable
     service dropbear start
