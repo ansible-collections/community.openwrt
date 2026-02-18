@@ -65,7 +65,7 @@ ansible_facts:
       sample: |-
         {
           "apk-mbedtls": [
-              {   
+              {
                   "name": "apk-mbedtls",
                   "release": "r2",
                   "source": "apk",
@@ -74,12 +74,12 @@ ansible_facts:
           ],
           ...
           "zlib": [
-              {   
+              {
                   "name": "zlib",
                   "release": "r1",
                   "source": "apk",
                   "version": "1.3.1"
               }
-          ]       
+          ]
         }
 """
