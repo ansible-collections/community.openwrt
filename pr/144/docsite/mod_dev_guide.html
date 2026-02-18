@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community OpenWrt Module Developer Guide &mdash; Community.OpenWrt Collection  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="community.openwrt.apk module – Manage packages with apk on OpenWrt" href="../apk_module.html" />
+    <link rel="prev" title="Community OpenWrt How-To Guide" href="howto_guide.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="https://ansible-collections.github.io/community.openwrt/branch/main/" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">Community.OpenWrt Collection Docs</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Community.OpenWrt Collection
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">Community OpenWrt User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">Community OpenWrt Migration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_apk_guide.html">OpenWrt 25.x Package Manager changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howto_guide.html">Community OpenWrt How-To Guide</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Community OpenWrt Module Developer Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#challenges">Challenges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#runtime-architecture">Runtime architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wrapper-helper-library">Wrapper helper library</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lifecycle">Lifecycle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-parsing">Parameter parsing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json-helpers">JSON helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#result-values-construction">Result values construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#standard-mechanism">Standard Mechanism</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#custom-mechanism">Custom Mechanism</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#additional-constructs">Additional constructs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#file-checksum-and-base64-utilities">File, checksum and base64 utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pathname-helpers">Pathname helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#diff-and-change-detection">Diff and change detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#check-mode-and-idempotence-support">Check mode and idempotence support</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apk_module.html">community.openwrt.apk module – Manage packages with apk on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_module.html">community.openwrt.command module – Execute commands on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copy_module.html">community.openwrt.copy module – Copy files to remote OpenWrt devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_module.html">community.openwrt.file module – Manage files and file properties on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lineinfile_module.html">community.openwrt.lineinfile module – Manage lines in text files on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nohup_module.html">community.openwrt.nohup module – Starts a command in background and returns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opkg_module.html">community.openwrt.opkg module – Manage packages with opkg on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package_facts_module.html">community.openwrt.package_facts module – Gather package facts in OpenWrt systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ping_module.html">community.openwrt.ping module – Verify ability to communicate with OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_module.html">community.openwrt.service module – Manage services on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_module.html">community.openwrt.setup module – Gather facts about OpenWrt systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../slurp_module.html">community.openwrt.slurp module – Slurps a file from remote OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stat_module.html">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sysctl_module.html">community.openwrt.sysctl module – Manage sysctl entries on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tempfile_module.html">community.openwrt.tempfile module – Creates temporary files and directories on OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Community.OpenWrt Collection</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Community OpenWrt Module Developer Guide</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <section id="community-openwrt-module-developer-guide">
+<span id="ansible-collections-community-openwrt-docsite-mod-dev-guide"></span><h1>Community OpenWrt Module Developer Guide<a class="headerlink" href="#community-openwrt-module-developer-guide" title="Link to this heading"></a></h1>
+<p>If you are reading this, it is likely you are already an user of the collection and want to extend it:
+Awesome! Everyone is welcome to contribute!
+This collection is based on the Ansible role <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> and as such it does not require Python
+installed on the OpenWrt devices - all the code is written in plain shell scripts.</p>
+<p>There are skills that are going to help you immensely if you intend to work on Ansible modules for <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code>:</p>
+<ul class="simple">
+<li><p>A fair understanding of how modules work in general. Having contributed with Python-based modules will definitely help you.</p></li>
+<li><p>A very good experience with shell scripts and all its idiosyncrasies.</p></li>
+</ul>
+<section id="challenges">
+<h2>Challenges<a class="headerlink" href="#challenges" title="Link to this heading"></a></h2>
+<p>Using shell-based modules on the target instead of Python brings a few practical drawbacks that developers should keep in mind:</p>
+<ul class="simple">
+<li><p>The AnsiballZ framework, used to transfer the Python modules to the target destination, has limited support for shell scripts.
+In particular, if the module script uses <code class="docutils literal notranslate"><span class="pre">source</span></code> or <code class="docutils literal notranslate"><span class="pre">.</span></code> to include another file that does not exist in the target,
+that dependency is not recognized by Ansible and the dependency script is <strong>not</strong> transferred over.
+Therefore, there is no <code class="docutils literal notranslate"><span class="pre">module_utils</span></code> available to the shell module.</p>
+<ul>
+<li><p>There is no Python standard library with all its functions, only the commands available in the router’s shell.</p></li>
+<li><p>There is no <code class="docutils literal notranslate"><span class="pre">module_utils</span></code>, so all the convenience of the <code class="docutils literal notranslate"><span class="pre">AnsibleModule</span></code> class is not available.
+As a consequence, there is no consolidated mechanism to validate parameters or to
+<a class="reference external" href="https://docs.ansible.com/projects/ansible/latest/dev_guide/developing_program_flow_modules.html#dependencies-between-module-options">enforce dependencies between options</a>.</p></li>
+</ul>
+</li>
+<li><p>Many sanity checks are useless for shell-scripts, for example the cross-checking of documented parameters and those declared in the code, as they do in Python.</p></li>
+<li><p>Debuggability is harder: stack traces and structured errors are not available; logs depend on <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">-x</span></code> tracing and are noisy.</p></li>
+<li><p>Ansible unit tests are base in <code class="docutils literal notranslate"><span class="pre">pytest</span></code> and it is not trivial to run sophisticated shell-script tests in that scenario.</p></li>
+<li><p>Both unit and integration tests are impacted by the fact that this collection requires non-standard container images to run the tests.</p></li>
+<li><p>Testing is slower and narrower: meaningful coverage needs molecule/container. Cross-version verification takes time.</p></li>
+<li><p>Security hardening is manual: input sanitization, temporary file handling, and permission fixes (see wrapper script) must be explicitly coded; Python’s safer defaults and libraries are absent.</p></li>
+</ul>
+<p>Most of these challenges have not been solved yet, some may never be. But they clearly show that there is a lot of room for improvements.</p>
+</section>
+<section id="runtime-architecture">
+<h2>Runtime architecture<a class="headerlink" href="#runtime-architecture" title="Link to this heading"></a></h2>
+<p>The first thing to solve is to actually make it possible to run modules written as shell-scripts. Without that, there are no modules at all.
+Ansible modules are programs that, when executed, read JSON content from their <code class="docutils literal notranslate"><span class="pre">stdin</span></code> and write back results (successful or otherwise) as
+JSON content to their <code class="docutils literal notranslate"><span class="pre">stdout</span></code> file descriptor.</p>
+<p>Handling <code class="docutils literal notranslate"><span class="pre">stdin</span></code> and <code class="docutils literal notranslate"><span class="pre">stdout</span></code> is not a problem for shell scripts, but there is no native mechanism to handle JSON content.
+For this OpenWrt has a builtin utility named <code class="docutils literal notranslate"><span class="pre">jshn</span></code> (JSON SHell Notation) that can be used by shell scripts. See more about it below.</p>
+<p>The next problem is: how to include a “standard shell library” in every script? The <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> role solved that by creating coding the
+“standard library” in this <code class="docutils literal notranslate"><span class="pre">wrapper.sh</span></code> script and “monkeypatching” the default action plugin in Ansible, to _inject_ the module script
+into the wrapper, upon use.</p>
+<p>This collection takes a slightly different approach. Instead of patching Python code and shell code during runtime:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">wrapper.sh</span></code> has been made into a module, meaning it was moved to the directory <code class="docutils literal notranslate"><span class="pre">plugins/modules</span></code> and, as a “module”,
+it now reads JSON input, where it expects to find a parameter containing the name of a script.
+Instead of patching, it sources the module script, and then run some standard lifecycle functions from it.</p></li>
+<li><p>a reusable class <code class="docutils literal notranslate"><span class="pre">OpenwrtActionBase</span></code> derived from <code class="docutils literal notranslate"><span class="pre">ActionBase</span></code> was created (in <code class="docutils literal notranslate"><span class="pre">plugins/plugin_utils</span></code>), and
+every single module in this collection <strong>MUST</strong> also implement a companion action plugin based on that class.
+That class overrides the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method and implements an elegant solution:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Find the module (shell-script) file on the control node</p></li>
+<li><p>Transfer that module to a temporary location on the target node (OpenWrt)</p></li>
+<li><p>Instead of executing the original named module, runs the wrapper module instead, passing the path
+of the temporary file as a proper Ansible parameter</p></li>
+<li><p>The wrapper executes, including the original module</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="wrapper-helper-library">
+<h2>Wrapper helper library<a class="headerlink" href="#wrapper-helper-library" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">wrapper.sh</span></code> script exposes a compact library of functions and conventions that shell-based modules
+must use to parse parameters, produce results, handle files, and implement idempotent behaviour.
+The following sections group those helpers by functional domain and explain their intended use.</p>
+<section id="lifecycle">
+<h3>Lifecycle<a class="headerlink" href="#lifecycle" title="Link to this heading"></a></h3>
+<p>Every shell module executed via the wrapper MUST implement the canonical lifecycle functions. The wrapper will invoke these functions in a strict sequence; modules must not rely on ad-hoc top-level execution.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>init()</dt><dd><p>Perform setup, parameter validation and any checks that should prevent <code class="docutils literal notranslate"><span class="pre">main</span></code> from running. If <code class="docutils literal notranslate"><span class="pre">init</span></code> fails, exit non‑zero to stop execution.</p>
+</dd>
+<dt>main()</dt><dd><p>Implement the module’s primary behaviour here.</p>
+</dd>
+<dt>cleanup()</dt><dd><p>Remove temporaries and perform finalization.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Example (module skeleton):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">PARAMS</span><span class="o">=</span><span class="s2">&quot;name/s state/s&quot;</span>
+
+init<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$state</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;present&quot;</span><span class="w"> </span>-a<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$state</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;absent&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>fail<span class="w"> </span><span class="s2">&quot;state must be one of: present, absent&quot;</span>
+<span class="o">}</span>
+
+main<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="c1"># do work here</span>
+<span class="w">  </span>changed
+<span class="w">  </span>json_add_string<span class="w"> </span>msg<span class="w"> </span><span class="s2">&quot;ok&quot;</span>
+<span class="o">}</span>
+
+cleanup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="c1"># remove temporaries</span>
+<span class="w">  </span>:
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="parameter-parsing">
+<h3>Parameter parsing<a class="headerlink" href="#parameter-parsing" title="Link to this heading"></a></h3>
+<p>Module parameters must be declared by setting the <code class="docutils literal notranslate"><span class="pre">PARAMS</span></code> variable.
+It is a string, with a space-delimited list of parameters declared in a specific format:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">NAME[=ALIAS1[=ALIAS2[=...]]]/TYPE/[REQ]/DEFAULT</span>
+</pre></div>
+</div>
+<p>Example (from <code class="docutils literal notranslate"><span class="pre">sysctl</span></code>):</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>shell-based module</p></th>
+<th class="head"><p>Python equivalent</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">PARAMS</span><span class="o">=</span><span class="s2">&quot;</span>
+<span class="s2">    ignore_errors=ignoreerrors/bool</span>
+<span class="s2">    name=key/str/r</span>
+<span class="s2">    reload/bool//true</span>
+<span class="s2">    state/str//present</span>
+<span class="s2">    sysctl_file/str</span>
+<span class="s2">    sysctl_set/bool//false</span>
+<span class="s2">    value=val/str</span>
+<span class="s2">&quot;</span>
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">argument_spec</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+    <span class="n">ignore_errors</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ignoreerrors&quot;</span><span class="p">]),</span>
+    <span class="n">name</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]),</span>
+    <span class="n">reload</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">state</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;present&quot;</span><span class="p">),</span>
+    <span class="n">sysctl_file</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">),</span>
+    <span class="n">sysctl_set</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">value</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]),</span>
+<span class="p">),</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>It is recommended that the <code class="docutils literal notranslate"><span class="pre">PARAMS</span></code> variable is set outside any function in the script.
+The actual parsing happens by calling the shell function <code class="docutils literal notranslate"><span class="pre">_parse_params()</span></code>, and the wrapper
+automatically does that after the script is sourced. If you define it inside <code class="docutils literal notranslate"><span class="pre">init()</span></code>,
+then your code must make sure <code class="docutils literal notranslate"><span class="pre">_parse_params()</span></code> is called after <code class="docutils literal notranslate"><span class="pre">PARAMS</span></code> is defined.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The “type” field accepts the values and equivalences:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">any</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">string</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">integer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">boolean</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">f</span></code>, <code class="docutils literal notranslate"><span class="pre">d</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">l</span></code>, <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">array</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">o</span></code>, <code class="docutils literal notranslate"><span class="pre">h</span></code>, <code class="docutils literal notranslate"><span class="pre">obj</span></code>, <code class="docutils literal notranslate"><span class="pre">object</span></code>, <code class="docutils literal notranslate"><span class="pre">hash</span></code>, <code class="docutils literal notranslate"><span class="pre">map</span></code></p></li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no support for specifying sub-options.</p>
+</div>
+<div class="admonition-to-do admonition">
+<p class="admonition-title">TO-DO</p>
+<p>Write about <code class="docutils literal notranslate"><span class="pre">FILE_PARAMS</span></code></p>
+</div>
+</section>
+<section id="json-helpers">
+<h3>JSON helpers<a class="headerlink" href="#json-helpers" title="Link to this heading"></a></h3>
+<p>As mentioned above, OpenWrt provides <code class="docutils literal notranslate"><span class="pre">jshn</span></code> to help parsing and generating JSON content.
+Check <a class="reference external" href="https://openwrt.org/docs/guide-developer/jshn">jshn</a> for more information on how
+to use it.</p>
+<p>When writing modules, you will not need to worry about parsing, and you do not need to use it for producing
+return values when using the standard mechanism for generating result values (see below).
+You will possibly want to use it to generate content is using the custom mechanism.
+Regardless of that, it is a nice addition to the toolbox.</p>
+<p>Example (use JSON helpers in <code class="docutils literal notranslate"><span class="pre">main</span></code>):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>main<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span>json_set_namespace<span class="w"> </span>result
+<span class="w">  </span>json_init
+<span class="w">  </span>json_add_boolean<span class="w"> </span>changed<span class="w"> </span><span class="m">0</span>
+<span class="w">  </span>json_add_string<span class="w"> </span>msg<span class="w"> </span><span class="s2">&quot;All good&quot;</span>
+<span class="w">  </span>json_add_object<span class="w"> </span>ansible_facts
+<span class="w">  </span>json_add_string<span class="w"> </span>my_fact<span class="w"> </span><span class="s2">&quot;value&quot;</span>
+<span class="w">  </span>json_close_object
+<span class="w">  </span>json_dump
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://medium.com/&#64;bear_with_me/jshn-sh-handling-nested-loops-ebf1501d7aa7">jshn.sh - Handling Nested Loops</a></p></li>
+<li><p><a class="reference external" href="https://github.com/stokito/jshn-jsonc/tree/master">jshn: shell library to work with JSON</a> (GitHub repository for <code class="docutils literal notranslate"><span class="pre">jshn</span></code>)</p></li>
+</ul>
+</div>
+</section>
+<section id="result-values-construction">
+<h3>Result values construction<a class="headerlink" href="#result-values-construction" title="Link to this heading"></a></h3>
+<section id="standard-mechanism">
+<h4>Standard Mechanism<a class="headerlink" href="#standard-mechanism" title="Link to this heading"></a></h4>
+<p>Similar to the <code class="docutils literal notranslate"><span class="pre">PARAMS</span></code> variable, the return values must be declared in the <code class="docutils literal notranslate"><span class="pre">RESPONSE_VARS</span></code> variable.
+It should also be declared outside any function in the module, and its expected content is a string,
+with a space-delimited list of return value names in the following format:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">NAME[/TYPE[/ALWAYS]]</span>
+</pre></div>
+</div>
+<p>If the type is specified, then the return value will be rendered using the corresponding type in the resulting JSON output.
+Unlike Python or JSON, there is no “null” value, such as <code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">null</span></code> to represent the lack of a value.
+The next best thing is to have a variable with no content, as in an empty string:</p>
+<div class="highlight-YAML+Jinja notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">val=</span><span class="w">    </span><span class="c1"># in shell this is</span>
+<span class="l l-Scalar l-Scalar-Plain">val=&quot;&quot;</span><span class="w">  </span><span class="c1"># the same as this</span>
+</pre></div>
+</div>
+<p>Empty variables are not included in the output by default.
+However, if the <code class="docutils literal notranslate"><span class="pre">ALWAYS</span></code> element is passed (usually the letter <code class="docutils literal notranslate"><span class="pre">a</span></code> is used, see example),
+then the value is included regardless of being empty or not.</p>
+<p>The name correspond to shell variable names, and the actual return value for each one of them is the
+value of the namesake variable itself.</p>
+<p>Example (from <code class="docutils literal notranslate"><span class="pre">community.openwrt.command</span></code>):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">RESPONSE_VARS</span><span class="o">=</span><span class="s2">&quot;</span>
+<span class="s2">    start</span>
+<span class="s2">    end</span>
+<span class="s2">    delta</span>
+<span class="s2">    cmd</span>
+<span class="s2">    stdout/str/a</span>
+<span class="s2">    stderr/str/a</span>
+<span class="s2">    rc/int/a</span>
+<span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>The value of the shell variables <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code>, etc will be passed as return values of the module.
+Note that <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code> and <code class="docutils literal notranslate"><span class="pre">rc</span></code> are typed, and they are always returned, which is expected
+of the <code class="docutils literal notranslate"><span class="pre">command</span></code> module.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no support for specifying <code class="docutils literal notranslate"><span class="pre">contains</span></code> elements of return values of the type <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+</div>
+<div class="admonition-to-do admonition">
+<p class="admonition-title">TO-DO</p>
+<p>Write about <code class="docutils literal notranslate"><span class="pre">FACT_VARS</span></code></p>
+</div>
+</section>
+<section id="custom-mechanism">
+<h4>Custom Mechanism<a class="headerlink" href="#custom-mechanism" title="Link to this heading"></a></h4>
+<p>If you want to have fine-grained control of the output, you can add:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">NO_EXIT_JSON</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>To your script, and it will refrain from generating the JSON output automatically.
+In that case, the module is responsible for writing the output JSON content to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>.</p>
+<p>See the file <code class="docutils literal notranslate"><span class="pre">plugins/modules/setup.sh</span></code> for an example of that mechanism.</p>
+</section>
+<section id="additional-constructs">
+<h4>Additional constructs<a class="headerlink" href="#additional-constructs" title="Link to this heading"></a></h4>
+<p>The wrapper script also provides some convenience constructs that affect the outcome and the exit flow
+of the module.</p>
+<blockquote>
+<div><dl>
+<dt>changed</dt><dd><p>Command receives no parameter. Once called, the module will register <code class="docutils literal notranslate"><span class="pre">changed=true</span></code> in its output.</p>
+</dd>
+<dt>fail</dt><dd><p>Command arguments are made into a string that becomes the return value <code class="docutils literal notranslate"><span class="pre">msg</span></code>,
+and the module returns a non-zero exit code indicating failure.</p>
+</dd>
+<dt>try</dt><dd><p>Command will attempt to execute its arguments as a command in itself, and it invokes <code class="docutils literal notranslate"><span class="pre">fail</span></code> if the
+command is not successful. Example (from <code class="docutils literal notranslate"><span class="pre">copy</span></code>):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>try<span class="w"> </span>mkdir<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$p</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">mkdir</span></code> command fails, then the entire module fails.</p>
+</dd>
+<dt>final</dt><dd><p>Similar to <code class="docutils literal notranslate"><span class="pre">try</span></code>, but if the command is successful, then the module exits indicating success.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</section>
+<section id="file-checksum-and-base64-utilities">
+<h3>File, checksum and base64 utilities<a class="headerlink" href="#file-checksum-and-base64-utilities" title="Link to this heading"></a></h3>
+<div class="admonition-to-do admonition">
+<p class="admonition-title">TO-DO</p>
+<p>To be done.</p>
+</div>
+</section>
+<section id="pathname-helpers">
+<h3>Pathname helpers<a class="headerlink" href="#pathname-helpers" title="Link to this heading"></a></h3>
+<p>Utilities to work reliably with paths and symlinks:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>is_abs()</dt><dd><p>Test whether a path is absolute.</p>
+</dd>
+<dt>abspath()</dt><dd><p>Compute an absolute path for a given file (with optional <code class="docutils literal notranslate"><span class="pre">-P</span></code> semantics for physical resolution).</p>
+</dd>
+<dt>realpath()</dt><dd><p>Resolve symlinks to return the canonical path. These helpers make scripts more robust when moving files or resolving included filenames.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Example:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>main<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">src</span><span class="o">=</span><span class="s2">&quot;./relative/path&quot;</span>
+<span class="w">    </span><span class="nv">abs_src</span><span class="o">=</span><span class="k">$(</span>abspath<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$src</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="w">    </span><span class="nv">real_src</span><span class="o">=</span><span class="k">$(</span>realpath<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$abs_src</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="w">    </span>cp<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$real_src</span><span class="s2">&quot;</span><span class="w"> </span>/tmp/<span class="w"> </span><span class="o">||</span><span class="w"> </span>fail<span class="w"> </span><span class="s2">&quot;copy failed&quot;</span>
+<span class="w">    </span>changed
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="diff-and-change-detection">
+<h3>Diff and change detection<a class="headerlink" href="#diff-and-change-detection" title="Link to this heading"></a></h3>
+<div class="admonition-to-do admonition">
+<p class="admonition-title">TO-DO</p>
+<p>To be done.</p>
+</div>
+</section>
+<section id="check-mode-and-idempotence-support">
+<h3>Check mode and idempotence support<a class="headerlink" href="#check-mode-and-idempotence-support" title="Link to this heading"></a></h3>
+<p>Modules that support check mode must set the variable:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">SUPPORTS_CHECK_MODE</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Otherwise, the module will automatically bail out if executed in check mode.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.3.0.</span></p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="howto_guide.html" class="btn btn-neutral float-left" title="Community OpenWrt How-To Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../apk_module.html" class="btn btn-neutral float-right" title="community.openwrt.apk module – Manage packages with apk on OpenWrt" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Community.OpenWrt Contributors.</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>
