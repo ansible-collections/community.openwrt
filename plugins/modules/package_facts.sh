@@ -1,5 +1,5 @@
 #!/bin/sh
-# shellcheck shell=ash
+# shellcheck shell=ash disable=SC3010
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
