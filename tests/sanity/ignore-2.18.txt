@@ -12,6 +12,7 @@ plugins/modules/nohup.sh shebang
 plugins/modules/nohup.sh validate-modules:invalid-extension
 plugins/modules/opkg.sh shebang
 plugins/modules/opkg.sh validate-modules:invalid-extension
+plugins/modules/package_facts.sh shebang
 plugins/modules/package_facts.sh validate-modules:invalid-extension
 plugins/modules/ping.sh shebang
 plugins/modules/ping.sh validate-modules:invalid-extension
