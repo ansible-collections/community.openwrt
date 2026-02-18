@@ -16,6 +16,8 @@ author: Sebastián Guarino (@sguarin)
 version_added: 1.1.0
 extends_documentation_fragment:
   - community.openwrt.attributes
+  - community.openwrt.attributes.facts
+  - community.openwrt.attributes.facts_module
 options: {}
 notes:
   - Facts are returned in the C(ansible_facts) namespace (packages key).
