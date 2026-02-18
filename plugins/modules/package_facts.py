@@ -43,43 +43,43 @@ ansible_facts:
         - Maps the package name to a non-empty list of dicts with package information.
         - Every dict in the list corresponds to one installed version of the package.
         - The fields described below are present for the package manager detected (`apk` or `opkg`)
-    returned: when operating system level package manager is auto detected succesfully.
-    type: dict
-    contains:
-      source:
-        description: The package management detected.
-        type: str
-        sample: apk
-      name:
-        description: The package name.
-        type: str
-        sample: zlib
-      version:
-        description: The version of the software.
-        type: str
-        sample: 1.3.1
-      release:
-        description: The release version of the package.
-        type: str
-        sample: r1
-    sample: |-
-      {
-        "apk-mbedtls": [
-            {   
-                "name": "apk-mbedtls",
-                "release": "r2",
-                "source": "apk",
-                "version": "3.0.2"
-            }
-        ],
-        ...
-        "zlib": [
-            {   
-                "name": "zlib",
-                "release": "r1",
-                "source": "apk",
-                "version": "1.3.1"
-            }
-        ]       
-      }
+      returned: when operating system level package manager is auto detected succesfully.
+      type: dict
+      contains:
+        source:
+          description: The package management detected.
+          type: str
+          sample: apk
+        name:
+          description: The package name.
+          type: str
+          sample: zlib
+        version:
+          description: The version of the software.
+          type: str
+          sample: 1.3.1
+        release:
+          description: The release version of the package.
+          type: str
+          sample: r1
+      sample: |-
+        {
+          "apk-mbedtls": [
+              {   
+                  "name": "apk-mbedtls",
+                  "release": "r2",
+                  "source": "apk",
+                  "version": "3.0.2"
+              }
+          ],
+          ...
+          "zlib": [
+              {   
+                  "name": "zlib",
+                  "release": "r1",
+                  "source": "apk",
+                  "version": "1.3.1"
+              }
+          ]       
+        }
 """
