@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017 Markus Weippert
+# Copyright (c) 2017 Sebastian Guarino
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ EXAMPLES = r"""
 - name: Gather facts from OpenWrt device
   community.openwrt.package_facts:
 
-- name: Show distribution version
+- name: Show installed packages
   ansible.builtin.debug:
     msg: "{{ ansible_facts['packages'] }}"
 """
