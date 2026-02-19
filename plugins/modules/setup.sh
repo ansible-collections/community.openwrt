@@ -30,29 +30,27 @@ init() {
 }
 
 set_datetime_vars() {
-    local now=$(date +%s)
-    local utcnow=$(date -u +%s -d "@$now")
+    read now year month day hour minute second weekday weekday_number weeknumber tz tz_offset <<EOF
+        $(date +"%s %Y %m %d %H %M %S %A %w %W %Z %z")
+EOF
+    read utcnow uyear umonth uday uhour uminute usecond <<EOF
+        $(date -u +"%s %Y %m %d %H %M %S" -d "@$now")
+EOF
 
-    year=$(date +%Y -d "@$now")
-    month=$(date +%m -d "@$now")
-    weekday=$(date +%A -d "@$now")
-    weekday_number=$(date +%w -d "@$now")
-    weeknumber=$(date +%W -d "@$now")
-    day=$(date +%d -d "@$now")
-    hour=$(date +%H -d "@$now")
-    minute=$(date +%M -d "@$now")
-    second=$(date +%S -d "@$now")
-    epoch=$(date +%s -d "@$now")
-    epoch_int=$(date +%s -d "@$now")
-    date=$(date +%Y-%m-%d)
-    time=$(date +%H:%M:%S)
-    iso8601_micro=$(date +%Y-%m-%dT%H:%M:%S.000000Z "@$utcnow")
-    iso8601=$(date +%Y-%m-%dT%H:%M:%SZ "@$utcnow")
-    iso8601_basic=$(date +%Y%m%dT%H%M%S000000 "@$now")
-    iso8601_basic_short=$(date +%Y%m%dT%H%M%S "@$now")
-    tz=$(date +%Z)
-    tz_dst=$(date +%Z)
-    tz_offset=$(date +%z)
+    date="$year-$month-$day"
+    time="$hour:$minute:$second"
+
+    iso8601="$year-$month-$day"T"$hour:$minute:$second"Z
+    iso8601_micro="$iso8601"
+    iso8601_micro="${iso8601_micro%Z}.000000Z"
+
+    # I'd think we have to use uyear, umonth, ... here, but then it gives different results for me!?
+    iso8601_basic="${year}${month}${day}T${hour}${minute}${second}000000"
+    iso8601_basic_short="${year}${month}${day}T${hour}${minute}${second}"
+
+    epoch="$now"
+    epoch_int="$now"
+    tz_dst=$"tz"
 }
 
 add_ubus_fact() {
