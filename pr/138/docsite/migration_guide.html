@@ -78,6 +78,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#key-differences">Key Differences</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#no-support-for-standard-ansible-modules">No Support for Standard Ansible Modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#workarounds">Workarounds</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace">Namespace</a></li>
@@ -102,6 +106,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="migration_apk_guide.html">OpenWrt 25.x Package Manager changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howto_guide.html">Community OpenWrt How-To Guide</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="mod_dev_guide.html">Community OpenWrt Module Developer Guide</a></li>
@@ -120,6 +125,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../slurp_module.html">community.openwrt.slurp module – Slurps a file from remote OpenWrt nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../stat_module.html">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sysctl_module.html">community.openwrt.sysctl module – Manage sysctl entries on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tempfile_module.html">community.openwrt.tempfile module – Creates temporary files and directories on OpenWrt nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
@@ -181,6 +187,34 @@ It provides:</p>
 <li><p>Multiple roles (<code class="docutils literal notranslate"><span class="pre">community.openwrt.init</span></code>, <code class="docutils literal notranslate"><span class="pre">community.openwrt.common</span></code>)</p></li>
 <li><p>Handlers and plugins organized in a standard collection structure</p></li>
 </ul>
+</section>
+<section id="no-support-for-standard-ansible-modules">
+<h3>No Support for Standard Ansible Modules<a class="headerlink" href="#no-support-for-standard-ansible-modules" title="Link to this heading"></a></h3>
+<p>Migrated playbooks <strong>MUST</strong> use modules in the <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> namespace to function correctly on devices without Python.</p>
+<p>In the legacy <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> role, a <a class="reference external" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patch</a>
+intercepted tasks calling standard modules (for example <code class="docutils literal notranslate"><span class="pre">lineinfile</span></code>) and redirected them to shell-script
+equivalents. This allowed execution on hosts without Python.</p>
+<p>This collection does <strong>not</strong> include monkey patching. If you are migrating playbooks that utilize
+standard Ansible modules (such as <code class="docutils literal notranslate"><span class="pre">ansible.builtin.*</span></code>), you must update them to use the
+equivalent <code class="docutils literal notranslate"><span class="pre">community.openwrt.*</span></code> implementation.</p>
+<p>Attempting to use standard modules like <code class="docutils literal notranslate"><span class="pre">fetch</span></code> or <code class="docutils literal notranslate"><span class="pre">template</span></code>
+(see <a class="reference external" href="https://github.com/ansible-collections/community.openwrt/issues/63">Issue #63</a>)
+will typically fail with an error indicating missing Python:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">Task</span> <span class="pre">failed:</span> <span class="pre">Action</span> <span class="pre">failed:</span> <span class="pre">The</span> <span class="pre">module</span> <span class="pre">interpreter</span> <span class="pre">'/usr/bin/python3'</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">found</span></code></p>
+</div></blockquote>
+<section id="workarounds">
+<h4>Workarounds<a class="headerlink" href="#workarounds" title="Link to this heading"></a></h4>
+<p>There are some easy work-arounds until native equivalents are added to <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code>.
+For example, you can use the <code class="docutils literal notranslate"><span class="pre">lookup</span></code> plugin along with <code class="docutils literal notranslate"><span class="pre">community.openwrt.copy</span></code>
+as a replacement for <code class="docutils literal notranslate"><span class="pre">ansible.builtin.template</span></code>:</p>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Generate template and copy to device</span>
+<span class="w">  </span><span class="nt">community.openwrt.copy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">lookup</span><span class="o">(</span><span class="s1">&#39;template&#39;</span><span class="o">,</span> <span class="s1">&#39;config_template.j2&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/app/config.json</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="installation">
 <h3>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h3>
