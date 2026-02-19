@@ -20,7 +20,7 @@ extends_documentation_fragment:
   - community.openwrt.attributes.facts_module
 options: {}
 notes:
-  - Facts are returned in the C(ansible_facts) namespace (packages key).
+  - Facts are returned in the C(ansible_facts) namespace (C(packages) key).
 """
 
 EXAMPLES = r"""
@@ -42,7 +42,7 @@ ansible_facts:
       description:
         - Maps the package name to a non-empty list of dicts with package information.
         - Every dict in the list corresponds to one installed version of the package.
-        - The fields described below are present for the package manager detected (`apk` or `opkg`)
+        - The fields described below are present for the package manager detected (C(apk) or C(opkg))
       returned: when operating system level package manager is auto detected succesfully.
       type: dict
       contains:
@@ -62,7 +62,7 @@ ansible_facts:
           description: The release version of the package.
           type: str
           sample: r1
-      sample: |-
+      sample:
         {
           "apk-mbedtls": [
               {
