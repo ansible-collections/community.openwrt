@@ -1,2 +1,0 @@
-minor_changes:
-  - package_facts - Implemented package_facts to provide a report of installed packages (https://github.com/ansible-collections/community.openwrt/pull/144).
