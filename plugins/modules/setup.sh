@@ -29,28 +29,36 @@ init() {
     "
 }
 
+# shellcheck disable=SC2162
 set_datetime_vars() {
-    read now year month day hour minute second weekday weekday_number weeknumber tz tz_offset <<EOF
-        $(date +"%s %Y %m %d %H %M %S %A %w %W %Z %z")
+    read now now_us <<EOF
+        $(date '+%s %6N')
 EOF
-    read utcnow uyear umonth uday uhour uminute usecond <<EOF
-        $(date -u +"%s %Y %m %d %H %M %S" -d "@$now")
+
+    # if coreutils-date is installed, `date +%6N`` returns the microseconds
+    case "$now_us" in
+        [0-9][0-9][0-9][0-9][0-9][0-9]) ;;
+        *) now_us="000000" ;;
+    esac
+
+    read year month day hour minute second weekday weekday_number weeknumber tz tz_offset <<EOF
+        $(date '+%Y %m %d %H %M %S %A %w %W %Z %z')
+EOF
+    read uyear umonth uday uhour uminute <<EOF
+        $(date -u '+%Y %m %d %H %M' -d "@$now")
 EOF
 
     date="$year-$month-$day"
     time="$hour:$minute:$second"
 
-    iso8601="$year-$month-$day"T"$hour:$minute:$second"Z
-    iso8601_micro="$iso8601"
-    iso8601_micro="${iso8601_micro%Z}.000000Z"
-
-    # I'd think we have to use uyear, umonth, ... here, but then it gives different results for me!?
-    iso8601_basic="${year}${month}${day}T${hour}${minute}${second}000000"
+    iso8601_micro="${uyear}-${umonth}-${uday}T${uhour}:${uminute}:${second}.${now_us}Z"
+    iso8601="${uyear}-${umonth}-${uday}T${uhour}:${uminute}:${second}Z"
+    iso8601_basic="${year}${month}${day}T${hour}${minute}${second}${now_us}"
     iso8601_basic_short="${year}${month}${day}T${hour}${minute}${second}"
 
     epoch="$now"
     epoch_int="$now"
-    tz_dst=$"tz"
+    tz_dst="$tz"
 }
 
 add_ubus_fact() {

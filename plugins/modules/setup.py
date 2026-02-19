@@ -27,6 +27,8 @@ notes:
   - The facts C(ansible_date_time.iso8601_micro) and C(ansible_date_time.iso8601_basic) are meant to include
     microseconds, but the busybox implementation of C(date) does not provide time with that precision, so those
     facts are reported with V(000000) as the value for the microseconds fraction.
+  - B(Note:) If you install the package C(coreutils-date), M(community.openwrt.setup) generates the actual
+    microseconds for C(ansible_date_time) factoids.
   - In M(ansible.builtin.setup), the fact C(ansible_date_time.epoch_int) is the epoch number, transformed to C(int),
     and then back to C(str), which is ineffective in a shell script. The fact is provided to ensure compatibility
     with the standard module, but its value is always the same as of C(ansible_date_time.epoch).

@@ -24,8 +24,8 @@
 
 - name: Assert date/time facts
   vars:
-    dt: "{{ setup_result.ansible_facts.ansible_date_time }}"
+    dt: "{{ setup_result.ansible_facts.ansible_date_time | default({}) }}"
   ansible.builtin.assert:
     that:
-      - setup_result.ansible_facts.ansible_date_time is defined
+      - dt is defined
       - dt.date == dt.year + "-" + dt.month + "-" + dt.day
