@@ -41,7 +41,7 @@ main() {
     elif [ "$ansible_pkg_mgr" = "opkg" ] ; then
         _output=$(opkg list-installed 2>/dev/null | sed -e 's/ - /,/')
     fi
-    $_rc=$?
+    _rc=$?
     if [ "$_rc" == 0 ]; then
         json_add_object ansible_facts
         json_add_object packages
