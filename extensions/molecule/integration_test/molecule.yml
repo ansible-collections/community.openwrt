@@ -5,8 +5,8 @@
 driver:
   name: docker
 platforms:
-  - name: openwrt_x86_64-25.12.0-rc4
-    image: openwrt/rootfs:x86_64-25.12.0-rc4
+  - name: openwrt_x86_64-25.12.0-rc5
+    image: openwrt/rootfs:x86_64-25.12.0-rc5
     command: /sbin/init
     pre_build_image: true
   - name: openwrt_x86_64-24.10.4
