@@ -42,7 +42,7 @@ main() {
         _output=$(opkg list-installed 2>/dev/null | sed -e 's/ - /,/')
     fi
     _rc=$?
-    if [ "$_rc" == 0 ]; then
+    if [ "$_rc" = 0 ]; then
         json_add_object ansible_facts
         json_add_object packages
         for line in $_output; do
@@ -54,7 +54,7 @@ main() {
         json_close_object
     else
         json_add_string msg "Error retrieving package listing (package manager detected: $ansible_pkg_mgr)"
-        json_add_boolean failed $([ $_rc -eq 0 ]; echo $?)
+        json_add_boolean failed "$([ $_rc -eq 0 ]; echo $?)"
     fi
     result="$(json_dump)"
     json_cleanup
