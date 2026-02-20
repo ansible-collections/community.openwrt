@@ -35,7 +35,6 @@ main() {
     detect_package_management
     json_set_namespace package_facts
     json_init
-    json_add_boolean changed false
     json_add_object ansible_facts
     json_add_object packages
     if [ "$ansible_pkg_mgr" = "apk" ] ; then
