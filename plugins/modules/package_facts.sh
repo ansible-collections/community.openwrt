@@ -35,23 +35,31 @@ main() {
     detect_package_management
     json_set_namespace package_facts
     json_init
-    json_add_object ansible_facts
-    json_add_object packages
-    if [ "$ansible_pkg_mgr" = "apk" ] ; then
+    set -o pipefail
+    if [ "$ansible_pkg_mgr" = "apk" ]; then
         _output=$(apk query --fields name,version --installed \*  2> /dev/null | grep -v '^$' | sed -e 'N;s/Name: \([^ ]*\)\nVersion: \([^ ]*\)/\1,\2/')
     elif [ "$ansible_pkg_mgr" = "opkg" ] ; then
         _output=$(opkg list-installed 2>/dev/null | sed -e 's/ - /,/')
     fi
-    for line in $_output; do
-        package=${line/,*/}
-        version=${line/*,/}
-        add_package_fact "$package" "$version"
-    done
-    json_close_object
-    json_close_object
-    package_facts="$(json_dump)"
+    $_rc=$?
+    if [ "$_rc" == 0 ]; then
+        json_add_object ansible_facts
+        json_add_object packages
+        for line in $_output; do
+            package=${line/,*/}
+            version=${line/*,/}
+            add_package_fact "$package" "$version"
+        done
+        json_close_object
+        json_close_object
+    else
+        json_add_string msg "Error retrieving package listing (package manager detected: $ansible_pkg_mgr)"
+        json_add_boolean failed $([ $_rc -eq 0 ]; echo $?)
+    fi
+    result="$(json_dump)"
     json_cleanup
-    echo "${package_facts}"
+    echo "${result}"
+
 }
 
 [ -n "$_ANSIBLE_PARAMS" ] || main
