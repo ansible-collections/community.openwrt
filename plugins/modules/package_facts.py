@@ -62,7 +62,7 @@ ansible_facts:
           description: The release version of the package.
           type: str
           sample: r1
-      sample: |-
+      sample:
         {
           "packages": {
             "apk-mbedtls": [
