@@ -1,6 +1,6 @@
 #!/bin/sh
 # shellcheck shell=ash disable=SC3010
-# Copyright (c) 2017 Sebastian Guarino
+# Copyright (c) 2026 Sebastian Guarino
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
 NO_EXIT_JSON="1"
