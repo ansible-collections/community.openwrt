@@ -28,9 +28,9 @@
   ansible.builtin.assert:
     that:
       - dt is defined
-      - dt.date == "{{ dt.year }}-{{ dt.month }}-{{ dt.day }}"
-      - dt.time == "{{ dt.hour }}-{{ dt.minute }}-{{ dt.second }}"
-      - dt.iso8601_basic_short == {{ dt.year }}-{{ dt.month }}-{{ dt.day }}T{{ dt.hour }}-{{ dt.minute }}-{{ dt.second }}"
+      - dt.date == {{ dt.year }}-{{ dt.month }}-{{ dt.day }}
+      - dt.time == {{ dt.hour }}-{{ dt.minute }}-{{ dt.second }}
+      - dt.iso8601_basic_short == {{ dt.year }}-{{ dt.month }}-{{ dt.day }}T{{ dt.hour }}-{{ dt.minute }}-{{ dt.second }}
       - dt.epoch == dt.epoch_int
       - dt.tz == dt.tz_dst
       - dt.date is ansible.builtin.match("\d\d\d\d-\d\d-\d\d")
