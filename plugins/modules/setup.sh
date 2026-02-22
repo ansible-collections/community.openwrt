@@ -9,6 +9,7 @@ add_ubus_fact() {
     set -- ${1//!/ }
     ubus list "$2" > /dev/null 2>&1 || return
     local json="$($ubus call "$2" "$3" 2>/dev/null)"
+    [ -n "$json" ] || return
     echo -n "$delimiter\"$1\":$json"
     delimiter=","
 }
