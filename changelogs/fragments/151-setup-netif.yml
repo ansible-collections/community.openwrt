@@ -1,0 +1,2 @@
+bugfixes:
+  - setup - generate an empty factoid when the underlying command ``ubus call`` returns empty (https://github.com/ansible-collections/community.openwrt/issues/149, https://github.com/ansible-collections/community.openwrt/pull/151).
