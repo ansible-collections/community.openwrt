@@ -35,14 +35,14 @@ set_datetime_vars() {
         $(date '+%s %6N')
 EOF
 
-    # if coreutils-date is installed, `date +%6N`` returns the microseconds
+    # if coreutils-date is installed, `date +%6N` returns the microseconds
     case "$now_us" in
         [0-9][0-9][0-9][0-9][0-9][0-9]) ;;
         *) now_us="000000" ;;
     esac
 
     read year month day hour minute second weekday weekday_number weeknumber tz tz_offset <<EOF
-        $(date '+%Y %m %d %H %M %S %A %w %W %Z %z')
+        $(date '+%Y %m %d %H %M %S %A %w %W %Z %z' -d "@$now")
 EOF
     read uyear umonth uday uhour uminute <<EOF
         $(date -u '+%Y %m %d %H %M' -d "@$now")
