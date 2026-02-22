@@ -39,15 +39,13 @@
     name: cron
     state: started
 
-- name: Pause for 10 seconds
-  ansible.builtin.pause:
-    seconds: 10
-
 - name: Check cron running
   community.openwrt.command:
     cmd: service cron running
   changed_when: false
   failed_when: cron_running.rc != 0
+  retries: 15
+  delay: 2
   register: cron_running
 
 - name: Stop cron service
@@ -55,15 +53,13 @@
     name: cron
     state: stopped
 
-- name: Pause for 10 seconds
-  ansible.builtin.pause:
-    seconds: 10
-
 - name: Check cron running
   community.openwrt.command:
     cmd: service cron running
   changed_when: false
   failed_when: cron_state.rc == 0
+  retries: 15
+  delay: 2
   register: cron_state
 
 - name: Clean up - remove crontab file
