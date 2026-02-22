@@ -15,7 +15,7 @@ We encourage new users to read the [User Guide](https://ansible-collections.gith
 and the [How-To Guides](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/howto_guide.html).
 
 If you are migrating from the `gekmihesg.openwrt` role, please read the
-[Migration Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_guide.html).
+[Migration Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_guide.html). If you are upgrading to OpenWrt >= 25.x, please read the  [Migration APK Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_apk_guide.html).
 
 Check the [complete documentation](https://ansible-collections.github.io/community.openwrt/branch/main/index.html) for the collection.
 Please note that this documentation reflects the state of the development branch.
@@ -140,7 +140,7 @@ Please check the included content on the [Ansible Galaxy page for this collectio
       community.openwrt.setup:
 
     - name: Install a package
-      community.openwrt.opkg:
+      community.openwrt.apk:
         name: luci
         state: present
 

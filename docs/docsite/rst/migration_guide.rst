@@ -42,9 +42,10 @@ It provided modules and handlers as part of the role.
 ``community.openwrt`` is a full Ansible collection with a defined namespace.
 It provides:
 
-* Multiple modules (``community.openwrt.opkg``, ``community.openwrt.uci``, etc.)
+* Multiple modules (``community.openwrt.apk``, ``community.openwrt.uci``, etc.)
 * Multiple roles (``community.openwrt.init``, ``community.openwrt.common``)
 * Handlers and plugins organized in a standard collection structure
+* Package Manager support for OpenWrt 25+ ``apk`` and legacy ``opkg``
 
 No Support for Standard Ansible Modules
 """""""""""""""""""""""""""""""""""""""
@@ -149,7 +150,7 @@ All modules and roles now use the ``community.openwrt`` namespace prefix.
      - .. code-block:: yaml+jinja
 
           - name: Install package
-            community.openwrt.opkg:
+            community.openwrt.apk:
               name: luci
               state: present
 
@@ -241,7 +242,7 @@ Update all module calls to include the ``community.openwrt`` namespace prefix.
               community.openwrt.setup:
 
             - name: Install package
-              community.openwrt.opkg:
+              community.openwrt.apk:
                 name: luci
                 state: present
 
@@ -345,7 +346,7 @@ Here is a complete before-and-after example to illustrate the migration:
                 community.openwrt.setup:
 
               - name: Install packages
-                community.openwrt.opkg:
+                community.openwrt.apk:
                   name: "{{ item }}"
                   state: present
                 loop:
@@ -383,6 +384,8 @@ If you see errors like ``could not resolve module/action 'community.openwrt.opkg
 * Verify the collection is installed: ``ansible-galaxy collection list``
 * Check you are using the correct namespace prefix
 * Ensure your Ansible version meets the minimum requirements (see the collection README)
+* ``community.openwrt.opkg`` was only available until OpenWrt 24 for 25+ you have to use
+  ``community.openwrt.apk`` instead
 
 
 Module Behavior Differences
