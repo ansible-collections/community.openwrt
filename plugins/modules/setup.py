@@ -54,32 +54,43 @@ ansible_facts:
   contains:
     ansible_hostname:
       description: The hostname of the system.
+      returned: always
       type: str
       sample: router
     ansible_distribution:
       description: The distribution name.
+      returned: always
       type: str
       sample: OpenWrt
     ansible_distribution_version:
       description: The distribution version.
+      returned: always
       type: str
       sample: 22.03.5
     ansible_distribution_major_version:
       description: The major version of the distribution.
+      returned: always
       type: str
       sample: "22"
     ansible_distribution_release:
       description: The distribution release codename.
+      returned: always
       type: str
       sample: ""
     ansible_os_family:
       description: The OS family.
+      returned: always
       type: str
       sample: OpenWrt
     ansible_is_chroot:
       description: Whether the system is running in a chroot.
+      returned: always
       type: bool
       sample: false
+    ansible_date_time:
+      description: System date and time.
+      returned: always
+      type: dict
     openwrt_info:
       description: System information from C(ubus).
       returned: when available
