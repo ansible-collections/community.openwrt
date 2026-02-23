@@ -16,7 +16,7 @@ options:
     - When set to V(true) symbolic links will be followed, if they exist.
     - When set to V(false) symbolic links will not be followed.
     type: bool
-    default: no
+    default: false
 seealso:
 - module: community.openwrt.copy
 author:
