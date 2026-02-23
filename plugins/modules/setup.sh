@@ -3,7 +3,63 @@
 # Copyright (c) 2017 Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 
-NO_EXIT_JSON="1"
+init() {
+    NO_EXIT_JSON="1"
+    DATE_TIME_VARS="
+        date/str
+        day/str
+        epoch/str
+        epoch_int/str
+        hour/str
+        iso8601/str
+        iso8601_basic/str
+        iso8601_basic_short/str
+        iso8601_micro/str
+        minute/str
+        month/str
+        second/str
+        time/str
+        tz/str
+        tz_dst/str
+        tz_offset/str
+        weekday/str
+        weekday_number/str
+        weeknumber/str
+        year/str
+    "
+}
+
+# shellcheck disable=SC2162
+set_datetime_vars() {
+    read now now_us <<EOF
+        $(date '+%s %6N')
+EOF
+
+    # if coreutils-date is installed, `date +%6N` returns the microseconds
+    case "$now_us" in
+        [0-9][0-9][0-9][0-9][0-9][0-9]) ;;
+        *) now_us="000000" ;;
+    esac
+
+    read year month day hour minute second weekday weekday_number weeknumber tz tz_offset <<EOF
+        $(date '+%Y %m %d %H %M %S %A %w %W %Z %z' -d "@$now")
+EOF
+    read uyear umonth uday uhour uminute <<EOF
+        $(date -u '+%Y %m %d %H %M' -d "@$now")
+EOF
+
+    date="$year-$month-$day"
+    time="$hour:$minute:$second"
+
+    iso8601_micro="${uyear}-${umonth}-${uday}T${uhour}:${uminute}:${second}.${now_us}Z"
+    iso8601="${uyear}-${umonth}-${uday}T${uhour}:${uminute}:${second}Z"
+    iso8601_basic="${year}${month}${day}T${hour}${minute}${second}${now_us}"
+    iso8601_basic_short="${year}${month}${day}T${hour}${minute}${second}"
+
+    epoch="$now"
+    epoch_int="$now"
+    tz_dst="$tz"
+}
 
 add_ubus_fact() {
     set -- ${1//!/ }
@@ -17,6 +73,7 @@ add_ubus_fact() {
 }
 
 main() {
+    set_datetime_vars
     ubus="/bin/ubus"
     delimiter=","
     echo '{"changed":false,"ansible_facts":'
@@ -51,6 +108,10 @@ main() {
         { [ / -ef /proc/1/root/. ]; echo $?; } ||
         { [ "$(ls -di / | awk '{print $1}')" -eq 2 ]; echo $?; }
         )"
+    json_add_object ansible_date_time
+    _exit_add_vars $DATE_TIME_VARS
+    json_close_object
+
     dist_facts="$(json_dump)"
     json_cleanup
     json_set_namespace result
