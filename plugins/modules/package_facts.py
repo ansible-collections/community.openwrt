@@ -11,7 +11,7 @@ short_description: Gather package facts in OpenWrt systems
 description:
   - The M(community.openwrt.package_facts) module gathers facts about installed packages in OpenWrt systems.
   - It collects package name, version and package version of every installed package.
-  - This module should be called manually by playbooks when needed. It's not part of the setup task.
+  - This module should be called manually by playbooks when needed. It's not part of the C(setup) task.
 author: Sebastián Guarino (@sguarin)
 version_added: 1.1.0
 extends_documentation_fragment:
