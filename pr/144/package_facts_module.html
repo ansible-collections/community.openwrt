@@ -166,7 +166,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <ul class="simple">
 <li><p>The <a class="reference internal" href="#ansible-collections-community-openwrt-package-facts-module"><span class="std std-ref">community.openwrt.package_facts</span></a> module gathers facts about installed packages in OpenWrt systems.</p></li>
 <li><p>It collects package name, version and package version of every installed package.</p></li>
-<li><p>This module should be called manually by playbooks when needed. It’s not part of the setup task.</p></li>
+<li><p>This module should be called manually by playbooks when needed. It’s not part of the <code class="docutils literal notranslate"><span class="pre">setup</span></code> task.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -256,7 +256,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 </div></td>
 <td><div class="ansible-option-cell"><p>Maps the package name to a non-empty list of dicts with package information.</p>
 <p>Every dict in the list corresponds to one installed version of the package.</p>
-<p>The fields described below are present for the package manager detected (<code class="docutils literal notranslate"><span class="pre">apk</span></code> or <code class="docutils literal notranslate"><span class="pre">opkg</span></code>)</p>
+<p>The fields described below are present for the package manager detected (<code class="docutils literal notranslate"><span class="pre">apk</span></code> or <code class="docutils literal notranslate"><span class="pre">opkg</span></code>).</p>
 <p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when operating system level package manager is auto detected succesfully.</p>
 <p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;packages&quot;:</span> <span class="pre">{&quot;apk-mbedtls&quot;:</span> <span class="pre">[{&quot;name&quot;:</span> <span class="pre">&quot;apk-mbedtls&quot;,</span> <span class="pre">&quot;release&quot;:</span> <span class="pre">&quot;r2&quot;,</span> <span class="pre">&quot;source&quot;:</span> <span class="pre">&quot;apk&quot;,</span> <span class="pre">&quot;version&quot;:</span> <span class="pre">&quot;3.0.2&quot;}],</span> <span class="pre">&quot;zlib&quot;:</span> <span class="pre">[{&quot;name&quot;:</span> <span class="pre">&quot;zlib&quot;,</span> <span class="pre">&quot;release&quot;:</span> <span class="pre">&quot;r1&quot;,</span> <span class="pre">&quot;source&quot;:</span> <span class="pre">&quot;apk&quot;,</span> <span class="pre">&quot;version&quot;:</span> <span class="pre">&quot;1.3.1&quot;}]}}</span></code></p>
 </div></td>
