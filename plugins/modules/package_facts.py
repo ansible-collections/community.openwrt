@@ -42,7 +42,7 @@ ansible_facts:
       description:
         - Maps the package name to a non-empty list of dicts with package information.
         - Every dict in the list corresponds to one installed version of the package.
-        - The fields described below are present for the package manager detected (C(apk) or C(opkg))
+        - The fields described below are present for the package manager detected (C(apk) or C(opkg)).
       returned: when operating system level package manager is auto detected succesfully.
       type: dict
       contains:
