@@ -1,0 +1,20 @@
+# Copyright (c) 2026, Sebastian Guarino (@sguarin)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: "Gather package facts"
+  community.openwrt.package_facts:
+  register: facts_result
+
+- name: Assert package gathered facts
+  ansible.builtin.assert:
+    that:
+      - facts_result is succeeded
+      - facts_result.ansible_facts is defined
+      - facts_result.ansible_facts.packages is defined
+
+- name: Assert kernel is installed
+  ansible.builtin.assert:
+    that:
+      - facts_result.ansible_facts.packages.kernel is defined
