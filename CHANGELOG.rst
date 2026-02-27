@@ -4,6 +4,34 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.1.0
+======
+
+Release Summary
+---------------
+
+See https://github.com/ansible-collections/community.openwrt/blob/main/CHANGELOG.md for all changes.
+
+Minor Changes
+-------------
+
+- init role - enable check mode in the task checking package manager compatibility (https://github.com/ansible-collections/community.openwrt/pull/136).
+- nohup - use ``init()`` function to declare parameters (https://github.com/ansible-collections/community.openwrt/pull/131).
+- setup - collect ``ansible_date_time`` facts as well (https://github.com/ansible-collections/community.openwrt/issues/52, https://github.com/ansible-collections/community.openwrt/pull/138).
+- setup - report ``ansible_pkg_mgr`` fact with the detected package manager used (https://github.com/ansible-collections/community.openwrt/pull/136).
+
+Bugfixes
+--------
+
+- ping - module code must indicate it does not support check mode (https://github.com/ansible-collections/community.openwrt/pull/132).
+- setup - generate an empty factoid when the underlying command ``ubus call`` returns empty (https://github.com/ansible-collections/community.openwrt/issues/149, https://github.com/ansible-collections/community.openwrt/pull/151).
+
+New Modules
+-----------
+
+- community.openwrt.package_facts - Gather package facts in OpenWrt systems.
+- community.openwrt.tempfile - Creates temporary files and directories on OpenWrt nodes.
+
 v1.0.0
 ======
 
