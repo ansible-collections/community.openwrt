@@ -1,2 +1,0 @@
-minor_changes:
-  - nohup - use ``init()`` function to declare parameters (https://github.com/ansible-collections/community.openwrt/pull/131).
