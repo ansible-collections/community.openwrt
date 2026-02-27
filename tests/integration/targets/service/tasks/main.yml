@@ -45,7 +45,7 @@
   changed_when: false
   failed_when: cron_running.rc != 0
   retries: 15
-  delay: 2
+  delay: 3
   register: cron_running
 
 - name: Stop cron service
@@ -59,7 +59,7 @@
   changed_when: false
   failed_when: cron_state.rc == 0
   retries: 15
-  delay: 2
+  delay: 3
   register: cron_state
 
 - name: Clean up - remove crontab file
