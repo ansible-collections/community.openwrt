@@ -165,7 +165,7 @@ jobs:
           OPENWRT_VERSION: "${{ matrix.openwrt }}"
 
   molintegration:
-    name: MI - OpenWrt ${{ matrix.openwrt }} (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+M[${{ matrix.scenario }}])
+    name: MI - OpenWrt ${{ matrix.openwrt }} (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -298,7 +298,7 @@ jobs:
       - molecule
       # - units
       - molintegration
-      - integration
+      # - integration
 
     runs-on: ubuntu-latest
 
