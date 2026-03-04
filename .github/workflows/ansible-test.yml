@@ -169,46 +169,39 @@ jobs:
   #
   # https://docs.ansible.com/ansible/latest/dev_guide/testing_units.html
 
-  #   units:
-  #     runs-on: ubuntu-latest
+  units:
+    runs-on: ubuntu-latest
 
-  #     name: Units (Ⓐ${{ matrix.ansible }})
-  #     strategy:
-  #       # As soon as the first unit test fails, cancel the others to free up the CI queue
-  #       fail-fast: true
-  #       matrix:
-  #         ansible:
-  #           # Add new versions announced in
-  #           # https://github.com/ansible-collections/news-for-maintainers in a timely manner,
-  #           # consider dropping testing against EOL versions and versions you don't support.
-  #           - stable-2.17
-  #           - stable-2.18
-  #           - devel
-  #         # - milestone
+    name: Units (Ⓐ${{ matrix.ansible }})
+    strategy:
+      # As soon as the first unit test fails, cancel the others to free up the CI queue
+      fail-fast: true
+      matrix:
+        ansible: *ansible-versions
 
-  #     steps:
-  #       - name: >-
-  #           Perform unit testing against
-  #           Ansible version ${{ matrix.ansible }}
-  #         # See the documentation for the following GitHub action on
-  #         # https://github.com/ansible-community/ansible-test-gh-action/blob/main/README.md
-  #         uses: ansible-community/ansible-test-gh-action@release/v1
-  #         with:
-  #           ansible-core-version: ${{ matrix.ansible }}
-  #           testing-type: units
-  #           # Uncomment to configure a codecov token.
-  #           # Check here whether a token is required: https://docs.codecov.com/docs/codecov-tokens
-  #           # Collections in the github.com/ansible-collections/ namespace usually do not need a token.
-  #           # codecov-token: ${{ secrets.CODECOV_TOKEN }}
-  #           # OPTIONAL If your unit tests require code
-  #           # from other collections, install them like this
-  #           test-deps: >-
-  #             ansible.netcommon
-  #             ansible.utils
-  #           # OPTIONAL If set to true, will test only against changed files,
-  #           # which should improve CI performance. See limitations on
-  #           # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
-  #           pull-request-change-detection: false
+    steps:
+      - name: >-
+          Perform unit testing against
+          Ansible version ${{ matrix.ansible }}
+        # See the documentation for the following GitHub action on
+        # https://github.com/ansible-community/ansible-test-gh-action/blob/main/README.md
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: ${{ matrix.ansible }}
+          testing-type: units
+          # Uncomment to configure a codecov token.
+          # Check here whether a token is required: https://docs.codecov.com/docs/codecov-tokens
+          # Collections in the github.com/ansible-collections/ namespace usually do not need a token.
+          # codecov-token: ${{ secrets.CODECOV_TOKEN }}
+          # OPTIONAL If your unit tests require code
+          # from other collections, install them like this
+          test-deps: >-
+            ansible.netcommon
+            ansible.utils
+          # OPTIONAL If set to true, will test only against changed files,
+          # which should improve CI performance. See limitations on
+          # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
+          pull-request-change-detection: false
 
   ###
   # Integration tests (RECOMMENDED)
