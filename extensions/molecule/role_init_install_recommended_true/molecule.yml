@@ -5,8 +5,8 @@
 driver:
   name: docker
 platforms:
-  - name: openwrt_x86_64-${OPENWRT_VERSION:-24.10.4}
-    image: ghcr.io/openwrt/rootfs:x86_64-${OPENWRT_VERSION:-24.10.4}
+  - name: openwrt_x86_64-${OPENWRT_VERSION:-24.10.5}
+    image: ghcr.io/openwrt/rootfs:x86_64-${OPENWRT_VERSION:-24.10.5}
     command: /sbin/init
     pre_build_image: true
 scenario:
