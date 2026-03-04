@@ -1,0 +1,2 @@
+bugfixes:
+  - openwrt_action plugin utils - exception classes were not calling the parent's constructor correctly (https://github.com/ansible-collections/community.openwrt/pull/161).

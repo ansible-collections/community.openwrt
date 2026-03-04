@@ -10,12 +10,12 @@ from ansible.plugins.action import ActionBase
 
 class ModuleNotFound(Exception):
     def __init__(self, name, path):
-        super(self, f"Module script for {name} not found: {path}")
+        super().__init__(f"Module script for {name} not found: {path}")
 
 
 class ModuleTransferFailed(Exception):
     def __init__(self, msg):
-        super(self, f"Failed to transfer module script: {msg}")
+        super().__init__(f"Failed to transfer module script: {msg}")
 
 
 class OpenwrtActionBase(ActionBase):
