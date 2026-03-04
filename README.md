@@ -104,12 +104,12 @@ The collection is currently tested against OpenWrt versions:
 
 - 23.05 ([EOL](https://forum.openwrt.org/t/openwrt-23-05-6-service-release/239506))
 - 24.10
-- 25.12 (Release Candidate)
+- 25.12
 
 Keep in mind that OpenWrt
 [supports only two or three different release numbers](https://openwrt.org/docs/guide-developer/security#support_status).
-As defined in [Release and Maintenance](MAINTENANCE.md),
-the collection supports at least one EOL version of OpenWrt.
+As defined in [Release and Maintenance](MAINTENANCE.md), whenever a major version of community.openwrt is released,
+the collection support allows only one EOL version of OpenWrt.
 
 ### Testing Requirements
 
