@@ -36,7 +36,7 @@ To get started with ``community.openwrt`` you can simply run a playbook like:
           community.openwrt.setup:
 
         - name: Install a package
-          community.openwrt.opkg:
+          community.openwrt.apk:
             name: luci
             state: present
 
