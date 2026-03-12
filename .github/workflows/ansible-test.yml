@@ -109,15 +109,11 @@ jobs:
           pull-request-change-detection: false
 
   molecule:
-    name: M - OpenWrt ${{ matrix.openwrt }} (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+M[${{ matrix.scenario }}])
+    name: M (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+M[${{ matrix.scenario }}])
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        openwrt:
-          - "25.12.0"
-          - "24.10.5"
-          - "23.05.6"
         ansible: *ansible-versions
         python: &python-versions
           - "3.11"
@@ -162,7 +158,6 @@ jobs:
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
-          OPENWRT_VERSION: "${{ matrix.openwrt }}"
 
   molintegration:
     name: MI (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
