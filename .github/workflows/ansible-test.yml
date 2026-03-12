@@ -114,7 +114,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        openwrt: &openwrt-versions
+        openwrt:
           - "25.12.0"
           - "24.10.5"
           - "23.05.6"
@@ -165,12 +165,11 @@ jobs:
           OPENWRT_VERSION: "${{ matrix.openwrt }}"
 
   molintegration:
-    name: MI - OpenWrt ${{ matrix.openwrt }} (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    name: MI (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        openwrt: *openwrt-versions
         ansible: *ansible-versions
         python: *python-versions
         exclude: *ansible-python-exclusions
@@ -199,7 +198,6 @@ jobs:
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
-          OPENWRT_VERSION: "${{ matrix.openwrt }}"
 
 
   ###

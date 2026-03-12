@@ -1,12 +1,20 @@
-# Copyright (c) 2025, Alexei Znamensky (@russoz)
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 driver:
   name: docker
 platforms:
-  - name: openwrt_x86_64-${OPENWRT_VERSION:-24.10.4}
-    image: openwrt/rootfs:x86_64-${OPENWRT_VERSION:-24.10.4}
+  - name: openwrt_x86_64-25.12.0
+    image: openwrt/rootfs:x86_64-25.12.0
+    command: /sbin/init
+    pre_build_image: true
+  - name: openwrt_x86_64-24.10.5
+    image: openwrt/rootfs:x86_64-24.10.5
+    command: /sbin/init
+    pre_build_image: true
+  - name: openwrt_x86_64-23.05.6
+    image: openwrt/rootfs:x86_64-23.05.6
     command: /sbin/init
     pre_build_image: true
 scenario:
