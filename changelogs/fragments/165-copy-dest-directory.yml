@@ -1,0 +1,2 @@
+bugfixes:
+  - copy - fix destination file name if ``dest`` is a directory (https://github.com/ansible-collections/community.openwrt/pull/165).
