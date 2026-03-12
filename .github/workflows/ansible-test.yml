@@ -296,7 +296,7 @@ jobs:
     needs:
       - sanity
       - molecule
-      # - units
+      - units
       - molintegration
       # - integration
 
