@@ -77,6 +77,8 @@ files:
     maintainers: zeerayne
   $modules/tempfile.sh:
     maintainers: zeerayne
+  $modules/template.py:
+    maintainers: zeerayne
   $modules/uci.py:
     maintainers: $team_repo_mgrs
   $modules/uci.sh:
