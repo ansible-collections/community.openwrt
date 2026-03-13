@@ -1,0 +1,274 @@
+# Copyright (c) 2026 Sebastian Hamann
+# GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: ensure test groups are deleted before the test
+  community.openwrt.group:
+    name: '{{ item }}'
+    state: absent
+  loop:
+    - ansibullgroup
+    - ansibullgroup2
+    - ansibullgroup3
+
+- block:
+    ##
+    ## group add
+    ##
+
+    - name: create group (check mode)
+      community.openwrt.group:
+        name: ansibullgroup
+        state: present
+      register: create_group_check
+      check_mode: true
+
+    - name: get result of create group (check mode)
+      ansible.builtin.raw: 'grep -E -v ^\# /etc/group | cut -d: -f1'
+      register: create_group_actual_check
+
+    - name: assert create group (check mode)
+      ansible.builtin.assert:
+        that:
+          - create_group_check is changed
+          - '"ansibullgroup" not in create_group_actual_check.stdout_lines'
+
+    - name: create group
+      community.openwrt.group:
+        name: ansibullgroup
+        state: present
+      register: create_group
+
+    - name: get result of create group
+      ansible.builtin.raw: 'grep -E -v ^\# /etc/group | cut -d: -f1'
+      register: create_group_actual
+
+    - name: assert create group
+      ansible.builtin.assert:
+        that:
+          - create_group is changed
+          - create_group.gid is defined
+          - '"ansibullgroup" in create_group_actual.stdout_lines'
+
+    - name: create group (idempotent)
+      community.openwrt.group:
+        name: ansibullgroup
+        state: present
+      register: create_group_again
+
+    - name: assert create group (idempotent)
+      ansible.builtin.assert:
+        that:
+          - not create_group_again is changed
+
+    ##
+    ## group check
+    ##
+
+    - name: run existing group check tests
+      community.openwrt.group:
+        name: "{{ create_group_actual.stdout_lines|random }}"
+        state: present
+      with_sequence: start=1 end=5
+      register: group_test1
+
+    - name: validate results for testcase 1
+      ansible.builtin.assert:
+        that:
+          - group_test1.results is defined
+          - group_test1.results|length == 5
+
+    - name: validate change results for testcase 1
+      ansible.builtin.assert:
+        that:
+          - not group_test1 is changed
+
+    ##
+    ## group add with gid
+    ##
+
+    - name: create a group with a gid (check mode)
+      community.openwrt.group:
+        name: ansibullgroup2
+        gid: 1234
+        state: present
+      register: create_group_gid_check
+      check_mode: true
+
+    - name: get result of create a group with a gid (check mode)
+      ansible.builtin.raw: 'grep -E -v ^\# /etc/group | cut -d: -f1'
+      register: create_group_gid_actual_check
+
+    - name: assert create group with a gid (check mode)
+      ansible.builtin.assert:
+        that:
+          - create_group_gid_check is changed
+          - '"ansibullgroup2" not in create_group_gid_actual_check.stdout_lines'
+
+    - name: create a group with a gid
+      community.openwrt.group:
+        name: ansibullgroup2
+        gid: 1234
+        state: present
+      register: create_group_gid
+
+    - name: get gid of created group
+      ansible.builtin.raw: "grep ^ansibullgroup2: /etc/group | cut -d: -f3"
+      register: create_group_gid_actual
+
+    - name: assert create group with a gid
+      ansible.builtin.assert:
+        that:
+          - create_group_gid is changed
+          - create_group_gid.gid | int == 1234
+          - create_group_gid_actual.stdout | trim | int == 1234
+
+    - name: create a group with a gid (idempotent)
+      community.openwrt.group:
+        name: ansibullgroup2
+        gid: 1234
+        state: present
+      register: create_group_gid_again
+
+    - name: assert create group with a gid (idempotent)
+      ansible.builtin.assert:
+        that:
+          - not create_group_gid_again is changed
+          - create_group_gid_again.gid | int == 1234
+
+    - name: create a group with a non-unique gid
+      community.openwrt.group:
+        name: ansibullgroup3
+        gid: 1234
+        non_unique: true
+        state: present
+      register: create_group_gid_non_unique
+
+    - name: validate gid required with non_unique
+      community.openwrt.group:
+        name: foo
+        non_unique: true
+      register: missing_gid
+      ignore_errors: true
+
+    - name: assert create group with a non unique gid
+      ansible.builtin.assert:
+        that:
+          - create_group_gid_non_unique is changed
+          - create_group_gid_non_unique.gid | int == 1234
+          - missing_gid is failed
+
+    ##
+    ## group remove
+    ##
+
+    - name: delete group (check mode)
+      community.openwrt.group:
+        name: ansibullgroup
+        state: absent
+      register: delete_group_check
+      check_mode: true
+
+    - name: get result of delete group (check mode)
+      ansible.builtin.raw: 'grep -E -v ^\# /etc/group | cut -d: -f1'
+      register: delete_group_actual_check
+
+    - name: assert delete group (check mode)
+      ansible.builtin.assert:
+        that:
+          - delete_group_check is changed
+          - '"ansibullgroup" in delete_group_actual_check.stdout_lines'
+
+    - name: delete group
+      community.openwrt.group:
+        name: ansibullgroup
+        state: absent
+      register: delete_group
+
+    - name: get result of delete group
+      ansible.builtin.raw: 'grep -E -v ^\# /etc/group | cut -d: -f1'
+      register: delete_group_actual
+
+    - name: assert delete group
+      ansible.builtin.assert:
+        that:
+          - delete_group is changed
+          - '"ansibullgroup" not in delete_group_actual.stdout_lines'
+
+    - name: delete group (idempotent)
+      community.openwrt.group:
+        name: ansibullgroup
+        state: absent
+      register: delete_group_again
+
+    - name: assert delete group (idempotent)
+      ansible.builtin.assert:
+        that:
+          - not delete_group_again is changed
+
+    # https://github.com/ansible/ansible/pull/78172
+    - block:
+        - name: Create a group
+          community.openwrt.group:
+            name: groupdeltest
+            gid: 2345
+            state: present
+
+        - name: Create user with primary group of groupdeltest
+          community.openwrt.lineinfile:
+            path: '/etc/passwd'
+            line: 'groupdeluser:x:2345:2345::/:/bin/false'
+            state: present
+
+        - name: Show we can't delete the group usually
+          community.openwrt.group:
+            name: groupdeltest
+            state: absent
+          ignore_errors: true
+          register: failed_delete
+
+        - name: assert we couldn't delete the group
+          ansible.builtin.assert:
+            that:
+              - failed_delete is failed
+
+        - name: force delete the group
+          community.openwrt.group:
+            name: groupdeltest
+            force: true
+            state: absent
+
+      always:
+        - name: Cleanup user
+          community.openwrt.lineinfile:
+            path: '/etc/passwd'
+            regex: 'groupdeluser:x:[0-9]+:[0-9]+::[^:]+:'
+            state: absent
+
+        - name: Cleanup group
+          community.openwrt.group:
+            name: groupdeltest
+            state: absent
+
+    # create system group
+
+    - name: remove group
+      community.openwrt.group:
+        name: ansibullgroup
+        state: absent
+
+    - name: create system group
+      community.openwrt.group:
+        name: ansibullgroup
+        state: present
+        system: true
+
+  always:
+    - name: remove test groups after test
+      community.openwrt.group:
+        name: '{{ item }}'
+        state: absent
+      loop:
+        - ansibullgroup
+        - ansibullgroup2
+        - ansibullgroup3
