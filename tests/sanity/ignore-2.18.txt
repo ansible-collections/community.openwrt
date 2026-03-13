@@ -6,6 +6,8 @@ plugins/modules/copy.sh shebang
 plugins/modules/copy.sh validate-modules:invalid-extension
 plugins/modules/file.sh shebang
 plugins/modules/file.sh validate-modules:invalid-extension
+plugins/modules/group.sh shebang
+plugins/modules/group.sh validate-modules:invalid-extension
 plugins/modules/lineinfile.sh shebang
 plugins/modules/lineinfile.sh validate-modules:invalid-extension
 plugins/modules/nohup.sh shebang
