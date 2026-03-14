@@ -122,8 +122,6 @@ jobs:
           - "3.14"
         scenario:
           - default
-          - role_init_install_recommended_false
-          - role_init_install_recommended_true
         exclude: &ansible-python-exclusions
           - ansible: stable-2.18
             python: "3.14"
@@ -194,6 +192,47 @@ jobs:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
 
+
+  molecule-roles:
+    name: Role M (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ansible: *ansible-versions
+        python: *python-versions
+        exclude: *ansible-python-exclusions
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/community/openwrt
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install ansible-core (${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+
+      - name: Install test dependencies
+        working-directory: ansible_collections/community/openwrt
+        run: pip install -r requirements-test.txt --disable-pip-version-check
+
+      - name: Run molecule for all role scenarios
+        working-directory: ansible_collections/community/openwrt
+        run: |
+          for scenario_dir in roles/*/molecule/*/; do
+            role=$(basename "$(dirname "$(dirname "$scenario_dir")")")
+            scenario=$(basename "$scenario_dir")
+            (cd "roles/$role" && molecule -vv test --scenario-name "$scenario")
+          done
+        env:
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
+          ANSIBLE_COLLECTIONS_PATHS: ${{ github.workspace }}
 
   ###
   # Unit tests (OPTIONAL)
@@ -292,6 +331,7 @@ jobs:
       - units
       - molintegration
       # - integration
+      - molecule-roles
 
     runs-on: ubuntu-latest
 
