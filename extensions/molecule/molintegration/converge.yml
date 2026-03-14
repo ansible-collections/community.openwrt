@@ -21,6 +21,7 @@
       - stat
       - sysctl
       - tempfile
+      - template
       - uci
   tasks:
     - name: Include targets
