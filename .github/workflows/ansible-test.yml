@@ -241,7 +241,7 @@ jobs:
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
-          ANSIBLE_COLLECTIONS_PATHS: ${{ github.workspace }}
+          ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}
 
   ###
   # Unit tests (OPTIONAL)
