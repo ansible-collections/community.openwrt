@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # Copyright (c) 2026, Alexei Znamensky (@russoz)
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -22,7 +22,9 @@ def make_platform(version: str) -> dict:
 
 def main() -> None:
     versions_file = Path(__file__).parent.parent.parent / "extensions" / "molecule" / "openwrt-versions.yml"
+    print(f"Ingesting versions from {versions_file}")
     versions = yaml.safe_load(versions_file.read_text())["versions"]
+    print(f"Versions loaded: {versions}")
 
     config = {
         "driver": {"name": "docker"},
@@ -31,7 +33,12 @@ def main() -> None:
 
     config_dir = Path.home() / ".config" / "molecule"
     config_dir.mkdir(parents=True, exist_ok=True)
-    (config_dir / "config.yml").write_text(yaml.dump(config, default_flow_style=False))
+    config_file = config_dir / "config.yml"
+    config_yaml = yaml.dump(config, default_flow_style=False)
+    print(f"Writing file {config_file}:\n{'=' * 40}\n{config_yaml}\n{'=' * 40}")
+    config_file.write_text(config_yaml)
+
+
 
 
 if __name__ == "__main__":
