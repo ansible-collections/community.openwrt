@@ -4,8 +4,8 @@
 
 from unittest import mock
 
-from ansible.plugins.loader import action_loader
 from ansible.plugins.action.template import ActionModule as TemplateActionModule
+from ansible.plugins.loader import action_loader
 
 
 class ActionModule(TemplateActionModule):

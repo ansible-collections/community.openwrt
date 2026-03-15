@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: tempfile
 short_description: Creates temporary files and directories on OpenWrt nodes

@@ -1,4 +1,4 @@
 ---
 # CHANGE THIS
 fixes:
-   - "/ansible_collections/community/openwrt/::"
+  - "/ansible_collections/community/openwrt/::"

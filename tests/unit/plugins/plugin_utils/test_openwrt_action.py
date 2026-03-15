@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import (
     ModuleNotFound,
@@ -14,9 +15,7 @@ from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action i
 )
 
 # Path to patch os.path.exists in the module under test
-_OPENWRT_ACTION_MODULE = (
-    "ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action"
-)
+_OPENWRT_ACTION_MODULE = "ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action"
 
 
 @pytest.fixture

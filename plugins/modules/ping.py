@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: ping
 short_description: Verify ability to communicate with OpenWrt targets

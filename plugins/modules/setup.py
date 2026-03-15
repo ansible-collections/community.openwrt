@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: setup
 short_description: Gather facts about OpenWrt systems

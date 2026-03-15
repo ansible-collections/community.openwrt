@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: file
 short_description: Manage files and file properties on OpenWrt targets

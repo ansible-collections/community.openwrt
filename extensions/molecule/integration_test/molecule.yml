@@ -28,4 +28,4 @@ provisioner:
   name: ansible
   config_options:
     defaults:
-      allow_broken_conditionals: True
+      allow_broken_conditionals: true

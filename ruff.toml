@@ -1,0 +1,36 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+target-version = "py311"
+line-length = 120
+
+[lint]
+# https://docs.astral.sh/ruff/rules/
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+    "E402",   # Module level import not at top of file
+    "E741",   # Ambiguous variable name
+    "UP012",  # unnecessary-encode-utf8
+    "UP015",  # Unnecessary mode argument
+]
+
+fixable = ["ALL"]
+unfixable = []
+
+dummy-variable-rgx = "^(_|dummy).*$"
+
+[lint.pycodestyle]
+max-line-length = 160
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "lf"
+docstring-code-format = false
+
+[lint.isort]
+known-first-party = [
+    "ansible_collections.community.openwrt",
+]
