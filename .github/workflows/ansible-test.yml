@@ -109,7 +109,7 @@ jobs:
           pull-request-change-detection: false
 
   molecule:
-    name: M (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+M[${{ matrix.scenario }}])
+    name: M (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -120,10 +120,6 @@ jobs:
           - "3.12"
           - "3.13"
           - "3.14"
-        scenario:
-          - default
-          - role_init_install_recommended_false
-          - role_init_install_recommended_true
         exclude: &ansible-python-exclusions
           - ansible: stable-2.18
             python: "3.14"
@@ -152,14 +148,17 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
+      - name: Set up molecule platforms config
+        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
+
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
-        run: molecule -vv test --scenario-name ${{ matrix.scenario }}
+        run: molecule -vv test -s default
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
 
-  molintegration:
+  molecule-integration:
     name: MI (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
@@ -187,6 +186,9 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
+      - name: Set up molecule platforms config
+        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
+
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
         run: molecule -vv test --scenario-name molintegration
@@ -194,6 +196,53 @@ jobs:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
 
+
+  molecule-roles:
+    name: MR (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ansible: *ansible-versions
+        python: *python-versions
+        exclude: *ansible-python-exclusions
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          path: ansible_collections/community/openwrt
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install ansible-core (${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+
+      - name: Install test dependencies
+        working-directory: ansible_collections/community/openwrt
+        run: pip install -r requirements-test.txt --disable-pip-version-check
+
+      - name: Set up molecule platforms config
+        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
+
+      - name: Run molecule for all role scenarios
+        working-directory: ansible_collections/community/openwrt
+        run: |
+          for scenario_dir in roles/*/molecule/*/; do
+            echo "scenario_dir = $scenario_dir"
+            role=$(basename "$(dirname "$(dirname "$scenario_dir")")")
+            scenario=$(basename "$scenario_dir")
+            echo "role         = $role"
+            echo "scenario     = $scenario"
+            (cd "roles/$role" && molecule -vv test --scenario-name "$scenario")
+          done
+        env:
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
+          ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}/ansible_collections
 
   ###
   # Unit tests (OPTIONAL)
@@ -290,8 +339,9 @@ jobs:
       - sanity
       - molecule
       - units
-      - molintegration
+      - molecule-integration
       # - integration
+      - molecule-roles
 
     runs-on: ubuntu-latest
 
