@@ -32,7 +32,7 @@
 #    https://docs.ansible.com/ansible/latest/community/collection_contributors/collection_requirements.html.
 
 name: CI
-on:
+on:  # yamllint disable-line rule:truthy
   # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
   push:
     branches:

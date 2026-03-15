@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: uci
 short_description: Controls OpenWrt UCI

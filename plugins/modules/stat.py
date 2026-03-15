@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: stat
 short_description: Retrieve file or file system status on OpenWrt targets

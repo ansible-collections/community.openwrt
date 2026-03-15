@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import os.path
-
 from tempfile import mkstemp
 
 from ansible.errors import AnsibleError

@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: opkg
 short_description: Manage packages with opkg on OpenWrt
