@@ -109,15 +109,11 @@ jobs:
           pull-request-change-detection: false
 
   molecule:
-    name: M - OpenWrt ${{ matrix.openwrt }} (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+M[${{ matrix.scenario }}])
+    name: M (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }}+M[${{ matrix.scenario }}])
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        openwrt: &openwrt-versions
-          - "25.12.0"
-          - "24.10.5"
-          - "23.05.6"
         ansible: *ansible-versions
         python: &python-versions
           - "3.11"
@@ -140,7 +136,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: ansible_collections/community/openwrt
 
@@ -162,7 +158,42 @@ jobs:
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
-          OPENWRT_VERSION: "${{ matrix.openwrt }}"
+
+  molintegration:
+    name: MI (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ansible: *ansible-versions
+        python: *python-versions
+        exclude: *ansible-python-exclusions
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          path: ansible_collections/community/openwrt
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install ansible-core (${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+
+      - name: Install test dependencies
+        working-directory: ansible_collections/community/openwrt
+        run: pip install -r requirements-test.txt --disable-pip-version-check
+
+      - name: Run molecule tests (default scenario)
+        working-directory: ansible_collections/community/openwrt
+        run: molecule -vv test --scenario-name molintegration
+        env:
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
+
 
   ###
   # Unit tests (OPTIONAL)
@@ -212,43 +243,43 @@ jobs:
   # multiple versions see the following for an example:
   # https://github.com/ansible-collections/community.zabbix/tree/master/.github/workflows
 
-  integration:
-    runs-on: ubuntu-latest
+  # integration:
+  #   runs-on: ubuntu-latest
 
-    name: I (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
-    strategy:
-      fail-fast: false
-      matrix:
-        ansible: *ansible-versions
-        python: *python-versions
-        exclude: *ansible-python-exclusions
+  #   name: I (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       ansible: *ansible-versions
+  #       python: *python-versions
+  #       exclude: *ansible-python-exclusions
 
-    steps:
-      - name: >-
-          Perform integration testing against
-          Ansible version ${{ matrix.ansible }}
-          under Python ${{ matrix.python }}
-        # See the documentation for the following GitHub action on
-        # https://github.com/ansible-community/ansible-test-gh-action/blob/main/README.md
-        uses: ansible-community/ansible-test-gh-action@release/v1
-        with:
-          ansible-core-version: ${{ matrix.ansible }}
-          # OPTIONAL command to run before invoking `ansible-test integration`
-          # pre-test-cmd:
-          target-python-version: ${{ matrix.python }}
-          testing-type: integration
-          # Uncomment to configure a codecov token.
-          # Check here whether a token is required: https://docs.codecov.com/docs/codecov-tokens
-          # Collections in the github.com/ansible-collections/ namespace usually do not need a token.
-          # codecov-token: ${{ secrets.CODECOV_TOKEN }}
-          # OPTIONAL If your integration tests require code
-          # from other collections, install them like this
-          test-deps: ansible.posix community.docker
-          # OPTIONAL If set to true, will test only against changed files,
-          # which should improve CI performance. See limitations on
-          # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
-          pull-request-change-detection: false
-          coverage: never
+  #   steps:
+  #     - name: >-
+  #         Perform integration testing against
+  #         Ansible version ${{ matrix.ansible }}
+  #         under Python ${{ matrix.python }}
+  #       # See the documentation for the following GitHub action on
+  #       # https://github.com/ansible-community/ansible-test-gh-action/blob/main/README.md
+  #       uses: ansible-community/ansible-test-gh-action@release/v1
+  #       with:
+  #         ansible-core-version: ${{ matrix.ansible }}
+  #         # OPTIONAL command to run before invoking `ansible-test integration`
+  #         # pre-test-cmd:
+  #         target-python-version: ${{ matrix.python }}
+  #         testing-type: integration
+  #         # Uncomment to configure a codecov token.
+  #         # Check here whether a token is required: https://docs.codecov.com/docs/codecov-tokens
+  #         # Collections in the github.com/ansible-collections/ namespace usually do not need a token.
+  #         # codecov-token: ${{ secrets.CODECOV_TOKEN }}
+  #         # OPTIONAL If your integration tests require code
+  #         # from other collections, install them like this
+  #         test-deps: ansible.posix community.docker
+  #         # OPTIONAL If set to true, will test only against changed files,
+  #         # which should improve CI performance. See limitations on
+  #         # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
+  #         pull-request-change-detection: false
+  #         coverage: never
 
   check: # This job does nothing and is only used for the branch protection
     # or multi-stage CI jobs, like making sure that all tests pass before
@@ -258,8 +289,9 @@ jobs:
     needs:
       - sanity
       - molecule
-      # - units
-      - integration
+      - units
+      - molintegration
+      # - integration
 
     runs-on: ubuntu-latest
 
