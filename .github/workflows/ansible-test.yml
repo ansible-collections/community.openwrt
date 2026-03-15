@@ -150,6 +150,9 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
+      - name: Set up molecule platforms config
+        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
+
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
         run: molecule -vv test --scenario-name ${{ matrix.scenario }}
@@ -184,6 +187,9 @@ jobs:
       - name: Install test dependencies
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
+
+      - name: Set up molecule platforms config
+        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
@@ -220,6 +226,9 @@ jobs:
       - name: Install test dependencies
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
+
+      - name: Set up molecule platforms config
+        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
 
       - name: Run molecule for all role scenarios
         working-directory: ansible_collections/community/openwrt

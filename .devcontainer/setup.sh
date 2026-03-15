@@ -8,6 +8,8 @@ sudo chown -R vscode:vscode /workspace/
 pip install -U pip
 pip install -r requirements-test.txt
 
+python3 /workspace/tests/utils/setup-molecule-platforms
+
 # export ANSIBLE_COLLECTIONS_PATH=/workspace:${ANSIBLE_COLLECTIONS_PATH}
 # ansible-galaxy collection install -v -r tests/integration/requirements.yml
 
