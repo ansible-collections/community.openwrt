@@ -228,6 +228,12 @@ jobs:
       - name: Set up molecule platforms config
         run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
 
+      - name: Install required Ansible collections
+        run: >-
+          ansible-galaxy collection install
+          -p ${{ github.workspace }}/ansible_collections
+          community.docker ansible.posix
+
       - name: Run molecule for all role scenarios
         working-directory: ansible_collections/community/openwrt
         run: |
