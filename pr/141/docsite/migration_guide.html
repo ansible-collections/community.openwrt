@@ -119,6 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../lineinfile_module.html">community.openwrt.lineinfile module – Manage lines in text files on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../nohup_module.html">community.openwrt.nohup module – Starts a command in background and returns</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../opkg_module.html">community.openwrt.opkg module – Manage packages with opkg on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package_facts_module.html">community.openwrt.package_facts module – Gather package facts in OpenWrt systems</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ping_module.html">community.openwrt.ping module – Verify ability to communicate with OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../service_module.html">community.openwrt.service module – Manage services on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../setup_module.html">community.openwrt.setup module – Gather facts about OpenWrt systems</a></li>
@@ -126,6 +127,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../stat_module.html">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sysctl_module.html">community.openwrt.sysctl module – Manage sysctl entries on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tempfile_module.html">community.openwrt.tempfile module – Creates temporary files and directories on OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../template_module.html">community.openwrt.template module – Template a file out to remote OpenWrt target</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
@@ -183,9 +185,10 @@ It provided modules and handlers as part of the role.</p>
 <p><code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> is a full Ansible collection with a defined namespace.
 It provides:</p>
 <ul class="simple">
-<li><p>Multiple modules (<code class="docutils literal notranslate"><span class="pre">community.openwrt.opkg</span></code>, <code class="docutils literal notranslate"><span class="pre">community.openwrt.uci</span></code>, etc.)</p></li>
+<li><p>Multiple modules (<code class="docutils literal notranslate"><span class="pre">community.openwrt.apk</span></code>, <code class="docutils literal notranslate"><span class="pre">community.openwrt.uci</span></code>, etc.)</p></li>
 <li><p>Multiple roles (<code class="docutils literal notranslate"><span class="pre">community.openwrt.init</span></code>, <code class="docutils literal notranslate"><span class="pre">community.openwrt.common</span></code>)</p></li>
 <li><p>Handlers and plugins organized in a standard collection structure</p></li>
+<li><p>Package Manager support for OpenWrt 25+ <code class="docutils literal notranslate"><span class="pre">apk</span></code> and legacy <code class="docutils literal notranslate"><span class="pre">opkg</span></code></p></li>
 </ul>
 </section>
 <section id="no-support-for-standard-ansible-modules">
@@ -302,7 +305,7 @@ use any group name or host pattern you prefer.</p>
 </div>
 </td>
 <td><div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install package</span>
-<span class="w">  </span><span class="nt">community.openwrt.opkg</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">community.openwrt.apk</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">luci</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
 </pre></div>
@@ -403,7 +406,7 @@ use any group name or host pattern you prefer.</p>
 <span class="w">    </span><span class="nt">community.openwrt.setup</span><span class="p">:</span>
 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install package</span>
-<span class="w">    </span><span class="nt">community.openwrt.opkg</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">community.openwrt.apk</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">luci</span>
 <span class="w">      </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
 
@@ -511,7 +514,7 @@ set when including the initialization role, as shown in the complete example bel
 <span class="w">      </span><span class="nt">community.openwrt.setup</span><span class="p">:</span>
 
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install packages</span>
-<span class="w">      </span><span class="nt">community.openwrt.opkg</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">community.openwrt.apk</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">item</span> <span class="cp">}}</span><span class="s">&quot;</span>
 <span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
 <span class="w">      </span><span class="nt">loop</span><span class="p">:</span>
@@ -551,6 +554,8 @@ set when including the initialization role, as shown in the complete example bel
 <li><p>Verify the collection is installed: <code class="docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code></p></li>
 <li><p>Check you are using the correct namespace prefix</p></li>
 <li><p>Ensure your Ansible version meets the minimum requirements (see the collection README)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">community.openwrt.opkg</span></code> was only available until OpenWrt 24 for 25+ you have to use
+<code class="docutils literal notranslate"><span class="pre">community.openwrt.apk</span></code> instead</p></li>
 </ul>
 </section>
 <section id="module-behavior-differences">
