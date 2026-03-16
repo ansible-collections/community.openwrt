@@ -225,12 +225,6 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
-      - name: Install required Ansible collections
-        run: >-
-          ansible-galaxy collection install
-          -p ${{ github.workspace }}/ansible_collections
-          community.docker ansible.posix
-
       - name: Set up molecule platforms config
         run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
 
@@ -248,7 +242,6 @@ jobs:
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
-          ANSIBLE_COLLECTIONS_PATH: ${{ github.workspace }}/ansible_collections
 
   ###
   # Unit tests (OPTIONAL)
