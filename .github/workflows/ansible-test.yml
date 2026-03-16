@@ -191,7 +191,7 @@ jobs:
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
-        run: molecule -vv test --scenario-name molintegration
+        run: molecule -vv test --scenario-name molecule_integration
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
@@ -225,14 +225,14 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
-      - name: Set up molecule platforms config
-        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
-
       - name: Install required Ansible collections
         run: >-
           ansible-galaxy collection install
           -p ${{ github.workspace }}/ansible_collections
           community.docker ansible.posix
+
+      - name: Set up molecule platforms config
+        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule-platforms
 
       - name: Run molecule for all role scenarios
         working-directory: ansible_collections/community/openwrt
