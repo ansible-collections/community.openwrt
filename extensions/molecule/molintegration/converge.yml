@@ -1,0 +1,32 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Converge
+  hosts: all
+  gather_facts: false
+  vars:
+    integration_tests_targets:
+      - apk
+      - command
+      - copy
+      - file
+      - lineinfile
+      - nohup
+      - opkg
+      - ping
+      - service
+      - setup
+      - slurp
+      - stat
+      - sysctl
+      - tempfile
+      - template
+      - uci
+  tasks:
+    - name: Include targets
+      ansible.builtin.include_role:
+        name: "{{ int_test }}"
+      loop: "{{ integration_tests_targets }}"
+      loop_control:
+        loop_var: int_test

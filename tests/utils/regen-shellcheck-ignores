@@ -19,7 +19,7 @@ from pathlib import Path
 
 
 class TitleParser(HTMLParser):
-    def __init__(self, body):
+    def __init__(self, body: str) -> None:
         super().__init__()
         self.in_title = False
         self.title_parts = []
@@ -38,14 +38,14 @@ class TitleParser(HTMLParser):
             self.title_parts.append(data)
 
     @property
-    def title(self):
+    def title(self) -> str:
         return html.unescape("".join(self.title_parts).strip())
 
 
 sc_desc_cache = {}
 
 
-def retrieve_sc_description(sc_code):
+def retrieve_sc_description(sc_code: str) -> str:
     try:
         return sc_desc_cache[sc_code]
     except KeyError:

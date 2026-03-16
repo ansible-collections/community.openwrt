@@ -1,4 +1,8 @@
 ---
+# Copyright (c) Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 - name: "Copy content to a temporary location"
   community.openwrt.copy:
     content: "test content"
@@ -92,6 +96,18 @@
     that:
       - cat_remote.stdout == "dummy file content from controller"
 
+- name: Copy file from controller to remote directory
+  community.openwrt.copy:
+    src: "{{ dummy_file.dest }}"
+    dest: "/tmp/test/"
+  register: copy_src_out2
+
+- name: Assert file copy was changed
+  ansible.builtin.assert:
+    that:
+      - copy_src_out2 is changed
+      - copy_src_out2.dest.replace("//", "/") == "/tmp/test/dummy_source_file.txt"
+
 - name: Clean up test files (controller)
   ansible.builtin.file:
     path: /tmp/dummy_source_file.txt
@@ -107,3 +123,4 @@
     - "/tmp/test_copy_file.txt"
     - "/tmp/test_copy_remote_file.txt"
     - "/tmp/test_copy_noforce.txt"
+    - "/tmp/test/dummy_source_file.txt"

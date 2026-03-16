@@ -5,8 +5,16 @@
 driver:
   name: docker
 platforms:
-  - name: openwrt_x86_64-${OPENWRT_VERSION:-24.10.4}
-    image: openwrt/rootfs:x86_64-${OPENWRT_VERSION:-24.10.4}
+  - name: openwrt2512
+    image: openwrt/rootfs:x86_64-25.12.0
+    command: /sbin/init
+    pre_build_image: true
+  - name: openwrt2410
+    image: openwrt/rootfs:x86_64-24.10.5
+    command: /sbin/init
+    pre_build_image: true
+  - name: openwrt2305
+    image: openwrt/rootfs:x86_64-23.05.6
     command: /sbin/init
     pre_build_image: true
 scenario:

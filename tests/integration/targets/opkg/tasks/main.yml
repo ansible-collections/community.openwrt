@@ -7,34 +7,33 @@
   ansible.builtin.include_role:
     name: community.openwrt.init
 
-- name: Skip tests when package manager is not opkg
-  ansible.builtin.meta: end_host
-  when: openwrt_package_manager != "opkg"
+- name: Run tests when package manager is opkg
+  when: openwrt_package_manager == "opkg"
+  block:
+    - name: Install a package (htop)
+      community.openwrt.opkg:
+        name: "htop"
+        state: present
+      register: opkg_install
 
-- name: Install a package (htop)
-  community.openwrt.opkg:
-    name: "htop"
-    state: present
-  register: opkg_install
+    - name: Assert package install succeeded
+      ansible.builtin.assert:
+        that:
+          - opkg_install is succeeded
 
-- name: Assert package install succeeded
-  ansible.builtin.assert:
-    that:
-      - opkg_install is succeeded
+    - name: "Verify package is installed"
+      community.openwrt.command:
+        cmd: opkg status htop
+      register: opkg_verify
+      failed_when: opkg_verify.rc != 0
 
-- name: "Verify package is installed"
-  community.openwrt.command:
-    cmd: opkg status htop
-  register: opkg_verify
-  failed_when: opkg_verify.rc != 0
+    - name: "Remove the package"
+      community.openwrt.opkg:
+        name: "htop"
+        state: absent
+      register: opkg_remove
 
-- name: "Remove the package"
-  community.openwrt.opkg:
-    name: "htop"
-    state: absent
-  register: opkg_remove
-
-- name: Assert package removal succeeded
-  ansible.builtin.assert:
-    that:
-      - opkg_remove is succeeded
+    - name: Assert package removal succeeded
+      ansible.builtin.assert:
+        that:
+          - opkg_remove is succeeded

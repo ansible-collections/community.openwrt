@@ -18,6 +18,9 @@ files:
   $module_utils/:
     labels: module_utils
     maintainers: $team_repo_mgrs
+  $modules/:
+    ignored: gekmihesg
+    maintainers: $team_repo_mgrs
   $modules/apk.py:
     maintainers: kbialek
   $modules/apk.sh:
@@ -70,6 +73,12 @@ files:
     maintainers: $team_repo_mgrs
   $modules/sysctl.sh:
     maintainers: $team_repo_mgrs
+  $modules/tempfile.py:
+    maintainers: zeerayne
+  $modules/tempfile.sh:
+    maintainers: zeerayne
+  $modules/template.py:
+    maintainers: zeerayne
   $modules/uci.py:
     maintainers: $team_repo_mgrs
   $modules/uci.sh:

@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: copy
 short_description: Copy files to remote OpenWrt devices

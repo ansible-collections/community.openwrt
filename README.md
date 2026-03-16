@@ -1,3 +1,9 @@
+<!--
+Copyright (c) Ansible Project
+GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 # Community OpenWrt Collection
 
 [![CI](https://github.com/ansible-collections/community.openwrt/actions/workflows/ansible-test.yml/badge.svg)](https://github.com/ansible-collections/community.openwrt/actions/workflows/ansible-test.yml)
@@ -15,7 +21,7 @@ We encourage new users to read the [User Guide](https://ansible-collections.gith
 and the [How-To Guides](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/howto_guide.html).
 
 If you are migrating from the `gekmihesg.openwrt` role, please read the
-[Migration Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_guide.html).
+[Migration Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_guide.html). If you are upgrading to OpenWrt >= 25.x, please read the  [Migration APK Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_apk_guide.html).
 
 Check the [complete documentation](https://ansible-collections.github.io/community.openwrt/branch/main/index.html) for the collection.
 Please note that this documentation reflects the state of the development branch.
@@ -104,12 +110,12 @@ The collection is currently tested against OpenWrt versions:
 
 - 23.05 ([EOL](https://forum.openwrt.org/t/openwrt-23-05-6-service-release/239506))
 - 24.10
-- 25.12 (Release Candidate)
+- 25.12
 
 Keep in mind that OpenWrt
 [supports only two or three different release numbers](https://openwrt.org/docs/guide-developer/security#support_status).
-As defined in [Release and Maintenance](MAINTENANCE.md),
-the collection supports at least one EOL version of OpenWrt.
+As defined in [Release and Maintenance](MAINTENANCE.md), whenever a major version of community.openwrt is released,
+the collection support allows only one EOL version of OpenWrt.
 
 ### Testing Requirements
 
@@ -140,7 +146,7 @@ Please check the included content on the [Ansible Galaxy page for this collectio
       community.openwrt.setup:
 
     - name: Install a package
-      community.openwrt.opkg:
+      community.openwrt.apk:
         name: luci
         state: present
 

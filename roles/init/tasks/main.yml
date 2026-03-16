@@ -1,4 +1,8 @@
 ---
+# Copyright (c) Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 - name: Configure Ansible connection settings for OpenWrt
   ansible.builtin.set_fact:
     openwrt_ssh: "{{ openwrt_ssh }}"
@@ -35,6 +39,7 @@
   ansible.builtin.set_fact:
     openwrt_package_manager: "{{ 'apk' if has_apk else ('opkg' if has_opkg else None) }}"
   failed_when: not openwrt_package_manager
+  check_mode: false
 
 - name: Install recommended packages for module compatibility
   when: openwrt_install_recommended_packages | bool

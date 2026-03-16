@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: nohup
 short_description: Starts a command in background and returns

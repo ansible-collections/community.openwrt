@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: service
 short_description: Manage services on OpenWrt targets

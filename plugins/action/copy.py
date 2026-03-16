@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os.path
 from tempfile import mkstemp
 
 from ansible.errors import AnsibleError
@@ -84,6 +85,7 @@ class ActionModule(OpenwrtActionBase):
 
         self._task.args = self._task.args.copy()
         self._task.args["src"] = tmp_src
+        self._task.args["_original_basename"] = os.path.basename(source)
         self._task.args.pop("content", None)
         return super(ActionModule, self).run(tmp, task_vars)
 

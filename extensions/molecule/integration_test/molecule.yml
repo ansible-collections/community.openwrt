@@ -5,16 +5,16 @@
 driver:
   name: docker
 platforms:
-  - name: openwrt_x86_64-25.12.0-rc4
-    image: openwrt/rootfs:x86_64-25.12.0-rc4
+  - name: openwrt_x86_64-25.12.0
+    image: ghcr.io/openwrt/rootfs:x86_64-25.12.0
     command: /sbin/init
     pre_build_image: true
-  - name: openwrt_x86_64-24.10.4
-    image: openwrt/rootfs:x86_64-24.10.4
+  - name: openwrt_x86_64-24.10.5
+    image: ghcr.io/openwrt/rootfs:x86_64-24.10.5
     command: /sbin/init
     pre_build_image: true
   - name: openwrt_x86_64-23.05.6
-    image: openwrt/rootfs:x86_64-23.05.6
+    image: ghcr.io/openwrt/rootfs:x86_64-23.05.6
     command: /sbin/init
     pre_build_image: true
 scenario:
@@ -26,6 +26,8 @@ scenario:
 # Ensure generated ansible.cfg allows legacy/broken conditionals used by some drivers
 provisioner:
   name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/tests/integration/targets"
   config_options:
     defaults:
-      allow_broken_conditionals: True
+      allow_broken_conditionals: true

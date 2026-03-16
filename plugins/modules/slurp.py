@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: slurp
 short_description: Slurps a file from remote OpenWrt nodes

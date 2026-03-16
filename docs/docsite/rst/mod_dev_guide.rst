@@ -17,7 +17,10 @@ installed on the OpenWrt devices - all the code is written in plain shell script
 There are skills that are going to help you immensely if you intend to work on Ansible modules for ``community.openwrt``:
 
 * A fair understanding of how modules work in general. Having contributed with Python-based modules will definitely help you.
-* A very good experience with shell scripts and all its idiosyncrasies.
+* A very good experience with shell scripts and its idiosyncrasies.
+
+You are welcome to use AI to help you write modules, roles and anything - but remember that your code will be your responsibility,
+so you MUST understand what is happening in it.
 
 Challenges
 ^^^^^^^^^^^
@@ -87,7 +90,10 @@ Lifecycle
 Every shell module executed via the wrapper MUST implement the canonical lifecycle functions. The wrapper will invoke these functions in a strict sequence; modules must not rely on ad-hoc top-level execution.
 
   init()
-      Perform setup, parameter validation and any checks that should prevent ``main`` from running. If ``init`` fails, exit non‑zero to stop execution.
+      Perform setup. If ``init`` fails, exit non‑zero to stop execution.
+
+  validate()
+      Perform parameter validation and any checks that should prevent ``main`` from running.
 
   main()
       Implement the module's primary behaviour here.
@@ -99,21 +105,23 @@ Example (module skeleton):
 
 .. code-block:: sh
 
-  PARAMS="name/s state/s"
-
   init() {
-    [ "$state" != "present" -a "$state" != "absent" ] && fail "state must be one of: present, absent"
+      PARAMS="name/s state/s"
+  }
+
+  validate() {
+      [ "$state" != "present" -a "$state" != "absent" ] && fail "state must be one of: present, absent"
   }
 
   main() {
-    # do work here
-    changed
-    json_add_string msg "ok"
+      # do work here
+      changed
+      json_add_string msg "ok"
   }
 
   cleanup() {
-    # remove temporaries
-    :
+      # remove temporaries
+      :
   }
 
 
@@ -199,14 +207,14 @@ Example (use JSON helpers in ``main``):
 .. code-block:: sh
 
   main() {
-    json_set_namespace result
-    json_init
-    json_add_boolean changed 0
-    json_add_string msg "All good"
-    json_add_object ansible_facts
-    json_add_string my_fact "value"
-    json_close_object
-    json_dump
+      json_set_namespace result
+      json_init
+      json_add_boolean changed 0
+      json_add_string msg "All good"
+      json_add_object ansible_facts
+      json_add_string my_fact "value"
+      json_close_object
+      result=$(json_dump)
   }
 
 .. seealso::

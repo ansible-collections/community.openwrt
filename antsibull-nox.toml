@@ -1,0 +1,37 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+[vcs]
+vcs = "git"
+development_branch = "main"
+
+[sessions]
+
+[sessions.lint]
+code_files = ["."]
+run_isort = false
+run_black = false
+run_ruff_autofix = true
+ruff_autofix_config = "ruff.toml"
+ruff_autofix_select = ["I"]
+run_ruff_check = true
+ruff_check_config = "ruff.toml"
+run_ruff_format = true
+ruff_format_config = "ruff.toml"
+run_flake8 = false
+run_pylint = false
+run_yamllint = true
+yamllint_config = ".yamllint"
+run_mypy = false
+
+[sessions.license_check]
+
+[sessions.extra_checks]
+run_no_unwanted_files = true
+no_unwanted_files_module_extensions = [".py", ".sh"]
+no_unwanted_files_yaml_extensions = [".yml"]
+run_no_trailing_whitespace = true
+
+[sessions.build_import_check]
+run_galaxy_importer = true

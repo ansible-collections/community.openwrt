@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-
 DOCUMENTATION = r"""
 module: lineinfile
 short_description: Manage lines in text files on OpenWrt targets
