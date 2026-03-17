@@ -14,7 +14,7 @@ def make_platform(version: str) -> dict:
     major, minor, *_ = version.split(".")
     return {
         "name": f"openwrt{major}{minor}",
-        "image": f"openwrt/rootfs:x86_64-{version}",
+        "image": f"ghcr.io/openwrt/rootfs:x86_64-{version}",
         "command": "/sbin/init",
         "pre_build_image": True,
     }
