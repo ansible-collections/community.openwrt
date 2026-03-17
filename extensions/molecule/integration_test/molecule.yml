@@ -4,19 +4,6 @@
 
 driver:
   name: docker
-platforms:
-  - name: openwrt_x86_64-25.12.0
-    image: ghcr.io/openwrt/rootfs:x86_64-25.12.0
-    command: /sbin/init
-    pre_build_image: true
-  - name: openwrt_x86_64-24.10.5
-    image: ghcr.io/openwrt/rootfs:x86_64-24.10.5
-    command: /sbin/init
-    pre_build_image: true
-  - name: openwrt_x86_64-23.05.6
-    image: ghcr.io/openwrt/rootfs:x86_64-23.05.6
-    command: /sbin/init
-    pre_build_image: true
 scenario:
   test_sequence:
     - create
