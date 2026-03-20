@@ -11,7 +11,7 @@ case "$CLI_VERBOSITY" in
     -v|-vv|-vvv|-vvvv|"") :;;
     *) echo "runme.sh: invalid parameter ($CLI_VERBOSITY)" >&2; exit 1 ;;
 esac
-OPENWRT_VERSION="${OPENWRT_VERSION:-24.10.5}"
+OPENWRT_VERSION="${OPENWRT_VERSION:-25.12.1}"
 
 export TEST_TARGET_ROLE OPENWRT_VERSION
 
