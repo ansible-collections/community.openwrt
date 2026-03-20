@@ -6,6 +6,8 @@ plugins/modules/copy.sh shebang
 plugins/modules/copy.sh validate-modules:invalid-extension
 plugins/modules/file.sh shebang
 plugins/modules/file.sh validate-modules:invalid-extension
+plugins/modules/group.sh shebang
+plugins/modules/group.sh validate-modules:invalid-extension
 plugins/modules/lineinfile.sh shebang
 plugins/modules/lineinfile.sh validate-modules:invalid-extension
 plugins/modules/nohup.sh shebang
@@ -43,6 +45,7 @@ plugins/modules/file.sh shellcheck:SC2046   # Quote this to prevent word splitti
 plugins/modules/file.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
 plugins/modules/file.sh shellcheck:SC2154   # var is referenced but not assigned - https://www.shellcheck.net/wiki/SC2154
 plugins/modules/file.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166
+plugins/modules/group.sh shellcheck:SC2154   # var is referenced but not assigned - https://www.shellcheck.net/wiki/SC2154
 plugins/modules/lineinfile.sh shellcheck:SC2015   # Note that `A && B || C` is not if-then-else. C may run when A is true - https://www.shellcheck.net/wiki/SC2015
 plugins/modules/lineinfile.sh shellcheck:SC2016   # Expressions don't expand in single quotes, use double quotes for that - https://www.shellcheck.net/wiki/SC2016
 plugins/modules/lineinfile.sh shellcheck:SC2154   # var is referenced but not assigned - https://www.shellcheck.net/wiki/SC2154
