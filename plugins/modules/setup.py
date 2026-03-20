@@ -65,12 +65,12 @@ ansible_facts:
       description: The distribution version.
       returned: always
       type: str
-      sample: 22.03.5
+      sample: 25.12.1
     ansible_distribution_major_version:
       description: The major version of the distribution.
       returned: always
       type: str
-      sample: "22"
+      sample: "25"
     ansible_distribution_release:
       description: The distribution release codename.
       returned: always
