@@ -2,10 +2,10 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-- name: Verify init role works when installing recommended packages
+- name: Verify init role works with recommended packages installed
   hosts: all
   gather_facts: false
   roles:
     - role: community.openwrt.init
       vars:
-        openwrt_install_recommended_packages: false
+        openwrt_install_recommended_packages: true
