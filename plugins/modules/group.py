@@ -39,7 +39,7 @@ options:
     description:
       - This option allows to change the group ID to a non-unique value. Requires O(gid).
     type: bool
-    default: no
+    default: false
   gid_min:
     description:
       - Sets the GID_MIN value for group creation.

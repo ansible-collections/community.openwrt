@@ -12,7 +12,7 @@ Community OpenWrt How-To Guide
 Welcome to the Community OpenWrt How-To Guide! This is a collection of recipes that will help you
 using the ``community.openwrt`` role in real world scenarios.
 
-Most OpenWrt devices have a very small footprint and there is no space available to install Python. Based on this constraint, virtually all of the standard Ansible modules are not available. 
+Most OpenWrt devices have a very small footprint and there is no space available to install Python. Based on this constraint, virtually all of the standard Ansible modules are not available.
 
 It is a design rule of ``community.openwrt`` not to require Python, rather providing modules based on shell scripts (``/bin/sh``) instead.
 

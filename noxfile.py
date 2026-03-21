@@ -62,10 +62,8 @@ def release(session: nox.Session):
     with open("galaxy.yml") as galaxy_file:
         galaxy_file_lines = galaxy_file.readlines()
         galaxy = yaml.safe_load("".join(galaxy_file_lines))
-    if version != galaxy['version']:
-        session.error(
-            f"Version specified ({version}) differs from version in galaxy.yml: {galaxy['version']})"
-        )
+    if version != galaxy["version"]:
+        session.error(f"Version specified ({version}) differs from version in galaxy.yml: {galaxy['version']})")
 
     session.run("git", "checkout", "-b", release_branch, external=True)
     session.run("antsibull-changelog", "release", "--refresh-plugins")

@@ -60,7 +60,7 @@ This collection does **not** include monkey patching. If you are migrating playb
 standard Ansible modules (such as ``ansible.builtin.*``), you must update them to use the
 equivalent ``community.openwrt.*`` implementation.
 
-Attempting to use standard modules like ``fetch`` or ``template`` 
+Attempting to use standard modules like ``fetch`` or ``template``
 (see `Issue #63 <https://github.com/ansible-collections/community.openwrt/issues/63>`_)
 will typically fail with an error indicating missing Python:
 
@@ -69,8 +69,8 @@ will typically fail with an error indicating missing Python:
 Workarounds
 -----------
 
-There are some easy work-arounds until native equivalents are added to ``community.openwrt``. 
-For example, you can use the ``lookup`` plugin along with ``community.openwrt.copy``  
+There are some easy work-arounds until native equivalents are added to ``community.openwrt``.
+For example, you can use the ``lookup`` plugin along with ``community.openwrt.copy``
 as a replacement for ``ansible.builtin.template``:
 
 .. code-block:: yaml+jinja

@@ -9,7 +9,6 @@ from tempfile import mkstemp
 
 from ansible.errors import AnsibleError
 from ansible.module_utils.common.text.converters import to_bytes
-from ansible.utils.hashing import checksum
 
 from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import OpenwrtActionBase
 
@@ -30,9 +29,9 @@ class ActionModule(OpenwrtActionBase):
 
         result = {}
 
-        source = self._task.args.get("src", None)
-        dest = self._task.args.get("dest", None)
-        content = self._task.args.get("content", None)
+        source = self._task.args.get("src")
+        dest = self._task.args.get("dest")
+        content = self._task.args.get("content")
 
         if not dest:
             result["failed"] = True
@@ -65,14 +64,6 @@ class ActionModule(OpenwrtActionBase):
                 result["msg"] = str(e)
                 return result
 
-        # Get checksum of source file
-        try:
-            source_checksum = checksum(source)
-        except Exception as e:
-            result["failed"] = True
-            result["msg"] = f"Failed to checksum source file: {e}"
-            return result
-
         # Create remote temp directory
         try:
             tmp_dir = self._make_tmp_path()
@@ -88,7 +79,7 @@ class ActionModule(OpenwrtActionBase):
         self._task.args["src"] = tmp_src
         self._task.args["_original_basename"] = os.path.basename(source)
         self._task.args.pop("content", None)
-        return super(ActionModule, self).run(tmp, task_vars)
+        return super().run(tmp, task_vars)
 
     def _create_content_tempfile(self, content):
         """Create a temporary file with the given content"""

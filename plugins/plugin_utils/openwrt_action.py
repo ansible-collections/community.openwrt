@@ -36,7 +36,7 @@ class OpenwrtActionBase(ActionBase):
         if task_vars is None:
             task_vars = {}
 
-        result = super(OpenwrtActionBase, self).run(tmp, task_vars)
+        result = super().run(tmp, task_vars)
         del tmp  # not used directly
 
         module_name = self._task.action.split(".")[-1]

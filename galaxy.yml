@@ -14,7 +14,7 @@ authors:
 description: >-
   The community.openwrt collection enables management of OpenWrt devices
   without Python installed by using shell-based modules.
-license_file: LICENSE
+license_file: LICENSES/GPL-3.0-or-later.txt
 tags:
   - openwrt
   - networking

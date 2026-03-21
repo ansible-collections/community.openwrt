@@ -132,7 +132,7 @@ EXAMPLES = r"""
       ssid: My SSID
     value:
       encryption: none
-    replace: yes
+    replace: true
 
 # Find a matching wifi-iface and delete it.
 - community.openwrt.uci:
