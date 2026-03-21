@@ -31,7 +31,20 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
             });
-            const files = data.map(f => f.filename).join('\n');
+
+            const EXCLUDE = [
+              /^\.[a-z]/,
+              /^(extensions|docs|tests)\//,
+              /^roles\/\w+\/molecule\//,
+              /^(meta|LICENSES|changelogs)\//,
+              /^\w+\.(toml|md)$/,
+              /^noxfile\.py$/,
+              /^requirements-test\.txt$/,
+            ];
+            const files = data
+              .map(f => f.filename)
+              .filter(f => !EXCLUDE.some(re => re.test(f)))
+              .join('\n');
             fs.writeFileSync('/tmp/component.txt',
               `<!-- component-name-start -->\n${files}\n<!-- component-name-end -->`
             );
