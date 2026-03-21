@@ -1,14 +1,17 @@
 ## SUMMARY
 <!-- Describe the change below, including rationale and design decisions -->
 
-<!-- HINT: Include "Fixes #nnn" if you are fixing an existing issue -->
+
+<!-- If you are fixing an existing issue, uncomment the line below and adjust the number -->
+<!-- Fixes #nnnn -->
+
 <!-- See https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/using-keywords-in-issues-and-pull-requests -->
 
+
 <!-- Please do not forget to include a changelog fragment:
-      https://docs.ansible.com/projects/ansible/devel/community/collection_development_process.html#creating-changelog-fragments
-      No need to include one for docs-only or test-only PR, and for new plugin/module PRs.
-      Read about more details in CONTRIBUTING.md.
-      -->
+     https://docs.ansible.com/projects/ansible/devel/community/collection_development_process.html#creating-changelog-fragments
+     No need to include one for docs-only or test-only PR, and for new plugin/module PRs.
+     Read about more details in CONTRIBUTING.md. -->
 
 ## ISSUE TYPE
 <!-- Pick one or more below and delete the rest.
@@ -21,7 +24,9 @@
 - Test Pull Request
 
 ## COMPONENT NAME
-<!-- Write the SHORT NAME of the module, plugin, task or feature below. -->
+<!-- The comment below will be replaced with the files changed in this PR.
+     In case you want to do it, remove the comment and write the SHORT NAME of the modules, plugins, tasks or features below. -->
+<!-- COMPONENTS -->
 
 ## ADDITIONAL INFORMATION
 <!-- Include additional information to help people understand the change here -->
