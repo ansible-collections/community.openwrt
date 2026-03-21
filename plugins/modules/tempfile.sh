@@ -14,6 +14,7 @@ init() {
     RESPONSE_VARS="path"
 }
 
+# ni
 main() {
     local mktemp_cmd="mktemp"
     case "${state}" in
