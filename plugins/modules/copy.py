@@ -2,6 +2,7 @@
 # Copyright (c) 2017 Markus Weippert
 # Copyright (c) 2025 Alexei Znamensky
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
 

@@ -2,6 +2,7 @@
 # shellcheck shell=ash
 # Copyright (c) 2025 Krzysztof Bialek/Markus Weippert
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 query_package() {
     # apk info returns 0 if installed, 1 if not
