@@ -24,9 +24,11 @@
 - Test Pull Request
 
 ## COMPONENT NAME
-<!-- The comment below will be replaced with the files changed in this PR.
-     In case you want to do it, remove the comment and write the SHORT NAME of the modules, plugins, tasks or features below. -->
-<!-- COMPONENTS -->
+<!-- This section will be filled automatically with the files changed in this PR.
+     In case you want to do it, remove the start/end comments and
+     write the SHORT NAME of the modules, plugins, tasks or features below. -->
+<!-- component-name-start -->
+<!-- component-name-end -->
 
 ## ADDITIONAL INFORMATION
 <!-- Include additional information to help people understand the change here -->
