@@ -23,7 +23,7 @@ DOCUMENTATION:
   notes:
     - This module is part of the internal implementation of the community.openwrt collection.
     - It should not be invoked directly in playbooks.
-    - All OpenWrt modules (command, copy, file, uci, etc.) use this wrapper mechanism internally.
+    - All OpenWrt modules use this wrapper mechanism internally.
   seealso:
     - module: community.openwrt.command
     - module: community.openwrt.uci
@@ -34,4 +34,3 @@ DOCUMENTATION:
 EXAMPLES: |
   # This module is not intended to be used directly in playbooks.
   # It is invoked automatically by action plugins.
-  # See documentation for individual modules like community.openwrt.uci
