@@ -1,0 +1,46 @@
+---
+# Copyright (c) Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Populate Component Name
+
+on:
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  update-pr-description:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Build changed files list
+        id: changed
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | sed 's/^/- /' \
+            | tr '\n' '\001')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+      - name: Write files to temp file
+        run: |
+          echo "<!-- component-name-start -->" > /tmp/component.txt
+          printf '${{ steps.changed.outputs.files }}' \
+            | tr '\001' '\n' >> /tmp/component.txt
+          echo "<!-- component-name-end -->" >> /tmp/component.txt
+
+      - name: Update PR description
+        uses: nefrob/pr-description@v1.2.0
+        with:
+          content: /tmp/component.txt
+          contentIsFilePath: true
+          regex: "<!-- component-name-start -->.*?<!-- component-name-end -->"
+          regexFlags: ims
+          token: ${{ secrets.GITHUB_TOKEN }}
