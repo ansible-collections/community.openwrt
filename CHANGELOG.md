@@ -2,30 +2,53 @@
 
 **Topics**
 
-- <a href="#v1-1-0">v1\.1\.0</a>
+- <a href="#v1-2-0">v1\.2\.0</a>
     - <a href="#release-summary">Release Summary</a>
-    - <a href="#minor-changes">Minor Changes</a>
     - <a href="#bugfixes">Bugfixes</a>
     - <a href="#new-modules">New Modules</a>
-- <a href="#v1-0-0">v1\.0\.0</a>
+- <a href="#v1-1-0">v1\.1\.0</a>
     - <a href="#release-summary-1">Release Summary</a>
-- <a href="#v0-4-0">v0\.4\.0</a>
-    - <a href="#release-summary-2">Release Summary</a>
-    - <a href="#minor-changes-1">Minor Changes</a>
+    - <a href="#minor-changes">Minor Changes</a>
+    - <a href="#bugfixes-1">Bugfixes</a>
     - <a href="#new-modules-1">New Modules</a>
-- <a href="#v0-3-0">v0\.3\.0</a>
+- <a href="#v1-0-0">v1\.0\.0</a>
+    - <a href="#release-summary-2">Release Summary</a>
+- <a href="#v0-4-0">v0\.4\.0</a>
     - <a href="#release-summary-3">Release Summary</a>
-- <a href="#v0-2-0">v0\.2\.0</a>
-    - <a href="#release-summary-4">Release Summary</a>
-    - <a href="#minor-changes-2">Minor Changes</a>
+    - <a href="#minor-changes-1">Minor Changes</a>
     - <a href="#new-modules-2">New Modules</a>
-- <a href="#v0-1-0">v0\.1\.0</a>
+- <a href="#v0-3-0">v0\.3\.0</a>
+    - <a href="#release-summary-4">Release Summary</a>
+- <a href="#v0-2-0">v0\.2\.0</a>
     - <a href="#release-summary-5">Release Summary</a>
+    - <a href="#minor-changes-2">Minor Changes</a>
+    - <a href="#new-modules-3">New Modules</a>
+- <a href="#v0-1-0">v0\.1\.0</a>
+    - <a href="#release-summary-6">Release Summary</a>
+
+<a id="v1-2-0"></a>
+## v1\.2\.0
+
+<a id="release-summary"></a>
+### Release Summary
+
+Regular release
+
+<a id="bugfixes"></a>
+### Bugfixes
+
+* copy \- fix destination file name if <code>dest</code> is a directory \([https\://github\.com/ansible\-collections/community\.openwrt/pull/165](https\://github\.com/ansible\-collections/community\.openwrt/pull/165)\)\.
+* openwrt\_action plugin utils \- exception classes were not calling the parent\'s constructor correctly \([https\://github\.com/ansible\-collections/community\.openwrt/pull/161](https\://github\.com/ansible\-collections/community\.openwrt/pull/161)\)\.
+
+<a id="new-modules"></a>
+### New Modules
+
+* community\.openwrt\.group \- Add or remove groups\.
 
 <a id="v1-1-0"></a>
 ## v1\.1\.0
 
-<a id="release-summary"></a>
+<a id="release-summary-1"></a>
 ### Release Summary
 
 See [https\://github\.com/ansible\-collections/community\.openwrt/blob/main/CHANGELOG\.md](https\://github\.com/ansible\-collections/community\.openwrt/blob/main/CHANGELOG\.md) for all changes\.
@@ -38,13 +61,13 @@ See [https\://github\.com/ansible\-collections/community\.openwrt/blob/main/CHAN
 * setup \- collect <code>ansible\_date\_time</code> facts as well \([https\://github\.com/ansible\-collections/community\.openwrt/issues/52](https\://github\.com/ansible\-collections/community\.openwrt/issues/52)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/138](https\://github\.com/ansible\-collections/community\.openwrt/pull/138)\)\.
 * setup \- report <code>ansible\_pkg\_mgr</code> fact with the detected package manager used \([https\://github\.com/ansible\-collections/community\.openwrt/pull/136](https\://github\.com/ansible\-collections/community\.openwrt/pull/136)\)\.
 
-<a id="bugfixes"></a>
+<a id="bugfixes-1"></a>
 ### Bugfixes
 
 * ping \- module code must indicate it does not support check mode \([https\://github\.com/ansible\-collections/community\.openwrt/pull/132](https\://github\.com/ansible\-collections/community\.openwrt/pull/132)\)\.
 * setup \- generate an empty factoid when the underlying command <code>ubus call</code> returns empty \([https\://github\.com/ansible\-collections/community\.openwrt/issues/149](https\://github\.com/ansible\-collections/community\.openwrt/issues/149)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/151](https\://github\.com/ansible\-collections/community\.openwrt/pull/151)\)\.
 
-<a id="new-modules"></a>
+<a id="new-modules-1"></a>
 ### New Modules
 
 * community\.openwrt\.package\_facts \- Gather package facts in OpenWrt systems\.
@@ -53,7 +76,7 @@ See [https\://github\.com/ansible\-collections/community\.openwrt/blob/main/CHAN
 <a id="v1-0-0"></a>
 ## v1\.0\.0
 
-<a id="release-summary-1"></a>
+<a id="release-summary-2"></a>
 ### Release Summary
 
 First GA release of the community\.openwrt collection\.
@@ -61,7 +84,7 @@ First GA release of the community\.openwrt collection\.
 <a id="v0-4-0"></a>
 ## v0\.4\.0
 
-<a id="release-summary-2"></a>
+<a id="release-summary-3"></a>
 ### Release Summary
 
 Establish mechanism for integration testing\.
@@ -83,7 +106,7 @@ Modules now have lifecycle functions <code>init\(\)</code> and <code>validate\(\
 * uci \- use functions <code>init\(\)</code> and <code>validate\(\)</code> \([https\://github\.com/ansible\-collections/community\.openwrt/issues/47](https\://github\.com/ansible\-collections/community\.openwrt/issues/47)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/67](https\://github\.com/ansible\-collections/community\.openwrt/pull/67)\)\.
 * wrapper \- use functions <code>init\(\)</code> and <code>validate\(\)</code> \([https\://github\.com/ansible\-collections/community\.openwrt/issues/47](https\://github\.com/ansible\-collections/community\.openwrt/issues/47)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/67](https\://github\.com/ansible\-collections/community\.openwrt/pull/67)\)\.
 
-<a id="new-modules-1"></a>
+<a id="new-modules-2"></a>
 ### New Modules
 
 * community\.openwrt\.apk \- Manage packages with apk on OpenWrt\.
@@ -91,7 +114,7 @@ Modules now have lifecycle functions <code>init\(\)</code> and <code>validate\(\
 <a id="v0-3-0"></a>
 ## v0\.3\.0
 
-<a id="release-summary-3"></a>
+<a id="release-summary-4"></a>
 ### Release Summary
 
 Add <code>\.devcontainer</code> setup\.
@@ -103,7 +126,7 @@ Rename setup role to <code>community\.openwrt\.init</code>\.
 <a id="v0-2-0"></a>
 ## v0\.2\.0
 
-<a id="release-summary-4"></a>
+<a id="release-summary-5"></a>
 ### Release Summary
 
 Use action plugins to \"wrap\" shell\-based modules\.
@@ -143,7 +166,7 @@ Mark <code>shell\=ash</code> for <code>shellcheck</code>\.
 * uci action plugin \- revamp the shell wrapping mechanism \([https\://github\.com/ansible\-collections/community\.openwrt/pull/14](https\://github\.com/ansible\-collections/community\.openwrt/pull/14)\)\.
 * wrapper \- revamp the shell wrapping mechanism \([https\://github\.com/ansible\-collections/community\.openwrt/pull/14](https\://github\.com/ansible\-collections/community\.openwrt/pull/14)\)\.
 
-<a id="new-modules-2"></a>
+<a id="new-modules-3"></a>
 ### New Modules
 
 * community\.openwrt\.wrapper \- Internal wrapper module for OpenWrt shell\-based modules\.
@@ -151,7 +174,7 @@ Mark <code>shell\=ash</code> for <code>shellcheck</code>\.
 <a id="v0-1-0"></a>
 ## v0\.1\.0
 
-<a id="release-summary-5"></a>
+<a id="release-summary-6"></a>
 ### Release Summary
 
 This is the first release of the <code>community\.openwrt</code> collection\.
