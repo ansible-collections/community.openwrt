@@ -7,6 +7,8 @@ name: Populate Component Name in PR
 
 on:
   pull_request_target:
+    types: [opened]
+  workflow_call:
 
 permissions:
   pull-requests: write
