@@ -4,25 +4,28 @@
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-WANT_JSON="1"
-PARAMS="
-    autocommit/bool
-    command=cmd/str
-    config/str
-    find=find_by=search/any
-    keep_keys=keep/any
-    key/str
-    merge/bool//false
-    name/str
-    option/str
-    replace/bool//false
-    section/str
-    set_find/bool//true
-    type/str
-    unique/bool//false
-    value/any
-"
-RESPONSE_VARS="result=_result command config section option"
+
+init() {
+    WANT_JSON="1"
+    PARAMS="
+        autocommit/bool
+        command=cmd/str
+        config/str
+        find=find_by=search/any
+        keep_keys=keep/any
+        key/str
+        merge/bool//false
+        name/str
+        option/str
+        replace/bool//false
+        section/str
+        set_find/bool//true
+        type/str
+        unique/bool//false
+        value/any
+    "
+    RESPONSE_VARS="result=_result command config section option"
+}
 
 uci() {
     [ -z "$state_path" ] || set -- -P "$state_path" "$@"
