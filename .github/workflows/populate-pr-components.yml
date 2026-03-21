@@ -23,8 +23,11 @@ jobs:
 
       - name: Build changed files list
         id: changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+          FILES=$(gh pr view ${{ github.event.pull_request.number }} \
+            --json files -q '.files[].path' \
             | sed 's/^/- /' \
             | tr '\n' '\001')
           echo "files=$FILES" >> $GITHUB_OUTPUT
