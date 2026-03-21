@@ -35,7 +35,7 @@ jobs:
       - name: Write files to temp file
         run: |
           echo "<!-- component-name-start -->" > /tmp/component.txt
-          printf '${{ steps.changed.outputs.files }}' \
+          printf -- '${{ steps.changed.outputs.files }}' \
             | tr '\001' '\n' >> /tmp/component.txt
           echo "<!-- component-name-end -->" >> /tmp/component.txt
 
