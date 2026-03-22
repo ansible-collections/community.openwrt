@@ -112,6 +112,25 @@ jobs:
           # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
           pull-request-change-detection: false
 
+  nox:
+    name: nox
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install nox
+        run: pip install -r requirements-test.txt
+
+      - name: Run nox
+        run: nox
+
   molecule:
     name: M (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
@@ -343,6 +362,7 @@ jobs:
     if: always()
 
     needs:
+      - nox
       - sanity
       - molecule
       - units
