@@ -11,7 +11,6 @@ query_package() {
 
 install_packages() {
     local _IFS pkg pkgs_to_install
-    # shellcheck disable=SC2154,SC2086
     { _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"; }
 
     for pkg; do
@@ -21,7 +20,6 @@ install_packages() {
     [ -n "$pkgs_to_install" ] || return 0
 
     [ -n "$_ansible_check_mode" ] || {
-        # shellcheck disable=SC2086
         apk $update_cache $no_cache $force_broken_world add $pkgs_to_install >"$out" 2>"$err"
         rc=$?
         stdout="$(cat "$out")"
@@ -36,7 +34,6 @@ install_packages() {
 
 remove_packages() {
     local _IFS pkg pkgs_to_remove
-    # shellcheck disable=SC2154,SC2086
     { _IFS="$IFS"; IFS=","; set -- $name; IFS="$_IFS"; }
 
     for pkg; do
@@ -46,7 +43,6 @@ remove_packages() {
     [ -n "$pkgs_to_remove" ] || return 0
 
     [ -n "$_ansible_check_mode" ] || {
-        # shellcheck disable=SC2086
         apk $no_cache del $pkgs_to_remove >"$out" 2>"$err"
         rc=$?
         stdout="$(cat "$out")"
@@ -81,7 +77,6 @@ init() {
 }
 
 validate() {
-    # shellcheck disable=SC2154
     case "$state" in
         present|installed|absent|removed) :;;
         *) fail "state must be present or absent";;
