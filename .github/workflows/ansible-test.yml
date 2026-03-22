@@ -126,7 +126,7 @@ jobs:
           python-version: "3.13"
 
       - name: Install nox
-        run: pip install nox
+        run: pip install -r requirements-test.txt
 
       - name: Run nox
         run: nox
