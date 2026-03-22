@@ -29,7 +29,7 @@ run_mypy = false
 
 [sessions.extra_checks]
 run_no_unwanted_files = true
-no_unwanted_files_module_extensions = [".py", ".sh"]
+no_unwanted_files_module_extensions = [".py", ".sh", ".yml"]
 no_unwanted_files_yaml_extensions = [".yml"]
 run_no_trailing_whitespace = true
 

@@ -9,7 +9,8 @@ DOCUMENTATION = r"""
 module: apk
 short_description: Manage packages with apk on OpenWrt
 description:
-  - The M(community.openwrt.apk) module manages packages on OpenWrt using the apk package manager (available in OpenWrt 25.12+).
+  - The M(community.openwrt.apk) module manages packages on OpenWrt using the apk package manager (available in OpenWrt
+    25.12+).
   - It can install and remove packages.
 author: Krzysztof Bialek (@kbialek)
 version_added: 0.4.0

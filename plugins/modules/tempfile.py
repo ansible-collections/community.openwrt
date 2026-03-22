@@ -24,7 +24,7 @@ options:
     description:
       - Whether to create a file or a directory.
     type: str
-    choices: [ file, directory ]
+    choices: [file, directory]
     default: file
   path:
     description:

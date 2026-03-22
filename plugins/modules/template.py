@@ -6,33 +6,32 @@
 from __future__ import annotations
 
 DOCUMENTATION = r"""
----
 module: template
 short_description: Template a file out to remote OpenWrt target
 options:
   follow:
     description:
-    - Determine whether symbolic links should be followed.
-    - When set to V(true) symbolic links will be followed, if they exist.
-    - When set to V(false) symbolic links will not be followed.
+      - Determine whether symbolic links should be followed.
+      - When set to V(true) symbolic links are followed, if they exist.
+      - When set to V(false) symbolic links are not followed.
     type: bool
     default: false
 seealso:
-- module: community.openwrt.copy
+  - module: community.openwrt.copy
 author:
-- Ilya Bogdanov (@zeerayne)
+  - Ilya Bogdanov (@zeerayne)
 extends_documentation_fragment:
-- community.openwrt.attributes
-- community.openwrt.attributes.files
-- backup
-- community.openwrt.file_common_arguments
-- template_common
-- validate
+  - community.openwrt.attributes
+  - community.openwrt.attributes.files
+  - backup
+  - community.openwrt.file_common_arguments
+  - template_common
+  - validate
 attributes:
-    check_mode:
-      support: full
-    diff_mode:
-      support: full
+  check_mode:
+    support: full
+  diff_mode:
+    support: full
 """
 
 EXAMPLES = r"""
@@ -50,18 +49,18 @@ EXAMPLES = r"""
 
 RETURN = r"""
 dest:
-    description: Destination file/path, equal to the value passed to I(dest).
-    returned: success
-    type: str
-    sample: /path/to/file.txt
+  description: Destination file/path, equal to the value passed to I(dest).
+  returned: success
+  type: str
+  sample: /path/to/file.txt
 md5sum:
-    description: MD5 checksum of the rendered file
-    returned: changed
-    type: str
-    sample: d41d8cd98f00b204e9800998ecf8427e
+  description: MD5 checksum of the rendered file.
+  returned: changed
+  type: str
+  sample: d41d8cd98f00b204e9800998ecf8427e
 src:
-    description: Source file used for the copy on the target machine.
-    returned: changed
-    type: str
-    sample: /home/httpd/.ansible/tmp/ansible-tmp-1423796390.97-147729857856000/source
+  description: Source file used for the copy on the target machine.
+  returned: changed
+  type: str
+  sample: /home/httpd/.ansible/tmp/ansible-tmp-1423796390.97-147729857856000/source
 """

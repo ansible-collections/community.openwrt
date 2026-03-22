@@ -32,7 +32,7 @@ EXAMPLES = r"""
     msg: "{{ ansible_facts['packages'] }}"
 """
 
-RETURN = """
+RETURN = r"""
 ansible_facts:
   description: Facts to add to ansible_facts.
   returned: always
@@ -66,20 +66,20 @@ ansible_facts:
         {
           "packages": {
             "apk-mbedtls": [
-                {
-                    "name": "apk-mbedtls",
-                    "release": "r2",
-                    "source": "apk",
-                    "version": "3.0.2"
-                }
+              {
+                "name": "apk-mbedtls",
+                "release": "r2",
+                "source": "apk",
+                "version": "3.0.2"
+              }
             ],
             "zlib": [
-                {
-                    "name": "zlib",
-                    "release": "r1",
-                    "source": "apk",
-                    "version": "1.3.1"
-                }
+              {
+                "name": "zlib",
+                "release": "r1",
+                "source": "apk",
+                "version": "1.3.1"
+              }
             ]
           }
         }

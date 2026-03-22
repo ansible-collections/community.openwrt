@@ -17,4 +17,4 @@ provisioner:
     ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/tests/integration/targets"
   config_options:
     defaults:
-      allow_broken_conditionals: True
+      allow_broken_conditionals: true
