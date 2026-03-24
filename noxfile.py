@@ -43,7 +43,7 @@ def release(session: nox.Session):
 
     with open("galaxy.yml") as galaxy_file:
         galaxy_file_lines = galaxy_file.readlines()
-        galaxy_version = yaml.safe_load("".join(galaxy_file_lines))['version']
+        galaxy_version = yaml.safe_load("".join(galaxy_file_lines))["version"]
 
     if len(session.posargs) != 1:
         session.error(f"usage: nox -e {session.name} -- <version>\n\ngalaxy.yml version is {galaxy_version}\n")
