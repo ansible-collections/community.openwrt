@@ -52,7 +52,7 @@ releases:
       - 0.2.0.yml
       - 14-wrapper-revamp.yml
     modules:
-      - description: Internal wrapper module for OpenWrt shell-based modules.
+      - description: Internal wrapper module for OpenWrt shell\-based modules.
         name: wrapper
         namespace: ''
     release_date: '2025-12-14'
@@ -146,3 +146,23 @@ releases:
         name: tempfile
         namespace: ''
     release_date: '2026-02-27'
+  1.2.0:
+    changes:
+      bugfixes:
+        - copy - fix destination file name if ``dest`` is a directory (https://github.com/ansible-collections/community.openwrt/pull/165).
+        - openwrt_action plugin utils - exception classes were not calling the parent's
+          constructor correctly (https://github.com/ansible-collections/community.openwrt/pull/161).
+      minor_changes:
+        - copy action plugin - remove redundant code (https://github.com/ansible-collections/community.openwrt/pull/192).
+        - openwrt_action plugin utils - remove redundant code (https://github.com/ansible-collections/community.openwrt/pull/192).
+      release_summary: Regular and bugfix release.
+    fragments:
+      - 1.2.0.yml
+      - 161-base-action-exceptions.yml
+      - 165-copy-dest-directory.yml
+      - 192-nox-pass.yml
+    modules:
+      - description: Add or remove groups.
+        name: group
+        namespace: ''
+    release_date: '2026-03-24'
