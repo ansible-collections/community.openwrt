@@ -4,6 +4,31 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.2.0
+======
+
+Release Summary
+---------------
+
+Regular & bugfix release.
+
+Minor Changes
+-------------
+
+- copy action plugin - remove redundant code (https://github.com/ansible-collections/community.openwrt/pull/192).
+- openwrt_action plugin utils - remove redundant code (https://github.com/ansible-collections/community.openwrt/pull/192).
+
+Bugfixes
+--------
+
+- copy - fix destination file name if ``dest`` is a directory (https://github.com/ansible-collections/community.openwrt/pull/165).
+- openwrt_action plugin utils - exception classes were not calling the parent's constructor correctly (https://github.com/ansible-collections/community.openwrt/pull/161).
+
+New Modules
+-----------
+
+- community.openwrt.group - Add or remove groups.
+
 v1.1.0
 ======
 
@@ -128,7 +153,7 @@ Minor Changes
 New Modules
 -----------
 
-- community.openwrt.wrapper - Internal wrapper module for OpenWrt shell-based modules.
+- community.openwrt.wrapper - Internal wrapper module for OpenWrt shell\-based modules.
 
 v0.1.0
 ======

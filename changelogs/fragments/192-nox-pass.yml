@@ -1,3 +1,0 @@
-minor_changes:
-  - copy action plugin - remove redundant code (https://github.com/ansible-collections/community.openwrt/pull/192).
-  - openwrt_action plugin utils - remove redundant code (https://github.com/ansible-collections/community.openwrt/pull/192).
