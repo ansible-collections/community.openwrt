@@ -38,14 +38,18 @@ def release(session: nox.Session):
     https://docs.ansible.com/projects/ansible/latest/community/collection_contributors/collection_release_without_branches.html
     """
 
+    session.install("antsibull-changelog[toml]", "pyaml")
+    import yaml
+
+    with open("galaxy.yml") as galaxy_file:
+        galaxy_file_lines = galaxy_file.readlines()
+        galaxy_version = yaml.safe_load("".join(galaxy_file_lines))['version']
+
     if len(session.posargs) != 1:
-        session.error(f"usage: nox -e {session.name} -- <version>")
+        session.error(f"usage: nox -e {session.name} -- <version>\n\ngalaxy.yml version is {galaxy_version}\n")
     version = session.posargs[0]
     fragment_path = Path(f"changelogs/fragments/{version}.yml")
     release_branch = f"release-{version}"
-
-    session.install("antsibull-changelog[toml]", "pyaml")
-    import yaml
 
     session.run("git", "checkout", "main", external=True)
     check_no_modifications(session, str(fragment_path))
@@ -62,7 +66,7 @@ def release(session: nox.Session):
     with open("galaxy.yml") as galaxy_file:
         galaxy_file_lines = galaxy_file.readlines()
         galaxy = yaml.safe_load("".join(galaxy_file_lines))
-    if version != galaxy["version"]:
+    if version != galaxy_version:
         session.error(f"Version specified ({version}) differs from version in galaxy.yml: {galaxy['version']})")
 
     session.run("git", "checkout", "-b", release_branch, external=True)
