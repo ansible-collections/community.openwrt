@@ -36,7 +36,7 @@ jobs:
               /^\.[a-z]/,
               /^(extensions|docs|tests)\//,
               /^roles\/\w+\/molecule\//,
-              /^(meta|LICENSES|changelogs)\//,
+              /^(meta|LICENSES|changelogs|CHANGELOG.*)\//,
               /^\w+\.(toml|md)$/,
               /^noxfile\.py$/,
               /^requirements-test\.txt$/,
