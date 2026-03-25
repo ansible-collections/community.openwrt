@@ -56,4 +56,5 @@ jobs:
           contentIsFilePath: true
           regex: "<!-- component-name-start -->.*?<!-- component-name-end -->"
           regexFlags: ims
+          appendContentOnMatchOnly: true
           token: ${{ secrets.GITHUB_TOKEN }}
