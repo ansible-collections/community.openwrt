@@ -8,12 +8,11 @@
       line1
       line2
       line3
-    dest: "/tmp/test_lineinfile.txt"
-  register: test_file_create
+    dest: "{{ remote_tmp_dir }}/test_lineinfile.txt"
 
 - name: "Add a new line to the file"
   community.openwrt.lineinfile:
-    path: "/tmp/test_lineinfile.txt"
+    path: "{{ remote_tmp_dir }}/test_lineinfile.txt"
     line: "new line"
     state: present
   register: lineinfile_add
@@ -25,7 +24,7 @@
 
 - name: "Add the same line again (should be idempotent)"
   community.openwrt.lineinfile:
-    path: "/tmp/test_lineinfile.txt"
+    path: "{{ remote_tmp_dir }}/test_lineinfile.txt"
     line: "new line"
     state: present
   register: lineinfile_add2
@@ -37,7 +36,7 @@
 
 - name: "Verify line is in the file"
   community.openwrt.command:
-    cmd: grep -c "new line" /tmp/test_lineinfile.txt
+    cmd: grep -c "new line" {{ remote_tmp_dir }}/test_lineinfile.txt
   register: grep_result
 
 - name: Assert grep found the line
@@ -47,7 +46,7 @@
 
 - name: "Replace a line in the file"
   community.openwrt.lineinfile:
-    path: "/tmp/test_lineinfile.txt"
+    path: "{{ remote_tmp_dir }}/test_lineinfile.txt"
     regexp: "^line2$"
     line: "line2 modified"
     state: present
@@ -60,7 +59,7 @@
 
 - name: "Remove a line from the file"
   community.openwrt.lineinfile:
-    path: "/tmp/test_lineinfile.txt"
+    path: "{{ remote_tmp_dir }}/test_lineinfile.txt"
     regexp: "^line1$"
     state: absent
   register: lineinfile_remove
@@ -69,8 +68,3 @@
   ansible.builtin.assert:
     that:
       - lineinfile_remove is changed
-
-- name: "Clean up test file"
-  community.openwrt.file:
-    path: "/tmp/test_lineinfile.txt"
-    state: absent
