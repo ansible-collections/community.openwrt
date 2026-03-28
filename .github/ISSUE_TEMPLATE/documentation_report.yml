@@ -16,7 +16,7 @@ body:
         Also test if the latest release and devel branch are affected too.
         *Complete **all** sections as described, this form is processed automatically.*
 
-        [issue search]: https://github.com/ansible-collections/community.general/search?q=is%3Aissue&type=issues
+        [issue search]: https://github.com/ansible-collections/community.openwrt/search?q=is%3Aissue&type=issues
 
 
   - type: textarea
@@ -47,8 +47,8 @@ body:
       label: Component Name
       description: >-
         Write the short name of the file, module, plugin, task or feature below,
-        *use your best guess if unsure*. Do not include `community.general.`!
-      placeholder: mysql_user
+        *use your best guess if unsure*. Do not include `community.openwrt.`!
+      placeholder: copy, uci, apk, service etc.
     validations:
       required: true
 
@@ -68,13 +68,13 @@ body:
 
   - type: textarea
     attributes:
-      label: Community.general Version
+      label: community.openwrt Version
       description: >-
-        Paste verbatim output from "ansible-galaxy collection list community.general"
+        Paste verbatim output from "ansible-galaxy collection list community.openwrt"
         between tripple backticks.
       value: |
         ```console (paste below)
-        $ ansible-galaxy collection list community.general
+        $ ansible-galaxy collection list community.openwrt
 
         ```
     validations:

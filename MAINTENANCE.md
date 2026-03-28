@@ -57,7 +57,7 @@ There is no dependency between community.openwrt and community.general, their re
 Note that these policies have been copied literally from community.general, and they are not without caveats:
 
 - the collection just starting its lifetime: there is no measurement, subjective or otherwise, to the demand for deprecating features in the code base
-- the shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins, so the **deprecation is documentary only**. Until that mechanism is implemented, there is no deprecation warnings sent to the users or developers.
+- the shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins, so the **deprecation is documentary only**. Until that [mechanism is implemented](https://github.com/ansible-collections/community.openwrt/issues/28), there is no deprecation warnings sent to the users or developers.
 
 ## Collection Release Process
 
