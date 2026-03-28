@@ -6,19 +6,19 @@
 - name: "Copy content to a temporary location"
   community.openwrt.copy:
     content: "test content"
-    dest: "/tmp/test_copy_file.txt"
+    dest: "{{ remote_tmp_dir }}/test_copy_file.txt"
   register: copy_out
 
 - name: Assert copy_out was changed
   ansible.builtin.assert:
     that:
       - copy_out is changed
-      - copy_out.dest == "/tmp/test_copy_file.txt"
+      - copy_out.dest == remote_tmp_dir ~ "/test_copy_file.txt"
 
 - name: "Copy the same file again (should be idempotent)"
   community.openwrt.copy:
     content: "test content"
-    dest: "/tmp/test_copy_file.txt"
+    dest: "{{ remote_tmp_dir }}/test_copy_file.txt"
   register: copy_out2
 
 - name: Assert copy_out2 was not changed
@@ -29,7 +29,7 @@
 - name: "Copy the same file again with different content (default force=true explicitly set)"
   community.openwrt.copy:
     content: "different test content for copy_out3"
-    dest: "/tmp/test_copy_file.txt"
+    dest: "{{ remote_tmp_dir }}/test_copy_file.txt"
     force: true
   register: copy_out3
 
@@ -41,7 +41,7 @@
 - name: "Copy content to a new file with force=false"
   community.openwrt.copy:
     content: "test content"
-    dest: "/tmp/test_copy_noforce.txt"
+    dest: "{{ remote_tmp_dir }}/test_copy_noforce.txt"
     force: false
   register: copy_new_noforce
 
@@ -49,12 +49,12 @@
   ansible.builtin.assert:
     that:
       - copy_new_noforce is changed
-      - copy_new_noforce.dest == "/tmp/test_copy_noforce.txt"
+      - copy_new_noforce.dest == remote_tmp_dir ~ "/test_copy_noforce.txt"
 
 - name: "Copy content to existing file with force=false"
   community.openwrt.copy:
     content: "different test content"
-    dest: "/tmp/test_copy_noforce.txt"
+    dest: "{{ remote_tmp_dir }}/test_copy_noforce.txt"
     force: false
   register: copy_existing_noforce
 
@@ -65,10 +65,18 @@
       - >-
         "file already exists" in copy_existing_noforce.msg
 
+- name: Create temporary directory on controller
+  ansible.builtin.tempfile:
+    state: directory
+  delegate_to: localhost
+  run_once: true
+  register: controller_tmp_dir
+  notify: Delete controller temporary directory
+
 - name: Create a dummy file on controller
   ansible.builtin.copy:
     content: "dummy file content from controller"
-    dest: "/tmp/dummy_source_file.txt"
+    dest: "{{ controller_tmp_dir.path }}/dummy_source_file.txt"
   delegate_to: localhost
   run_once: true
   register: dummy_file
@@ -76,18 +84,18 @@
 - name: Copy file from controller to remote
   community.openwrt.copy:
     src: "{{ dummy_file.dest }}"
-    dest: "/tmp/test_copy_remote_file.txt"
+    dest: "{{ remote_tmp_dir }}/test_copy_remote_file.txt"
   register: copy_src_out
 
 - name: Assert file copy was changed
   ansible.builtin.assert:
     that:
       - copy_src_out is changed
-      - copy_src_out.dest == "/tmp/test_copy_remote_file.txt"
+      - copy_src_out.dest == remote_tmp_dir ~ "/test_copy_remote_file.txt"
 
 - name: Print content of remote file
   community.openwrt.command:
-    cmd: cat /tmp/test_copy_remote_file.txt
+    cmd: cat {{ remote_tmp_dir }}/test_copy_remote_file.txt
     uses_shell: true
   register: cat_remote
 
@@ -99,28 +107,74 @@
 - name: Copy file from controller to remote directory
   community.openwrt.copy:
     src: "{{ dummy_file.dest }}"
-    dest: "/tmp/test/"
+    dest: "{{ remote_tmp_dir }}/subdir/"
   register: copy_src_out2
 
 - name: Assert file copy was changed
   ansible.builtin.assert:
     that:
       - copy_src_out2 is changed
-      - copy_src_out2.dest.replace("//", "/") == "/tmp/test/dummy_source_file.txt"
+      - copy_src_out2.dest.replace("//", "/") == remote_tmp_dir ~ "/subdir/dummy_source_file.txt"
 
-- name: Clean up test files (controller)
-  ansible.builtin.file:
-    path: /tmp/dummy_source_file.txt
-    state: absent
+- name: Create vault password file on controller
+  ansible.builtin.copy:
+    content: "test_vault_password\n"
+    dest: "{{ controller_tmp_dir.path }}/vault_pw.txt"
+    mode: "0600"
   delegate_to: localhost
   run_once: true
 
-- name: Clean up test files (remote)
-  community.openwrt.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - "/tmp/test_copy_file.txt"
-    - "/tmp/test_copy_remote_file.txt"
-    - "/tmp/test_copy_noforce.txt"
-    - "/tmp/test/dummy_source_file.txt"
+- name: Create plaintext source file on controller
+  ansible.builtin.copy:
+    content: "vault secret content\n"
+    dest: "{{ controller_tmp_dir.path }}/vault_plain.txt"
+  delegate_to: localhost
+  run_once: true
+
+- name: Encrypt the file in place with ansible-vault
+  ansible.builtin.command:
+    cmd: >-
+      ansible-vault encrypt
+      --vault-password-file {{ controller_tmp_dir.path }}/vault_pw.txt
+      {{ controller_tmp_dir.path }}/vault_plain.txt
+  delegate_to: localhost
+  run_once: true
+
+- name: Copy vault-encrypted file with decrypt=false (ciphertext must arrive verbatim)
+  community.openwrt.copy:
+    src: "{{ controller_tmp_dir.path }}/vault_plain.txt"
+    dest: "{{ remote_tmp_dir }}/test_vault_nodecrypt.txt"
+    decrypt: false
+  register: copy_vault_nodecrypt
+
+- name: Assert vault file was copied
+  ansible.builtin.assert:
+    that:
+      - copy_vault_nodecrypt is changed
+
+- name: Read first line of copied file on remote
+  community.openwrt.command:
+    cmd: head -1 {{ remote_tmp_dir }}/test_vault_nodecrypt.txt
+  register: vault_nodecrypt_head
+
+- name: Assert ciphertext was NOT decrypted
+  ansible.builtin.assert:
+    that:
+      - vault_nodecrypt_head.stdout == "$ANSIBLE_VAULT;1.1;AES256"
+
+- name: Copy vault-encrypted file with decrypt=true and no vault password (must fail clearly)
+  community.openwrt.copy:
+    src: "{{ controller_tmp_dir.path }}/vault_plain.txt"
+    dest: "{{ remote_tmp_dir }}/test_vault_decrypt.txt"
+    decrypt: true
+  register: copy_vault_decrypt_fail
+  ignore_errors: true
+
+- name: Assert task failed with a vault-related error
+  ansible.builtin.assert:
+    that:
+      - copy_vault_decrypt_fail is failed
+      - >-
+        "vault" in (copy_vault_decrypt_fail.msg | lower)
+        or "vault" in (copy_vault_decrypt_fail.exception | default("") | lower)
+

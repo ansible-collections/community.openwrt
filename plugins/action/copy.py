@@ -9,6 +9,7 @@ from tempfile import mkstemp
 
 from ansible.errors import AnsibleError
 from ansible.module_utils.common.text.converters import to_bytes
+from ansible.module_utils.parsing.convert_bool import boolean
 
 from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import OpenwrtActionBase
 
@@ -43,6 +44,8 @@ class ActionModule(OpenwrtActionBase):
             result["msg"] = "source and content are mutually exclusive"
             return result
 
+        decrypt = boolean(self._task.args.get("decrypt", True), strict=False)
+
         if content is not None:
             try:
                 content_tempfile = self._create_content_tempfile(content)
@@ -64,16 +67,20 @@ class ActionModule(OpenwrtActionBase):
                 result["msg"] = str(e)
                 return result
 
-        # Create remote temp directory
+        # Decrypt vault-encrypted files if needed; cleanup_tmp_file is safe on non-temp paths
+        decrypted_source = source
         try:
+            decrypted_source = self._loader.get_real_file(source, decrypt=decrypt)
             tmp_dir = self._make_tmp_path()
             tmp_src = self._connection._shell.join_path(tmp_dir, "source")
-            self._transfer_file(source, tmp_src)
+            self._transfer_file(decrypted_source, tmp_src)
             self._fixup_perms2([tmp_src])
         except Exception as e:
             result["failed"] = True
             result["msg"] = f"Failed to transfer file: {e}"
             return result
+        finally:
+            self._loader.cleanup_tmp_file(decrypted_source)
 
         self._task.args = self._task.args.copy()
         self._task.args["src"] = tmp_src
