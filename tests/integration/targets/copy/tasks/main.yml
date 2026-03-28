@@ -177,4 +177,3 @@
       - >-
         "vault" in (copy_vault_decrypt_fail.msg | lower)
         or "vault" in (copy_vault_decrypt_fail.exception | default("") | lower)
-
