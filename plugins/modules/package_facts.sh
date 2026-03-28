@@ -4,8 +4,6 @@
 # GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-NO_EXIT_JSON="1"
-
 add_package_fact() {
     json_add_array "$1"
     json_add_object "o-$1"
@@ -30,6 +28,10 @@ detect_package_management() {
     elif which opkg > /dev/null 2>&1; then
         ansible_pkg_mgr="opkg"
     fi
+}
+
+init() {
+    NO_EXIT_JSON="1"
 }
 
 main() {
