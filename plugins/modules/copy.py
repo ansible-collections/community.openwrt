@@ -70,6 +70,12 @@ options:
       - Follows the same format rules as O(mode).
       - If not specified, directories are created with system default permissions.
     type: str
+  decrypt:
+    description:
+      - This option controls the autodecryption of source files using vault.
+    type: bool
+    default: true
+    version_added: "1.3.0"
   validate:
     description:
       - Command to run to validate the file before copying it into place.
@@ -127,6 +133,15 @@ EXAMPLES = r"""
     src: myconfig.txt
     dest: /etc/config/myapp
     mode: '0600'
+
+- name: Copy a vault-encrypted TLS private key, decrypting it on the fly
+  community.openwrt.copy:
+    src: private.pem.vaulted
+    dest: /etc/certificates/private.pem
+    mode: '0600'
+    owner: root
+    group: root
+    decrypt: true
 """
 
 RETURN = r"""
