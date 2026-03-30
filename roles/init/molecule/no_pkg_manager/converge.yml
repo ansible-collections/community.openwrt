@@ -1,0 +1,43 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Remove package manager
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Block for init role (ssh failure)
+      block:
+        - name: Invoke init role
+          ansible.builtin.include_role:
+            name: community.openwrt.init
+          vars:
+            ansible_host: 192.168.255.255
+            openwrt_install_recommended_packages: false
+      rescue:
+        - name: Assert role fails
+          ansible.builtin.assert:
+            that:
+              - ansible_failed_result is failed
+              - >-
+                'Could not find package manager:' in ansible_failed_result.msg
+
+    - name: Remove package managers
+      community.openwrt.command:
+        cmd: mv /bin/opkg /bin/opkg.orig || mv /usr/bin/apk /usr/bin/apk.orig
+        uses_shell: true
+
+    - name: Block for init role (package manager is not there)
+      block:
+        - name: Invoke init role
+          ansible.builtin.include_role:
+            name: community.openwrt.init
+          vars:
+            openwrt_install_recommended_packages: false
+      rescue:
+        - name: Assert role fails
+          ansible.builtin.assert:
+            that:
+              - ansible_failed_result is failed
+              - >-
+                'Could not find package manager:' in ansible_failed_result.msg
