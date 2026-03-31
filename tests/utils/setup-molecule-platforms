@@ -29,6 +29,9 @@ def main() -> None:
     config = {
         "driver": {"name": "docker"},
         "platforms": [make_platform(v) for v in versions],
+        "scenario": {
+            "test_sequence": ["create", "converge", "destroy"]
+        },
     }
 
     config_dir = Path.home() / ".config" / "molecule"
