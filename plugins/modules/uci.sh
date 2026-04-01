@@ -24,7 +24,7 @@ init() {
         unique/bool//false
         value/any
     "
-    RESPONSE_VARS="result=_result command config section option"
+    RESPONSE_VARS="result=_result//1 command config section option"
 }
 
 uci() {
@@ -355,7 +355,8 @@ main() {
         set)
             uci_set; exit 0;;
         find|find_all)
-            uci_find; exit $?;;
+            uci_find || { MESSAGE="no matching section found in ${config}"; exit 1; }
+            exit 0;;
         ensure|section)
             uci_ensure; exit 0;;
         absent)
