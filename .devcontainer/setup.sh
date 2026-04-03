@@ -3,6 +3,7 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+set -x
 sudo chown -R vscode:vscode /workspace/
 
 pip install -U pip
@@ -13,4 +14,4 @@ python3 ./tests/utils/setup-molecule
 # export ANSIBLE_COLLECTIONS_PATH=/workspace:${ANSIBLE_COLLECTIONS_PATH}
 # ansible-galaxy collection install -v -r tests/integration/requirements.yml
 
-# pre-commit install
+pre-commit install
