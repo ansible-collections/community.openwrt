@@ -11,3 +11,4 @@ andebox
 nox
 antsibull-nox
 ruff
+pre-commit
