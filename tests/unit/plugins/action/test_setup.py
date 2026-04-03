@@ -8,8 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from ansible_collections.community.openwrt.plugins.action.setup import ActionModule
-from ansible_collections.community.openwrt.plugins.action.setup import _redact_wireless
+from ansible_collections.community.openwrt.plugins.action.setup import ActionModule, _redact_wireless
 
 
 def _make_action():
@@ -34,18 +33,46 @@ WIRELESS_WITH_SECRETS = {
     "radio0": {
         "interfaces": [
             {"config": {"mode": "ap", "ssid": "MyNet", "key": "s3cr3t", "sae_password": "sae-s3cr3t"}},
-            {"config": {"mode": "ap", "ssid": "Guest", "password": "guest-pass", "auth_secret": "rad1us", "acct_secret": "rad1us2"}},
+            {
+                "config": {
+                    "mode": "ap",
+                    "ssid": "Guest",
+                    "password": "guest-pass",
+                    "auth_secret": "rad1us",
+                    "acct_secret": "rad1us2",
+                }
+            },
         ]
     },
     "radio1": {
         "interfaces": [
-            {"config": {"mode": "sta", "ssid": "Upstream", "key1": "wep1", "key2": "wep2", "key3": "wep3", "key4": "wep4"}},
+            {
+                "config": {
+                    "mode": "sta",
+                    "ssid": "Upstream",
+                    "key1": "wep1",
+                    "key2": "wep2",
+                    "key3": "wep3",
+                    "key4": "wep4",
+                }
+            },
             {"config": {"mode": "ap", "ssid": "Corp", "priv_key_pwd": "certpass"}},
         ]
     },
 }
 
-SENSITIVE_KEYS = ["key", "key1", "key2", "key3", "key4", "sae_password", "password", "auth_secret", "acct_secret", "priv_key_pwd"]
+SENSITIVE_KEYS = [
+    "key",
+    "key1",
+    "key2",
+    "key3",
+    "key4",
+    "sae_password",
+    "password",
+    "auth_secret",
+    "acct_secret",
+    "priv_key_pwd",
+]
 
 
 @pytest.mark.parametrize("sensitive_key", SENSITIVE_KEYS)
