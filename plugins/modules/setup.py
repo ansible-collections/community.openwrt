@@ -35,6 +35,7 @@ notes:
   - Conversely, C(ansible_date_time.tz_dst) is obtained in the standard module through an internal Python function, so
     in order to provide compatibility, that fact is returned by M(community.openwrt.setup) with the exact same value as
     C(ansible_date_time.tz).
+  - Sensitive values such as wireless passwords are redacted from the facts.
 """
 
 EXAMPLES = r"""
