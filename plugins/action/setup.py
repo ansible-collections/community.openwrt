@@ -6,7 +6,13 @@ from __future__ import annotations
 
 from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import OpenwrtActionBase
 
-_WIRELESS_SENSITIVE_KEYS = frozenset({"key", "password", "psk"})
+_WIRELESS_SENSITIVE_KEYS = frozenset({
+    "key", "key1", "key2", "key3", "key4",  # WPA PSK / WEP
+    "sae_password",                          # WPA3-SAE
+    "password",                              # EAP user password
+    "auth_secret", "acct_secret",            # RADIUS shared secrets
+    "priv_key_pwd",                          # EAP private key password
+})
 
 
 def _redact_wireless(obj):

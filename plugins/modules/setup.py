@@ -35,7 +35,8 @@ notes:
   - Conversely, C(ansible_date_time.tz_dst) is obtained in the standard module through an internal Python function, so
     in order to provide compatibility, that fact is returned by M(community.openwrt.setup) with the exact same value as
     C(ansible_date_time.tz).
-  - Sensitive values such as wireless passwords are redacted from the facts.
+  - Sensitive values such as wireless passwords and credentials (C(key), C(key1)–C(key4), C(sae_password),
+    C(password), C(auth_secret), C(acct_secret), C(priv_key_pwd)) are redacted from the C(openwrt_wireless) facts.
 """
 
 EXAMPLES = r"""

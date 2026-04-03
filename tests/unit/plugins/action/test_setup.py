@@ -33,19 +33,22 @@ def _make_action():
 WIRELESS_WITH_SECRETS = {
     "radio0": {
         "interfaces": [
-            {"config": {"mode": "ap", "ssid": "MyNet", "key": "s3cr3t", "psk": "also-secret"}},
-            {"config": {"mode": "ap", "ssid": "Guest", "password": "guest-pass"}},
+            {"config": {"mode": "ap", "ssid": "MyNet", "key": "s3cr3t", "sae_password": "sae-s3cr3t"}},
+            {"config": {"mode": "ap", "ssid": "Guest", "password": "guest-pass", "auth_secret": "rad1us", "acct_secret": "rad1us2"}},
         ]
     },
     "radio1": {
         "interfaces": [
-            {"config": {"mode": "sta", "ssid": "Upstream", "key": "upstream-key"}},
+            {"config": {"mode": "sta", "ssid": "Upstream", "key1": "wep1", "key2": "wep2", "key3": "wep3", "key4": "wep4"}},
+            {"config": {"mode": "ap", "ssid": "Corp", "priv_key_pwd": "certpass"}},
         ]
     },
 }
 
+SENSITIVE_KEYS = ["key", "key1", "key2", "key3", "key4", "sae_password", "password", "auth_secret", "acct_secret", "priv_key_pwd"]
 
-@pytest.mark.parametrize("sensitive_key", ["key", "password", "psk"])
+
+@pytest.mark.parametrize("sensitive_key", SENSITIVE_KEYS)
 def test_redact_wireless_removes_sensitive_keys(sensitive_key):
     result = _redact_wireless(WIRELESS_WITH_SECRETS)
     configs = [iface["config"] for radio in result.values() for iface in radio["interfaces"]]
