@@ -205,7 +205,8 @@ collection.  Read on for the full picture.</p>
 </pre></div>
 </div>
 <p><strong>Run a single role scenario:</strong></p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--project-directory<span class="w"> </span>roles/&lt;role&gt;<span class="w"> </span>--scenario-name<span class="w"> </span>&lt;scenario&gt;
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>roles/&lt;role&gt;
+<span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>&lt;scenario&gt;
 </pre></div>
 </div>
 <p><strong>Sanity / unit tests:</strong></p>
@@ -370,12 +371,12 @@ pass — the same thing CI does.  It does <strong>not</strong> include role test
         converge.yml
 </pre></div>
 </div>
-<p>Run a single scenario using <code class="docutils literal notranslate"><span class="pre">--project-directory</span></code> to point Molecule at the role:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--project-directory<span class="w"> </span>roles/&lt;role&gt;<span class="w"> </span>--scenario-name<span class="w"> </span>&lt;scenario&gt;
+<p>Run a single scenario from inside the role directory:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="o">(</span><span class="nb">cd</span><span class="w"> </span>roles/&lt;role&gt;<span class="p">;</span><span class="w"> </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>&lt;scenario&gt;<span class="o">)</span>
 </pre></div>
 </div>
 <p>For example, for the <code class="docutils literal notranslate"><span class="pre">init</span></code> role:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--project-directory<span class="w"> </span>roles/init<span class="w"> </span>--scenario-name<span class="w"> </span>install_recommended_true
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="o">(</span><span class="nb">cd</span><span class="w"> </span>roles/init<span class="p">;</span><span class="w"> </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>install_recommended_true<span class="o">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> files in role scenarios are intentionally minimal (they contain only a
@@ -500,7 +501,7 @@ reuse an existing one and save time on subsequent runs:</p>
 <td><p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">test</span> <span class="pre">-s</span> <span class="pre">molecule_integration</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecule-roles</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">test</span> <span class="pre">--project-directory</span> <span class="pre">roles/&lt;role&gt;</span> <span class="pre">--scenario-name</span> <span class="pre">&lt;scenario&gt;</span></code>
+<td><p><code class="docutils literal notranslate"><span class="pre">(cd</span> <span class="pre">roles/&lt;role&gt;</span> <span class="pre">&amp;&amp;</span> <span class="pre">molecule</span> <span class="pre">test</span> <span class="pre">-s</span> <span class="pre">&lt;scenario&gt;)</span></code>
 for every role scenario</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span></code> (sanity)</p></td>
