@@ -223,41 +223,20 @@ for Ansible roles and collections. It automates the full test lifecycle: spin up
 more instances (containers or VMs), run your playbooks against them, then tear the
 instances down.</p>
 <p>A few concepts worth knowing before you dive in:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 25.0%" />
-<col style="width: 75.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Concept</p></th>
-<th class="head"><p>Meaning</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><strong>Scenario</strong></p></td>
-<td><p>A named test configuration, stored in a <code class="docutils literal notranslate"><span class="pre">molecule/&lt;scenario&gt;/</span></code> directory.
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Scenario</strong>: A named test configuration, stored in a <code class="docutils literal notranslate"><span class="pre">molecule/&lt;scenario&gt;/</span></code> directory.
 Each scenario has its own <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> (driver and platform settings) and a
-<code class="docutils literal notranslate"><span class="pre">converge.yml</span></code> playbook that Molecule runs against the instances.</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>Driver</strong></p></td>
-<td><p>The backend that creates instances. This collection uses the <code class="docutils literal notranslate"><span class="pre">docker</span></code> driver.</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>Platform</strong></p></td>
-<td><p>A container (or VM) definition — image, name, startup command. Each OpenWrt
-version becomes one platform.</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>Converge</strong></p></td>
-<td><p>The step where Molecule runs your playbook against all running instances.</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>``molecule test``</strong></p></td>
-<td><p>Runs the full default sequence: create → converge → destroy. Safe for CI.</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>``molecule converge``</strong></p></td>
-<td><p>Runs only the converge step against already-running instances. Handy when
-iterating on a change: create once, converge many times, destroy when done.</p></td>
-</tr>
-</tbody>
-</table>
+<code class="docutils literal notranslate"><span class="pre">converge.yml</span></code> playbook that Molecule runs against the instances.</p></li>
+<li><p><strong>Driver</strong>: The backend that creates instances. This collection uses the <code class="docutils literal notranslate"><span class="pre">docker</span></code> driver.</p></li>
+<li><p><strong>Platform</strong>: A container (or VM) definition — image, name, startup command. Each OpenWrt
+version becomes one platform.</p></li>
+<li><p><strong>Converge</strong>: The step where Molecule runs your playbook against all running instances.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">test</span></code>: Runs the full default sequence: create → converge → destroy. Safe for CI.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">converge</span></code>: Runs only the converge step against already-running instances. Handy when
+iterating on a change: create once, converge many times, destroy when done.</p></li>
+</ul>
+</div></blockquote>
 <p>Molecule also supports a global configuration file at <code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code>.
 Any settings in that file are merged into <em>every</em> scenario Molecule runs on your machine.
 This collection uses that mechanism to share the OpenWrt platform list across all its
