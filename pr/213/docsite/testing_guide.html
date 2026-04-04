@@ -157,7 +157,7 @@
 <p>This guide explains how to run and write tests for the <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> collection.
 Because the modules in this collection run as shell scripts on real OpenWrt devices (or
 container images of them), testing works a little differently from a typical Python-based
-collection.  Read on for the full picture.</p>
+collection. Read on for the full picture.</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#quickstart" id="id1">Quickstart</a></p></li>
@@ -219,7 +219,7 @@ collection.  Read on for the full picture.</p>
 <section id="what-is-molecule">
 <h2><a class="toc-backref" href="#id2" role="doc-backlink">What is Molecule?</a><a class="headerlink" href="#what-is-molecule" title="Link to this heading"></a></h2>
 <p><a class="reference external" href="https://ansible.readthedocs.io/projects/molecule/">Molecule</a> is a testing framework
-for Ansible roles and collections.  It automates the full test lifecycle: spin up one or
+for Ansible roles and collections. It automates the full test lifecycle: spin up one or
 more instances (containers or VMs), run your playbooks against them, then tear the
 instances down.</p>
 <p>A few concepts worth knowing before you dive in:</p>
@@ -240,20 +240,20 @@ Each scenario has its own <code class="docutils literal notranslate"><span class
 <code class="docutils literal notranslate"><span class="pre">converge.yml</span></code> playbook that Molecule runs against the instances.</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Driver</strong></p></td>
-<td><p>The backend that creates instances.  This collection uses the <code class="docutils literal notranslate"><span class="pre">docker</span></code> driver.</p></td>
+<td><p>The backend that creates instances. This collection uses the <code class="docutils literal notranslate"><span class="pre">docker</span></code> driver.</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Platform</strong></p></td>
-<td><p>A container (or VM) definition — image, name, startup command.  Each OpenWrt
+<td><p>A container (or VM) definition — image, name, startup command. Each OpenWrt
 version becomes one platform.</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Converge</strong></p></td>
 <td><p>The step where Molecule runs your playbook against all running instances.</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>``molecule test``</strong></p></td>
-<td><p>Runs the full default sequence: create → converge → destroy.  Safe for CI.</p></td>
+<td><p>Runs the full default sequence: create → converge → destroy. Safe for CI.</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>``molecule converge``</strong></p></td>
-<td><p>Runs only the converge step against already-running instances.  Handy when
+<td><p>Runs only the converge step against already-running instances. Handy when
 iterating on a change: create once, converge many times, destroy when done.</p></td>
 </tr>
 </tbody>
@@ -268,7 +268,7 @@ scenarios — more on that in the next section.</p>
 <section id="overview">
 <h2><a class="toc-backref" href="#id3" role="doc-backlink">Overview</a><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>The test suite is built around Molecule, which orchestrates Docker containers running
-actual OpenWrt root filesystem images.  This means your tests exercise real OpenWrt
+actual OpenWrt root filesystem images. This means your tests exercise real OpenWrt
 userspace — BusyBox shell, <code class="docutils literal notranslate"><span class="pre">uci</span></code>, <code class="docutils literal notranslate"><span class="pre">opkg</span></code>, etc. — rather than mocks.</p>
 <p>The collection tests fall into two broad categories:</p>
 <blockquote>
@@ -281,7 +281,7 @@ bundled Ansible roles.</p>
 </dd>
 </dl>
 </div></blockquote>
-<p>Both categories use real OpenWrt container images.  The list of tested OpenWrt versions
+<p>Both categories use real OpenWrt container images. The list of tested OpenWrt versions
 is maintained in a single file: <code class="docutils literal notranslate"><span class="pre">extensions/molecule/openwrt-versions.yml</span></code>.</p>
 <p>Molecule has native support for Ansible collections and automatically discovers scenarios
 placed under <code class="docutils literal notranslate"><span class="pre">extensions/molecule/</span></code>, so all collection-level tests can be invoked from
@@ -290,12 +290,12 @@ the repository root without changing directories.</p>
 <section id="setting-up-your-environment">
 <h2><a class="toc-backref" href="#id4" role="doc-backlink">Setting Up Your Environment</a><a class="headerlink" href="#setting-up-your-environment" title="Link to this heading"></a></h2>
 <p>Before running any Molecule tests you need to generate a shared Molecule configuration
-file.  This is done by the helper script <code class="docutils literal notranslate"><span class="pre">tests/utils/setup-molecule</span></code>.</p>
+file. This is done by the helper script <code class="docutils literal notranslate"><span class="pre">tests/utils/setup-molecule</span></code>.</p>
 <section id="what-the-script-does">
 <h3><a class="toc-backref" href="#id5" role="doc-backlink">What the script does</a><a class="headerlink" href="#what-the-script-does" title="Link to this heading"></a></h3>
 <p>The script reads <code class="docutils literal notranslate"><span class="pre">extensions/molecule/openwrt-versions.yml</span></code>, builds a list of Docker
 platform entries (one per OpenWrt version), and writes the result to
-<code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code>.  Molecule automatically merges that file into every
+<code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code>. Molecule automatically merges that file into every
 scenario it runs, so all scenarios inherit the correct platforms without duplicating them
 in individual <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> files.</p>
 <p>To run it manually:</p>
@@ -312,7 +312,7 @@ in individual <code class="docutils literal notranslate"><span class="pre">molec
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you are using the <strong>devcontainer</strong>, this step is done for you automatically as
-part of <code class="docutils literal notranslate"><span class="pre">setup.sh</span></code>.  You only need to run it manually when working outside the
+part of <code class="docutils literal notranslate"><span class="pre">setup.sh</span></code>. You only need to run it manually when working outside the
 devcontainer, or after updating <code class="docutils literal notranslate"><span class="pre">openwrt-versions.yml</span></code>.</p>
 </div>
 <div class="admonition warning">
@@ -320,7 +320,7 @@ devcontainer, or after updating <code class="docutils literal notranslate"><span
 <p>The script writes to <code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code> in your <strong>home directory</strong>.
 Because Molecule merges that file into <em>every</em> scenario it runs, the OpenWrt platform
 list will appear in any Molecule execution on your machine — not just those from this
-collection.  If you work on other projects that use Molecule, be mindful of this file.</p>
+collection. If you work on other projects that use Molecule, be mindful of this file.</p>
 </div>
 </section>
 </section>
@@ -340,7 +340,7 @@ The scenario reads the target name from the <code class="docutils literal notran
 <section id="running-all-plugin-integration-tests-at-once">
 <h2><a class="toc-backref" href="#id8" role="doc-backlink">Running All Plugin Integration Tests at Once</a><a class="headerlink" href="#running-all-plugin-integration-tests-at-once" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">molecule_integration</span></code> scenario runs every plugin integration target in a single
-pass — the same thing CI does.  It does <strong>not</strong> include role tests
+pass — the same thing CI does. It does <strong>not</strong> include role tests
 (see <a class="reference internal" href="#running-role-tests">Running Role Tests</a> for those).</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>molecule_integration
 </pre></div>
@@ -367,7 +367,7 @@ pass — the same thing CI does.  It does <strong>not</strong> include role test
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> files in role scenarios are intentionally minimal (they contain only a
-comment).  The actual platform list is injected from the global
+comment). The actual platform list is injected from the global
 <code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code> written by <code class="docutils literal notranslate"><span class="pre">setup-molecule</span></code>.</p>
 </section>
 <section id="sanity-and-unit-tests">
@@ -458,7 +458,7 @@ formatting, and other code-quality checks.</p>
 <span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>license-check
 </pre></div>
 </div>
-<p>By default, nox creates a fresh virtual environment for each session.  Add <code class="docutils literal notranslate"><span class="pre">-R</span></code> to
+<p>By default, nox creates a fresh virtual environment for each session. Add <code class="docutils literal notranslate"><span class="pre">-R</span></code> to
 reuse an existing one and save time on subsequent runs:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-Re<span class="w"> </span>lint
 </pre></div>
