@@ -73,28 +73,16 @@ instances down.
 
 A few concepts worth knowing before you dive in:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 25 75
-
-   * - Concept
-     - Meaning
-   * - **Scenario**
-     - A named test configuration, stored in a ``molecule/<scenario>/`` directory.
-       Each scenario has its own ``molecule.yml`` (driver and platform settings) and a
-       ``converge.yml`` playbook that Molecule runs against the instances.
-   * - **Driver**
-     - The backend that creates instances. This collection uses the ``docker`` driver.
-   * - **Platform**
-     - A container (or VM) definition — image, name, startup command. Each OpenWrt
-       version becomes one platform.
-   * - **Converge**
-     - The step where Molecule runs your playbook against all running instances.
-   * - **``molecule test``**
-     - Runs the full default sequence: create → converge → destroy. Safe for CI.
-   * - **``molecule converge``**
-     - Runs only the converge step against already-running instances. Handy when
-       iterating on a change: create once, converge many times, destroy when done.
+    - **Scenario**: A named test configuration, stored in a ``molecule/<scenario>/`` directory.
+      Each scenario has its own ``molecule.yml`` (driver and platform settings) and a
+      ``converge.yml`` playbook that Molecule runs against the instances.
+    - **Driver**: The backend that creates instances. This collection uses the ``docker`` driver.
+    - **Platform**: A container (or VM) definition — image, name, startup command. Each OpenWrt
+      version becomes one platform.
+    - **Converge**: The step where Molecule runs your playbook against all running instances.
+    - ``molecule test``: Runs the full default sequence: create → converge → destroy. Safe for CI.
+    - ``molecule converge``: Runs only the converge step against already-running instances. Handy when
+      iterating on a change: create once, converge many times, destroy when done.
 
 Molecule also supports a global configuration file at ``~/.config/molecule/config.yml``.
 Any settings in that file are merged into *every* scenario Molecule runs on your machine.
