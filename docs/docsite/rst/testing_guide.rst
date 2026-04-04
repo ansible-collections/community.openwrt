@@ -50,7 +50,8 @@ Already familiar with Molecule and just need the commands?  Here you go.
 
 .. code-block:: console
 
-   $ molecule test --project-directory roles/<role> --scenario-name <scenario>
+   $ cd roles/<role>
+   $ molecule test -s <scenario>
 
 **Sanity / unit tests:**
 
@@ -225,17 +226,17 @@ Each bundled role has its own Molecule scenarios alongside the role itself:
            molecule.yml   ← dummy; config comes from ~/.config/molecule/config.yml
            converge.yml
 
-Run a single scenario using ``--project-directory`` to point Molecule at the role:
+Run a single scenario from inside the role directory:
 
 .. code-block:: console
 
-   $ molecule test --project-directory roles/<role> --scenario-name <scenario>
+   $ (cd roles/<role>; molecule test -s <scenario>)
 
 For example, for the ``init`` role:
 
 .. code-block:: console
 
-   $ molecule test --project-directory roles/init --scenario-name install_recommended_true
+   $ (cd roles/init; molecule test -s install_recommended_true)
 
 The ``molecule.yml`` files in role scenarios are intentionally minimal (they contain only a
 comment).  The actual platform list is injected from the global
@@ -362,7 +363,7 @@ For reference, here is what each CI job exercises:
    * - ``molecule-integration``
      - ``molecule test -s molecule_integration``
    * - ``molecule-roles``
-     - ``molecule test --project-directory roles/<role> --scenario-name <scenario>``
+     - ``(cd roles/<role> && molecule test -s <scenario>)``
        for every role scenario
    * - ``ansible-test`` (sanity)
      - ``ansible-test sanity --docker default --python <version>``
