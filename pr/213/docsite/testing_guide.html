@@ -1,0 +1,559 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testing Guide &mdash; Community.OpenWrt Collection  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="community.openwrt.apk module – Manage packages with apk on OpenWrt" href="../apk_module.html" />
+    <link rel="prev" title="Community OpenWrt Module Developer Guide" href="mod_dev_guide.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="https://ansible-collections.github.io/community.openwrt/branch/main/" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">Community.OpenWrt Collection Docs</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Community.OpenWrt Collection
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">Community OpenWrt User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">Community OpenWrt Migration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_apk_guide.html">OpenWrt 25.x Package Manager changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howto_guide.html">Community OpenWrt How-To Guide</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mod_dev_guide.html">Community OpenWrt Module Developer Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Testing Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quickstart">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-molecule">What is Molecule?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-your-environment">Setting Up Your Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-the-script-does">What the script does</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#running-individual-integration-tests">Running Individual Integration Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#single-module">Single module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#running-all-plugin-integration-tests-at-once">Running All Plugin Integration Tests at Once</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-role-tests">Running Role Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sanity-and-unit-tests">Sanity and Unit Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shellcheck-and-ignore-files">shellcheck and ignore files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#code-quality-and-linting-nox">Code Quality and Linting (nox)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-ci-runs">What CI Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#further-reading">Further Reading</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apk_module.html">community.openwrt.apk module – Manage packages with apk on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_module.html">community.openwrt.command module – Execute commands on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copy_module.html">community.openwrt.copy module – Copy files to remote OpenWrt devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_module.html">community.openwrt.file module – Manage files and file properties on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../group_module.html">community.openwrt.group module – Add or remove groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lineinfile_module.html">community.openwrt.lineinfile module – Manage lines in text files on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nohup_module.html">community.openwrt.nohup module – Starts a command in background and returns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opkg_module.html">community.openwrt.opkg module – Manage packages with opkg on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package_facts_module.html">community.openwrt.package_facts module – Gather package facts in OpenWrt systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ping_module.html">community.openwrt.ping module – Verify ability to communicate with OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_module.html">community.openwrt.service module – Manage services on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_module.html">community.openwrt.setup module – Gather facts about OpenWrt systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../slurp_module.html">community.openwrt.slurp module – Slurps a file from remote OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stat_module.html">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sysctl_module.html">community.openwrt.sysctl module – Manage sysctl entries on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tempfile_module.html">community.openwrt.tempfile module – Creates temporary files and directories on OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../template_module.html">community.openwrt.template module – Template a file out to remote OpenWrt target</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Community.OpenWrt Collection</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Testing Guide</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <section id="testing-guide">
+<span id="ansible-collections-community-openwrt-docsite-testing-guide"></span><h1>Testing Guide<a class="headerlink" href="#testing-guide" title="Link to this heading"></a></h1>
+<p>This guide explains how to run and write tests for the <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> collection.
+Because the modules in this collection run as shell scripts on real OpenWrt devices (or
+container images of them), testing works a little differently from a typical Python-based
+collection.  Read on for the full picture.</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#quickstart" id="id1">Quickstart</a></p></li>
+<li><p><a class="reference internal" href="#what-is-molecule" id="id2">What is Molecule?</a></p></li>
+<li><p><a class="reference internal" href="#overview" id="id3">Overview</a></p></li>
+<li><p><a class="reference internal" href="#setting-up-your-environment" id="id4">Setting Up Your Environment</a></p>
+<ul>
+<li><p><a class="reference internal" href="#what-the-script-does" id="id5">What the script does</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#running-individual-integration-tests" id="id6">Running Individual Integration Tests</a></p>
+<ul>
+<li><p><a class="reference internal" href="#single-module" id="id7">Single module</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#running-all-plugin-integration-tests-at-once" id="id8">Running All Plugin Integration Tests at Once</a></p></li>
+<li><p><a class="reference internal" href="#running-role-tests" id="id9">Running Role Tests</a></p></li>
+<li><p><a class="reference internal" href="#sanity-and-unit-tests" id="id10">Sanity and Unit Tests</a></p>
+<ul>
+<li><p><a class="reference internal" href="#shellcheck-and-ignore-files" id="id11">shellcheck and ignore files</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#code-quality-and-linting-nox" id="id12">Code Quality and Linting (nox)</a></p></li>
+<li><p><a class="reference internal" href="#what-ci-runs" id="id13">What CI Runs</a></p></li>
+<li><p><a class="reference internal" href="#further-reading" id="id14">Further Reading</a></p></li>
+</ul>
+</nav>
+<section id="quickstart">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Quickstart</a><a class="headerlink" href="#quickstart" title="Link to this heading"></a></h2>
+<p>Already familiar with Molecule and just need the commands?  Here you go.</p>
+<p><strong>One-time setup</strong> (skip if using the dev container):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>tests/utils/setup-molecule
+</pre></div>
+</div>
+<p><strong>Run a single module’s integration test:</strong></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">TEST_TARGET_ROLE</span><span class="o">=</span>&lt;target&gt;<span class="w"> </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>integration_test
+</pre></div>
+</div>
+<p><strong>Run the default collection scenario:</strong></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>default
+</pre></div>
+</div>
+<p><strong>Run all module integration tests:</strong></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--scenario-name<span class="w"> </span>molecule_integration
+</pre></div>
+</div>
+<p><strong>Run a single role scenario:</strong></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--project-directory<span class="w"> </span>roles/&lt;role&gt;<span class="w"> </span>--scenario-name<span class="w"> </span>&lt;scenario&gt;
+</pre></div>
+</div>
+<p><strong>Sanity / unit tests:</strong></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+<span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+</pre></div>
+</div>
+<p>Everything else is explained in the sections below.</p>
+</section>
+<section id="what-is-molecule">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">What is Molecule?</a><a class="headerlink" href="#what-is-molecule" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://ansible.readthedocs.io/projects/molecule/">Molecule</a> is a testing framework
+for Ansible roles and collections.  It automates the full test lifecycle: spin up one or
+more instances (containers or VMs), run your playbooks against them, then tear the
+instances down.</p>
+<p>A few concepts worth knowing before you dive in:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Concept</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Scenario</strong></p></td>
+<td><p>A named test configuration, stored in a <code class="docutils literal notranslate"><span class="pre">molecule/&lt;scenario&gt;/</span></code> directory.
+Each scenario has its own <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> (driver and platform settings) and a
+<code class="docutils literal notranslate"><span class="pre">converge.yml</span></code> playbook that Molecule runs against the instances.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Driver</strong></p></td>
+<td><p>The backend that creates instances.  This collection uses the <code class="docutils literal notranslate"><span class="pre">docker</span></code> driver.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Platform</strong></p></td>
+<td><p>A container (or VM) definition — image, name, startup command.  Each OpenWrt
+version becomes one platform.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Converge</strong></p></td>
+<td><p>The step where Molecule runs your playbook against all running instances.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>``molecule test``</strong></p></td>
+<td><p>Runs the full default sequence: create → converge → destroy.  Safe for CI.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>``molecule converge``</strong></p></td>
+<td><p>Runs only the converge step against already-running instances.  Handy when
+iterating on a change: create once, converge many times, destroy when done.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Molecule also supports a global configuration file at <code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code>.
+Any settings in that file are merged into <em>every</em> scenario Molecule runs on your machine.
+This collection uses that mechanism to share the OpenWrt platform list across all its
+scenarios — more on that in the next section.</p>
+<p>For a deeper introduction, see the
+<a class="reference external" href="https://ansible.readthedocs.io/projects/molecule/">official Molecule documentation</a>.</p>
+</section>
+<section id="overview">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Overview</a><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The test suite is built around Molecule, which orchestrates Docker containers running
+actual OpenWrt root filesystem images.  This means your tests exercise real OpenWrt
+userspace — BusyBox shell, <code class="docutils literal notranslate"><span class="pre">uci</span></code>, <code class="docutils literal notranslate"><span class="pre">opkg</span></code>, etc. — rather than mocks.</p>
+<p>The collection tests fall into two broad categories:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Category</p></th>
+<th class="head"><p>What it covers</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Integration tests</strong> (modules)</p></td>
+<td><p>Tests under <code class="docutils literal notranslate"><span class="pre">tests/integration/targets/&lt;module&gt;/</span></code> that verify each module’s
+behaviour on a live OpenWrt container.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Role tests</strong></p></td>
+<td><p>Molecule scenarios under <code class="docutils literal notranslate"><span class="pre">roles/&lt;role&gt;/molecule/&lt;scenario&gt;/</span></code> that test the
+bundled Ansible roles.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Both categories use real OpenWrt container images.  The list of tested OpenWrt versions
+is maintained in a single file: <code class="docutils literal notranslate"><span class="pre">extensions/molecule/openwrt-versions.yml</span></code>.</p>
+<p>Molecule has native support for Ansible collections and automatically discovers scenarios
+placed under <code class="docutils literal notranslate"><span class="pre">extensions/molecule/</span></code>, so all collection-level tests can be invoked from
+the repository root without changing directories.</p>
+</section>
+<section id="setting-up-your-environment">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Setting Up Your Environment</a><a class="headerlink" href="#setting-up-your-environment" title="Link to this heading"></a></h2>
+<p>Before running any Molecule tests you need to generate a shared Molecule configuration
+file.  This is done by the helper script <code class="docutils literal notranslate"><span class="pre">tests/utils/setup-molecule</span></code>.</p>
+<section id="what-the-script-does">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">What the script does</a><a class="headerlink" href="#what-the-script-does" title="Link to this heading"></a></h3>
+<p>The script reads <code class="docutils literal notranslate"><span class="pre">extensions/molecule/openwrt-versions.yml</span></code>, builds a list of Docker
+platform entries (one per OpenWrt version), and writes the result to
+<code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code>.  Molecule automatically merges that file into every
+scenario it runs, so all scenarios inherit the correct platforms without duplicating them
+in individual <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> files.</p>
+<p>To run it manually:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>tests/utils/setup-molecule
+</pre></div>
+</div>
+<p>You should see output like:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Ingesting versions from /path/to/extensions/molecule/openwrt-versions.yml</span>
+<span class="go">Versions loaded: [&#39;25.12.2&#39;, &#39;24.10.6&#39;, &#39;23.05.6&#39;]</span>
+<span class="go">Writing file /home/&lt;you&gt;/.config/molecule/config.yml:</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you are using the <strong>dev container</strong>, this step is done for you automatically as
+part of <code class="docutils literal notranslate"><span class="pre">setup.sh</span></code>.  You only need to run it manually when working outside the
+dev container, or after updating <code class="docutils literal notranslate"><span class="pre">openwrt-versions.yml</span></code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The script writes to <code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code> in your <strong>home directory</strong>.
+Because Molecule merges that file into <em>every</em> scenario it runs, the OpenWrt platform
+list will appear in any Molecule execution on your machine — not just those from this
+collection.  If you work on other projects that use Molecule, be mindful of this file:
+re-run the script (or edit the file manually) whenever you need to switch between
+different platform configurations.</p>
+</div>
+</section>
+</section>
+<section id="running-individual-integration-tests">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Running Individual Integration Tests</a><a class="headerlink" href="#running-individual-integration-tests" title="Link to this heading"></a></h2>
+<section id="single-module">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Single module</a><a class="headerlink" href="#single-module" title="Link to this heading"></a></h3>
+<p>Run a single module’s integration test using the <code class="docutils literal notranslate"><span class="pre">integration_test</span></code> scenario.
+The scenario reads the target name from the <code class="docutils literal notranslate"><span class="pre">TEST_TARGET_ROLE</span></code> environment variable:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">TEST_TARGET_ROLE</span><span class="o">=</span>uci<span class="w"> </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>integration_test
+</pre></div>
+</div>
+<p>This runs the target against all OpenWrt platform versions defined in
+<code class="docutils literal notranslate"><span class="pre">openwrt-versions.yml</span></code>.</p>
+</section>
+</section>
+<section id="running-all-plugin-integration-tests-at-once">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Running All Plugin Integration Tests at Once</a><a class="headerlink" href="#running-all-plugin-integration-tests-at-once" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">molecule_integration</span></code> scenario runs every plugin integration target in a single
+pass — the same thing CI does.  It does <strong>not</strong> include role tests
+(see <a class="reference internal" href="#running-role-tests">Running Role Tests</a> for those).</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>molecule_integration
+</pre></div>
+</div>
+<p>The full list of targets is defined in <code class="docutils literal notranslate"><span class="pre">extensions/molecule/molecule_integration/converge.yml</span></code>.</p>
+</section>
+<section id="running-role-tests">
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">Running Role Tests</a><a class="headerlink" href="#running-role-tests" title="Link to this heading"></a></h2>
+<p>Each bundled role has its own Molecule scenarios alongside the role itself:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>roles/
+  &lt;role&gt;/
+    molecule/
+      &lt;scenario&gt;/
+        molecule.yml   ← dummy; config comes from ~/.config/molecule/config.yml
+        converge.yml
+</pre></div>
+</div>
+<p>Run a single scenario using <code class="docutils literal notranslate"><span class="pre">--project-directory</span></code> to point Molecule at the role:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--project-directory<span class="w"> </span>roles/&lt;role&gt;<span class="w"> </span>--scenario-name<span class="w"> </span>&lt;scenario&gt;
+</pre></div>
+</div>
+<p>For example, for the <code class="docutils literal notranslate"><span class="pre">init</span></code> role:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--project-directory<span class="w"> </span>roles/init<span class="w"> </span>--scenario-name<span class="w"> </span>install_recommended_true
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> files in role scenarios are intentionally minimal (they contain only a
+comment).  The actual platform list is injected from the global
+<code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code> written by <code class="docutils literal notranslate"><span class="pre">setup-molecule</span></code>.</p>
+</section>
+<section id="sanity-and-unit-tests">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Sanity and Unit Tests</a><a class="headerlink" href="#sanity-and-unit-tests" title="Link to this heading"></a></h2>
+<p>These use the standard Ansible tooling and are not Molecule-based.</p>
+<p>Sanity:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+</pre></div>
+</div>
+<p>Unit tests:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+</pre></div>
+</div>
+<p><a class="reference external" href="https://github.com/russoz/andebox">andebox</a> is a convenience wrapper around
+<code class="docutils literal notranslate"><span class="pre">ansible-test</span></code> that handles the collection path setup for you, so either tool works.</p>
+<p>See the <a class="reference internal" href="mod_dev_guide.html#ansible-collections-community-openwrt-docsite-mod-dev-guide"><span class="std std-ref">Community OpenWrt Module Developer Guide</span></a> for more
+on what the sanity checks cover.</p>
+<section id="shellcheck-and-ignore-files">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">shellcheck and ignore files</a><a class="headerlink" href="#shellcheck-and-ignore-files" title="Link to this heading"></a></h3>
+<p>Because this collection is largely shell code, the <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> sanity check is
+particularly relevant. When <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> flags an issue that cannot or should not be
+fixed, the correct way to suppress it is to add an entry to the appropriate
+<code class="docutils literal notranslate"><span class="pre">tests/sanity/ignore-X.Y.txt</span></code> file — <strong>never</strong> use inline <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">shellcheck</span> <span class="pre">disable=</span></code>
+directives inside the module files themselves.</p>
+<p>Some project-wide suppressions live in <code class="docutils literal notranslate"><span class="pre">.shellcheckrc</span></code> at the repository root.</p>
+<p>To regenerate the ignore-file entries systematically, use the helper script
+<code class="docutils literal notranslate"><span class="pre">tests/utils/regen-shellcheck-ignores</span></code>. It strips all existing <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> lines
+from every <code class="docutils literal notranslate"><span class="pre">ignore-X.Y.txt</span></code> file, runs the check for each supported ansible-core
+version, and appends the new failures (with descriptions from the <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> wiki)
+back to the appropriate ignore files.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>tests/utils/regen-shellcheck-ignores
+</pre></div>
+</div>
+<p>Run this after adding or significantly modifying shell files, or whenever the set of
+supported ansible-core versions changes.</p>
+</section>
+</section>
+<section id="code-quality-and-linting-nox">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Code Quality and Linting (nox)</a><a class="headerlink" href="#code-quality-and-linting-nox" title="Link to this heading"></a></h2>
+<p>The collection uses <a class="reference external" href="https://nox.thea.codes/">nox</a> together with
+<a class="reference external" href="https://docs.ansible.com/projects/antsibull-nox/">antsibull-nox</a> to run linting,
+formatting, and other code-quality checks.</p>
+<p>Running a plain <code class="docutils literal notranslate"><span class="pre">nox</span></code> executes all default sessions:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Session</p></th>
+<th class="head"><p>What it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lint</span></code></p></td>
+<td><p>Meta-session that triggers <code class="docutils literal notranslate"><span class="pre">formatters</span></code>, <code class="docutils literal notranslate"><span class="pre">codeqa</span></code>, <code class="docutils literal notranslate"><span class="pre">yamllint</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">antsibull-nox-config</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">formatters</span></code></p></td>
+<td><p>Runs <code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">format</span></code> and <code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">check</span> <span class="pre">--fix</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">codeqa</span></code></p></td>
+<td><p>Runs <code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">check</span></code> without auto-fixing</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">yamllint</span></code></p></td>
+<td><p>Checks YAML files with <code class="docutils literal notranslate"><span class="pre">yamllint</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">antsibull-nox-config</span></code></p></td>
+<td><p>Lints the <code class="docutils literal notranslate"><span class="pre">antsibull-nox.toml</span></code> configuration itself</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">license-check</span></code></p></td>
+<td><p>Verifies REUSE / license compliance across all files</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extra-checks</span></code></p></td>
+<td><p>Checks for unwanted files in <code class="docutils literal notranslate"><span class="pre">plugins/</span></code> and trailing whitespace</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">build-import-check</span></code></p></td>
+<td><p>Builds the collection and runs <code class="docutils literal notranslate"><span class="pre">galaxy-importer</span></code> against it</p></td>
+</tr>
+</tbody>
+</table>
+<p>To run all of them:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox
+</pre></div>
+</div>
+<p>To target a specific session, use <code class="docutils literal notranslate"><span class="pre">-e</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>lint
+<span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>license-check
+</pre></div>
+</div>
+<p>By default, nox creates a fresh virtual environment for each session.  Add <code class="docutils literal notranslate"><span class="pre">-R</span></code> to
+reuse an existing one and save time on subsequent runs:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-Re<span class="w"> </span>lint
+</pre></div>
+</div>
+</section>
+<section id="what-ci-runs">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">What CI Runs</a><a class="headerlink" href="#what-ci-runs" title="Link to this heading"></a></h2>
+<p>For reference, here is what each CI job exercises:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>CI job</p></th>
+<th class="head"><p>Equivalent local command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nox</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nox</span></code> (all default sessions)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecule</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">test</span> <span class="pre">-s</span> <span class="pre">default</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">molecule-integration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">test</span> <span class="pre">-s</span> <span class="pre">molecule_integration</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecule-roles</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">test</span> <span class="pre">--project-directory</span> <span class="pre">roles/&lt;role&gt;</span> <span class="pre">--scenario-name</span> <span class="pre">&lt;scenario&gt;</span></code>
+for every role scenario</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span></code> (sanity)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span> <span class="pre">sanity</span> <span class="pre">--docker</span> <span class="pre">default</span> <span class="pre">--python</span> <span class="pre">&lt;version&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span></code> (units)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span> <span class="pre">units</span> <span class="pre">--docker</span> <span class="pre">default</span> <span class="pre">--python</span> <span class="pre">&lt;version&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="further-reading">
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">Further Reading</a><a class="headerlink" href="#further-reading" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://ansible.readthedocs.io/projects/molecule/">Molecule documentation</a></p></li>
+<li><p><a class="reference external" href="https://github.com/russoz/andebox">andebox documentation</a></p></li>
+<li><p><a class="reference external" href="https://github.com/openwrt/docker">OpenWrt container images</a></p></li>
+<li><p><a class="reference external" href="https://nox.thea.codes/">nox documentation</a></p></li>
+<li><p><a class="reference external" href="https://docs.ansible.com/projects/antsibull-nox/">antsibull-nox documentation</a></p></li>
+<li><p><a class="reference internal" href="mod_dev_guide.html#ansible-collections-community-openwrt-docsite-mod-dev-guide"><span class="std std-ref">Community OpenWrt Module Developer Guide</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mod_dev_guide.html" class="btn btn-neutral float-left" title="Community OpenWrt Module Developer Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../apk_module.html" class="btn btn-neutral float-right" title="community.openwrt.apk module – Manage packages with apk on OpenWrt" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Community.OpenWrt Contributors.</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>
