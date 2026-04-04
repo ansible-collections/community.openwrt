@@ -114,17 +114,12 @@ userspace — BusyBox shell, ``uci``, ``opkg``, etc. — rather than mocks.
 
 The collection tests fall into two broad categories:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 40 60
-
-   * - Category
-     - What it covers
-   * - **Integration tests** (modules)
-     - Tests under ``tests/integration/targets/<module>/`` that verify each module's
+   Integration tests (modules)
+       Tests under ``tests/integration/targets/<module>/`` that verify each module's
        behaviour on a live OpenWrt container.
-   * - **Role tests**
-     - Molecule scenarios under ``roles/<role>/molecule/<scenario>/`` that test the
+
+   Role tests
+       Molecule scenarios under ``roles/<role>/molecule/<scenario>/`` that test the
        bundled Ansible roles.
 
 Both categories use real OpenWrt container images.  The list of tested OpenWrt versions
@@ -167,19 +162,16 @@ You should see output like:
 
 .. note::
 
-   If you are using the **dev container**, this step is done for you automatically as
+   If you are using the **devcontainer**, this step is done for you automatically as
    part of ``setup.sh``.  You only need to run it manually when working outside the
-   dev container, or after updating ``openwrt-versions.yml``.
+   devcontainer, or after updating ``openwrt-versions.yml``.
 
 .. warning::
 
    The script writes to ``~/.config/molecule/config.yml`` in your **home directory**.
    Because Molecule merges that file into *every* scenario it runs, the OpenWrt platform
    list will appear in any Molecule execution on your machine — not just those from this
-   collection.  If you work on other projects that use Molecule, be mindful of this file:
-   re-run the script (or edit the file manually) whenever you need to switch between
-   different platform configurations.
-
+   collection.  If you work on other projects that use Molecule, be mindful of this file.
 
 Running Individual Integration Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
