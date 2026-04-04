@@ -11,7 +11,7 @@ Testing Guide
 This guide explains how to run and write tests for the ``community.openwrt`` collection.
 Because the modules in this collection run as shell scripts on real OpenWrt devices (or
 container images of them), testing works a little differently from a typical Python-based
-collection.  Read on for the full picture.
+collection. Read on for the full picture.
 
 .. contents::
    :local:
@@ -67,7 +67,7 @@ What is Molecule?
 ^^^^^^^^^^^^^^^^^
 
 `Molecule <https://ansible.readthedocs.io/projects/molecule/>`_ is a testing framework
-for Ansible roles and collections.  It automates the full test lifecycle: spin up one or
+for Ansible roles and collections. It automates the full test lifecycle: spin up one or
 more instances (containers or VMs), run your playbooks against them, then tear the
 instances down.
 
@@ -84,16 +84,16 @@ A few concepts worth knowing before you dive in:
        Each scenario has its own ``molecule.yml`` (driver and platform settings) and a
        ``converge.yml`` playbook that Molecule runs against the instances.
    * - **Driver**
-     - The backend that creates instances.  This collection uses the ``docker`` driver.
+     - The backend that creates instances. This collection uses the ``docker`` driver.
    * - **Platform**
-     - A container (or VM) definition — image, name, startup command.  Each OpenWrt
+     - A container (or VM) definition — image, name, startup command. Each OpenWrt
        version becomes one platform.
    * - **Converge**
      - The step where Molecule runs your playbook against all running instances.
    * - **``molecule test``**
-     - Runs the full default sequence: create → converge → destroy.  Safe for CI.
+     - Runs the full default sequence: create → converge → destroy. Safe for CI.
    * - **``molecule converge``**
-     - Runs only the converge step against already-running instances.  Handy when
+     - Runs only the converge step against already-running instances. Handy when
        iterating on a change: create once, converge many times, destroy when done.
 
 Molecule also supports a global configuration file at ``~/.config/molecule/config.yml``.
@@ -109,7 +109,7 @@ Overview
 ^^^^^^^^
 
 The test suite is built around Molecule, which orchestrates Docker containers running
-actual OpenWrt root filesystem images.  This means your tests exercise real OpenWrt
+actual OpenWrt root filesystem images. This means your tests exercise real OpenWrt
 userspace — BusyBox shell, ``uci``, ``opkg``, etc. — rather than mocks.
 
 The collection tests fall into two broad categories:
@@ -122,7 +122,7 @@ The collection tests fall into two broad categories:
        Molecule scenarios under ``roles/<role>/molecule/<scenario>/`` that test the
        bundled Ansible roles.
 
-Both categories use real OpenWrt container images.  The list of tested OpenWrt versions
+Both categories use real OpenWrt container images. The list of tested OpenWrt versions
 is maintained in a single file: ``extensions/molecule/openwrt-versions.yml``.
 
 Molecule has native support for Ansible collections and automatically discovers scenarios
@@ -134,14 +134,14 @@ Setting Up Your Environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Before running any Molecule tests you need to generate a shared Molecule configuration
-file.  This is done by the helper script ``tests/utils/setup-molecule``.
+file. This is done by the helper script ``tests/utils/setup-molecule``.
 
 What the script does
 """"""""""""""""""""
 
 The script reads ``extensions/molecule/openwrt-versions.yml``, builds a list of Docker
 platform entries (one per OpenWrt version), and writes the result to
-``~/.config/molecule/config.yml``.  Molecule automatically merges that file into every
+``~/.config/molecule/config.yml``. Molecule automatically merges that file into every
 scenario it runs, so all scenarios inherit the correct platforms without duplicating them
 in individual ``molecule.yml`` files.
 
@@ -163,7 +163,7 @@ You should see output like:
 .. note::
 
    If you are using the **devcontainer**, this step is done for you automatically as
-   part of ``setup.sh``.  You only need to run it manually when working outside the
+   part of ``setup.sh``. You only need to run it manually when working outside the
    devcontainer, or after updating ``openwrt-versions.yml``.
 
 .. warning::
@@ -171,7 +171,7 @@ You should see output like:
    The script writes to ``~/.config/molecule/config.yml`` in your **home directory**.
    Because Molecule merges that file into *every* scenario it runs, the OpenWrt platform
    list will appear in any Molecule execution on your machine — not just those from this
-   collection.  If you work on other projects that use Molecule, be mindful of this file.
+   collection. If you work on other projects that use Molecule, be mindful of this file.
 
 Running Individual Integration Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -194,7 +194,7 @@ Running All Plugin Integration Tests at Once
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``molecule_integration`` scenario runs every plugin integration target in a single
-pass — the same thing CI does.  It does **not** include role tests
+pass — the same thing CI does. It does **not** include role tests
 (see `Running Role Tests`_ for those).
 
 .. code-block:: console
@@ -231,7 +231,7 @@ For example, for the ``init`` role:
    $ (cd roles/init; molecule test -s install_recommended_true)
 
 The ``molecule.yml`` files in role scenarios are intentionally minimal (they contain only a
-comment).  The actual platform list is injected from the global
+comment). The actual platform list is injected from the global
 ``~/.config/molecule/config.yml`` written by ``setup-molecule``.
 
 
@@ -329,7 +329,7 @@ To target a specific session, use ``-e``:
    $ nox -e lint
    $ nox -e license-check
 
-By default, nox creates a fresh virtual environment for each session.  Add ``-R`` to
+By default, nox creates a fresh virtual environment for each session. Add ``-R`` to
 reuse an existing one and save time on subsequent runs:
 
 .. code-block:: console
