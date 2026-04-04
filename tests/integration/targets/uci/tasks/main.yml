@@ -43,3 +43,61 @@
   ansible.builtin.assert:
     that:
       - uci_delete is succeeded
+
+- name: "find - setup: add a test section"
+  community.openwrt.uci:
+    command: add
+    config: uhttpd
+    type: testtype
+  register: uci_add_section
+
+- name: "find - setup: set option on test section"
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: "{{ uci_add_section.result }}"
+    option: testopt
+    value: testval
+
+- name: "find - match found: find the test section by option value"
+  community.openwrt.uci:
+    command: find
+    config: uhttpd
+    type: testtype
+    option: testopt
+    find: testval
+  register: uci_find_match
+
+- name: "find - match found: assert result and section are always present"
+  ansible.builtin.assert:
+    that:
+      - uci_find_match is succeeded
+      - uci_find_match.result is defined
+      - uci_find_match.section is defined
+      - uci_find_match.result == uci_find_match.section
+
+- name: "find - no match: search for a non-existent option value"
+  community.openwrt.uci:
+    command: find
+    config: uhttpd
+    type: testtype
+    option: testopt
+    find: nonexistent
+  register: uci_find_no_match
+  ignore_errors: true
+
+- name: "find - no match: assert task fails with result present and meaningful message"
+  ansible.builtin.assert:
+    that:
+      - uci_find_no_match is failed
+      - uci_find_no_match.result is defined
+      - uci_find_no_match.result == ""
+      - >
+        "no matching section found in" in uci_find_no_match.msg
+
+- name: "find - teardown: delete the test section"
+  community.openwrt.uci:
+    command: delete
+    config: uhttpd
+    section: "{{ uci_add_section.result }}"
+  ignore_errors: true
