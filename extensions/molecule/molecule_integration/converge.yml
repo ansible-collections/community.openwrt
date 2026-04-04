@@ -5,28 +5,18 @@
 - name: Converge
   hosts: all
   gather_facts: false
-  vars:
-    integration_tests_targets:
-      - apk
-      - command
-      - copy
-      - file
-      - lineinfile
-      - nohup
-      - opkg
-      - ping
-      - service
-      - setup
-      - slurp
-      - stat
-      - sysctl
-      - tempfile
-      - template
-      - uci
   tasks:
+    - name: Find integration test targets
+      ansible.builtin.find:
+        paths: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/tests/integration/targets"
+        file_type: directory
+      delegate_to: localhost
+      run_once: true
+      register: found_targets
+
     - name: Include targets
       ansible.builtin.include_role:
         name: "{{ int_test }}"
-      loop: "{{ integration_tests_targets }}"
+      loop: "{{ found_targets.files | map(attribute='path') | map('basename') | sort }}"
       loop_control:
         loop_var: int_test
