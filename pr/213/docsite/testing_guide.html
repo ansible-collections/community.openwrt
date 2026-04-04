@@ -271,27 +271,16 @@ scenarios — more on that in the next section.</p>
 actual OpenWrt root filesystem images.  This means your tests exercise real OpenWrt
 userspace — BusyBox shell, <code class="docutils literal notranslate"><span class="pre">uci</span></code>, <code class="docutils literal notranslate"><span class="pre">opkg</span></code>, etc. — rather than mocks.</p>
 <p>The collection tests fall into two broad categories:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 40.0%" />
-<col style="width: 60.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Category</p></th>
-<th class="head"><p>What it covers</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><strong>Integration tests</strong> (modules)</p></td>
-<td><p>Tests under <code class="docutils literal notranslate"><span class="pre">tests/integration/targets/&lt;module&gt;/</span></code> that verify each module’s
-behaviour on a live OpenWrt container.</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>Role tests</strong></p></td>
-<td><p>Molecule scenarios under <code class="docutils literal notranslate"><span class="pre">roles/&lt;role&gt;/molecule/&lt;scenario&gt;/</span></code> that test the
-bundled Ansible roles.</p></td>
-</tr>
-</tbody>
-</table>
+<blockquote>
+<div><dl class="simple">
+<dt>Integration tests (modules)</dt><dd><p>Tests under <code class="docutils literal notranslate"><span class="pre">tests/integration/targets/&lt;module&gt;/</span></code> that verify each module’s
+behaviour on a live OpenWrt container.</p>
+</dd>
+<dt>Role tests</dt><dd><p>Molecule scenarios under <code class="docutils literal notranslate"><span class="pre">roles/&lt;role&gt;/molecule/&lt;scenario&gt;/</span></code> that test the
+bundled Ansible roles.</p>
+</dd>
+</dl>
+</div></blockquote>
 <p>Both categories use real OpenWrt container images.  The list of tested OpenWrt versions
 is maintained in a single file: <code class="docutils literal notranslate"><span class="pre">extensions/molecule/openwrt-versions.yml</span></code>.</p>
 <p>Molecule has native support for Ansible collections and automatically discovers scenarios
@@ -322,18 +311,16 @@ in individual <code class="docutils literal notranslate"><span class="pre">molec
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you are using the <strong>dev container</strong>, this step is done for you automatically as
+<p>If you are using the <strong>devcontainer</strong>, this step is done for you automatically as
 part of <code class="docutils literal notranslate"><span class="pre">setup.sh</span></code>.  You only need to run it manually when working outside the
-dev container, or after updating <code class="docutils literal notranslate"><span class="pre">openwrt-versions.yml</span></code>.</p>
+devcontainer, or after updating <code class="docutils literal notranslate"><span class="pre">openwrt-versions.yml</span></code>.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The script writes to <code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code> in your <strong>home directory</strong>.
 Because Molecule merges that file into <em>every</em> scenario it runs, the OpenWrt platform
 list will appear in any Molecule execution on your machine — not just those from this
-collection.  If you work on other projects that use Molecule, be mindful of this file:
-re-run the script (or edit the file manually) whenever you need to switch between
-different platform configurations.</p>
+collection.  If you work on other projects that use Molecule, be mindful of this file.</p>
 </div>
 </section>
 </section>
