@@ -10,5 +10,8 @@ external-sources=true
 # unused variables - PARAMS is picked up on this, that will always happen in all modules
 disable=SC2034
 
+# var is referenced but not assigned - module parameters are picked up in all modules
+disable=SC2154
+
 # constructs are compatible with ash
 disable=SC3000-SC4000
