@@ -41,24 +41,23 @@ class OpenwrtActionBase(ActionBase):
 
         module_name = self._task.action.split(".")[-1]
         try:
-            module_script_path = self._find_module_script(module_name)
-            remote_script = self._transfer_module_script(module_name, module_script_path)
+            result.update(self._run_shell_module(module_name, self._task.args.copy(), task_vars))
         except Exception as e:
             result["failed"] = True
             result["msg"] = str(e)
-            return result
-
-        module_args = self._task.args.copy()
-        module_args["_openwrt_script"] = remote_script
-        result.update(
-            self._execute_module(
-                module_name="community.openwrt.wrapper",
-                module_args=module_args,
-                task_vars=task_vars,
-            )
-        )
 
         return result
+
+    def _run_shell_module(self, module_name, module_args, task_vars):
+        """Find, transfer and execute a shell module via wrapper"""
+        module_script_path = self._find_module_script(module_name)
+        remote_script = self._transfer_module_script(module_name, module_script_path)
+        module_args["_openwrt_script"] = remote_script
+        return self._execute_module(
+            module_name="community.openwrt.wrapper",
+            module_args=module_args,
+            task_vars=task_vars,
+        )
 
     def _find_module_script(self, module_name):
         """Find the module's .sh file in the collection"""
