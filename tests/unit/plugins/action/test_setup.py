@@ -8,7 +8,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from ansible_collections.community.openwrt.plugins.action.setup import ActionModule, _redact_wireless
+from ansible_collections.community.openwrt.plugins.action.setup import (
+    _WIRELESS_SENSITIVE_KEYS,
+    ActionModule,
+    _redact_wireless,
+)
 
 
 def _make_action():
@@ -17,6 +21,7 @@ def _make_action():
     obj._task.action = "community.openwrt.setup"
     obj._task.async_val = 0
     obj._task.args = {}
+    obj._task.get_ds.return_value = {}
     obj._connection = MagicMock()
     obj._connection._shell.join_path = MagicMock(return_value="/tmp/remote/setup.sh")
     obj._templar = MagicMock()
@@ -40,6 +45,7 @@ WIRELESS_WITH_SECRETS = {
                     "password": "guest-pass",
                     "auth_secret": "rad1us",
                     "acct_secret": "rad1us2",
+                    "dae_secret": "dae-s3cr3t",
                 }
             },
         ]
@@ -56,26 +62,30 @@ WIRELESS_WITH_SECRETS = {
                     "key4": "wep4",
                 }
             },
-            {"config": {"mode": "ap", "ssid": "Corp", "priv_key_pwd": "certpass"}},
+            {
+                "config": {
+                    "mode": "ap",
+                    "ssid": "Corp",
+                    "priv_key_pwd": "certpass",
+                    "priv_key2_pwd": "certpass2",
+                    "private_key_passwd": "srvkeypass",
+                    "multi_ap_backhaul_key": "backhaul-s3cr3t",
+                }
+            },
         ]
     },
 }
 
-SENSITIVE_KEYS = [
-    "key",
-    "key1",
-    "key2",
-    "key3",
-    "key4",
-    "sae_password",
-    "password",
-    "auth_secret",
-    "acct_secret",
-    "priv_key_pwd",
-]
+
+def test_task_get_ds_api_exists():
+    """Canary: get_ds() is an internal Ansible API we rely on to detect explicit no_log.
+    If this fails, the Ansible core Task class has changed and the no_log check needs revisiting."""
+    from ansible.playbook.base import Base
+
+    assert callable(getattr(Base, "get_ds", None))
 
 
-@pytest.mark.parametrize("sensitive_key", SENSITIVE_KEYS)
+@pytest.mark.parametrize("sensitive_key", sorted(_WIRELESS_SENSITIVE_KEYS))
 def test_redact_wireless_removes_sensitive_keys(sensitive_key):
     result = _redact_wireless(WIRELESS_WITH_SECRETS)
     configs = [iface["config"] for radio in result.values() for iface in radio["interfaces"]]
@@ -105,7 +115,33 @@ def test_run_redacts_wireless_facts(mocker):
         for radio in result["ansible_facts"]["openwrt_wireless"].values()
         for iface in radio["interfaces"]
     ]
-    assert all("key" not in cfg and "password" not in cfg and "psk" not in cfg for cfg in configs)
+    assert all(k not in cfg for cfg in configs for k in _WIRELESS_SENSITIVE_KEYS)
+
+
+def test_run_expose_secrets_requires_explicit_no_log(mocker):
+    action = _make_action()
+    action._task.args = {"expose_secrets": True}
+    action._task.get_ds.return_value = {"expose_secrets": True}  # no_log absent
+    mocker.patch(
+        "ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action.OpenwrtActionBase.run",
+        return_value={"changed": False, "ansible_facts": {"openwrt_wireless": WIRELESS_WITH_SECRETS}},
+    )
+    result = action.run(task_vars={})
+    assert result["failed"] is True
+    assert "no_log" in result["msg"]
+    assert "ansible_facts" not in result
+
+
+def test_run_expose_secrets_preserves_wireless_facts(mocker):
+    action = _make_action()
+    action._task.args = {"expose_secrets": True}
+    action._task.get_ds.return_value = {"expose_secrets": True, "no_log": False}
+    mocker.patch(
+        "ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action.OpenwrtActionBase.run",
+        return_value={"changed": False, "ansible_facts": {"openwrt_wireless": WIRELESS_WITH_SECRETS}},
+    )
+    result = action.run(task_vars={})
+    assert result["ansible_facts"]["openwrt_wireless"] == WIRELESS_WITH_SECRETS
 
 
 def test_run_without_wireless_facts(mocker):
