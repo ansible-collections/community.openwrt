@@ -25,7 +25,7 @@ options:
       - By default these values are redacted to prevent accidental leakage in logs or task output.
       - When set to V(true), the task must also have an explicit C(no_log) setting (V(true) or V(false));
         omitting C(no_log) is treated as an error to ensure a conscious decision is made about logging.
-      - See R(OpenWrt wireless configuration,https://openwrt.org/docs/guide-user/network/wifi/basic) for the full list
+      - See L(OpenWrt wireless configuration, https://openwrt.org/docs/guide-user/network/wifi/basic) for the full list
         of wireless options; the ones treated as secrets by this module are documented in the notes below.
     type: bool
     default: false
