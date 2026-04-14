@@ -22,6 +22,8 @@ _WIRELESS_SENSITIVE_KEYS = frozenset(
         "priv_key2_pwd",  # EAP private key passphrases
         "private_key_passwd",  # hostapd server private key passphrase
         "multi_ap_backhaul_key",  # Multi-AP backhaul key
+        "r0kh",  # 802.11r roaming key holder 0 (contains shared keys)
+        "r1kh",  # 802.11r roaming key holder 1 (contains shared keys)
     }
 )
 

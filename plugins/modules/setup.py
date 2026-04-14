@@ -50,7 +50,7 @@ notes:
     C(openwrt_wireless) facts - C(key), C(key1)–C(key4) (WPA PSK / WEP keys); C(sae_password) (WPA3-SAE);
     C(password) (EAP); C(auth_secret), C(acct_secret), C(dae_secret) (RADIUS shared secrets);
     C(priv_key_pwd), C(priv_key2_pwd), C(private_key_passwd) (private key passphrases);
-    C(multi_ap_backhaul_key) (Multi-AP backhaul).
+    C(multi_ap_backhaul_key) (Multi-AP backhaul); C(r0kh), C(r1kh) (802.11r roaming key holders).
 seealso:
   - name: OpenWrt wireless configuration reference
     description: UCI options for wireless interfaces, including all security and encryption parameters.

@@ -70,6 +70,8 @@ WIRELESS_WITH_SECRETS = {
                     "priv_key2_pwd": "certpass2",
                     "private_key_passwd": "srvkeypass",
                     "multi_ap_backhaul_key": "backhaul-s3cr3t",
+                    "r0kh": "aa:bb:cc:dd:ee:ff r0kh-id s3cr3t",
+                    "r1kh": "aa:bb:cc:dd:ee:ff aa:bb:cc:dd:ee:ff s3cr3t",
                 }
             },
         ]
