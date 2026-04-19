@@ -1,0 +1,52 @@
+---
+# Copyright (c) 2026 Alexei Znamensky
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Diff on new file (dest does not exist)
+  community.openwrt.copy:
+    content: "line one\nline two\n"
+    dest: "{{ remote_tmp_dir }}/test_copy_diff_new.txt"
+  diff: true
+  check_mode: true
+  register: copy_diff_new
+
+- name: Assert diff was produced for new file
+  ansible.builtin.assert:
+    that:
+      - copy_diff_new is changed
+      - copy_diff_new.diff is defined
+      - copy_diff_new.diff.before == ""
+      - "'line one' in copy_diff_new.diff.after"
+
+- name: Seed an existing file for diff test
+  community.openwrt.copy:
+    content: "original\n"
+    dest: "{{ remote_tmp_dir }}/test_copy_diff_update.txt"
+
+- name: Diff on modified file
+  community.openwrt.copy:
+    content: "updated\n"
+    dest: "{{ remote_tmp_dir }}/test_copy_diff_update.txt"
+  diff: true
+  check_mode: true
+  register: copy_diff_update
+
+- name: Assert diff shows both before and after
+  ansible.builtin.assert:
+    that:
+      - copy_diff_update is changed
+      - "'original' in copy_diff_update.diff.before"
+      - "'updated' in copy_diff_update.diff.after"
+
+- name: No diff when content unchanged (idempotent)
+  community.openwrt.copy:
+    content: "original\n"
+    dest: "{{ remote_tmp_dir }}/test_copy_diff_update.txt"
+  diff: true
+  register: copy_diff_noop
+
+- name: Assert no change on idempotent run
+  ansible.builtin.assert:
+    that:
+      - copy_diff_noop is not changed
