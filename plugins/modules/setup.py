@@ -18,7 +18,18 @@ extends_documentation_fragment:
   - community.openwrt.attributes
   - community.openwrt.attributes.facts
   - community.openwrt.attributes.facts_module
-options: {}
+options:
+  expose_secrets:
+    description:
+      - When V(true), sensitive wireless credentials are included in the C(openwrt_wireless) fact.
+      - By default these values are redacted to prevent accidental leakage in logs or task output.
+      - When set to V(true), the task must also have an explicit C(no_log) setting (V(true) or V(false));
+        omitting C(no_log) is treated as an error to ensure a conscious decision is made about logging.
+      - See L(OpenWrt wireless configuration, https://openwrt.org/docs/guide-user/network/wifi/basic) for the full list
+        of wireless options; the ones treated as secrets by this module are documented in the notes below.
+    type: bool
+    default: false
+    version_added: "1.3.0"
 notes:
   - This module gathers OpenWrt-specific facts including C(ubus) data for network interfaces, devices, services, and
     system information.
@@ -35,6 +46,15 @@ notes:
   - Conversely, C(ansible_date_time.tz_dst) is obtained in the standard module through an internal Python function, so
     in order to provide compatibility, that fact is returned by M(community.openwrt.setup) with the exact same value as
     C(ansible_date_time.tz).
+  - Unless O(expose_secrets=true) is set, the following wireless credential fields are redacted from
+    C(openwrt_wireless) facts - C(key), C(key1)–C(key4) (WPA PSK / WEP keys); C(sae_password) (WPA3-SAE);
+    C(password) (EAP); C(auth_secret), C(acct_secret), C(dae_secret) (RADIUS shared secrets);
+    C(priv_key_pwd), C(priv_key2_pwd), C(private_key_passwd) (private key passphrases);
+    C(multi_ap_backhaul_key) (Multi-AP backhaul); C(r0kh), C(r1kh) (802.11r roaming key holders).
+seealso:
+  - name: OpenWrt wireless configuration reference
+    description: UCI options for wireless interfaces, including all security and encryption parameters.
+    link: https://openwrt.org/docs/guide-user/network/wifi/basic
 """
 
 EXAMPLES = r"""
@@ -44,6 +64,11 @@ EXAMPLES = r"""
 - name: Show distribution version
   ansible.builtin.debug:
     msg: "{{ ansible_distribution_version }}"
+
+- name: Gather facts including wireless credentials (handle with care)
+  community.openwrt.setup:
+    expose_secrets: true
+  no_log: true
 """
 
 RETURN = r"""
@@ -108,7 +133,7 @@ ansible_facts:
       returned: when available
       type: dict
     openwrt_wireless:
-      description: Wireless status from C(ubus).
+      description: Wireless status from C(ubus). Sensitive credential fields are redacted unless O(expose_secrets=true).
       returned: when available
       type: dict
     openwrt_interfaces:
