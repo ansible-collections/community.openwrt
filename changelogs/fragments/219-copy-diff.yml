@@ -1,0 +1,2 @@
+bugfixes:
+  - "copy - implement diff mode, which was declared as supported but never produced diff output (https://github.com/ansible-collections/community.openwrt/issues/209, https://github.com/ansible-collections/community.openwrt/pull/219)."
