@@ -7,6 +7,7 @@ from __future__ import annotations
 import os.path
 from tempfile import mkstemp
 
+from ansible import constants as C
 from ansible.errors import AnsibleError
 from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils.parsing.convert_bool import boolean
@@ -85,6 +86,7 @@ class ActionModule(OpenwrtActionBase):
         self._task.args = self._task.args.copy()
         self._task.args["src"] = tmp_src
         self._task.args["_original_basename"] = os.path.basename(source)
+        self._task.args["_diff_max_bytes"] = C.MAX_FILE_SIZE_FOR_DIFF
         self._task.args.pop("content", None)
         return super().run(tmp, task_vars)
 

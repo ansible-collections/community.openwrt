@@ -12,6 +12,7 @@ PARAMS="
     original_basename=_original_basename/str
     src/str
     validate/str
+    _diff_max_bytes/int//104448
     $FILE_PARAMS
 "
 RESPONSE_VARS="src dest md5sum=md5sum_src checksum backup_file"
@@ -70,6 +71,21 @@ main() {
     [ -w "$tmp" ] || fail "Destination $tmp not writeable"
 
     [ "$md5sum_src" = "$md5sum_dest" -a ! -h "$dest" ] || {
+        [ -z "$_ansible_diff" ] || {
+            _diff_before=""
+            _diff_after=""
+            _src_size="$(wc -c < "$src" 2>/dev/null || echo 0)"
+            _dst_size=0
+            [ ! -e "$dest" ] || [ ! -r "$dest" ] || _dst_size="$(wc -c < "$dest" 2>/dev/null || echo 0)"
+            if [ "$_src_size" -gt "$_diff_max_bytes" ] || [ "$_dst_size" -gt "$_diff_max_bytes" ]; then
+                _diff_before="[diff skipped: file larger than $_diff_max_bytes bytes]"
+                _diff_after="$_diff_before"
+            else
+                [ "$_dst_size" = 0 ] || _diff_before="$(cat -- "$dest")"
+                _diff_after="$(cat -- "$src")"
+            fi
+            set_diff "$_diff_before" "$_diff_after" "$dest" "$dest"
+        }
         [ -n "$_ansible_check_mode" ] || {
             [ -z "$backup" ] || backup_file="$(backup_local "$dest")"
             [ ! -h "$dest" ] || { rm -f -- "$dest"; touch -- "$dest"; }
