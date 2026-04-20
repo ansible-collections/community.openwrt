@@ -381,6 +381,8 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <ul class="simple">
 <li><p>This module does not support recursive directory copy. Only regular files can be copied.</p></li>
 <li><p>Supports <code class="docutils literal notranslate"><span class="pre">check_mode</span></code>.</p></li>
+<li><p>Diff output is produced for text files only. Binary files are not detected and may render as corrupted text diffs; avoid <code class="docutils literal notranslate"><span class="pre">--diff</span></code> for binary transfers.</p></li>
+<li><p>Files larger than the controller’s <code class="docutils literal notranslate"><span class="pre">MAX_FILE_SIZE_FOR_DIFF</span></code> configuration are skipped in diff output.</p></li>
 </ul>
 </div>
 </section>
