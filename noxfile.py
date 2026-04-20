@@ -2,6 +2,7 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import os
 import sys
 from pathlib import Path
 
@@ -55,11 +56,18 @@ def release(session: nox.Session):
     check_no_modifications(session, str(fragment_path))
 
     if not fragment_path.is_file():
+        with open(fragment_path, "w") as frag_skel:
+            frag_skel.write("release_summary: |-\n  CHANGEME <type of release>, info")
+        editor = os.getenv("IDE", os.getenv("EDITOR", "vi"))
+        session.run(editor, fragment_path, external=True)
         session.error(f"{fragment_path} must already exist")
+
     with open(fragment_path) as fragment_file:
         fragment = yaml.safe_load(fragment_file)
     if not isinstance(fragment, dict) or len(fragment) != 1 or "release_summary" not in fragment:
         session.error(f"{fragment_path} must contain a single `release_summary` entry")
+    if "CHANGEME" in fragment["release_summary"]:
+        session.error(f"{fragment_path} needs editing")
 
     session.run("git", "pull", "--rebase", "upstream", "main", external=True)
 
