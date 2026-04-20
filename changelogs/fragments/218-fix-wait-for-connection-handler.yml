@@ -1,3 +1,0 @@
-bugfixes:
-  - "roles/common - use ``community.openwrt.wait_for_connection`` in the ``Wait for connection`` handler to avoid the ``python3 not found`` failure
-    (https://github.com/ansible-collections/community.openwrt/issues/196, https://github.com/ansible-collections/community.openwrt/pull/218)."

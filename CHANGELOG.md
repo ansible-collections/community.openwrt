@@ -2,46 +2,79 @@
 
 **Topics**
 
-- <a href="#v1-2-0">v1\.2\.0</a>
+- <a href="#v1-3-0">v1\.3\.0</a>
     - <a href="#release-summary">Release Summary</a>
     - <a href="#minor-changes">Minor Changes</a>
+    - <a href="#breaking-changes--porting-guide">Breaking Changes / Porting Guide</a>
     - <a href="#bugfixes">Bugfixes</a>
-    - <a href="#new-modules">New Modules</a>
-- <a href="#v1-1-0">v1\.1\.0</a>
+- <a href="#v1-2-0">v1\.2\.0</a>
     - <a href="#release-summary-1">Release Summary</a>
     - <a href="#minor-changes-1">Minor Changes</a>
     - <a href="#bugfixes-1">Bugfixes</a>
+    - <a href="#new-modules">New Modules</a>
+- <a href="#v1-1-0">v1\.1\.0</a>
+    - <a href="#release-summary-2">Release Summary</a>
+    - <a href="#minor-changes-2">Minor Changes</a>
+    - <a href="#bugfixes-2">Bugfixes</a>
     - <a href="#new-modules-1">New Modules</a>
 - <a href="#v1-0-0">v1\.0\.0</a>
-    - <a href="#release-summary-2">Release Summary</a>
-- <a href="#v0-4-0">v0\.4\.0</a>
     - <a href="#release-summary-3">Release Summary</a>
-    - <a href="#minor-changes-2">Minor Changes</a>
+- <a href="#v0-4-0">v0\.4\.0</a>
+    - <a href="#release-summary-4">Release Summary</a>
+    - <a href="#minor-changes-3">Minor Changes</a>
     - <a href="#new-modules-2">New Modules</a>
 - <a href="#v0-3-0">v0\.3\.0</a>
-    - <a href="#release-summary-4">Release Summary</a>
-- <a href="#v0-2-0">v0\.2\.0</a>
     - <a href="#release-summary-5">Release Summary</a>
-    - <a href="#minor-changes-3">Minor Changes</a>
+- <a href="#v0-2-0">v0\.2\.0</a>
+    - <a href="#release-summary-6">Release Summary</a>
+    - <a href="#minor-changes-4">Minor Changes</a>
     - <a href="#new-modules-3">New Modules</a>
 - <a href="#v0-1-0">v0\.1\.0</a>
-    - <a href="#release-summary-6">Release Summary</a>
+    - <a href="#release-summary-7">Release Summary</a>
 
-<a id="v1-2-0"></a>
-## v1\.2\.0
+<a id="v1-3-0"></a>
+## v1\.3\.0
 
 <a id="release-summary"></a>
 ### Release Summary
 
-Regular and bugfix release\.
+Regular and bugfix release\. This release include one braking change in the setup module\.
 
 <a id="minor-changes"></a>
+### Minor Changes
+
+* init role \- improve error\-handling when no package manager is found \([https\://github\.com/ansible\-collections/community\.openwrt/issues/204](https\://github\.com/ansible\-collections/community\.openwrt/issues/204)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/207](https\://github\.com/ansible\-collections/community\.openwrt/pull/207)\)\.
+* package\_facts \- move initialization code to <code>init\(\)</code> function \([https\://github\.com/ansible\-collections/community\.openwrt/pull/191](https\://github\.com/ansible\-collections/community\.openwrt/pull/191)\)\.
+* uci \- move initialization code to <code>init\(\)</code> function \([https\://github\.com/ansible\-collections/community\.openwrt/pull/191](https\://github\.com/ansible\-collections/community\.openwrt/pull/191)\)\.
+
+<a id="breaking-changes--porting-guide"></a>
+### Breaking Changes / Porting Guide
+
+* setup \- sensitive wireless credentials are now redacted from the <code>openwrt\_wireless</code> facts by default unless <code>expose\_secrets\=true</code> option is passed \([https\://github\.com/ansible\-collections/community\.openwrt/issues/38](https\://github\.com/ansible\-collections/community\.openwrt/issues/38)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/211](https\://github\.com/ansible\-collections/community\.openwrt/pull/211)\)\.
+
+<a id="bugfixes"></a>
+### Bugfixes
+
+* copy \- fix vault\-encrypted source files being transferred to the remote without decryption \([https\://github\.com/ansible\-collections/community\.openwrt/issues/201](https\://github\.com/ansible\-collections/community\.openwrt/issues/201)\)\.
+* copy \- implement diff mode\, which was declared as supported but never produced diff output \([https\://github\.com/ansible\-collections/community\.openwrt/issues/209](https\://github\.com/ansible\-collections/community\.openwrt/issues/209)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/219](https\://github\.com/ansible\-collections/community\.openwrt/pull/219)\)\.
+* roles/common \- use <code>community\.openwrt\.wait\_for\_connection</code> in the <code>Wait for connection</code> handler to avoid the <code>python3 not found</code> failure \([https\://github\.com/ansible\-collections/community\.openwrt/issues/196](https\://github\.com/ansible\-collections/community\.openwrt/issues/196)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/218](https\://github\.com/ansible\-collections/community\.openwrt/pull/218)\)\.
+* uci \- fix <code>command\=find</code> returning a generic \"Unknown error\.\" message and omitting <code>result</code> when no matching section is found \([https\://github\.com/ansible\-collections/community\.openwrt/issues/170](https\://github\.com/ansible\-collections/community\.openwrt/issues/170)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/210](https\://github\.com/ansible\-collections/community\.openwrt/pull/210)\)\.
+
+<a id="v1-2-0"></a>
+## v1\.2\.0
+
+<a id="release-summary-1"></a>
+### Release Summary
+
+Regular and bugfix release\.
+
+<a id="minor-changes-1"></a>
 ### Minor Changes
 
 * copy action plugin \- remove redundant code \([https\://github\.com/ansible\-collections/community\.openwrt/pull/192](https\://github\.com/ansible\-collections/community\.openwrt/pull/192)\)\.
 * openwrt\_action plugin utils \- remove redundant code \([https\://github\.com/ansible\-collections/community\.openwrt/pull/192](https\://github\.com/ansible\-collections/community\.openwrt/pull/192)\)\.
 
-<a id="bugfixes"></a>
+<a id="bugfixes-1"></a>
 ### Bugfixes
 
 * copy \- fix destination file name if <code>dest</code> is a directory \([https\://github\.com/ansible\-collections/community\.openwrt/pull/165](https\://github\.com/ansible\-collections/community\.openwrt/pull/165)\)\.
@@ -55,12 +88,12 @@ Regular and bugfix release\.
 <a id="v1-1-0"></a>
 ## v1\.1\.0
 
-<a id="release-summary-1"></a>
+<a id="release-summary-2"></a>
 ### Release Summary
 
 See [https\://github\.com/ansible\-collections/community\.openwrt/blob/main/CHANGELOG\.md](https\://github\.com/ansible\-collections/community\.openwrt/blob/main/CHANGELOG\.md) for all changes\.
 
-<a id="minor-changes-1"></a>
+<a id="minor-changes-2"></a>
 ### Minor Changes
 
 * init role \- enable check mode in the task checking package manager compatibility \([https\://github\.com/ansible\-collections/community\.openwrt/pull/136](https\://github\.com/ansible\-collections/community\.openwrt/pull/136)\)\.
@@ -68,7 +101,7 @@ See [https\://github\.com/ansible\-collections/community\.openwrt/blob/main/CHAN
 * setup \- collect <code>ansible\_date\_time</code> facts as well \([https\://github\.com/ansible\-collections/community\.openwrt/issues/52](https\://github\.com/ansible\-collections/community\.openwrt/issues/52)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/138](https\://github\.com/ansible\-collections/community\.openwrt/pull/138)\)\.
 * setup \- report <code>ansible\_pkg\_mgr</code> fact with the detected package manager used \([https\://github\.com/ansible\-collections/community\.openwrt/pull/136](https\://github\.com/ansible\-collections/community\.openwrt/pull/136)\)\.
 
-<a id="bugfixes-1"></a>
+<a id="bugfixes-2"></a>
 ### Bugfixes
 
 * ping \- module code must indicate it does not support check mode \([https\://github\.com/ansible\-collections/community\.openwrt/pull/132](https\://github\.com/ansible\-collections/community\.openwrt/pull/132)\)\.
@@ -83,7 +116,7 @@ See [https\://github\.com/ansible\-collections/community\.openwrt/blob/main/CHAN
 <a id="v1-0-0"></a>
 ## v1\.0\.0
 
-<a id="release-summary-2"></a>
+<a id="release-summary-3"></a>
 ### Release Summary
 
 First GA release of the community\.openwrt collection\.
@@ -91,14 +124,14 @@ First GA release of the community\.openwrt collection\.
 <a id="v0-4-0"></a>
 ## v0\.4\.0
 
-<a id="release-summary-3"></a>
+<a id="release-summary-4"></a>
 ### Release Summary
 
 Establish mechanism for integration testing\.
 Add support to the <code>apk</code> package manager\.
 Modules now have lifecycle functions <code>init\(\)</code> and <code>validate\(\)</code>\.
 
-<a id="minor-changes-2"></a>
+<a id="minor-changes-3"></a>
 ### Minor Changes
 
 * command \- use functions <code>init\(\)</code> and <code>validate\(\)</code> \([https\://github\.com/ansible\-collections/community\.openwrt/issues/47](https\://github\.com/ansible\-collections/community\.openwrt/issues/47)\, [https\://github\.com/ansible\-collections/community\.openwrt/pull/67](https\://github\.com/ansible\-collections/community\.openwrt/pull/67)\)\.
@@ -121,7 +154,7 @@ Modules now have lifecycle functions <code>init\(\)</code> and <code>validate\(\
 <a id="v0-3-0"></a>
 ## v0\.3\.0
 
-<a id="release-summary-4"></a>
+<a id="release-summary-5"></a>
 ### Release Summary
 
 Add <code>\.devcontainer</code> setup\.
@@ -133,7 +166,7 @@ Rename setup role to <code>community\.openwrt\.init</code>\.
 <a id="v0-2-0"></a>
 ## v0\.2\.0
 
-<a id="release-summary-5"></a>
+<a id="release-summary-6"></a>
 ### Release Summary
 
 Use action plugins to \"wrap\" shell\-based modules\.
@@ -141,7 +174,7 @@ Update <code>build\_ignore</code> in <code>galaxy\.yml</code>\.
 Move module docs to <code>\.py</code> files\.
 Mark <code>shell\=ash</code> for <code>shellcheck</code>\.
 
-<a id="minor-changes-3"></a>
+<a id="minor-changes-4"></a>
 ### Minor Changes
 
 * command \- revamp the shell wrapping mechanism \([https\://github\.com/ansible\-collections/community\.openwrt/pull/14](https\://github\.com/ansible\-collections/community\.openwrt/pull/14)\)\.
@@ -181,7 +214,7 @@ Mark <code>shell\=ash</code> for <code>shellcheck</code>\.
 <a id="v0-1-0"></a>
 ## v0\.1\.0
 
-<a id="release-summary-6"></a>
+<a id="release-summary-7"></a>
 ### Release Summary
 
 This is the first release of the <code>community\.openwrt</code> collection\.

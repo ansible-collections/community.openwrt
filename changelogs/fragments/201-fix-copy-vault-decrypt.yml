@@ -1,2 +1,0 @@
-bugfixes:
-  - copy - fix vault-encrypted source files being transferred to the remote without decryption (https://github.com/ansible-collections/community.openwrt/issues/201).

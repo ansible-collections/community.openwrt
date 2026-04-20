@@ -1,3 +1,0 @@
-minor_changes:
-  - package_facts - move initialization code to ``init()`` function (https://github.com/ansible-collections/community.openwrt/pull/191).
-  - uci - move initialization code to ``init()`` function (https://github.com/ansible-collections/community.openwrt/pull/191).
