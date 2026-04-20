@@ -4,6 +4,34 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.3.0
+======
+
+Release Summary
+---------------
+
+Regular and bugfix release. This release include one braking change in the setup module.
+
+Minor Changes
+-------------
+
+- init role - improve error-handling when no package manager is found (https://github.com/ansible-collections/community.openwrt/issues/204, https://github.com/ansible-collections/community.openwrt/pull/207).
+- package_facts - move initialization code to ``init()`` function (https://github.com/ansible-collections/community.openwrt/pull/191).
+- uci - move initialization code to ``init()`` function (https://github.com/ansible-collections/community.openwrt/pull/191).
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- setup - sensitive wireless credentials are now redacted from the ``openwrt_wireless`` facts by default unless ``expose_secrets=true`` option is passed (https://github.com/ansible-collections/community.openwrt/issues/38, https://github.com/ansible-collections/community.openwrt/pull/211).
+
+Bugfixes
+--------
+
+- copy - fix vault-encrypted source files being transferred to the remote without decryption (https://github.com/ansible-collections/community.openwrt/issues/201).
+- copy - implement diff mode, which was declared as supported but never produced diff output (https://github.com/ansible-collections/community.openwrt/issues/209, https://github.com/ansible-collections/community.openwrt/pull/219).
+- roles/common - use ``community.openwrt.wait_for_connection`` in the ``Wait for connection`` handler to avoid the ``python3 not found`` failure (https://github.com/ansible-collections/community.openwrt/issues/196, https://github.com/ansible-collections/community.openwrt/pull/218).
+- uci - fix ``command=find`` returning a generic "Unknown error." message and omitting ``result`` when no matching section is found (https://github.com/ansible-collections/community.openwrt/issues/170, https://github.com/ansible-collections/community.openwrt/pull/210).
+
 v1.2.0
 ======
 

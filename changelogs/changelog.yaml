@@ -166,3 +166,38 @@ releases:
         name: group
         namespace: ''
     release_date: '2026-03-24'
+  1.3.0:
+    changes:
+      breaking_changes:
+        - setup - sensitive wireless credentials are now redacted from the ``openwrt_wireless``
+          facts by default unless ``expose_secrets=true`` option is passed (https://github.com/ansible-collections/community.openwrt/issues/38,
+          https://github.com/ansible-collections/community.openwrt/pull/211).
+      bugfixes:
+        - copy - fix vault-encrypted source files being transferred to the remote
+          without decryption (https://github.com/ansible-collections/community.openwrt/issues/201).
+        - copy - implement diff mode, which was declared as supported but never produced
+          diff output (https://github.com/ansible-collections/community.openwrt/issues/209,
+          https://github.com/ansible-collections/community.openwrt/pull/219).
+        - roles/common - use ``community.openwrt.wait_for_connection`` in the ``Wait
+          for connection`` handler to avoid the ``python3 not found`` failure (https://github.com/ansible-collections/community.openwrt/issues/196,
+          https://github.com/ansible-collections/community.openwrt/pull/218).
+        - uci - fix ``command=find`` returning a generic "Unknown error." message
+          and omitting ``result`` when no matching section is found (https://github.com/ansible-collections/community.openwrt/issues/170,
+          https://github.com/ansible-collections/community.openwrt/pull/210).
+      minor_changes:
+        - init role - improve error-handling when no package manager is found (https://github.com/ansible-collections/community.openwrt/issues/204,
+          https://github.com/ansible-collections/community.openwrt/pull/207).
+        - package_facts - move initialization code to ``init()`` function (https://github.com/ansible-collections/community.openwrt/pull/191).
+        - uci - move initialization code to ``init()`` function (https://github.com/ansible-collections/community.openwrt/pull/191).
+      release_summary: Regular and bugfix release. This release include one braking
+        change in the setup module.
+    fragments:
+      - 1.3.0.yml
+      - 191-use-init.yml
+      - 201-fix-copy-vault-decrypt.yml
+      - 207-init-assert-pkgmgr.yml
+      - 210-uci-find-no-match-error-msg.yml
+      - 211-setup-wifi-password-leak.yml
+      - 218-fix-wait-for-connection-handler.yml
+      - 219-copy-diff.yml
+    release_date: '2026-04-21'

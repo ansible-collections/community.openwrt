@@ -1,2 +1,0 @@
-minor_changes:
-  - init role - improve error-handling when no package manager is found (https://github.com/ansible-collections/community.openwrt/issues/204, https://github.com/ansible-collections/community.openwrt/pull/207).
