@@ -233,16 +233,21 @@ def version_bump(session: nox.Session):
     check_no_modifications(session, "")
     session.run("git", "pull", "--rebase", "upstream", "main", external=True)
 
-    current = galaxy_version()
-    if len(session.posargs) == 0:
-        new_version = next_minor(current)
-    elif len(session.posargs) == 1:
-        new_version = session.posargs[0]
+    gv = galaxy_version()
+    if len(session.posargs) == 1:
+        version = session.posargs[0]
+        new_version = next_minor(version)
+    elif len(session.posargs) == 2:
+        version = session.posargs[0]
+        new_version = session.posargs[1]
     else:
         session.error(f"usage: nox -e {session.name} -- [<next_version>]")
 
+    if version != gv:
+        session.error(f"Version specified ({version}) differs from galaxy.yml ({gv})")
+
     set_galaxy_version(new_version)
-    released_docs_url = DOCS_URL_TAG_TPL.format(version=current)
+    released_docs_url = DOCS_URL_TAG_TPL.format(version=version)
     rewrite_docs_urls(released_docs_url, DOCS_URL_DEV)
 
     session.run("git", "add", "galaxy.yml", "README.md", external=True)
