@@ -22,42 +22,46 @@ These policies become effective after the release of community.openwrt 1.0.0.
 
 ### Major versions
 
-The collection will release major versions twice per year, around January and July. Exact dates will decided by RMs closer to the release and will be announced and published in the [Release History](https://github.com/ansible-collections/community.openwrt/issues/100) issue in GitHub.
+The collection targets one major release per OpenWrt major cycle. In practice, that is approximately one
+major release per year, usually between two to four weeks after a new OpenWrt major release. Exact timing
+will be confirmed by RMs in the [Release History](https://github.com/ansible-collections/community.openwrt/issues/100)
+issue in GitHub.
 
 Upon releasing a major version, support is updated:
 
-- **OpenWrt:** all the versions that are End of Life except the last one.
+- **OpenWrt:** support includes the currently Supported and Security Maintenance release lines, plus at most one
+  End of Life release line (the most recent one).
   - If OpenWrt has a release candidate (rc) published for an upcoming release by the time of the community.openwrt release, it may or may not be supported by the collection, at the discretion of the RMs.
     - If an `rc` version is included in the support, it will be replaced by the official release when available.
   - The automated tests use OpenWrt images with their full version number, including service release (see below for the reference about their numbering scheme). The service number for those images will be updated to match the last available release, but that will happen on a best-effort basis. At any given time, the collection might be testing against one or two service releases prior to the latest one.
 - **ansible-core:** drop support for all versions that are End of Life.
 - **community.openwrt:** drop support for all previous major versions of the collection.
-  - Note that dropping previous major versions of community.openwrt itself simplifies its maintenance process considerably. This is going to be revisited if demand for backports builds up.
+  - Previous major versions do not receive routine bugfixes or feature backports.
+  - Exceptionally, RMs may decide to backport fixes for severe regressions or security issues.
 
 ### Minor versions
 
 The collection will release minor versions periodically, between major versions.
 
-- release will happen shortly after (may vary depending on circumstances) community.general `x.y.0` releases, or roughly every four weeks.
-- RMs may skip a minor release if no new features were added in the previous period.
-
-There is no dependency between community.openwrt and community.general, their releases are being used as a benchmark/reminder for the release scheduling of this collection.
+- RMs aim to release approximately every two weeks.
+- RMs may skip a minor release if there were no user-facing features or bugfixes in the previous period.
 
 ### Patch versions
 
 - Patch versions `x.y.z` until the last minor release of a major release branch will only be released when necessary. The intended frequency is _never_, they are reserved for packaging failures, or fixing major breakage / security problems.
-- These releases will happen regularly and when necessary.
 
-## Deprecation policy
+### Deprecation policy
 
 - Deprecations are done by version number (not by date).
 - New deprecations can be added during every minor release, under the condition that they **do not break backwards compatibility**.
-- Deprecations are expected to have a deprecation cycle of at least 2 major versions (that means at least 1 year). Maintainers can use a longer deprecation cycle if they want to support the old code for that long.
+- A deprecated feature can only be removed in a major release.
+- The first major release after a deprecation is eligible for removal only if at least 12 months have passed since the first published collection version containing that deprecation.
+- If the 12-month threshold is not yet reached at that major release, removal is deferred to a later major release.
+- Because major releases are aligned with OpenWrt, and OpenWrt does not publish a fixed release schedule, there is no guaranteed maximum time to removal.
 
-Note that these policies have been copied literally from community.general, and they are not without caveats:
+#### Caveats
 
-- the collection just starting its lifetime: there is no measurement, subjective or otherwise, to the demand for deprecating features in the code base
-- the shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins, so the **deprecation is documentary only**. Until that [mechanism is implemented](https://github.com/ansible-collections/community.openwrt/issues/28), there is no deprecation warnings sent to the users or developers.
+- the shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins, so the **deprecation is documentary only**. Until that [mechanism is implemented](https://github.com/ansible-collections/community.openwrt/issues/28), there are no deprecation warnings sent to users or developers.
 
 ## Collection Release Process
 
