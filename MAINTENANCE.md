@@ -8,7 +8,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 This document describes _how_ and _when_ community.openwrt is released and maintained.
 
-The policies written here are meant more as guidelines than as strict rules - objective results, flexibility and adaptability are to be valued over compliance.
+The policies written here are meant more as guidelines than as strict rules; objective results, flexibility, and adaptability are to be valued over compliance.
 
 These policies become effective after the release of community.openwrt 1.0.0.
 
@@ -33,7 +33,7 @@ Upon releasing a major version, support is updated:
   End of Life release line (the most recent one).
   - If OpenWrt has a release candidate (rc) published for an upcoming release by the time of the community.openwrt release, it may or may not be supported by the collection, at the discretion of the RMs.
     - If an `rc` version is included in the support, it will be replaced by the official release when available.
-  - The automated tests use OpenWrt images with their full version number, including service release (see below for the reference about their numbering scheme). The service number for those images will be updated to match the last available release, but that will happen on a best-effort basis. At any given time, the collection might be testing against one or two service releases prior to the latest one.
+  - The automated tests use OpenWrt images with their full version number, including service release numbers (see below for the reference about their numbering scheme). The service number for those images will be updated to match the last available release, but that will happen on a best-effort basis. At any given time, the collection might be testing against one or two service releases prior to the latest one.
 - **ansible-core:** drop support for all versions that are End of Life.
 - **community.openwrt:** drop support for all previous major versions of the collection.
   - Previous major versions do not receive routine bugfixes or feature backports.
@@ -61,7 +61,7 @@ The collection will release minor versions periodically, between major versions.
 
 #### Caveats
 
-- the shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins, so the **deprecation is documentary only**. Until that [mechanism is implemented](https://github.com/ansible-collections/community.openwrt/issues/28), there are no deprecation warnings sent to users or developers.
+- The shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins, so the **deprecation is documentary only**. Until that [mechanism is implemented](https://github.com/ansible-collections/community.openwrt/issues/28), there are no deprecation warnings sent to users or developers.
 
 ## Collection Release Process
 
@@ -91,7 +91,7 @@ The collection is affected by many direct and indirect dependencies, but especia
 
 The purpose of this section is to establish context about these dependencies' release and support policies.
 This section is merely descriptive of these external dependencies and does not establish any specific policy.
-However, major events in those projects might prompt adjustments or other adhoc actions related to community.openwrt releases.
+However, major events in those projects might prompt adjustments or other ad hoc actions related to community.openwrt releases.
 
 ### OpenWrt
 
@@ -108,4 +108,4 @@ The project is governed by a [flexible release cycle](https://docs.ansible.com/p
 
 Typically, it releases two minor versions per year. As indicated, the schedule is flexible, and the plans for upcoming releases are usually found in the [ansible-core Roadmaps](https://docs.ansible.com/projects/ansible/latest/roadmap/ansible_core_roadmap_index.html#ansible-core-roadmaps).
 
-Per the project rules, the last 3 releases are supported with bug and security fixes.
+Per the project rules, the last three releases are supported with bug and security fixes.
