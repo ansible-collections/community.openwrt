@@ -195,7 +195,7 @@ See [using Ansible collections](https://docs.ansible.com/ansible/devel/user_guid
 ansible-galaxy collection install git+https://github.com/ansible-collections/community.openwrt
 ```
 
-Or, if you want to install a vesion from a specific tag or branch:
+Or, if you want to install a version from a specific tag or branch:
 
 ```bash
 ansible-galaxy collection install git+https://github.com/ansible-collections/community.openwrt,0.3.0
