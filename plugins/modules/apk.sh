@@ -20,12 +20,18 @@ install_packages() {
     [ -n "$pkgs_to_install" ] || return 0
 
     [ -n "$_ansible_check_mode" ] || {
-        apk $update_cache $no_cache $force_broken_world add $pkgs_to_install >"$out" 2>"$err"
+        apk $update_cache $no_cache $force_broken_world $allow_untrusted add $pkgs_to_install >"$out" 2>"$err"
         rc=$?
         stdout="$(cat "$out")"
         stderr="$(cat "$err")"
         # Verify installation
         for pkg in $pkgs_to_install; do
+            if [ -f "$pkg" ]; then
+                # we installed a file and have to query the file for the package name to verify its installation
+                json_load "$(apk adbdump --format json "$pkg")" || fail "could not parse output of apk adbdump"
+                json_select "info"
+                json_get_var pkg "name"
+            fi
             query_package "$pkg" || fail "failed to install $pkg: $stdout $stderr"
         done
     }
@@ -62,6 +68,7 @@ init() {
         update_cache/bool
         no_cache/bool
         force_broken_world/bool
+        allow_untrusted/bool
     "
     RESPONSE_VARS="
         stdout/str/a
@@ -91,6 +98,7 @@ main() {
     [ -z "$update_cache" ] || update_cache="--update-cache"
     [ -z "$no_cache" ] || no_cache="--no-cache"
     [ -z "$force_broken_world" ] || force_broken_world="--force-broken-world"
+    [ -z "$allow_untrusted" ] || allow_untrusted="--allow-untrusted"
 
     case "$state" in
         present|installed) install_packages;;
