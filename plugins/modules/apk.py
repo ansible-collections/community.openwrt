@@ -55,6 +55,11 @@ options:
       - Continue even if package dependencies are broken.
     type: bool
     default: false
+  allow_untrusted:
+    description:
+      - To install a locally available apk package, for example if this device has no internet access but you can upload apk packages directly to it.
+    type: bool
+    default: false
 """
 
 EXAMPLES = r"""
@@ -79,6 +84,12 @@ EXAMPLES = r"""
     name: tcpdump
     state: present
     no_cache: true
+
+- name: Install local package
+  community.openwrt.apk:
+    name: /path/to/file.apk
+    state: present
+    allow_untrusted: true
 """
 
 RETURN = r""""""
