@@ -50,7 +50,7 @@ The collection will release minor versions periodically, between major versions.
 
 - Patch versions `x.y.z` until the last minor release of a major release branch will only be released when necessary. The intended frequency is _never_, they are reserved for packaging failures, or fixing major breakage / security problems.
 
-### Deprecation policy
+## Deprecation policy
 
 - Deprecations are done by version number (not by date).
 - New deprecations can be added during every minor release, under the condition that they **do not break backwards compatibility**.
@@ -59,7 +59,7 @@ The collection will release minor versions periodically, between major versions.
 - If the 12-month threshold is not yet reached at that major release, removal is deferred to a later major release.
 - Because major releases are aligned with OpenWrt, and OpenWrt does not publish a fixed release schedule, there is no guaranteed maximum time to removal.
 
-#### Caveats
+### Caveats
 
 - The shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins, so the **deprecation is documentary only**. Until that [mechanism is implemented](https://github.com/ansible-collections/community.openwrt/issues/28), there are no deprecation warnings sent to users or developers.
 
