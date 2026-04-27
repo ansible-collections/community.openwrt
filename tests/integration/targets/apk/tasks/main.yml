@@ -37,3 +37,27 @@
       ansible.builtin.assert:
         that:
           - apk_remove is succeeded
+
+    - name: Test --allow-untrusted
+      block:
+        - name: Download a test package
+          ansible.builtin.command:
+            cmd: 'apk fetch htop -s > /tmp/htop.apk'
+
+        - name: Install untrusted package
+          community.openwrt.apk:
+            name: /tmp/htop.apk
+            state: present
+            allow_untrusted: true
+
+        - name: "Verify package is installed"
+          community.openwrt.command:
+            cmd: apk info -e htop
+          register: apk_verify_untrusted
+          failed_when: apk_verify_untrusted.rc != 0
+
+      finally:
+        - name: Remove downloaded package
+          ansible.builtin.file:
+            path: /tmp/htop.apk
+            state: absent
