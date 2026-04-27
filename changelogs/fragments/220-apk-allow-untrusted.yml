@@ -1,0 +1,2 @@
+minor_changes:
+  - "apk - add option ``allow_untrusted`` to be able to install local packages (https://github.com/ansible-collections/community.openwrt/issues/195, https://github.com/ansible-collections/community.openwrt/pull/224)"

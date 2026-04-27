@@ -20,7 +20,7 @@ install_packages() {
     [ -n "$pkgs_to_install" ] || return 0
 
     [ -n "$_ansible_check_mode" ] || {
-        apk $update_cache $no_cache $force_broken_world add $pkgs_to_install >"$out" 2>"$err"
+        apk $update_cache $no_cache $force_broken_world $allow_untrusted add $pkgs_to_install >"$out" 2>"$err"
         rc=$?
         stdout="$(cat "$out")"
         stderr="$(cat "$err")"
@@ -62,6 +62,7 @@ init() {
         update_cache/bool
         no_cache/bool
         force_broken_world/bool
+        allow_untrusted/bool
     "
     RESPONSE_VARS="
         stdout/str/a
@@ -91,6 +92,7 @@ main() {
     [ -z "$update_cache" ] || update_cache="--update-cache"
     [ -z "$no_cache" ] || no_cache="--no-cache"
     [ -z "$force_broken_world" ] || force_broken_world="--force-broken-world"
+    [ -z "$allow_untrusted" ] || allow_untrusted="--allow-untrusted"
 
     case "$state" in
         present|installed) install_packages;;
