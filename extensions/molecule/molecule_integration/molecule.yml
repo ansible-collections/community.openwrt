@@ -2,9 +2,19 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Ensure generated ansible.cfg allows legacy/broken conditionals used by some drivers
+scenario:
+  test_sequence:
+    - create
+    - converge
+    - destroy
+
 provisioner:
   name: ansible
+  inventory:
+    directory: ${MOLECULE_EPHEMERAL_DIRECTORY}/inventory
+  playbooks:
+    create: ../create.yml
+    destroy: ../destroy.yml
   env:
     ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/tests/integration/targets"
   config_options:

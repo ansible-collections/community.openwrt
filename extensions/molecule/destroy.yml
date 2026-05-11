@@ -1,0 +1,28 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Destroy
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Read OpenWrt versions
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/openwrt-versions.yml"
+        name: _openwrt
+
+    - name: Build platform list
+      ansible.builtin.set_fact:
+        _platforms: >-
+          {{ _platforms | default([]) + [{
+            'name': 'openwrt' + item.split('.')[0] + item.split('.')[1]
+          }] }}
+      loop: "{{ _openwrt.versions }}"
+
+    - name: Remove OpenWrt containers
+      community.docker.docker_container:
+        name: "{{ item.name }}"
+        state: absent
+        auto_remove: true
+      loop: "{{ _platforms }}"
+      ignore_errors: true

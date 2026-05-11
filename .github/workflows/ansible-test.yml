@@ -174,8 +174,9 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
-      - name: Set up molecule platforms config
-        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule
+      - name: Install required Ansible collections
+        run: ansible-galaxy collection install -r extensions/molecule/collections.yml
+        working-directory: ansible_collections/community/openwrt
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
@@ -212,8 +213,9 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
-      - name: Set up molecule platforms config
-        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule
+      - name: Install required Ansible collections
+        run: ansible-galaxy collection install -r extensions/molecule/collections.yml
+        working-directory: ansible_collections/community/openwrt
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
@@ -250,9 +252,6 @@ jobs:
       - name: Install test dependencies
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
-
-      - name: Set up molecule platforms config
-        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule
 
       - name: Install required Ansible collections
         run: ansible-galaxy collection install -r extensions/molecule/collections.yml
