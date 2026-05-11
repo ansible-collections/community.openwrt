@@ -25,4 +25,3 @@
         state: absent
         auto_remove: true
       loop: "{{ _platforms }}"
-      ignore_errors: true
