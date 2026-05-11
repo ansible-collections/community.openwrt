@@ -4,7 +4,6 @@
 
 scenario:
   test_sequence:
-    - dependency
     - create
     - converge
     - destroy
@@ -14,5 +13,5 @@ provisioner:
   inventory:
     directory: ${MOLECULE_EPHEMERAL_DIRECTORY}/inventory
   playbooks:
-    create: ../create.yml
-    destroy: ../destroy.yml
+    create: ../../../tests/molecule/create.yml
+    destroy: ../../../tests/molecule/destroy.yml

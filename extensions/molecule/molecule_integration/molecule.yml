@@ -13,8 +13,8 @@ provisioner:
   inventory:
     directory: ${MOLECULE_EPHEMERAL_DIRECTORY}/inventory
   playbooks:
-    create: ../create.yml
-    destroy: ../destroy.yml
+    create: ../../../tests/molecule/create.yml
+    destroy: ../../../tests/molecule/destroy.yml
   env:
     ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/tests/integration/targets"
   config_options:

@@ -4,5 +4,4 @@
 
 collections:
   - ansible.posix
-  - name: community.docker
-    version: ">=3.10.4"
+  - community.docker

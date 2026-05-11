@@ -13,5 +13,5 @@ provisioner:
   inventory:
     directory: ${MOLECULE_EPHEMERAL_DIRECTORY}/inventory
   playbooks:
-    create: ../../../../extensions/molecule/create.yml
-    destroy: ../../../../extensions/molecule/destroy.yml
+    create: ../../../../tests/molecule/create.yml
+    destroy: ../../../../tests/molecule/destroy.yml
