@@ -123,10 +123,7 @@ jobs:
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
-        run: molecule -vv test --scenario-name molecule_integration
-        env:
-          PY_COLORS: "1"
-          ANSIBLE_FORCE_COLOR: "1"
+        run: nox -e integration
 
   ###
   # Sanity tests (REQUIRED)
@@ -219,10 +216,7 @@ jobs:
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
-        run: molecule -vv test -s default
-        env:
-          PY_COLORS: "1"
-          ANSIBLE_FORCE_COLOR: "1"
+        run: nox -e molecule
 
 
   molecule-roles:
@@ -259,18 +253,7 @@ jobs:
 
       - name: Run molecule for all role scenarios
         working-directory: ansible_collections/community/openwrt
-        run: |
-          for scenario_dir in roles/*/molecule/*/; do
-            echo "scenario_dir = $scenario_dir"
-            role=$(basename "$(dirname "$(dirname "$scenario_dir")")")
-            scenario=$(basename "$scenario_dir")
-            echo "role         = $role"
-            echo "scenario     = $scenario"
-            (cd "roles/$role" && molecule -vv test --scenario-name "$scenario")
-          done
-        env:
-          PY_COLORS: "1"
-          ANSIBLE_FORCE_COLOR: "1"
+        run: nox -e roles
 
   ###
   # Unit tests (OPTIONAL)

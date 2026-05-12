@@ -28,4 +28,4 @@ ansible-galaxy collection install -r tests/requirements.yml
 }
 
 # shellcheck disable=SC2086
-molecule $CLI_VERBOSITY test --parallel -s integration_test
+molecule $CLI_VERBOSITY test --parallel -s ansible_test_integration
