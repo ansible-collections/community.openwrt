@@ -22,12 +22,6 @@ Quickstart
 
 Already familiar with Molecule and just need the commands?  Here you go.
 
-**One-time setup** (skip if using the dev container):
-
-.. code-block:: console
-
-   $ python3 tests/utils/setup-molecule
-
 **Run a single module's integration test:**
 
 .. code-block:: console
@@ -50,8 +44,13 @@ Already familiar with Molecule and just need the commands?  Here you go.
 
 .. code-block:: console
 
-   $ cd roles/<role>
-   $ molecule test -s <scenario>
+   $ nox -e roles -- --role <role> --scenario <scenario>
+
+**Run all role scenarios:**
+
+.. code-block:: console
+
+   $ nox -e roles
 
 **Sanity / unit tests:**
 
@@ -84,11 +83,6 @@ A few concepts worth knowing before you dive in:
     - ``molecule converge``: Runs only the converge step against already-running instances. Handy when
       iterating on a change: create once, converge many times, destroy when done.
 
-Molecule also supports a global configuration file at ``~/.config/molecule/config.yml``.
-Any settings in that file are merged into *every* scenario Molecule runs on your machine.
-This collection uses that mechanism to share the OpenWrt platform list across all its
-scenarios — more on that in the next section.
-
 For a deeper introduction, see the
 `official Molecule documentation <https://ansible.readthedocs.io/projects/molecule/>`_.
 
@@ -111,55 +105,12 @@ The collection tests fall into two broad categories:
        bundled Ansible roles.
 
 Both categories use real OpenWrt container images. The list of tested OpenWrt versions
-is maintained in a single file: ``extensions/molecule/openwrt-versions.yml``.
+is maintained in a single file: ``tests/molecule/openwrt-versions.yml``.
 
 Molecule has native support for Ansible collections and automatically discovers scenarios
 placed under ``extensions/molecule/``, so all collection-level tests can be invoked from
 the repository root without changing directories.
 
-
-Setting Up Your Environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Before running any Molecule tests you need to generate a shared Molecule configuration
-file. This is done by the helper script ``tests/utils/setup-molecule``.
-
-What the script does
-""""""""""""""""""""
-
-The script reads ``extensions/molecule/openwrt-versions.yml``, builds a list of Docker
-platform entries (one per OpenWrt version), and writes the result to
-``~/.config/molecule/config.yml``. Molecule automatically merges that file into every
-scenario it runs, so all scenarios inherit the correct platforms without duplicating them
-in individual ``molecule.yml`` files.
-
-To run it manually:
-
-.. code-block:: console
-
-   $ python3 tests/utils/setup-molecule
-
-You should see output like:
-
-.. code-block:: console
-
-   Ingesting versions from /path/to/extensions/molecule/openwrt-versions.yml
-   Versions loaded: ['25.12.2', '24.10.6', '23.05.6']
-   Writing file /home/<you>/.config/molecule/config.yml:
-   ...
-
-.. note::
-
-   If you are using the **devcontainer**, this step is done for you automatically as
-   part of ``setup.sh``. You only need to run it manually when working outside the
-   devcontainer, or after updating ``openwrt-versions.yml``.
-
-.. warning::
-
-   The script writes to ``~/.config/molecule/config.yml`` in your **home directory**.
-   Because Molecule merges that file into *every* scenario it runs, the OpenWrt platform
-   list will appear in any Molecule execution on your machine — not just those from this
-   collection. If you work on other projects that use Molecule, be mindful of this file.
 
 Running Individual Integration Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -175,7 +126,7 @@ The scenario reads the target name from the ``TEST_TARGET_ROLE`` environment var
    $ TEST_TARGET_ROLE=uci molecule test -s integration_test
 
 This runs the target against all OpenWrt platform versions defined in
-``openwrt-versions.yml``.
+``tests/molecule/openwrt-versions.yml``.
 
 
 Running All Plugin Integration Tests at Once
@@ -203,24 +154,36 @@ Each bundled role has its own Molecule scenarios alongside the role itself:
      <role>/
        molecule/
          <scenario>/
-           molecule.yml   ← dummy; config comes from ~/.config/molecule/config.yml
+           molecule.yml   ← minimal; platforms come from tests/molecule/openwrt-versions.yml
            converge.yml
 
-Run a single scenario from inside the role directory:
+Run a specific role and scenario:
 
 .. code-block:: console
 
-   $ (cd roles/<role>; molecule test -s <scenario>)
+   $ nox -e roles -- --role <role> --scenario <scenario>
 
 For example, for the ``init`` role:
 
 .. code-block:: console
 
-   $ (cd roles/init; molecule test -s install_recommended_true)
+   $ nox -e roles -- --role init --scenario install_recommended_true
+
+Run all scenarios for a single role:
+
+.. code-block:: console
+
+   $ nox -e roles -- --role init
+
+Run every role and every scenario:
+
+.. code-block:: console
+
+   $ nox -e roles
 
 The ``molecule.yml`` files in role scenarios are intentionally minimal (they contain only a
-comment). The actual platform list is injected from the global
-``~/.config/molecule/config.yml`` written by ``setup-molecule``.
+comment). The actual platform list is read at runtime from
+``tests/molecule/openwrt-versions.yml`` by the shared ``create.yml`` playbook.
 
 
 Sanity and Unit Tests
@@ -343,8 +306,7 @@ For reference, here is what each CI job exercises:
    * - ``molecule-integration``
      - ``molecule test -s molecule_integration``
    * - ``molecule-roles``
-     - ``(cd roles/<role> && molecule test -s <scenario>)``
-       for every role scenario
+     - ``nox -e roles``
    * - ``ansible-test`` (sanity)
      - ``ansible-test sanity --docker default --python <version>``
    * - ``ansible-test`` (units)
