@@ -84,10 +84,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#quickstart">Quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-molecule">What is Molecule?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#setting-up-your-environment">Setting Up Your Environment</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#what-the-script-does">What the script does</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#running-individual-integration-tests">Running Individual Integration Tests</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#single-module">Single module</a></li>
 </ul>
@@ -164,50 +160,44 @@ collection. Read on for the full picture.</p>
 <li><p><a class="reference internal" href="#quickstart" id="id1">Quickstart</a></p></li>
 <li><p><a class="reference internal" href="#what-is-molecule" id="id2">What is Molecule?</a></p></li>
 <li><p><a class="reference internal" href="#overview" id="id3">Overview</a></p></li>
-<li><p><a class="reference internal" href="#setting-up-your-environment" id="id4">Setting Up Your Environment</a></p>
+<li><p><a class="reference internal" href="#running-individual-integration-tests" id="id4">Running Individual Integration Tests</a></p>
 <ul>
-<li><p><a class="reference internal" href="#what-the-script-does" id="id5">What the script does</a></p></li>
+<li><p><a class="reference internal" href="#single-module" id="id5">Single module</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#running-individual-integration-tests" id="id6">Running Individual Integration Tests</a></p>
+<li><p><a class="reference internal" href="#running-all-plugin-integration-tests-at-once" id="id6">Running All Plugin Integration Tests at Once</a></p></li>
+<li><p><a class="reference internal" href="#running-role-tests" id="id7">Running Role Tests</a></p></li>
+<li><p><a class="reference internal" href="#sanity-and-unit-tests" id="id8">Sanity and Unit Tests</a></p>
 <ul>
-<li><p><a class="reference internal" href="#single-module" id="id7">Single module</a></p></li>
+<li><p><a class="reference internal" href="#shellcheck-and-ignore-files" id="id9">shellcheck and ignore files</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#running-all-plugin-integration-tests-at-once" id="id8">Running All Plugin Integration Tests at Once</a></p></li>
-<li><p><a class="reference internal" href="#running-role-tests" id="id9">Running Role Tests</a></p></li>
-<li><p><a class="reference internal" href="#sanity-and-unit-tests" id="id10">Sanity and Unit Tests</a></p>
-<ul>
-<li><p><a class="reference internal" href="#shellcheck-and-ignore-files" id="id11">shellcheck and ignore files</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#code-quality-and-linting-nox" id="id12">Code Quality and Linting (nox)</a></p></li>
-<li><p><a class="reference internal" href="#what-ci-runs" id="id13">What CI Runs</a></p></li>
-<li><p><a class="reference internal" href="#further-reading" id="id14">Further Reading</a></p></li>
+<li><p><a class="reference internal" href="#code-quality-and-linting-nox" id="id10">Code Quality and Linting (nox)</a></p></li>
+<li><p><a class="reference internal" href="#what-ci-runs" id="id11">What CI Runs</a></p></li>
+<li><p><a class="reference internal" href="#further-reading" id="id12">Further Reading</a></p></li>
 </ul>
 </nav>
 <section id="quickstart">
 <h2><a class="toc-backref" href="#id1" role="doc-backlink">Quickstart</a><a class="headerlink" href="#quickstart" title="Link to this heading"></a></h2>
 <p>Already familiar with Molecule and just need the commands?  Here you go.</p>
-<p><strong>One-time setup</strong> (skip if using the dev container):</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>tests/utils/setup-molecule
-</pre></div>
-</div>
 <p><strong>Run a single module’s integration test:</strong></p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">TEST_TARGET_ROLE</span><span class="o">=</span>&lt;target&gt;<span class="w"> </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>integration_test
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--<span class="w"> </span>&lt;target&gt;
 </pre></div>
 </div>
 <p><strong>Run the default collection scenario:</strong></p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>default
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>molecule
 </pre></div>
 </div>
 <p><strong>Run all module integration tests:</strong></p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--scenario-name<span class="w"> </span>molecule_integration
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>integration
 </pre></div>
 </div>
 <p><strong>Run a single role scenario:</strong></p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>roles/&lt;role&gt;
-<span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>&lt;scenario&gt;
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>roles<span class="w"> </span>--<span class="w"> </span>--role<span class="w"> </span>&lt;role&gt;<span class="w"> </span>--scenario<span class="w"> </span>&lt;scenario&gt;
+</pre></div>
+</div>
+<p><strong>Run all role scenarios:</strong></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>roles
 </pre></div>
 </div>
 <p><strong>Sanity / unit tests:</strong></p>
@@ -238,10 +228,6 @@ version becomes one platform.</p></li>
 iterating on a change: create once, converge many times, destroy when done.</p></li>
 </ul>
 </div></blockquote>
-<p>Molecule also supports a global configuration file at <code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code>.
-Any settings in that file are merged into <em>every</em> scenario Molecule runs on your machine.
-This collection uses that mechanism to share the OpenWrt platform list across all its
-scenarios — more on that in the next section.</p>
 <p>For a deeper introduction, see the
 <a class="reference external" href="https://ansible.readthedocs.io/projects/molecule/">official Molecule documentation</a>.</p>
 </section>
@@ -262,96 +248,67 @@ bundled Ansible roles.</p>
 </dl>
 </div></blockquote>
 <p>Both categories use real OpenWrt container images. The list of tested OpenWrt versions
-is maintained in a single file: <code class="docutils literal notranslate"><span class="pre">extensions/molecule/openwrt-versions.yml</span></code>.</p>
+is maintained in a single file: <code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt-versions.yml</span></code>.</p>
 <p>Molecule has native support for Ansible collections and automatically discovers scenarios
 placed under <code class="docutils literal notranslate"><span class="pre">extensions/molecule/</span></code>, so all collection-level tests can be invoked from
 the repository root without changing directories.</p>
 </section>
-<section id="setting-up-your-environment">
-<h2><a class="toc-backref" href="#id4" role="doc-backlink">Setting Up Your Environment</a><a class="headerlink" href="#setting-up-your-environment" title="Link to this heading"></a></h2>
-<p>Before running any Molecule tests you need to generate a shared Molecule configuration
-file. This is done by the helper script <code class="docutils literal notranslate"><span class="pre">tests/utils/setup-molecule</span></code>.</p>
-<section id="what-the-script-does">
-<h3><a class="toc-backref" href="#id5" role="doc-backlink">What the script does</a><a class="headerlink" href="#what-the-script-does" title="Link to this heading"></a></h3>
-<p>The script reads <code class="docutils literal notranslate"><span class="pre">extensions/molecule/openwrt-versions.yml</span></code>, builds a list of Docker
-platform entries (one per OpenWrt version), and writes the result to
-<code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code>. Molecule automatically merges that file into every
-scenario it runs, so all scenarios inherit the correct platforms without duplicating them
-in individual <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> files.</p>
-<p>To run it manually:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>tests/utils/setup-molecule
-</pre></div>
-</div>
-<p>You should see output like:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Ingesting versions from /path/to/extensions/molecule/openwrt-versions.yml</span>
-<span class="go">Versions loaded: [&#39;25.12.2&#39;, &#39;24.10.6&#39;, &#39;23.05.6&#39;]</span>
-<span class="go">Writing file /home/&lt;you&gt;/.config/molecule/config.yml:</span>
-<span class="go">...</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you are using the <strong>devcontainer</strong>, this step is done for you automatically as
-part of <code class="docutils literal notranslate"><span class="pre">setup.sh</span></code>. You only need to run it manually when working outside the
-devcontainer, or after updating <code class="docutils literal notranslate"><span class="pre">openwrt-versions.yml</span></code>.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The script writes to <code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code> in your <strong>home directory</strong>.
-Because Molecule merges that file into <em>every</em> scenario it runs, the OpenWrt platform
-list will appear in any Molecule execution on your machine — not just those from this
-collection. If you work on other projects that use Molecule, be mindful of this file.</p>
-</div>
-</section>
-</section>
 <section id="running-individual-integration-tests">
-<h2><a class="toc-backref" href="#id6" role="doc-backlink">Running Individual Integration Tests</a><a class="headerlink" href="#running-individual-integration-tests" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Running Individual Integration Tests</a><a class="headerlink" href="#running-individual-integration-tests" title="Link to this heading"></a></h2>
 <section id="single-module">
-<h3><a class="toc-backref" href="#id7" role="doc-backlink">Single module</a><a class="headerlink" href="#single-module" title="Link to this heading"></a></h3>
-<p>Run a single module’s integration test using the <code class="docutils literal notranslate"><span class="pre">integration_test</span></code> scenario.
-The scenario reads the target name from the <code class="docutils literal notranslate"><span class="pre">TEST_TARGET_ROLE</span></code> environment variable:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">TEST_TARGET_ROLE</span><span class="o">=</span>uci<span class="w"> </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>integration_test
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Single module</a><a class="headerlink" href="#single-module" title="Link to this heading"></a></h3>
+<p>Run a single module’s integration test using the <code class="docutils literal notranslate"><span class="pre">ansible_test_integration</span></code> scenario,
+passing the target name as a positional argument:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--<span class="w"> </span>uci
 </pre></div>
 </div>
 <p>This runs the target against all OpenWrt platform versions defined in
-<code class="docutils literal notranslate"><span class="pre">openwrt-versions.yml</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt-versions.yml</span></code>.</p>
 </section>
 </section>
 <section id="running-all-plugin-integration-tests-at-once">
-<h2><a class="toc-backref" href="#id8" role="doc-backlink">Running All Plugin Integration Tests at Once</a><a class="headerlink" href="#running-all-plugin-integration-tests-at-once" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Running All Plugin Integration Tests at Once</a><a class="headerlink" href="#running-all-plugin-integration-tests-at-once" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">molecule_integration</span></code> scenario runs every plugin integration target in a single
 pass — the same thing CI does. It does <strong>not</strong> include role tests
 (see <a class="reference internal" href="#running-role-tests">Running Role Tests</a> for those).</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>molecule_integration
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>integration
 </pre></div>
 </div>
 <p>The full list of targets is defined in <code class="docutils literal notranslate"><span class="pre">extensions/molecule/molecule_integration/converge.yml</span></code>.</p>
 </section>
 <section id="running-role-tests">
-<h2><a class="toc-backref" href="#id9" role="doc-backlink">Running Role Tests</a><a class="headerlink" href="#running-role-tests" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Running Role Tests</a><a class="headerlink" href="#running-role-tests" title="Link to this heading"></a></h2>
 <p>Each bundled role has its own Molecule scenarios alongside the role itself:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>roles/
   &lt;role&gt;/
     molecule/
       &lt;scenario&gt;/
-        molecule.yml   ← dummy; config comes from ~/.config/molecule/config.yml
+        molecule.yml   ← minimal; platforms come from tests/molecule/openwrt-versions.yml
         converge.yml
 </pre></div>
 </div>
-<p>Run a single scenario from inside the role directory:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="o">(</span><span class="nb">cd</span><span class="w"> </span>roles/&lt;role&gt;<span class="p">;</span><span class="w"> </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>&lt;scenario&gt;<span class="o">)</span>
+<p>Run a specific role and scenario:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>roles<span class="w"> </span>--<span class="w"> </span>--role<span class="w"> </span>&lt;role&gt;<span class="w"> </span>--scenario<span class="w"> </span>&lt;scenario&gt;
 </pre></div>
 </div>
 <p>For example, for the <code class="docutils literal notranslate"><span class="pre">init</span></code> role:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="o">(</span><span class="nb">cd</span><span class="w"> </span>roles/init<span class="p">;</span><span class="w"> </span>molecule<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-s<span class="w"> </span>install_recommended_true<span class="o">)</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>roles<span class="w"> </span>--<span class="w"> </span>--role<span class="w"> </span>init<span class="w"> </span>--scenario<span class="w"> </span>install_recommended_true
+</pre></div>
+</div>
+<p>Run all scenarios for a single role:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>roles<span class="w"> </span>--<span class="w"> </span>--role<span class="w"> </span>init
+</pre></div>
+</div>
+<p>Run every role and every scenario:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>roles
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> files in role scenarios are intentionally minimal (they contain only a
-comment). The actual platform list is injected from the global
-<code class="docutils literal notranslate"><span class="pre">~/.config/molecule/config.yml</span></code> written by <code class="docutils literal notranslate"><span class="pre">setup-molecule</span></code>.</p>
+comment). The actual platform list is read at runtime from
+<code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt-versions.yml</span></code> by the shared <code class="docutils literal notranslate"><span class="pre">create.yml</span></code> playbook.</p>
 </section>
 <section id="sanity-and-unit-tests">
-<h2><a class="toc-backref" href="#id10" role="doc-backlink">Sanity and Unit Tests</a><a class="headerlink" href="#sanity-and-unit-tests" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Sanity and Unit Tests</a><a class="headerlink" href="#sanity-and-unit-tests" title="Link to this heading"></a></h2>
 <p>These use the standard Ansible tooling and are not Molecule-based.</p>
 <p>Sanity:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
@@ -366,7 +323,7 @@ comment). The actual platform list is injected from the global
 <p>See the <a class="reference internal" href="mod_dev_guide.html#ansible-collections-community-openwrt-docsite-mod-dev-guide"><span class="std std-ref">Community OpenWrt Module Developer Guide</span></a> for more
 on what the sanity checks cover.</p>
 <section id="shellcheck-and-ignore-files">
-<h3><a class="toc-backref" href="#id11" role="doc-backlink">shellcheck and ignore files</a><a class="headerlink" href="#shellcheck-and-ignore-files" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">shellcheck and ignore files</a><a class="headerlink" href="#shellcheck-and-ignore-files" title="Link to this heading"></a></h3>
 <p>Because this collection is largely shell code, the <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> sanity check is
 particularly relevant. When <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> flags an issue that cannot or should not be
 fixed, the correct way to suppress it is to add an entry to the appropriate
@@ -386,7 +343,7 @@ supported ansible-core versions changes.</p>
 </section>
 </section>
 <section id="code-quality-and-linting-nox">
-<h2><a class="toc-backref" href="#id12" role="doc-backlink">Code Quality and Linting (nox)</a><a class="headerlink" href="#code-quality-and-linting-nox" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Code Quality and Linting (nox)</a><a class="headerlink" href="#code-quality-and-linting-nox" title="Link to this heading"></a></h2>
 <p>The collection uses <a class="reference external" href="https://nox.thea.codes/">nox</a> together with
 <a class="reference external" href="https://docs.ansible.com/projects/antsibull-nox/">antsibull-nox</a> to run linting,
 formatting, and other code-quality checks.</p>
@@ -445,7 +402,7 @@ reuse an existing one and save time on subsequent runs:</p>
 </div>
 </section>
 <section id="what-ci-runs">
-<h2><a class="toc-backref" href="#id13" role="doc-backlink">What CI Runs</a><a class="headerlink" href="#what-ci-runs" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id11" role="doc-backlink">What CI Runs</a><a class="headerlink" href="#what-ci-runs" title="Link to this heading"></a></h2>
 <p>For reference, here is what each CI job exercises:</p>
 <table class="docutils align-default">
 <colgroup>
@@ -462,14 +419,13 @@ reuse an existing one and save time on subsequent runs:</p>
 <td><p><code class="docutils literal notranslate"><span class="pre">nox</span></code> (all default sessions)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecule</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">test</span> <span class="pre">-s</span> <span class="pre">default</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nox</span> <span class="pre">-e</span> <span class="pre">molecule</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">molecule-integration</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">molecule</span> <span class="pre">test</span> <span class="pre">-s</span> <span class="pre">molecule_integration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nox</span> <span class="pre">-e</span> <span class="pre">integration</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecule-roles</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">(cd</span> <span class="pre">roles/&lt;role&gt;</span> <span class="pre">&amp;&amp;</span> <span class="pre">molecule</span> <span class="pre">test</span> <span class="pre">-s</span> <span class="pre">&lt;scenario&gt;)</span></code>
-for every role scenario</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nox</span> <span class="pre">-e</span> <span class="pre">roles</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span></code> (sanity)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span> <span class="pre">sanity</span> <span class="pre">--docker</span> <span class="pre">default</span> <span class="pre">--python</span> <span class="pre">&lt;version&gt;</span></code></p></td>
@@ -481,7 +437,7 @@ for every role scenario</p></td>
 </table>
 </section>
 <section id="further-reading">
-<h2><a class="toc-backref" href="#id14" role="doc-backlink">Further Reading</a><a class="headerlink" href="#further-reading" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Further Reading</a><a class="headerlink" href="#further-reading" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://ansible.readthedocs.io/projects/molecule/">Molecule documentation</a></p></li>
 <li><p><a class="reference external" href="https://github.com/russoz/andebox">andebox documentation</a></p></li>
