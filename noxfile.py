@@ -257,6 +257,16 @@ def version_bump(session: nox.Session):
 
 
 @nox.session(reuse_venv=True, default=False)
+def test(session: nox.Session):
+    """Run ansible_test_integration scenario for a single target. Posargs: <target>"""
+    if len(session.posargs) != 1:
+        session.error(f"usage: nox -e {session.name} -- <target>")
+    target = session.posargs[0]
+    env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1", "TEST_TARGET_ROLE": target}
+    session.run("molecule", "-vv", "test", "-s", "ansible_test_integration", external=True, env=env)
+
+
+@nox.session(reuse_venv=True, default=False)
 def molecule(session: nox.Session):
     """Run the default molecule scenario."""
     env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}

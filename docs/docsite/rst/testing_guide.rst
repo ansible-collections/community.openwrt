@@ -26,7 +26,7 @@ Already familiar with Molecule and just need the commands?  Here you go.
 
 .. code-block:: console
 
-   $ TEST_TARGET_ROLE=<target> molecule test -s integration_test
+   $ nox -e test -- <target>
 
 **Run the default collection scenario:**
 
@@ -118,12 +118,12 @@ Running Individual Integration Tests
 Single module
 """"""""""""""
 
-Run a single module's integration test using the ``integration_test`` scenario.
-The scenario reads the target name from the ``TEST_TARGET_ROLE`` environment variable:
+Run a single module's integration test using the ``ansible_test_integration`` scenario,
+passing the target name as a positional argument:
 
 .. code-block:: console
 
-   $ TEST_TARGET_ROLE=uci molecule test -s integration_test
+   $ nox -e test -- uci
 
 This runs the target against all OpenWrt platform versions defined in
 ``tests/molecule/openwrt-versions.yml``.
