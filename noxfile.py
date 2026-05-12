@@ -256,5 +256,46 @@ def version_bump(session: nox.Session):
     session.run("git", "push", "origin", "main", external=True)
 
 
+@nox.session(reuse_venv=True, default=False)
+def roles(session: nox.Session):
+    """Run molecule tests for all role scenarios. Posargs: [--role|-r ROLE] [--scenario|-s SCENARIO]"""
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--role", "-r")
+    parser.add_argument("--scenario", "-s")
+    args = parser.parse_args(session.posargs)
+    if args.scenario and not args.role:
+        session.error("--scenario requires --role")
+
+    env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
+    roles = args.role if args.role else "*"
+    scenarios = args.scenario if args.scenario else "*"
+
+    session.log(f"roles={roles}  scenarios={scenarios}")
+
+    role_dirs = sorted(Path("roles").glob(f"{roles}/"))
+    if not role_dirs:
+        session.skip(f"""Cannot find role(s) in roles{f"/{'' if roles == '*' else roles}"}""")
+
+    for role_dir in sorted(Path("roles").glob(f"{roles}/")):
+        role = role_dir.parts[1]
+        session.log(f"role={role}")
+
+        with session.chdir(role_dir):
+            scenario_dirs = sorted(Path("molecule").glob(f"{scenarios}/"))
+            if not scenario_dirs:
+                session.skip(
+                    f"""Cannot find scenario(s) in roles/{role}/molecule{f"/{'' if scenarios == '*' else scenarios}"}"""
+                )
+
+            for scenario_dir in scenario_dirs:
+                scenario = scenario_dir.parts[1]
+
+                session.log(f"role={role}  scenario={scenario}")
+
+                session.run("molecule", "-vv", "test", "--scenario-name", scenario, external=True, env=env)
+
+
 if __name__ == "__main__":
     nox.main()
