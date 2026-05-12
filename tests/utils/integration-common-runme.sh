@@ -21,7 +21,8 @@ cd "$OUTPUT_DIR/../../../../"
 TEST_TARGET_ROLE="$(pwd)/tests/integration/targets/$TEST_TARGET_NAME"
 
 source virtualenv.sh
-pip install molecule 'molecule-plugins[docker]'
+pip install molecule
+ansible-galaxy collection install -r tests/requirements.yml
 [ -x /usr/bin/docker ] || {
     sudo apt-get update && sudo apt-get install -y docker.io
 }

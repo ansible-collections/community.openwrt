@@ -1,0 +1,51 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Create
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Read OpenWrt versions
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/openwrt-versions.yml"
+        name: _openwrt
+
+    - name: Build platform list
+      ansible.builtin.set_fact:
+        _platforms: >-
+          {{ _platforms | default([]) + [{
+            'name': 'openwrt' + item.split('.')[0] + item.split('.')[1],
+            'image': 'ghcr.io/openwrt/rootfs:x86_64-' + item,
+            'command': '/sbin/init'
+          }] }}
+      loop: "{{ _openwrt.versions }}"
+
+    - name: Create OpenWrt containers
+      community.docker.docker_container:
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        command: "{{ item.command }}"
+        state: started
+        auto_remove: false
+      loop: "{{ _platforms }}"
+
+    - name: Create inventory directory
+      ansible.builtin.file:
+        path: "{{ molecule_ephemeral_directory }}/inventory"
+        state: directory
+        mode: "0755"
+
+    - name: Build hosts dict
+      ansible.builtin.set_fact:
+        _hosts: >-
+          {{ _hosts | default({}) | combine({
+               item.name: {'ansible_connection': 'community.docker.docker'}
+             }) }}
+      loop: "{{ _platforms }}"
+
+    - name: Write inventory
+      ansible.builtin.copy:
+        dest: "{{ molecule_ephemeral_directory }}/inventory/hosts.yml"
+        mode: "0644"
+        content: "{{ {'all': {'hosts': _hosts}} | to_nice_yaml }}"

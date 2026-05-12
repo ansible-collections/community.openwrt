@@ -58,14 +58,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ###
-  # Sanity tests (REQUIRED)
-  #
-  # https://docs.ansible.com/ansible/latest/dev_guide/testing_sanity.html
-
-  sanity:
-    name: Sanity (Ⓐ${{ matrix.ansible }})
+  molecule-integration:
+    name: Integration (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         ansible: &ansible-versions
           # It's important that Sanity is tested against all stable-X.Y branches
@@ -85,6 +82,62 @@ jobs:
           - stable-2.21
           - devel
           # - milestone
+        python: &python-versions
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+        exclude: &ansible-python-exclusions
+          - ansible: stable-2.18
+            python: "3.14"
+          - ansible: stable-2.19
+            python: "3.14"
+          - ansible: stable-2.20
+            python: "3.11"
+          - ansible: stable-2.21
+            python: "3.11"
+          - ansible: devel
+            python: "3.11"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          path: ansible_collections/community/openwrt
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install ansible-core (${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+
+      - name: Install test dependencies
+        working-directory: ansible_collections/community/openwrt
+        run: pip install -r requirements-test.txt --disable-pip-version-check
+
+      - name: Install required Ansible collections
+        run: ansible-galaxy collection install -r tests/requirements.yml
+        working-directory: ansible_collections/community/openwrt
+
+      - name: Run molecule tests (default scenario)
+        working-directory: ansible_collections/community/openwrt
+        run: molecule -vv test --scenario-name molecule_integration
+        env:
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
+
+  ###
+  # Sanity tests (REQUIRED)
+  #
+  # https://docs.ansible.com/ansible/latest/dev_guide/testing_sanity.html
+
+  sanity:
+    name: Sanity (Ⓐ${{ matrix.ansible }})
+    strategy:
+      matrix:
+        ansible: *ansible-versions
 
     runs-on: ubuntu-latest
 
@@ -133,28 +186,14 @@ jobs:
         run: nox
 
   molecule:
-    name: M (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    name: Default test (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         ansible: *ansible-versions
-        python: &python-versions
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-        exclude: &ansible-python-exclusions
-          - ansible: stable-2.18
-            python: "3.14"
-          - ansible: stable-2.19
-            python: "3.14"
-          - ansible: stable-2.20
-            python: "3.11"
-          - ansible: stable-2.21
-            python: "3.11"
-          - ansible: devel
-            python: "3.11"
+        python: *python-versions
+        exclude: *ansible-python-exclusions
 
     steps:
       - name: Checkout code
@@ -174,8 +213,9 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
-      - name: Set up molecule platforms config
-        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule
+      - name: Install required Ansible collections
+        run: ansible-galaxy collection install -r tests/requirements.yml
+        working-directory: ansible_collections/community/openwrt
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
@@ -184,47 +224,9 @@ jobs:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
 
-  molecule-integration:
-    name: MI (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        ansible: *ansible-versions
-        python: *python-versions
-        exclude: *ansible-python-exclusions
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          path: ansible_collections/community/openwrt
-
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Install ansible-core (${{ matrix.ansible }})
-        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
-
-      - name: Install test dependencies
-        working-directory: ansible_collections/community/openwrt
-        run: pip install -r requirements-test.txt --disable-pip-version-check
-
-      - name: Set up molecule platforms config
-        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule
-
-      - name: Run molecule tests (default scenario)
-        working-directory: ansible_collections/community/openwrt
-        run: molecule -vv test --scenario-name molecule_integration
-        env:
-          PY_COLORS: "1"
-          ANSIBLE_FORCE_COLOR: "1"
-
 
   molecule-roles:
-    name: MR (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
+    name: Roles (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -251,11 +253,8 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
-      - name: Set up molecule platforms config
-        run: python3 ansible_collections/community/openwrt/tests/utils/setup-molecule
-
       - name: Install required Ansible collections
-        run: ansible-galaxy collection install -r extensions/molecule/collections.yml
+        run: ansible-galaxy collection install -r tests/requirements.yml
         working-directory: ansible_collections/community/openwrt
 
       - name: Run molecule for all role scenarios
@@ -311,53 +310,6 @@ jobs:
           # which should improve CI performance. See limitations on
           # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
           pull-request-change-detection: false
-
-  ###
-  # Integration tests (RECOMMENDED)
-  #
-  # https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html
-
-  # If the application you are testing is available as a docker container and you want to test
-  # multiple versions see the following for an example:
-  # https://github.com/ansible-collections/community.zabbix/tree/master/.github/workflows
-
-  # integration:
-  #   runs-on: ubuntu-latest
-
-  #   name: I (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       ansible: *ansible-versions
-  #       python: *python-versions
-  #       exclude: *ansible-python-exclusions
-
-  #   steps:
-  #     - name: >-
-  #         Perform integration testing against
-  #         Ansible version ${{ matrix.ansible }}
-  #         under Python ${{ matrix.python }}
-  #       # See the documentation for the following GitHub action on
-  #       # https://github.com/ansible-community/ansible-test-gh-action/blob/main/README.md
-  #       uses: ansible-community/ansible-test-gh-action@release/v1
-  #       with:
-  #         ansible-core-version: ${{ matrix.ansible }}
-  #         # OPTIONAL command to run before invoking `ansible-test integration`
-  #         # pre-test-cmd:
-  #         target-python-version: ${{ matrix.python }}
-  #         testing-type: integration
-  #         # Uncomment to configure a codecov token.
-  #         # Check here whether a token is required: https://docs.codecov.com/docs/codecov-tokens
-  #         # Collections in the github.com/ansible-collections/ namespace usually do not need a token.
-  #         # codecov-token: ${{ secrets.CODECOV_TOKEN }}
-  #         # OPTIONAL If your integration tests require code
-  #         # from other collections, install them like this
-  #         test-deps: ansible.posix community.docker
-  #         # OPTIONAL If set to true, will test only against changed files,
-  #         # which should improve CI performance. See limitations on
-  #         # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
-  #         pull-request-change-detection: false
-  #         coverage: never
 
   check: # This job does nothing and is only used for the branch protection
     # or multi-stage CI jobs, like making sure that all tests pass before
