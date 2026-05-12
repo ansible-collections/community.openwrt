@@ -321,5 +321,119 @@ def roles(session: nox.Session):
                 session.run("molecule", "-vv", "test", "--scenario-name", scenario, external=True, env=env)
 
 
+@nox.session(reuse_venv=True, default=False)
+def regen_shellcheck_ignores(session: nox.Session):
+    """Regenerate shellcheck ignore entries in tests/sanity/ignore-*.txt."""
+    import html
+    import re
+    import subprocess
+    import urllib.request
+    from html.parser import HTMLParser
+
+    sanity_dir = Path("tests") / "sanity"
+    if not sanity_dir.is_dir():
+        session.error("Run this from the top directory of the project")
+
+    class TitleParser(HTMLParser):
+        def __init__(self, body: str) -> None:
+            super().__init__()
+            self.in_title = False
+            self.title_parts = []
+            self.feed(body)
+
+        def handle_starttag(self, tag, attrs):
+            if tag.lower() == "title":
+                self.in_title = True
+
+        def handle_endtag(self, tag):
+            if tag.lower() == "title":
+                self.in_title = False
+
+        def handle_data(self, data):
+            if self.in_title:
+                self.title_parts.append(data)
+
+        @property
+        def title(self) -> str:
+            return html.unescape("".join(self.title_parts).strip())
+
+    sc_desc_cache = {}
+
+    def retrieve_sc_description(sc_code: str) -> str:
+        if sc_code in sc_desc_cache:
+            return sc_desc_cache[sc_code]
+        url = f"https://www.shellcheck.net/wiki/{sc_code}"
+        try:
+            with urllib.request.urlopen(url, timeout=10) as resp:
+                charset = resp.headers.get_content_charset() or "utf-8"
+                body = resp.read().decode(charset, errors="replace")
+        except Exception as e:
+            sc_desc_cache[sc_code] = f"(failed to fetch: {e})"
+            return sc_desc_cache[sc_code]
+        parser = TitleParser(body)
+        title = parser.title.replace(f"ShellCheck: {sc_code} – ", "").rstrip(".")
+        sc_desc_cache[sc_code] = f"{title} - {url}" if title else f"(no title found at {url})"
+        return sc_desc_cache[sc_code]
+
+    ig_version_re = re.compile(r".*/ignore-(?P<version>\d\.\d+)\.txt")
+
+    def get_version(filename):
+        if not (match := ig_version_re.search(str(filename))):
+            raise ValueError(f"ignore filename not recognized: {filename}")
+        version = match.group("version")
+        return f"ac{version.replace('.', '')}", version
+
+    ignore_files = sorted(sanity_dir.glob("ignore-*.txt"))
+    tox_targets = [get_version(f)[0] for f in ignore_files[:-1]] + ["dev"]
+    ignore_versions = [get_version(f)[1] for f in ignore_files]
+
+    for tox_target, ignore_version in zip(tox_targets, ignore_versions, strict=True):
+        ignore_file = sanity_dir / f"ignore-{ignore_version}.txt"
+        session.log(f"Processing {ignore_file} ({tox_target}/{ignore_version})")
+
+        with ignore_file.open("r", encoding="utf-8") as f:
+            kept = [ll for ll in f if "shellcheck" not in ll]
+        with ignore_file.open("w", encoding="utf-8") as f:
+            f.writelines(kept)
+
+        proc = subprocess.run(
+            [
+                "andebox",
+                "tox-test",
+                "-e",
+                tox_target,
+                "--",
+                "sanity",
+                "--python",
+                "default",
+                "--docker",
+                "default",
+                "--test",
+                "shellcheck",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=False,
+        )
+
+        found = set()
+        for line in proc.stdout.splitlines():
+            if not line.startswith("ERROR"):
+                continue
+            parts = line.split(":", 5)
+            if "/" not in parts[1]:
+                continue
+            path, sc_code = parts[1].strip(), parts[4].strip()
+            desc = retrieve_sc_description(sc_code)
+            found.add(f"{path} shellcheck:{sc_code}   # {desc}")
+
+        if found:
+            with ignore_file.open("a", encoding="utf-8") as f:
+                f.writelines(f"{ll}\n" for ll in sorted(found))
+
+        session.log(f"Added {len(found)} shellcheck ignore entries to {ignore_file}")
+
+
 if __name__ == "__main__":
     nox.main()
