@@ -220,15 +220,15 @@ directives inside the module files themselves.
 
 Some project-wide suppressions live in ``.shellcheckrc`` at the repository root.
 
-To regenerate the ignore-file entries systematically, use the helper script
-``tests/utils/regen-shellcheck-ignores``. It strips all existing ``shellcheck`` lines
-from every ``ignore-X.Y.txt`` file, runs the check for each supported ansible-core
-version, and appends the new failures (with descriptions from the ``shellcheck`` wiki)
-back to the appropriate ignore files.
+To regenerate the ignore-file entries systematically, use the ``regen_shellcheck_ignores``
+nox session. It strips all existing ``shellcheck`` lines from every ``ignore-X.Y.txt``
+file, runs the check for each supported ansible-core version, and appends the new
+failures (with descriptions from the ``shellcheck`` wiki) back to the appropriate
+ignore files.
 
 .. code-block:: console
 
-   $ python3 tests/utils/regen-shellcheck-ignores
+   $ nox -e regen_shellcheck_ignores
 
 Run this after adding or significantly modifying shell files, or whenever the set of
 supported ansible-core versions changes.
