@@ -32,7 +32,7 @@ Already familiar with Molecule and just need the commands?  Here you go.
 
 .. code-block:: console
 
-   $ molecule test -s default
+   $ nox -e molecule
 
 **Run all module integration tests:**
 
@@ -302,7 +302,7 @@ For reference, here is what each CI job exercises:
    * - ``nox``
      - ``nox`` (all default sessions)
    * - ``molecule``
-     - ``molecule test -s default``
+     - ``nox -e molecule``
    * - ``molecule-integration``
      - ``nox -e integration``
    * - ``molecule-roles``

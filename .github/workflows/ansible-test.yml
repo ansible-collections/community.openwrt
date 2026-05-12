@@ -216,10 +216,7 @@ jobs:
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
-        run: molecule -vv test -s default
-        env:
-          PY_COLORS: "1"
-          ANSIBLE_FORCE_COLOR: "1"
+        run: nox -e molecule
 
 
   molecule-roles:
