@@ -330,12 +330,12 @@ fixed, the correct way to suppress it is to add an entry to the appropriate
 <code class="docutils literal notranslate"><span class="pre">tests/sanity/ignore-X.Y.txt</span></code> file — <strong>never</strong> use inline <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">shellcheck</span> <span class="pre">disable=</span></code>
 directives inside the module files themselves.</p>
 <p>Some project-wide suppressions live in <code class="docutils literal notranslate"><span class="pre">.shellcheckrc</span></code> at the repository root.</p>
-<p>To regenerate the ignore-file entries systematically, use the helper script
-<code class="docutils literal notranslate"><span class="pre">tests/utils/regen-shellcheck-ignores</span></code>. It strips all existing <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> lines
-from every <code class="docutils literal notranslate"><span class="pre">ignore-X.Y.txt</span></code> file, runs the check for each supported ansible-core
-version, and appends the new failures (with descriptions from the <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> wiki)
-back to the appropriate ignore files.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>tests/utils/regen-shellcheck-ignores
+<p>To regenerate the ignore-file entries systematically, use the <code class="docutils literal notranslate"><span class="pre">regen_shellcheck_ignores</span></code>
+nox session. It strips all existing <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> lines from every <code class="docutils literal notranslate"><span class="pre">ignore-X.Y.txt</span></code>
+file, runs the check for each supported ansible-core version, and appends the new
+failures (with descriptions from the <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> wiki) back to the appropriate
+ignore files.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>regen_shellcheck_ignores
 </pre></div>
 </div>
 <p>Run this after adding or significantly modifying shell files, or whenever the set of
