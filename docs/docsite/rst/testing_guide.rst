@@ -38,7 +38,7 @@ Already familiar with Molecule and just need the commands?  Here you go.
 
 .. code-block:: console
 
-   $ molecule test --scenario-name molecule_integration
+   $ nox -e integration
 
 **Run a single role scenario:**
 
@@ -138,7 +138,7 @@ pass — the same thing CI does. It does **not** include role tests
 
 .. code-block:: console
 
-   $ molecule test -s molecule_integration
+   $ nox -e integration
 
 The full list of targets is defined in ``extensions/molecule/molecule_integration/converge.yml``.
 
@@ -304,7 +304,7 @@ For reference, here is what each CI job exercises:
    * - ``molecule``
      - ``molecule test -s default``
    * - ``molecule-integration``
-     - ``molecule test -s molecule_integration``
+     - ``nox -e integration``
    * - ``molecule-roles``
      - ``nox -e roles``
    * - ``ansible-test`` (sanity)

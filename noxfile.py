@@ -257,6 +257,13 @@ def version_bump(session: nox.Session):
 
 
 @nox.session(reuse_venv=True, default=False)
+def integration(session: nox.Session):
+    """Run molecule integration tests for all plugins (molecule_integration scenario)."""
+    env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
+    session.run("molecule", "-vv", "test", "--scenario-name", "molecule_integration", external=True, env=env)
+
+
+@nox.session(reuse_venv=True, default=False)
 def roles(session: nox.Session):
     """Run molecule tests for all role scenarios. Posargs: [--role|-r ROLE] [--scenario|-s SCENARIO]"""
     import argparse
