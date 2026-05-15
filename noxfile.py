@@ -14,6 +14,7 @@ from pathlib import Path
 
 import nox
 import yaml
+from looseversion import LooseVersion
 
 try:
     import antsibull_nox
@@ -56,7 +57,7 @@ def set_galaxy_version(new_version: str) -> None:
 
 
 def next_minor(version: str) -> str:
-    major, minor, _patch = (int(x) for x in version.split("."))
+    major, minor, _patch = LooseVersion(version).version
     return f"{major}.{minor + 1}.0"
 
 
@@ -72,10 +73,6 @@ def _write_openwrt_versions(versions: list[str]) -> None:
     text = OPENWRT_VERSIONS_FILE.read_text()
     header = text[: text.index("versions:")]
     OPENWRT_VERSIONS_FILE.write_text(header + "versions:\n" + "".join(f'  - "{v}"\n' for v in versions))
-
-
-def _version_tuple(v: str) -> tuple[int, ...]:
-    return tuple(int(x) for x in v.split("."))
 
 
 def _assert_clean_workdir(session: nox.Session) -> None:
@@ -503,8 +500,8 @@ def openwrt_version(session: nox.Session):
             if not matches:
                 session.error(f"No version matching {minor}.* found in {versions}")
             old_version = matches[0]
-            maj, min_, old_patch = old_version.split(".")
-            new_version = f"{maj}.{min_}.{int(old_patch) + 1}"
+            maj, min_, old_patch = LooseVersion(old_version).version
+            new_version = f"{maj}.{min_}.{old_patch + 1}"
             new_versions = [new_version if v == old_version else v for v in versions]
             branch = f"openwrt-bump-{new_version}"
             title = f"test: bump OpenWrt to {new_version} (from .{old_patch})"
@@ -520,7 +517,7 @@ def openwrt_version(session: nox.Session):
             minor = ".".join(new_version.split(".")[:2])
             if any(v.startswith(f"{minor}.") for v in versions):
                 session.error(f"Version {minor}.* already exists. Use 'bump' to update it.")
-            new_versions = sorted(versions + [new_version], key=_version_tuple, reverse=True)
+            new_versions = sorted(versions + [new_version], key=LooseVersion, reverse=True)
             branch = f"openwrt-add-{new_version}"
             title = f"test: add OpenWrt {new_version} to test matrix"
             body = f"Add OpenWrt {new_version} to the test matrix."
