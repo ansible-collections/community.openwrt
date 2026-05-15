@@ -8,5 +8,6 @@ ansible-lint
 andebox
 nox
 antsibull-nox
+looseversion
 ruff
 pre-commit
