@@ -2,11 +2,18 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import argparse
+import html
 import os
+import re
+import subprocess
 import sys
+import urllib.request
+from html.parser import HTMLParser
 from pathlib import Path
 
 import nox
+import yaml
 
 try:
     import antsibull_nox
@@ -34,8 +41,6 @@ def rewrite_docs_urls(old: str, new: str) -> None:
 
 
 def galaxy_version() -> str:
-    import yaml
-
     with open("galaxy.yml") as f:
         return yaml.safe_load(f)["version"]
 
@@ -53,6 +58,35 @@ def set_galaxy_version(new_version: str) -> None:
 def next_minor(version: str) -> str:
     major, minor, _patch = (int(x) for x in version.split("."))
     return f"{major}.{minor + 1}.0"
+
+
+OPENWRT_VERSIONS_FILE = Path("tests/molecule/openwrt-versions.yml")
+
+
+def _read_openwrt_versions() -> list[str]:
+    with open(OPENWRT_VERSIONS_FILE) as f:
+        return yaml.safe_load(f)["versions"]
+
+
+def _write_openwrt_versions(versions: list[str]) -> None:
+    text = OPENWRT_VERSIONS_FILE.read_text()
+    header = text[: text.index("versions:")]
+    OPENWRT_VERSIONS_FILE.write_text(header + "versions:\n" + "".join(f'  - "{v}"\n' for v in versions))
+
+
+def _version_tuple(v: str) -> tuple[int, ...]:
+    return tuple(int(x) for x in v.split("."))
+
+
+def _assert_clean_workdir(session: nox.Session) -> None:
+    modified = session.run("git", "status", "--porcelain=v1", "--untracked=normal", external=True, silent=True)
+    if modified:
+        session.error("Dirty working directory. Commit, stash, or remove changes before running this session.")
+
+
+def _run_integration(session: nox.Session):
+    env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
+    session.run("molecule", "-vv", "test", "--scenario-name", "molecule_integration", external=True, env=env)
 
 
 def check_no_modifications(session: nox.Session, fragment_path) -> None:
@@ -77,7 +111,6 @@ def release(session: nox.Session):
     """
 
     session.install("antsibull-changelog[toml]", "pyaml")
-    import yaml
 
     with open("galaxy.yml") as galaxy_file:
         galaxy_file_lines = galaxy_file.readlines()
@@ -276,15 +309,12 @@ def molecule(session: nox.Session):
 @nox.session(reuse_venv=True, default=False)
 def integration(session: nox.Session):
     """Run molecule integration tests for all plugins (molecule_integration scenario)."""
-    env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
-    session.run("molecule", "-vv", "test", "--scenario-name", "molecule_integration", external=True, env=env)
+    _run_integration(session)
 
 
 @nox.session(reuse_venv=True, default=False)
 def roles(session: nox.Session):
     """Run molecule tests for all role scenarios. Posargs: [--role|-r ROLE] [--scenario|-s SCENARIO]"""
-    import argparse
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--role", "-r")
     parser.add_argument("--scenario", "-s")
@@ -324,12 +354,6 @@ def roles(session: nox.Session):
 @nox.session(reuse_venv=True, default=False)
 def regen_shellcheck_ignores(session: nox.Session):
     """Regenerate shellcheck ignore entries in tests/sanity/ignore-*.txt."""
-    import html
-    import re
-    import subprocess
-    import urllib.request
-    from html.parser import HTMLParser
-
     sanity_dir = Path("tests") / "sanity"
     if not sanity_dir.is_dir():
         session.error("Run this from the top directory of the project")
@@ -433,6 +457,118 @@ def regen_shellcheck_ignores(session: nox.Session):
                 f.writelines(f"{ll}\n" for ll in sorted(found))
 
         session.log(f"Added {len(found)} shellcheck ignore entries to {ignore_file}")
+
+
+@nox.session(reuse_venv=True, default=False)
+def openwrt_version(session: nox.Session):
+    """
+    Manage OpenWrt versions in tests/molecule/openwrt-versions.yml.
+
+    Usage:
+        nox -e openwrt_version -- list
+        nox -e openwrt_version -- bump <major.minor>
+        nox -e openwrt_version -- add <major.minor.patch>
+        nox -e openwrt_version -- remove <major.minor>
+    """
+    _SUBCOMMANDS = ("list", "bump", "add", "remove")
+
+    if not session.posargs or session.posargs[0] not in _SUBCOMMANDS:
+        session.error(
+            f"usage: nox -e {session.name} -- <{'|'.join(_SUBCOMMANDS)}> [args]\n"
+            "  list                     show current versions\n"
+            "  bump <major.minor>       increment patch of matching version\n"
+            "  add <major.minor.patch>  add a new version to the matrix\n"
+            "  remove <major.minor>     remove a version series from the matrix\n"
+        )
+
+    cmd = session.posargs[0]
+    args = session.posargs[1:]
+
+    if cmd == "list":
+        for v in _read_openwrt_versions():
+            session.log(v)
+        return
+
+    _assert_clean_workdir(session)
+    session.run("git", "checkout", "main", external=True)
+    session.run("git", "pull", "--rebase", "upstream", "main", external=True)
+    versions = _read_openwrt_versions()
+
+    match cmd:
+        case "bump":
+            if len(args) != 1:
+                session.error(f"usage: nox -e {session.name} -- bump <major.minor>")
+            minor = args[0]
+            matches = [v for v in versions if v.startswith(f"{minor}.")]
+            if not matches:
+                session.error(f"No version matching {minor}.* found in {versions}")
+            old_version = matches[0]
+            maj, min_, old_patch = old_version.split(".")
+            new_version = f"{maj}.{min_}.{int(old_patch) + 1}"
+            new_versions = [new_version if v == old_version else v for v in versions]
+            branch = f"openwrt-bump-{new_version}"
+            title = f"test: bump OpenWrt to {new_version} (from .{old_patch})"
+            body = f"Bump OpenWrt {minor} patch level from {old_version} to {new_version}."
+            commit_msg = title
+
+        case "add":
+            if len(args) != 1:
+                session.error(f"usage: nox -e {session.name} -- add <major.minor.patch>")
+            new_version = args[0]
+            if not re.match(r"^\d+\.\d+\.\d+$", new_version):
+                session.error(f"Invalid version: {new_version!r} (expected major.minor.patch)")
+            minor = ".".join(new_version.split(".")[:2])
+            if any(v.startswith(f"{minor}.") for v in versions):
+                session.error(f"Version {minor}.* already exists. Use 'bump' to update it.")
+            new_versions = sorted(versions + [new_version], key=_version_tuple, reverse=True)
+            branch = f"openwrt-add-{new_version}"
+            title = f"test: add OpenWrt {new_version} to test matrix"
+            body = f"Add OpenWrt {new_version} to the test matrix."
+            commit_msg = title
+
+        case "remove":
+            if len(args) != 1:
+                session.error(f"usage: nox -e {session.name} -- remove <major.minor>")
+            minor = args[0]
+            matches = [v for v in versions if v.startswith(f"{minor}.")]
+            if not matches:
+                session.error(f"No version matching {minor}.* found in {versions}")
+            removed = matches[0]
+            new_versions = [v for v in versions if v != removed]
+            if not new_versions:
+                session.error("Cannot remove the last remaining version.")
+            branch = f"openwrt-remove-{minor}"
+            title = f"test: remove OpenWrt {minor} from test matrix"
+            body = f"Remove OpenWrt {removed} from the test matrix."
+            commit_msg = title
+
+    session.run("git", "checkout", "-b", branch, external=True)
+    _write_openwrt_versions(new_versions)
+    session.run("git", "add", str(OPENWRT_VERSIONS_FILE), external=True)
+    session.run("git", "commit", "-m", commit_msg, external=True)
+
+    _run_integration(session)
+
+    session.run("git", "push", "origin", branch, external=True)
+
+    origin_url = session.run("git", "remote", "get-url", "origin", external=True, silent=True).strip()
+    fork_owner = origin_url.rstrip("/").split("/")[-2].split(":")[-1]
+    pr = session.run(
+        "gh",
+        "pr",
+        "create",
+        "-R",
+        UPSTREAM,
+        "--head",
+        f"{fork_owner}:{branch}",
+        "--title",
+        title,
+        "--body",
+        body,
+        external=True,
+        silent=True,
+    )
+    session.log(f"PR created: {pr.splitlines()[-1]}")
 
 
 if __name__ == "__main__":
