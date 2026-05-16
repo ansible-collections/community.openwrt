@@ -57,8 +57,7 @@ class OpenwrtActionBase(ActionBase):
         tmp_dir = self._make_tmp_path()
         remote_script = self._transfer_module_script(module_name, module_script_path, tmp_dir)
         module_args["_openwrt_script"] = remote_script
-        if self.module_utils:
-            module_args["_openwrt_libs"] = self._transfer_module_utils(tmp_dir)
+        module_args["_openwrt_libs"] = self._transfer_module_utils(tmp_dir)
         return self._execute_module(
             module_name="community.openwrt.wrapper",
             module_args=module_args,
@@ -97,11 +96,11 @@ class OpenwrtActionBase(ActionBase):
             raise ModuleTransferFailed(str(e)) from e
 
     def _transfer_module_utils(self, tmp_dir):
-        """Transfer declared shell module utils to <tmp_dir>/module_utils/"""
+        """Transfer _core and any declared shell module utils to <tmp_dir>/module_utils/"""
         remote_utils_dir = self._connection._shell.join_path(tmp_dir, "module_utils")
         self._low_level_execute_command(f"mkdir -p '{remote_utils_dir}'")
         remote_utils = []
-        for util_name in self.module_utils:
+        for util_name in ["_core"] + list(self.module_utils):
             util_path = self._find_module_util_script(util_name)
             remote_util = self._connection._shell.join_path(remote_utils_dir, f"{util_name}.sh")
             self._transfer_and_fixup(util_path, remote_util)

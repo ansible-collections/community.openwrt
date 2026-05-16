@@ -23,6 +23,8 @@ class ActionModule(OpenwrtActionBase):
     backup, and other file operations.
     """
 
+    module_utils = ["_file"]
+
     def run(self, tmp=None, task_vars=None):
         """Execute the copy action plugin"""
 

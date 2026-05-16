@@ -115,12 +115,17 @@ def test_find_module_util_script_returns_path_under_module_utils(action):
     assert "module_utils" in str(result)
 
 
-def test_transfer_module_utils_returns_empty_for_no_utils(action):
+def test_transfer_module_utils_always_transfers_core(action):
     action.module_utils = []
-    action._connection._shell.join_path = MagicMock(return_value="/tmp/ans/module_utils")
+    action._connection._shell.join_path = MagicMock(side_effect=lambda *p: "/".join(p))
     action._low_level_execute_command = MagicMock()
-    result = action._transfer_module_utils("/tmp/ans")
-    assert result == []
+    action._transfer_and_fixup = MagicMock()
+
+    with patch.object(Path, "exists", return_value=True):
+        result = action._transfer_module_utils("/tmp/ans")
+
+    assert len(result) == 1
+    assert result[0].endswith("_core.sh")
 
 
 def test_transfer_module_utils_creates_remote_dir(action):
@@ -145,6 +150,7 @@ def test_transfer_module_utils_transfers_in_declaration_order(action):
         result = action._transfer_module_utils("/tmp/ans")
 
     remote_paths = [call.args[1] for call in action._transfer_and_fixup.call_args_list]
-    assert remote_paths[0].endswith("lib_a.sh")
-    assert remote_paths[1].endswith("lib_b.sh")
+    assert remote_paths[0].endswith("_core.sh")
+    assert remote_paths[1].endswith("lib_a.sh")
+    assert remote_paths[2].endswith("lib_b.sh")
     assert result == remote_paths
