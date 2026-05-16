@@ -9,13 +9,23 @@ _params="$1"
 
 . /usr/share/libubox/jshn.sh
 
-# If _script not set via positional arg, try to get it from JSON params
-if [ -z "$_script" ] && [ -f "$_params" ]; then
-    _temp_script=""
+if [ -f "$_params" ]; then
     json_load "$(cat "$_params")"
-    json_get_var _temp_script _openwrt_script 2>/dev/null || true
+    [ -n "$_script" ] || {
+        json_get_var _temp_script _openwrt_script 2>/dev/null || true
+        [ -n "$_temp_script" ] && _script="$_temp_script"
+    }
+    json_get_type _libs_type _openwrt_libs 2>/dev/null || true
+    if [ "$_libs_type" = "array" ]; then
+        json_select _openwrt_libs
+        _i=1
+        while json_get_var _lib "$_i" 2>/dev/null; do
+            . "$_lib"
+            _i=$((_i + 1))
+        done
+        json_select ..
+    fi
     json_cleanup
-    [ -n "$_temp_script" ] && _script="$_temp_script"
 fi
 
 _ANSIBLE_PARAMS="

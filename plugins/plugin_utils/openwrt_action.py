@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from ansible.plugins.action import ActionBase
 
@@ -30,6 +31,8 @@ class OpenwrtActionBase(ActionBase):
     The wrapper.sh module handles sourcing and executing the actual module code.
     """
 
+    module_utils = []
+
     def run(self, tmp=None, task_vars=None):
         """Execute the OpenWrt module via wrapper"""
 
@@ -51,8 +54,11 @@ class OpenwrtActionBase(ActionBase):
     def _run_shell_module(self, module_name, module_args, task_vars):
         """Find, transfer and execute a shell module via wrapper"""
         module_script_path = self._find_module_script(module_name)
-        remote_script = self._transfer_module_script(module_name, module_script_path)
+        tmp_dir = self._make_tmp_path()
+        remote_script = self._transfer_module_script(module_name, module_script_path, tmp_dir)
         module_args["_openwrt_script"] = remote_script
+        if self.module_utils:
+            module_args["_openwrt_libs"] = self._transfer_module_utils(tmp_dir)
         return self._execute_module(
             module_name="community.openwrt.wrapper",
             module_args=module_args,
@@ -71,12 +77,33 @@ class OpenwrtActionBase(ActionBase):
 
         return module_path
 
-    def _transfer_module_script(self, module_name, module_script_path):
+    def _find_module_util_script(self, util_name):
+        """Find a shell module util in plugins/module_utils/<util_name>.sh"""
+        util_path = Path(__file__).parent.parent / "module_utils" / f"{util_name}.sh"
+        if not util_path.exists():
+            raise ModuleNotFound(util_name, str(util_path))
+        return util_path
+
+    def _transfer_and_fixup(self, local_path, remote_path):
+        self._transfer_file(str(local_path), remote_path)
+        self._fixup_perms2([remote_path])
+
+    def _transfer_module_script(self, module_name, module_script_path, tmp_dir):
         try:
-            tmp_dir = self._make_tmp_path()
             remote_script = self._connection._shell.join_path(tmp_dir, f"{module_name}.sh")
-            self._transfer_file(module_script_path, remote_script)
-            self._fixup_perms2([remote_script])
+            self._transfer_and_fixup(module_script_path, remote_script)
             return remote_script
         except Exception as e:
             raise ModuleTransferFailed(str(e)) from e
+
+    def _transfer_module_utils(self, tmp_dir):
+        """Transfer declared shell module utils to <tmp_dir>/module_utils/"""
+        remote_utils_dir = self._connection._shell.join_path(tmp_dir, "module_utils")
+        self._low_level_execute_command(f"mkdir -p '{remote_utils_dir}'")
+        remote_utils = []
+        for util_name in self.module_utils:
+            util_path = self._find_module_util_script(util_name)
+            remote_util = self._connection._shell.join_path(remote_utils_dir, f"{util_name}.sh")
+            self._transfer_and_fixup(util_path, remote_util)
+            remote_utils.append(remote_util)
+        return remote_utils

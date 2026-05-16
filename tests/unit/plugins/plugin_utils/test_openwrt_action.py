@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -77,39 +78,73 @@ def test_find_module_script_returns_path_when_sh_exists(action):
     assert result.endswith("mymodule.sh")
 
 
-def test_transfer_module_script_raises_when_make_tmp_path_fails(action):
-    action._make_tmp_path = MagicMock(side_effect=Exception("no remote tmp"))
-
-    with pytest.raises(ModuleTransferFailed) as exc_info:
-        action._transfer_module_script("mymodule", "/some/path/mymodule.sh")
-    assert "no remote tmp" in str(exc_info.value)
-
-
-def test_transfer_module_script_raises_when_transfer_file_fails(action):
-    action._make_tmp_path = MagicMock(return_value="/tmp/ansible-remote")
+def test_transfer_module_script_raises_when_transfer_and_fixup_fails(action):
     action._connection._shell.join_path = MagicMock(return_value="/tmp/ansible-remote/mymodule.sh")
-    action._transfer_file = MagicMock(side_effect=Exception("transfer error"))
+    action._transfer_and_fixup = MagicMock(side_effect=Exception("transfer error"))
 
     with pytest.raises(ModuleTransferFailed) as exc_info:
-        action._transfer_module_script("mymodule", "/some/path/mymodule.sh")
+        action._transfer_module_script("mymodule", "/some/path/mymodule.sh", "/tmp/ansible-remote")
     assert "transfer error" in str(exc_info.value)
-
-
-def test_transfer_module_script_raises_when_fixup_perms_fails(action):
-    action._make_tmp_path = MagicMock(return_value="/tmp/ansible-remote")
-    action._connection._shell.join_path = MagicMock(return_value="/tmp/ansible-remote/mymodule.sh")
-    action._transfer_file = MagicMock()
-    action._fixup_perms2 = MagicMock(side_effect=Exception("permission denied"))
-
-    with pytest.raises(ModuleTransferFailed) as exc_info:
-        action._transfer_module_script("mymodule", "/some/path/mymodule.sh")
-    assert "permission denied" in str(exc_info.value)
 
 
 def test_transfer_module_script_wraps_original_exception(action):
     original = Exception("root cause")
-    action._make_tmp_path = MagicMock(side_effect=original)
+    action._connection._shell.join_path = MagicMock(side_effect=original)
 
     with pytest.raises(ModuleTransferFailed) as exc_info:
-        action._transfer_module_script("mymodule", "/some/path/mymodule.sh")
+        action._transfer_module_script("mymodule", "/some/path/mymodule.sh", "/tmp/ansible-remote")
     assert exc_info.value.__cause__ is original
+
+
+def test_module_utils_default_is_empty_list():
+    assert OpenwrtActionBase.module_utils == []
+
+
+def test_find_module_util_script_raises_when_sh_missing(action):
+    with patch.object(Path, "exists", return_value=False):
+        with pytest.raises(ModuleNotFound) as exc_info:
+            action._find_module_util_script("myutil")
+    assert "myutil" in str(exc_info.value)
+    assert "myutil.sh" in str(exc_info.value)
+
+
+def test_find_module_util_script_returns_path_under_module_utils(action):
+    with patch.object(Path, "exists", return_value=True):
+        result = action._find_module_util_script("myutil")
+    assert str(result).endswith("myutil.sh")
+    assert "module_utils" in str(result)
+
+
+def test_transfer_module_utils_returns_empty_for_no_utils(action):
+    action.module_utils = []
+    action._connection._shell.join_path = MagicMock(return_value="/tmp/ans/module_utils")
+    action._low_level_execute_command = MagicMock()
+    result = action._transfer_module_utils("/tmp/ans")
+    assert result == []
+
+
+def test_transfer_module_utils_creates_remote_dir(action):
+    action.module_utils = ["lib_a"]
+    action._connection._shell.join_path = MagicMock(side_effect=lambda *p: "/".join(p))
+    action._low_level_execute_command = MagicMock()
+    action._transfer_and_fixup = MagicMock()
+
+    with patch.object(Path, "exists", return_value=True):
+        action._transfer_module_utils("/tmp/ans")
+
+    action._low_level_execute_command.assert_called_once_with("mkdir -p '/tmp/ans/module_utils'")
+
+
+def test_transfer_module_utils_transfers_in_declaration_order(action):
+    action.module_utils = ["lib_a", "lib_b"]
+    action._connection._shell.join_path = MagicMock(side_effect=lambda *p: "/".join(p))
+    action._low_level_execute_command = MagicMock()
+    action._transfer_and_fixup = MagicMock()
+
+    with patch.object(Path, "exists", return_value=True):
+        result = action._transfer_module_utils("/tmp/ans")
+
+    remote_paths = [call.args[1] for call in action._transfer_and_fixup.call_args_list]
+    assert remote_paths[0].endswith("lib_a.sh")
+    assert remote_paths[1].endswith("lib_b.sh")
+    assert result == remote_paths
