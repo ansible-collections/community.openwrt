@@ -5,9 +5,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 _ANSIBLE_PARAMS="
-    _ansible_version/s _ansible_no_log/b _ansible_module_name/s
-    _ansible_syslog_facility/s _ansible_socket/s _ansible_verbosity/i
-    _ansible_diff/b _ansible_debug/b _ansible_check_mode/b
+    _ansible_version/s
+    _ansible_no_log/b
+    _ansible_module_name/s
+    _ansible_syslog_facility/s
+    _ansible_socket/s
+    _ansible_verbosity/i
+    _ansible_diff/b
+    _ansible_debug/b
+    _ansible_check_mode/b
 "
 CHANGED=""
 FACT_VARS=""
