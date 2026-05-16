@@ -146,3 +146,4 @@ Pipfile*
 .andebox-tox-test.ini
 
 .ansible
+.devcontainer/devcontainer-lock.json
