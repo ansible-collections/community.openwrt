@@ -4,6 +4,15 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+# Core shell framework for community.openwrt modules.
+# Sourced by wrapper.sh on every module execution.
+# Provides:
+#   parameter parsing (JSON and legacy)
+#   exit/result handling
+#   check mode support
+#   diff support
+#   control flow helpers (changed, fail, succeed, try, final)
+
 _ANSIBLE_PARAMS="
     _ansible_version/s
     _ansible_no_log/b
