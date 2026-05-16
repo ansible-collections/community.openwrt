@@ -6,7 +6,6 @@
 
 
 init() {
-    WANT_JSON="1"
     PARAMS="
         autocommit/bool
         command=cmd/str
