@@ -8,4 +8,4 @@ from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action i
 
 
 class ActionModule(OpenwrtActionBase):
-    pass
+    module_utils = ["_file"]
