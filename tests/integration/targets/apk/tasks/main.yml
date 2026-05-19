@@ -37,3 +37,30 @@
       ansible.builtin.assert:
         that:
           - apk_remove is succeeded
+
+    - name: Test --allow-untrusted
+      block:
+        - name: Download a test package
+          community.openwrt.command:
+            cmd: 'apk fetch terminfo -o {{ remote_tmp_dir }}'
+          register: apk_fetch_result
+
+        - name: Set apk filename
+          ansible.builtin.set_fact:
+            apk_terminfo_filename: "{{ remote_tmp_dir }}/{{ apk_fetch_result.stdout_lines[0].split(' ')[1] }}.apk"
+
+        - name: Output apk filename
+          ansible.builtin.debug:
+            var: apk_terminfo_filename
+
+        - name: Install untrusted package
+          community.openwrt.apk:
+            name: "{{ apk_terminfo_filename }}"
+            state: present
+            allow_untrusted: true
+
+        - name: "Verify package is installed"
+          community.openwrt.command:
+            cmd: apk info -e terminfo
+          register: apk_verify_untrusted
+          failed_when: apk_verify_untrusted.rc != 0
