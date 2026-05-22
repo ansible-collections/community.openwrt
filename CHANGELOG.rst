@@ -4,6 +4,26 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.4.0
+======
+
+Release Summary
+---------------
+
+Regular release.
+
+Minor Changes
+-------------
+
+- copy action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+- file action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+- lineinfile action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+- openwrt_action plugin utils - add shell ``module_utils`` support, allowing action plugins to declare shell libraries that are transferred to the remote node and sourced before the module script runs (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+- slurp action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+- stat action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+- uci action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+- wrapper - refactor into a thin bootstrapper that sources each entry in ``_openwrt_libs`` before executing the module; all shared framework code moved to ``module_utils/_core.sh`` (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+
 v1.3.0
 ======
 
