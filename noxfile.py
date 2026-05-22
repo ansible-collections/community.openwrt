@@ -248,7 +248,7 @@ def github_release(session: nox.Session):
 
 
 @nox.session(reuse_venv=True, default=False)
-def version_bump(session: nox.Session):
+def bump_version(session: nox.Session):
     """
     Bump galaxy.yml to the next development version, revert pinned doc URLs,
     push directly to upstream/main, and sync origin.
@@ -271,7 +271,7 @@ def version_bump(session: nox.Session):
         version = session.posargs[0]
         new_version = session.posargs[1]
     else:
-        session.error(f"usage: nox -e {session.name} -- [<next_version>]")
+        session.error(f"usage: nox -e {session.name} -- released_version [<next_version>]")
 
     if version != gv:
         session.error(f"Version specified ({version}) differs from galaxy.yml ({gv})")
