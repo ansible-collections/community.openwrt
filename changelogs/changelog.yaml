@@ -201,3 +201,30 @@ releases:
       - 218-fix-wait-for-connection-handler.yml
       - 219-copy-diff.yml
     release_date: '2026-04-21'
+  1.4.0:
+    changes:
+      minor_changes:
+        - copy action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44,
+          https://github.com/ansible-collections/community.openwrt/pull/233).
+        - file action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44,
+          https://github.com/ansible-collections/community.openwrt/pull/233).
+        - lineinfile action plugin - declare ``_file`` shell module utils dependency
+          (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+        - openwrt_action plugin utils - add shell ``module_utils`` support, allowing
+          action plugins to declare shell libraries that are transferred to the remote
+          node and sourced before the module script runs (https://github.com/ansible-collections/community.openwrt/issues/44,
+          https://github.com/ansible-collections/community.openwrt/pull/233).
+        - slurp action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44,
+          https://github.com/ansible-collections/community.openwrt/pull/233).
+        - stat action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44,
+          https://github.com/ansible-collections/community.openwrt/pull/233).
+        - uci action plugin - declare ``_file`` shell module utils dependency (https://github.com/ansible-collections/community.openwrt/issues/44,
+          https://github.com/ansible-collections/community.openwrt/pull/233).
+        - wrapper - refactor into a thin bootstrapper that sources each entry in ``_openwrt_libs``
+          before executing the module; all shared framework code moved to ``module_utils/_core.sh``
+          (https://github.com/ansible-collections/community.openwrt/issues/44, https://github.com/ansible-collections/community.openwrt/pull/233).
+      release_summary: Regular release.
+    fragments:
+      - 1.4.0.yml
+      - 233-module-utils.yml
+    release_date: '2026-05-22'
