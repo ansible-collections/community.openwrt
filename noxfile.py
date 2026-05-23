@@ -297,10 +297,17 @@ def test(session: nox.Session):
 
 
 @nox.session(reuse_venv=True, default=False)
-def molecule(session: nox.Session):
+def test_default(session: nox.Session):
     """Run the default molecule scenario."""
     env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
     session.run("molecule", "-vv", "test", "-s", "default", external=True, env=env)
+
+
+@nox.session(reuse_venv=True, default=False)
+def test_gather_facts(session: nox.Session):
+    """Run the default molecule scenario."""
+    env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
+    session.run("molecule", "-vv", "test", "-s", "gather_facts", external=True, env=env)
 
 
 @nox.session(reuse_venv=True, default=False)
