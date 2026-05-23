@@ -1,0 +1,26 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+scenario:
+  test_sequence:
+    - create
+    - converge
+    - destroy
+
+provisioner:
+  name: ansible
+  inventory:
+    directory: ${MOLECULE_EPHEMERAL_DIRECTORY}/inventory
+    group_vars:
+      all:
+        openwrt_gather_facts: true
+  playbooks:
+    create: ../../../tests/molecule/create.yml
+    destroy: ../../../tests/molecule/destroy.yml
+  env:
+    ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/tests/integration/targets"
+    ANSIBLE_ACTION_PLUGINS: "${MOLECULE_PROJECT_DIRECTORY}/plugins/plugin_utils/_setup"
+  config_options:
+    defaults:
+      allow_broken_conditionals: true

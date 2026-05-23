@@ -1,0 +1,49 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Converge
+  hosts: all
+  gather_facts: true
+  tasks:
+    # Bail out early if gather_facts did not run through the OpenWrt shim.
+    # This catches misconfigured test environments (missing action_plugins path,
+    # or openwrt_gather_facts not set at the play level).
+    # Note: Ansible strips the ansible_ prefix when storing into the magic
+    # ansible_facts dict, so facts appear as os_family, date_time, etc.
+    - name: Verify the OpenWrt shim populated facts
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.os_family is defined
+          - ansible_facts.os_family == "OpenWrt"
+        fail_msg: >
+          ansible_facts were not gathered by the community.openwrt gather_facts shim.
+          This test requires a play with gather_facts: true and openwrt_gather_facts: true,
+          and ANSIBLE_ACTION_PLUGINS must include plugins/plugin_utils/_setup/.
+
+    - name: Assert date/time facts
+      vars:
+        dt: "{{ ansible_facts.date_time }}"
+      ansible.builtin.assert:
+        that:
+          - dt is defined
+          - dt.date == dt.year + "-" + dt.month + "-" + dt.day
+          - dt.time == dt.hour + ":" + dt.minute + ":" + dt.second
+          - dt.iso8601_basic_short == dt.year + dt.month + dt.day + "T" + dt.hour + dt.minute + dt.second
+          - dt.epoch == dt.epoch_int
+          - dt.tz == dt.tz_dst
+          - dt.date is ansible.builtin.match("\d\d\d\d-\d\d-\d\d")
+
+    # Exercise other community.openwrt action plugins to confirm that adding
+    # plugins/plugin_utils/_setup to action_plugins does not shadow them.
+    - name: Ping via community.openwrt
+      community.openwrt.ping:
+
+    - name: Gather package facts via community.openwrt
+      community.openwrt.package_facts:
+
+    - name: Assert package facts were populated
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.packages is defined
+          - ansible_facts.packages | length > 0
