@@ -87,7 +87,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#modules">Modules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#handlers">Handlers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#facts">Facts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#facts">Facts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#transparent-gather-facts-support">Transparent <code class="docutils literal notranslate"><span class="pre">gather_facts</span></code> support</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -316,6 +319,37 @@ It is as easy as:</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 0.3.0.</span></p>
 </div>
+<section id="transparent-gather-facts-support">
+<span id="ansible-collections-community-openwrt-docsite-user-guide-gather-facts-shim"></span><h4>Transparent <code class="docutils literal notranslate"><span class="pre">gather_facts</span></code> support<a class="headerlink" href="#transparent-gather-facts-support" title="Link to this heading"></a></h4>
+<p>This collection provides an optional shim that intercepts play-level
+<code class="docutils literal notranslate"><span class="pre">gather_facts:</span> <span class="pre">true</span></code> and redirects it to <code class="docutils literal notranslate"><span class="pre">community.openwrt.setup</span></code>,
+so playbooks that rely on implicit fact gathering work without modification.</p>
+<p><strong>How it works</strong></p>
+<p>Ansible resolves the <code class="docutils literal notranslate"><span class="pre">gather_facts</span></code> action through the <code class="docutils literal notranslate"><span class="pre">ansible.legacy</span></code>
+pseudo-namespace, searching directories listed in <code class="docutils literal notranslate"><span class="pre">action_plugins</span></code> before
+falling back to <code class="docutils literal notranslate"><span class="pre">ansible.builtin</span></code>. Action plugins placed in a collection’s
+<code class="docutils literal notranslate"><span class="pre">plugins/action/</span></code> directory are only reachable as
+<code class="docutils literal notranslate"><span class="pre">&lt;namespace&gt;.&lt;collection&gt;.&lt;name&gt;</span></code> and cannot override
+<code class="docutils literal notranslate"><span class="pre">ansible.legacy.gather_facts</span></code>. The shim lives in a dedicated directory
+(<code class="docutils literal notranslate"><span class="pre">plugins/plugin_utils/_setup/</span></code>) that is added to the search path explicitly,
+so only the <code class="docutils literal notranslate"><span class="pre">gather_facts</span></code> override is exposed without shadowing any other
+built-in action plugins.</p>
+<p><strong>Required configuration</strong></p>
+<p>Add the shim directory to the <code class="docutils literal notranslate"><span class="pre">action_plugins</span></code> search path in <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code>:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[defaults]</span>
+<span class="na">action_plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">~/.ansible/collections/ansible_collections/community/openwrt/plugins/plugin_utils/_setup</span>
+</pre></div>
+</div>
+<p><strong>Per-host opt-in</strong></p>
+<p>The shim only intercepts fact gathering for hosts that have
+<code class="docutils literal notranslate"><span class="pre">openwrt_gather_facts:</span> <span class="pre">true</span></code> set (for example in <code class="docutils literal notranslate"><span class="pre">group_vars/</span></code> or
+<code class="docutils literal notranslate"><span class="pre">host_vars/</span></code>). All other hosts fall through to <code class="docutils literal notranslate"><span class="pre">ansible.builtin.gather_facts</span></code>
+unchanged.</p>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/openwrt.yml</span>
+<span class="nt">openwrt_gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 </section>
