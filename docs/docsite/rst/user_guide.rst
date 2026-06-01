@@ -195,3 +195,46 @@ It is as easy as:
 
 
 .. versionadded:: 0.3.0
+
+
+.. _ansible_collections.community.openwrt.docsite.user_guide.gather_facts_shim:
+
+Transparent ``gather_facts`` support
+--------------------------------------
+
+This collection provides an optional shim that intercepts play-level
+``gather_facts: true`` and redirects it to ``community.openwrt.setup``,
+so playbooks that rely on implicit fact gathering work without modification.
+
+**How it works**
+
+Ansible resolves the ``gather_facts`` action through the ``ansible.legacy``
+pseudo-namespace, searching directories listed in ``action_plugins`` before
+falling back to ``ansible.builtin``. Action plugins placed in a collection's
+``plugins/action/`` directory are only reachable as
+``<namespace>.<collection>.<name>`` and cannot override
+``ansible.legacy.gather_facts``. The shim lives in a dedicated directory
+(``plugins/plugin_utils/_setup/``) that is added to the search path explicitly,
+so only the ``gather_facts`` override is exposed without shadowing any other
+built-in action plugins.
+
+**Required configuration**
+
+Add the shim directory to the ``action_plugins`` search path in ``ansible.cfg``:
+
+..  code-block:: ini
+
+    [defaults]
+    action_plugins = ~/.ansible/collections/ansible_collections/community/openwrt/plugins/plugin_utils/_setup
+
+**Per-host opt-in**
+
+The shim only intercepts fact gathering for hosts that have
+``openwrt_gather_facts: true`` set (for example in ``group_vars/`` or
+``host_vars/``). All other hosts fall through to ``ansible.builtin.gather_facts``
+unchanged.
+
+..  code-block:: yaml+jinja
+
+    # group_vars/openwrt.yml
+    openwrt_gather_facts: true

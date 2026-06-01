@@ -216,8 +216,11 @@ jobs:
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
-        run: nox -e molecule
+        run: nox -e test_default
 
+      - name: Run molecule tests (gather_facts scenario)
+        working-directory: ansible_collections/community/openwrt
+        run: nox -e test_gather_facts
 
   molecule-roles:
     name: Roles (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
