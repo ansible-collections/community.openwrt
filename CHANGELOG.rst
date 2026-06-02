@@ -4,6 +4,19 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.5.0
+======
+
+Release Summary
+---------------
+
+Regular release.
+
+Minor Changes
+-------------
+
+- apk - add option ``allow_untrusted`` to be able to install local packages (https://github.com/ansible-collections/community.openwrt/issues/195, https://github.com/ansible-collections/community.openwrt/pull/224)
+
 v1.4.0
 ======
 

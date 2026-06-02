@@ -20,7 +20,7 @@ tags:
   - networking
   - router
 repository: https://github.com/ansible-collections/community.openwrt
-documentation: https://ansible-collections.github.io/community.openwrt/branch/main/
+documentation: https://ansible-collections.github.io/community.openwrt/tag/1.5.0/
 homepage: https://github.com/ansible-collections/community.openwrt
 issues: https://github.com/ansible-collections/community.openwrt/issues
 

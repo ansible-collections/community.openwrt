@@ -228,3 +228,13 @@ releases:
       - 1.4.0.yml
       - 233-module-utils.yml
     release_date: '2026-05-22'
+  1.5.0:
+    changes:
+      minor_changes:
+        - apk - add option ``allow_untrusted`` to be able to install local packages
+          (https://github.com/ansible-collections/community.openwrt/issues/195, https://github.com/ansible-collections/community.openwrt/pull/224)
+      release_summary: Regular release.
+    fragments:
+      - 1.5.0.yml
+      - 220-apk-allow-untrusted.yml
+    release_date: '2026-06-02'
