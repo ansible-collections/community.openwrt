@@ -1,0 +1,2 @@
+minor_changes:
+  - uci - add ``find_all`` to the Python module metadata command choices and return its matches in ``result_list`` (https://github.com/ansible-collections/community.openwrt/pull/242).
