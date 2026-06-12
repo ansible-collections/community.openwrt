@@ -121,36 +121,7 @@ _verify_value_type() {
     echo "$_value"
 }
 
-_parse_legacy_params() {
-    local _var _type _required _default _alias
-    local _param _value _IFS
-    for _param in $PARAMS; do
-        eval "${_param%%[/=]*}=\"\""
-    done
-    eval "$(cat "$_params")" || fail "could not parse params"
-    for _param in $PARAMS $_ANSIBLE_PARAMS; do
-        _value=""; _IFS="$IFS"; IFS="/"; set -- $_param; IFS="$_IFS"
-        _var="$1"; _type="$(_map_type "$2")"; _required="$3"; _default="$4"
-        _IFS="$IFS"; IFS="="; set -- $_var; IFS="$_IFS"; _var="$1"
-        for _alias; do
-            eval "_value=\"\$$_alias\""
-            [ -z "$_value" ] || break
-        done
-        eval "export -- _orig_$_var=\"\$_value\""
-        [ -z "$_value" ] && {
-            [ -z "$_required" ] || fail "$_var is required"
-            [ -z "$_default" ] ||
-                _value="$(_verify_value_type "$_default" "$_type")"
-        } || {
-            _value="$(_verify_value_type "$_value" "$_type")" ||
-                fail "$_var must be $_type"
-        }
-        eval "export -- $_var=\"\$_value\" _type_$_var=\"\$_type\""
-    done
-    return 0
-}
-
-_parse_json_params() {
+_parse_params() {
     local _var _type _required _default _alias
     local _param _value _found _is_type _IFS
     json_set_namespace params
@@ -187,10 +158,6 @@ _parse_json_params() {
         esac
     done
     return 0
-}
-
-_parse_params() {
-    [ -n "$WANT_JSON" ] && _parse_json_params || _parse_legacy_params
 }
 
 _support_check_mode() {
