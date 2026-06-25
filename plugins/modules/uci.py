@@ -40,6 +40,7 @@ options:
       - del_list
       - export
       - find
+      - find_all
       - get
       - import
       - rename
@@ -166,8 +167,11 @@ result:
   type: str
   sample: cfg12523
 result_list:
-  description: The list form of result.
-  returned: when O(command=get)
+  description:
+    - The list form of C(result).
+    - For O(command=find_all), this is the list of matching positional section IDs, for example V(@wifi-iface[0]).
+      Named sections are returned as positional IDs.
+  returned: when O(command=get) or O(command=find_all)
   type: list
   sample: ["0.pool.ntp.org", "1.pool.ntp.org"]
 config:

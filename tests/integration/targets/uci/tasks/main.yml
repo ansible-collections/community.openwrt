@@ -59,6 +59,21 @@
     option: testopt
     value: testval
 
+- name: "find_all - setup: add another matching test section"
+  community.openwrt.uci:
+    command: add
+    config: uhttpd
+    type: testtype
+  register: uci_add_second_section
+
+- name: "find_all - setup: set option on second test section"
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: "{{ uci_add_second_section.result }}"
+    option: testopt
+    value: testval
+
 - name: "find - match found: find the test section by option value"
   community.openwrt.uci:
     command: find
@@ -75,6 +90,75 @@
       - uci_find_match.result is defined
       - uci_find_match.section is defined
       - uci_find_match.result == uci_find_match.section
+
+- name: "find_all - matches found: find all matching test sections by option value"
+  community.openwrt.uci:
+    command: find_all
+    config: uhttpd
+    type: testtype
+    option: testopt
+    find: testval
+  register: uci_find_all_match
+
+- name: "find_all - matches found: assert result contains all matching sections"
+  ansible.builtin.assert:
+    that:
+      - uci_find_all_match is succeeded
+      - uci_find_all_match.result_list is defined
+      - uci_find_all_match.result_list is not string
+      - uci_find_all_match.result_list is sequence
+      - uci_find_all_match.result_list == ["@testtype[0]", "@testtype[1]"]
+
+- name: "find_all - type only: find all matching test sections by type"
+  community.openwrt.uci:
+    command: find_all
+    config: uhttpd
+    type: testtype
+  register: uci_find_all_type
+
+- name: "find_all - type only: assert result contains matching sections"
+  ansible.builtin.assert:
+    that:
+      - uci_find_all_type is succeeded
+      - uci_find_all_type.result_list is defined
+      - uci_find_all_type.result_list is not string
+      - uci_find_all_type.result_list is sequence
+      - uci_find_all_type.result_list == ["@testtype[0]", "@testtype[1]"]
+
+- name: "find_all - option exists: find all matching test sections with option"
+  community.openwrt.uci:
+    command: find_all
+    config: uhttpd
+    type: testtype
+    option: testopt
+  register: uci_find_all_option
+
+- name: "find_all - option exists: assert result contains matching sections"
+  ansible.builtin.assert:
+    that:
+      - uci_find_all_option is succeeded
+      - uci_find_all_option.result_list is defined
+      - uci_find_all_option.result_list is not string
+      - uci_find_all_option.result_list is sequence
+      - uci_find_all_option.result_list == ["@testtype[0]", "@testtype[1]"]
+
+- name: "find_all - no match: search for a non-existent option value"
+  community.openwrt.uci:
+    command: find_all
+    config: uhttpd
+    type: testtype
+    option: testopt
+    find: nonexistent
+  register: uci_find_all_no_match
+
+- name: "find_all - no match: assert result is an empty list"
+  ansible.builtin.assert:
+    that:
+      - uci_find_all_no_match is succeeded
+      - uci_find_all_no_match.result_list is defined
+      - uci_find_all_no_match.result_list is not string
+      - uci_find_all_no_match.result_list is sequence
+      - uci_find_all_no_match.result_list | length == 0
 
 - name: "find - no match: search for a non-existent option value"
   community.openwrt.uci:
@@ -100,4 +184,11 @@
     command: delete
     config: uhttpd
     section: "{{ uci_add_section.result }}"
+  ignore_errors: true
+
+- name: "find - teardown: delete the second test section"
+  community.openwrt.uci:
+    command: delete
+    config: uhttpd
+    section: "{{ uci_add_second_section.result }}"
   ignore_errors: true

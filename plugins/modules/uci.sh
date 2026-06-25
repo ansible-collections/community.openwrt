@@ -163,7 +163,7 @@ uci_find() {
                 [ -n "$option" -o "$command" = find_all ] ||
                 fail "config, type and option required for $command";;
     esac
-    [ "$command" != "find_all" ] || uci_result_do json_add_array result
+    [ "$command" != "find_all" ] || uci_result_do json_add_array result_list
     type="${type:-$section}"
     section=""; i=0
     while [ -n "$(uci -q get "$config.@$type[$i]")" ]; do
