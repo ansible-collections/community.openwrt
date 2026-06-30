@@ -17,13 +17,13 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 This collection enables the automated configuration of your OpenWrt devices.
 
-We encourage new users to read the [User Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/user_guide.html)
-and the [How-To Guides](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/howto_guide.html).
+We encourage new users to read the [User Guide](https://ansible-collections.github.io/community.openwrt/tag/1.6.0/docsite/user_guide.html)
+and the [How-To Guides](https://ansible-collections.github.io/community.openwrt/tag/1.6.0/docsite/howto_guide.html).
 
 If you are migrating from the `gekmihesg.openwrt` role, please read the
-[Migration Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_guide.html). If you are upgrading to OpenWrt >= 25.x, please read the  [Migration APK Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/migration_apk_guide.html).
+[Migration Guide](https://ansible-collections.github.io/community.openwrt/tag/1.6.0/docsite/migration_guide.html). If you are upgrading to OpenWrt >= 25.x, please read the  [Migration APK Guide](https://ansible-collections.github.io/community.openwrt/tag/1.6.0/docsite/migration_apk_guide.html).
 
-Check the [complete documentation](https://ansible-collections.github.io/community.openwrt/branch/main/index.html) for the collection.
+Check the [complete documentation](https://ansible-collections.github.io/community.openwrt/tag/1.6.0/index.html) for the collection.
 Please note that this documentation reflects the state of the development branch.
 
 ## Our mission

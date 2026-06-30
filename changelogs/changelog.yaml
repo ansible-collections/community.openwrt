@@ -238,3 +238,13 @@ releases:
       - 1.5.0.yml
       - 220-apk-allow-untrusted.yml
     release_date: '2026-06-02'
+  1.6.0:
+    changes:
+      minor_changes:
+        - uci - add ``find_all`` to the Python module metadata command choices and
+          return its matches in ``result_list`` (https://github.com/ansible-collections/community.openwrt/pull/242).
+      release_summary: Regular release.
+    fragments:
+      - 1.6.0.yml
+      - uci-find-all-command.yml
+    release_date: '2026-06-30'
