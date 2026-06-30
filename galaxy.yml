@@ -7,7 +7,7 @@
 
 namespace: community
 name: openwrt
-version: 1.6.0
+version: 1.7.0
 readme: README.md
 authors:
   - Alexei Znamensky (github.com/russoz)
@@ -20,7 +20,7 @@ tags:
   - networking
   - router
 repository: https://github.com/ansible-collections/community.openwrt
-documentation: https://ansible-collections.github.io/community.openwrt/tag/1.6.0/
+documentation: https://ansible-collections.github.io/community.openwrt/branch/main/
 homepage: https://github.com/ansible-collections/community.openwrt
 issues: https://github.com/ansible-collections/community.openwrt/issues
 
