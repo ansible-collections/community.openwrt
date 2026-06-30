@@ -4,6 +4,19 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.6.0
+======
+
+Release Summary
+---------------
+
+Regular release.
+
+Minor Changes
+-------------
+
+- uci - add ``find_all`` to the Python module metadata command choices and return its matches in ``result_list`` (https://github.com/ansible-collections/community.openwrt/pull/242).
+
 v1.5.0
 ======
 
