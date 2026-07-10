@@ -1,0 +1,2 @@
+minor_changes:
+  - "opkg - add ``force_feeds`` parameter to pass ``--force_feeds`` to opkg install and update invocations (https://github.com/ansible-collections/community.openwrt/issues/239, https://github.com/ansible-collections/community.openwrt/pull/248)."
