@@ -65,6 +65,12 @@ options:
     description:
       - Do not follow dependencies.
     type: bool
+  force_feeds:
+    description:
+      - Path to a feeds configuration file, passed to opkg as C(--force_feeds).
+      - Useful on devices where the default opkg uses vendor-only feeds (for example, Teltonika firmware).
+    type: str
+    version_added: 1.7.0
 """
 
 EXAMPLES = r"""
@@ -94,6 +100,12 @@ EXAMPLES = r"""
     name: busybox
     state: present
     force: reinstall
+
+- name: Install a package using OpenWrt feeds on a Teltonika device
+  community.openwrt.opkg:
+    name: python3-base
+    state: present
+    force_feeds: /etc/opkg/openwrt/distfeeds.conf
 """
 
 RETURN = r""""""
