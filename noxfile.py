@@ -61,18 +61,17 @@ def next_minor(version: str) -> str:
     return f"{major}.{minor + 1}.0"
 
 
-OPENWRT_VERSIONS_FILE = Path("tests/molecule/openwrt-versions.yml")
+OPENWRT_FILE = Path("tests/molecule/openwrt.yml")
 
 
-def _read_openwrt_versions() -> list[str]:
-    with open(OPENWRT_VERSIONS_FILE) as f:
-        return yaml.safe_load(f)["versions"]
+def _read_openwrt() -> dict:
+    with open(OPENWRT_FILE) as f:
+        return yaml.safe_load(f)
 
 
-def _write_openwrt_versions(versions: list[str]) -> None:
-    text = OPENWRT_VERSIONS_FILE.read_text()
-    header = text[: text.index("versions:")]
-    OPENWRT_VERSIONS_FILE.write_text(header + "versions:\n" + "".join(f'  - "{v}"\n' for v in versions))
+def _write_openwrt(openwrt_cfg: dict) -> None:
+    with open(OPENWRT_FILE, "w") as f:
+        yaml.safe_dump(openwrt_cfg, f)
 
 
 def _assert_clean_workdir(session: nox.Session) -> None:
@@ -83,7 +82,7 @@ def _assert_clean_workdir(session: nox.Session) -> None:
 
 def _run_integration(session: nox.Session):
     env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
-    session.run("molecule", "-vv", "test", "--scenario-name", "molecule_integration", external=True, env=env)
+    session.run("molecule", "-vvv", "test", "--scenario-name", "molecule_integration", external=True, env=env)
 
 
 def check_no_modifications(session: nox.Session, fragment_path) -> None:
@@ -100,7 +99,7 @@ def check_no_modifications(session: nox.Session, fragment_path) -> None:
         session.error("There are modified or untracked files. Commit, restore, or remove them before running this")
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def release(session: nox.Session):
     """
     Release collection without release branches
@@ -190,7 +189,7 @@ def release(session: nox.Session):
     )
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def tag(session: nox.Session):
     """
     Tag the release on upstream/main and push the tag.
@@ -221,7 +220,7 @@ def tag(session: nox.Session):
     session.run("git", "push", "upstream", version, external=True)
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def github_release(session: nox.Session):
     """
     Create a GitHub release from an existing tag.
@@ -247,7 +246,7 @@ def github_release(session: nox.Session):
     )
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def bump_version(session: nox.Session):
     """
     Bump galaxy.yml to the next development version, revert pinned doc URLs,
@@ -286,37 +285,37 @@ def bump_version(session: nox.Session):
     session.run("git", "push", "origin", "main", external=True)
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def test(session: nox.Session):
     """Run ansible_test_integration scenario for a single target. Posargs: <target>"""
     if len(session.posargs) != 1:
         session.error(f"usage: nox -e {session.name} -- <target>")
     target = session.posargs[0]
     env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1", "TEST_TARGET_ROLE": target}
-    session.run("molecule", "-vv", "test", "-s", "ansible_test_integration", external=True, env=env)
+    session.run("molecule", "-vvv", "test", "-s", "ansible_test_integration", external=True, env=env)
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def test_default(session: nox.Session):
     """Run the default molecule scenario."""
     env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
-    session.run("molecule", "-vv", "test", "-s", "default", external=True, env=env)
+    session.run("molecule", "-vvv", "test", "-s", "default", external=True, env=env)
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def test_gather_facts(session: nox.Session):
     """Run the default molecule scenario."""
     env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
-    session.run("molecule", "-vv", "test", "-s", "gather_facts", external=True, env=env)
+    session.run("molecule", "-vvv", "test", "-s", "gather_facts", external=True, env=env)
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def integration(session: nox.Session):
     """Run molecule integration tests for all plugins (molecule_integration scenario)."""
     _run_integration(session)
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def roles(session: nox.Session):
     """Run molecule tests for all role scenarios. Posargs: [--role|-r ROLE] [--scenario|-s SCENARIO]"""
     parser = argparse.ArgumentParser()
@@ -355,7 +354,7 @@ def roles(session: nox.Session):
                 session.run("molecule", "-vv", "test", "--scenario-name", scenario, external=True, env=env)
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def regen_shellcheck_ignores(session: nox.Session):
     """Regenerate shellcheck ignore entries in tests/sanity/ignore-*.txt."""
     sanity_dir = Path("tests") / "sanity"
@@ -463,10 +462,10 @@ def regen_shellcheck_ignores(session: nox.Session):
         session.log(f"Added {len(found)} shellcheck ignore entries to {ignore_file}")
 
 
-@nox.session(reuse_venv=True, default=False)
+@nox.session(default=False)
 def openwrt_version(session: nox.Session):
     """
-    Manage OpenWrt versions in tests/molecule/openwrt-versions.yml.
+    Manage OpenWrt versions in tests/molecule/openwrt.yml.
 
     Usage:
         nox -e openwrt_version -- list
@@ -488,15 +487,16 @@ def openwrt_version(session: nox.Session):
     cmd = session.posargs[0]
     args = session.posargs[1:]
 
+    openwrt_test_config = _read_openwrt()
     if cmd == "list":
-        for v in _read_openwrt_versions():
+        for v in openwrt_test_config["versions"]:
             session.log(v)
         return
 
     _assert_clean_workdir(session)
     session.run("git", "checkout", "main", external=True)
     session.run("git", "pull", "--rebase", "upstream", "main", external=True)
-    versions = _read_openwrt_versions()
+    versions = openwrt_test_config["versions"]
 
     match cmd:
         case "bump":
@@ -547,8 +547,9 @@ def openwrt_version(session: nox.Session):
             commit_msg = title
 
     session.run("git", "checkout", "-b", branch, external=True)
-    _write_openwrt_versions(new_versions)
-    session.run("git", "add", str(OPENWRT_VERSIONS_FILE), external=True)
+    openwrt_test_config["versions"] = new_versions
+    _write_openwrt(openwrt_test_config)
+    session.run("git", "add", str(OPENWRT_FILE), external=True)
     session.run("git", "commit", "-m", commit_msg, external=True)
 
     _run_integration(session)

@@ -105,7 +105,7 @@ The collection tests fall into two broad categories:
        bundled Ansible roles.
 
 Both categories use real OpenWrt container images. The list of tested OpenWrt versions
-is maintained in a single file: ``tests/molecule/openwrt-versions.yml``.
+is maintained in a single file: ``tests/molecule/openwrt.yml``.
 
 Molecule has native support for Ansible collections and automatically discovers scenarios
 placed under ``extensions/molecule/``, so all collection-level tests can be invoked from
@@ -126,7 +126,7 @@ passing the target name as a positional argument:
    $ nox -e test -- uci
 
 This runs the target against all OpenWrt platform versions defined in
-``tests/molecule/openwrt-versions.yml``.
+``tests/molecule/openwrt.yml``.
 
 
 Running All Plugin Integration Tests at Once
@@ -154,7 +154,7 @@ Each bundled role has its own Molecule scenarios alongside the role itself:
      <role>/
        molecule/
          <scenario>/
-           molecule.yml   ← minimal; platforms come from tests/molecule/openwrt-versions.yml
+           molecule.yml   ← minimal; platforms come from tests/molecule/openwrt.yml
            converge.yml
 
 Run a specific role and scenario:
@@ -183,7 +183,7 @@ Run every role and every scenario:
 
 The ``molecule.yml`` files in role scenarios are intentionally minimal (they contain only a
 comment). The actual platform list is read at runtime from
-``tests/molecule/openwrt-versions.yml`` by the shared ``create.yml`` playbook.
+``tests/molecule/openwrt.yml`` by the shared ``create.yml`` playbook.
 
 
 Sanity and Unit Tests
