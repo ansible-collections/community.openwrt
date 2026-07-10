@@ -37,3 +37,52 @@
       ansible.builtin.assert:
         that:
           - opkg_remove is succeeded
+
+    - name: Test force_feeds parameter
+      block:
+        - name: Install a package with force_feeds
+          community.openwrt.opkg:
+            name: "less"
+            state: present
+            force_feeds: /etc/opkg/distfeeds.conf
+          register: opkg_force_feeds_install
+
+        - name: Assert install with force_feeds succeeded and changed
+          ansible.builtin.assert:
+            that:
+              - opkg_force_feeds_install is succeeded
+              - opkg_force_feeds_install is changed
+
+        - name: Install the same package with force_feeds again (idempotency)
+          community.openwrt.opkg:
+            name: "less"
+            state: present
+            force_feeds: /etc/opkg/distfeeds.conf
+          register: opkg_force_feeds_idempotent
+
+        - name: Assert idempotency with force_feeds
+          ansible.builtin.assert:
+            that:
+              - opkg_force_feeds_idempotent is succeeded
+              - opkg_force_feeds_idempotent is not changed
+
+        - name: Update cache and install with force_feeds
+          community.openwrt.opkg:
+            name: "less"
+            state: present
+            update_cache: true
+            force_feeds: /etc/opkg/distfeeds.conf
+          register: opkg_force_feeds_update_cache
+
+        - name: Assert update_cache with force_feeds succeeded
+          ansible.builtin.assert:
+            that:
+              - opkg_force_feeds_update_cache is succeeded
+              - opkg_force_feeds_update_cache is not changed
+
+      always:
+        - name: Remove package installed during force_feeds tests
+          community.openwrt.opkg:
+            name: "less"
+            state: absent
+          ignore_errors: true
