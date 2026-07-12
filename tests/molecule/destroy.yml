@@ -8,7 +8,7 @@
   tasks:
     - name: Read OpenWrt versions
       ansible.builtin.include_vars:
-        file: "{{ playbook_dir }}/openwrt-versions.yml"
+        file: "{{ playbook_dir }}/openwrt.yml"
         name: _openwrt
 
     - name: Build platform list

@@ -8,7 +8,7 @@
   tasks:
     - name: Read OpenWrt versions
       ansible.builtin.include_vars:
-        file: "{{ playbook_dir }}/openwrt-versions.yml"
+        file: "{{ playbook_dir }}/openwrt.yml"
         name: _openwrt
 
     - name: Build platform list
@@ -16,7 +16,7 @@
         _platforms: >-
           {{ _platforms | default([]) + [{
             'name': 'openwrt' + item.split('.')[0] + item.split('.')[1],
-            'image': 'ghcr.io/openwrt/rootfs:x86_64-' + item,
+            'image': _openwrt.registry + '/openwrt/rootfs:x86_64-' + item,
             'command': '/sbin/init'
           }] }}
       loop: "{{ _openwrt.versions }}"
