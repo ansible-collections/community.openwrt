@@ -248,7 +248,7 @@ bundled Ansible roles.</p>
 </dl>
 </div></blockquote>
 <p>Both categories use real OpenWrt container images. The list of tested OpenWrt versions
-is maintained in a single file: <code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt-versions.yml</span></code>.</p>
+is maintained in a single file: <code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt.yml</span></code>.</p>
 <p>Molecule has native support for Ansible collections and automatically discovers scenarios
 placed under <code class="docutils literal notranslate"><span class="pre">extensions/molecule/</span></code>, so all collection-level tests can be invoked from
 the repository root without changing directories.</p>
@@ -263,7 +263,7 @@ passing the target name as a positional argument:</p>
 </pre></div>
 </div>
 <p>This runs the target against all OpenWrt platform versions defined in
-<code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt-versions.yml</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt.yml</span></code>.</p>
 </section>
 </section>
 <section id="running-all-plugin-integration-tests-at-once">
@@ -283,7 +283,7 @@ pass — the same thing CI does. It does <strong>not</strong> include role tests
   &lt;role&gt;/
     molecule/
       &lt;scenario&gt;/
-        molecule.yml   ← minimal; platforms come from tests/molecule/openwrt-versions.yml
+        molecule.yml   ← minimal; platforms come from tests/molecule/openwrt.yml
         converge.yml
 </pre></div>
 </div>
@@ -305,7 +305,7 @@ pass — the same thing CI does. It does <strong>not</strong> include role tests
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">molecule.yml</span></code> files in role scenarios are intentionally minimal (they contain only a
 comment). The actual platform list is read at runtime from
-<code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt-versions.yml</span></code> by the shared <code class="docutils literal notranslate"><span class="pre">create.yml</span></code> playbook.</p>
+<code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt.yml</span></code> by the shared <code class="docutils literal notranslate"><span class="pre">create.yml</span></code> playbook.</p>
 </section>
 <section id="sanity-and-unit-tests">
 <h2><a class="toc-backref" href="#id8" role="doc-backlink">Sanity and Unit Tests</a><a class="headerlink" href="#sanity-and-unit-tests" title="Link to this heading"></a></h2>
