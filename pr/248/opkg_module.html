@@ -195,6 +195,16 @@ To check whether it is installed, run <code class="code docutils literal notrans
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-conf_file"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-opkg-module-parameter-conf-file"><strong>conf_file</strong></p>
+<a class="ansibleOptionLink" href="#parameter-conf_file" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+<p><em class="ansible-option-versionadded">added in community.openwrt 1.7.0</em></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Path to a custom opkg configuration file, passed to opkg as <code class="docutils literal notranslate"><span class="pre">--conf</span></code>.</p>
+<p>This replaces the default opkg configuration entirely instead of adding to it, so the file must define its own <code class="docutils literal notranslate"><span class="pre">dest</span></code> and <code class="docutils literal notranslate"><span class="pre">lists_dir</span></code> entries in addition to any <code class="docutils literal notranslate"><span class="pre">src</span></code> feed lines it needs.</p>
+<p>Useful on devices where the default opkg configuration does not provide the desired feeds (for example, Teltonika firmware).</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-force"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-opkg-module-parameter-force"><strong>force</strong></p>
 <a class="ansibleOptionLink" href="#parameter-force" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -212,15 +222,6 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;checksum&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;removal-of-dependent-packages&quot;</span></code></p></li>
 </ul>
-</div></td>
-</tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
-<div class="ansibleOptionAnchor" id="parameter-force_feeds"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-opkg-module-parameter-force-feeds"><strong>force_feeds</strong></p>
-<a class="ansibleOptionLink" href="#parameter-force_feeds" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
-<p><em class="ansible-option-versionadded">added in community.openwrt 1.7.0</em></p>
-</div></td>
-<td><div class="ansible-option-cell"><p>Path to a feeds configuration file, passed to opkg as <code class="docutils literal notranslate"><span class="pre">--force_feeds</span></code>.</p>
-<p>Useful on devices where the default opkg uses vendor-only feeds (for example, Teltonika firmware).</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
@@ -340,11 +341,11 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
 <span class="w">    </span><span class="nt">force</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reinstall</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install a package using OpenWrt feeds on a Teltonika device</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install a package using a custom opkg configuration file</span>
 <span class="w">  </span><span class="nt">community.openwrt.opkg</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python3-base</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
-<span class="w">    </span><span class="nt">force_feeds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/opkg/openwrt/distfeeds.conf</span>
+<span class="w">    </span><span class="nt">conf_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/opkg/openwrt.conf</span>
 </pre></div>
 </div>
 <section id="authors">
