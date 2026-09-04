@@ -14,7 +14,7 @@ install_packages() {
     for pkg; do
         ! query_package "$pkg" || continue
         [ -n "$_ansible_check_mode" ] || {
-            try opkg $feeds_opt install$force $nodeps "$pkg"
+            try opkg $conf_opt install$force $nodeps "$pkg"
             query_package "$pkg" || fail "failed to install $pkg: $_result"
         }
         changed
@@ -39,7 +39,7 @@ init() {
         name=pkg/str/r
         state/str//present
         force/str
-        force_feeds/str
+        conf_file/str
         update_cache/bool
         autoremove/bool
         nodeps/bool
@@ -59,7 +59,7 @@ validate() {
         esac
         force=" --force-$force"
     }
-    [ -z "$force_feeds" ] || feeds_opt="--force_feeds $force_feeds"
+    [ -z "$conf_file" ] || conf_opt="--conf $conf_file"
 }
 
 main() {
@@ -71,7 +71,7 @@ main() {
         nodeps=" --nodeps"
     }
 
-    [ -z "$update_cache" -o -n "$_ansible_check_mode" ] || try opkg $feeds_opt update
+    [ -z "$update_cache" -o -n "$_ansible_check_mode" ] || try opkg $conf_opt update
     case "$state" in
         present|installed) install_packages;;
         absent|removed) remove_packages;;

@@ -65,10 +65,13 @@ options:
     description:
       - Do not follow dependencies.
     type: bool
-  force_feeds:
+  conf_file:
     description:
-      - Path to a feeds configuration file, passed to opkg as C(--force_feeds).
-      - Useful on devices where the default opkg uses vendor-only feeds (for example, Teltonika firmware).
+      - Path to a custom opkg configuration file, passed to opkg as C(--conf).
+      - This replaces the default opkg configuration entirely instead of adding to it, so the file must define
+        its own C(dest) and C(lists_dir) entries in addition to any C(src) feed lines it needs.
+      - Useful on devices where the default opkg configuration does not provide the desired feeds (for example,
+        Teltonika firmware).
     type: str
     version_added: 1.7.0
 """
@@ -101,11 +104,11 @@ EXAMPLES = r"""
     state: present
     force: reinstall
 
-- name: Install a package using OpenWrt feeds on a Teltonika device
+- name: Install a package using a custom opkg configuration file
   community.openwrt.opkg:
     name: python3-base
     state: present
-    force_feeds: /etc/opkg/openwrt/distfeeds.conf
+    conf_file: /etc/opkg/openwrt.conf
 """
 
 RETURN = r""""""
