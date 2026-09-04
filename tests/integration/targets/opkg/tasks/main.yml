@@ -38,51 +38,80 @@
         that:
           - opkg_remove is succeeded
 
-    - name: Test force_feeds parameter
+    - name: Test conf_file parameter (custom opkg configuration)
+      vars:
+        custom_opkg_conf: /tmp/opkg-custom.conf
+        custom_opkg_lists_dir: /tmp/opkg-custom-lists
       block:
-        - name: Install a package with force_feeds
-          community.openwrt.opkg:
-            name: "less"
-            state: present
-            force_feeds: /etc/opkg/distfeeds.conf
-          register: opkg_force_feeds_install
+        - name: Read the device's default feeds
+          community.openwrt.slurp:
+            src: /etc/opkg/distfeeds.conf
+          register: opkg_distfeeds
 
-        - name: Assert install with force_feeds succeeded and changed
+        - name: Write a custom opkg configuration pointing at a fresh lists directory
+          community.openwrt.copy:
+            dest: "{{ custom_opkg_conf }}"
+            content: |
+              dest root /
+              dest ram /tmp
+              lists_dir ext {{ custom_opkg_lists_dir }}
+              {{ opkg_distfeeds.content | b64decode }}
+
+        - name: Install a package with conf_file before its cache is populated (must fail)
+          community.openwrt.opkg:
+            name: "htop"
+            state: present
+            conf_file: "{{ custom_opkg_conf }}"
+          register: opkg_conf_file_install_uncached
+          ignore_errors: true
+
+        - name: Assert install failed because the custom lists directory is still empty
           ansible.builtin.assert:
             that:
-              - opkg_force_feeds_install is succeeded
-              - opkg_force_feeds_install is changed
+              - opkg_conf_file_install_uncached is failed
 
-        - name: Install the same package with force_feeds again (idempotency)
+        - name: Update cache and install with conf_file
           community.openwrt.opkg:
-            name: "less"
-            state: present
-            force_feeds: /etc/opkg/distfeeds.conf
-          register: opkg_force_feeds_idempotent
-
-        - name: Assert idempotency with force_feeds
-          ansible.builtin.assert:
-            that:
-              - opkg_force_feeds_idempotent is succeeded
-              - opkg_force_feeds_idempotent is not changed
-
-        - name: Update cache and install with force_feeds
-          community.openwrt.opkg:
-            name: "less"
+            name: "htop"
             state: present
             update_cache: true
-            force_feeds: /etc/opkg/distfeeds.conf
-          register: opkg_force_feeds_update_cache
+            conf_file: "{{ custom_opkg_conf }}"
+          register: opkg_conf_file_install
 
-        - name: Assert update_cache with force_feeds succeeded
+        - name: Assert install with conf_file succeeded and changed
           ansible.builtin.assert:
             that:
-              - opkg_force_feeds_update_cache is succeeded
-              - opkg_force_feeds_update_cache is not changed
+              - opkg_conf_file_install is succeeded
+              - opkg_conf_file_install is changed
+
+        - name: Install the same package with conf_file again (idempotency)
+          community.openwrt.opkg:
+            name: "htop"
+            state: present
+            conf_file: "{{ custom_opkg_conf }}"
+          register: opkg_conf_file_idempotent
+
+        - name: Assert idempotency with conf_file
+          ansible.builtin.assert:
+            that:
+              - opkg_conf_file_idempotent is succeeded
+              - opkg_conf_file_idempotent is not changed
 
       always:
-        - name: Remove package installed during force_feeds tests
+        - name: Remove package installed during conf_file tests
           community.openwrt.opkg:
-            name: "less"
+            name: "htop"
+            state: absent
+          ignore_errors: true
+
+        - name: Remove the custom opkg configuration file
+          community.openwrt.file:
+            path: "{{ custom_opkg_conf }}"
+            state: absent
+          ignore_errors: true
+
+        - name: Remove the custom opkg lists directory
+          community.openwrt.file:
+            path: "{{ custom_opkg_lists_dir }}"
             state: absent
           ignore_errors: true
