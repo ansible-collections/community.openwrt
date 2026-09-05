@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from ansible.errors import AnsibleActionFail, AnsibleFileNotFound
+from ansible.errors import AnsibleAction, AnsibleActionFail, AnsibleFileNotFound
 from ansible.plugins.action.template import ActionModule as CoreTemplateActionModule
 
 from ansible_collections.community.openwrt.plugins.action.template import ActionModule
@@ -41,6 +41,18 @@ def test_ansible_action_fail_result_is_preserved(mocker):
     result = action.run(task_vars={})
 
     assert result == {"failed": True, "msg": "src and dest are required"}
+
+
+def test_bare_ansible_action_without_msg_falls_back_to_exception_text(mocker):
+    """A bare AnsibleAction contributes no "msg" of its own; some platforms have been observed
+    to raise AnsibleActionFail with a result lacking "msg" too, so the exception's own text
+    must still surface in the result either way."""
+    mocker.patch.object(CoreTemplateActionModule, "run", side_effect=AnsibleAction("could not find src=missing.j2"))
+    action = _make_action()
+
+    result = action.run(task_vars={})
+
+    assert "could not find src=missing.j2" in result["msg"]
 
 
 def test_generic_exception_is_converted_to_failed_result(mocker):

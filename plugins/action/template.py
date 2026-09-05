@@ -40,9 +40,11 @@ class ActionModule(TemplateActionModule):
             with mock.patch.object(action_loader, "get", _get_action):
                 return super().run(tmp, task_vars)
         except AnsibleAction as e:
+            # e.result should already carry "msg", but on some platforms it comes back
+            # without one; fall back to the exception's own message so callers always
+            # get an explanation.
             result = dict(e.result)
-            result["_debug_exc_type"] = type(e).__name__
-            result["_debug_exc_str"] = to_native(e)
+            result.setdefault("msg", to_native(e))
             return result
         except Exception as e:
-            return {"failed": True, "msg": to_native(e), "_debug_exc_type": type(e).__name__}
+            return {"failed": True, "msg": to_native(e)}
