@@ -72,6 +72,11 @@
   register: template_missing
   failed_when: false
 
+- name: DEBUG dump full template_missing result
+  ansible.builtin.debug:
+    msg: "{{ template_missing }}"
+    verbosity: 0
+
 - name: Assert a missing src is reported as a normal result honoring failed_when
   ansible.builtin.assert:
     that:
