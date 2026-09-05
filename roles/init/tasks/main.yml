@@ -22,7 +22,9 @@
   register: _opkg_available
   check_mode: false
   changed_when: false
-  failed_when: false
+  failed_when: >-
+    _opkg_available.rc is not defined or
+    (_opkg_available.rc != 0 and _opkg_available.stderr != "")
 
 - name: Check for apk availability
   community.openwrt.command:
@@ -30,7 +32,9 @@
   register: _apk_available
   check_mode: false
   changed_when: false
-  failed_when: false
+  failed_when: >-
+    _apk_available.rc is not defined or
+    (_apk_available.rc != 0 and _apk_available.stderr != "")
 
 - name: Assert package manager is found
   ansible.builtin.assert:

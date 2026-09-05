@@ -15,12 +15,12 @@
             ansible_host: 192.168.255.255
             openwrt_install_recommended_packages: false
       rescue:
-        - name: Assert role fails
+        - name: Assert role fails with the real connection error
           ansible.builtin.assert:
             that:
               - ansible_failed_result is failed
               - >-
-                'Could not find package manager:' in ansible_failed_result.msg
+                'Could not find package manager:' not in ansible_failed_result.msg
 
     - name: Remove package managers
       community.openwrt.command:
