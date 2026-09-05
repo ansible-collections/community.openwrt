@@ -1,0 +1,2 @@
+bugfixes:
+  - init role - do not suppress real module failures when checking for opkg/apk availability (https://github.com/ansible-collections/community.openwrt/issues/250, https://github.com/ansible-collections/community.openwrt/pull/253).
