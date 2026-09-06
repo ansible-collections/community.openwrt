@@ -11,6 +11,11 @@ short_description: Manage services on OpenWrt targets
 description:
   - The M(community.openwrt.service) module controls services on OpenWrt using init scripts.
   - It can start, stop, restart, reload services and manage their enabled state.
+  - Idempotency for O(state=started) and O(state=stopped) relies on the init script's C(running) check
+    (or O(pattern), when set). One-shot services that perform an action and exit, such as C(adblock),
+    always report as not running once finished, so O(state=started) reports RV(ignore:changed=true) on
+    every run for them. Manage such services with O(enabled) and only pass O(state) when the action is
+    explicitly wanted.
 author: Markus Weippert (@gekmihesg)
 extends_documentation_fragment:
   - community.openwrt.attributes
