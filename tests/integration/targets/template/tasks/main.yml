@@ -65,6 +65,20 @@
     dest: "/tmp/template.test"
     validate: cat %s
 
+- name: "Attempt to template a missing src file with failed_when: false"
+  community.openwrt.template:
+    src: "does-not-exist.j2"
+    dest: "/tmp/template-missing.test"
+  register: template_missing
+  failed_when: false
+
+- name: Assert a missing src is reported as a normal result honoring failed_when
+  ansible.builtin.assert:
+    that:
+      - template_missing is not failed
+      - template_missing.failed_when_result == false
+      - "'msg' in template_missing"
+
 - name: Clean up test file
   community.openwrt.file:
     path: "/tmp/template.test"
