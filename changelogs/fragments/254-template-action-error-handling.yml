@@ -1,2 +1,0 @@
-bugfixes:
-  - "template action plugin - work around an ansible-core change that made this action ignore ``failed_when`` (https://github.com/ansible-collections/community.openwrt/issues/252, https://github.com/ansible-collections/community.openwrt/pull/254)."

@@ -4,6 +4,25 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.7.0
+======
+
+Release Summary
+---------------
+
+Regular release. One new feature and two bugfixes.
+
+Minor Changes
+-------------
+
+- opkg - add ``conf_file`` parameter to pass ``--conf`` to opkg install and update invocations (https://github.com/ansible-collections/community.openwrt/issues/239, https://github.com/ansible-collections/community.openwrt/pull/248).
+
+Bugfixes
+--------
+
+- init role - do not suppress real module failures when checking for opkg/apk availability (https://github.com/ansible-collections/community.openwrt/issues/250, https://github.com/ansible-collections/community.openwrt/pull/253).
+- template action plugin - work around an ansible-core change that made this action ignore ``failed_when`` (https://github.com/ansible-collections/community.openwrt/issues/252, https://github.com/ansible-collections/community.openwrt/pull/254).
+
 v1.6.0
 ======
 
