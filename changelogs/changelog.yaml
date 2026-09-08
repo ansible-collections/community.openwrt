@@ -248,3 +248,23 @@ releases:
       - 1.6.0.yml
       - uci-find-all-command.yml
     release_date: '2026-06-30'
+  1.7.0:
+    changes:
+      bugfixes:
+        - init role - do not suppress real module failures when checking for opkg/apk
+          availability (https://github.com/ansible-collections/community.openwrt/issues/250,
+          https://github.com/ansible-collections/community.openwrt/pull/253).
+        - template action plugin - work around an ansible-core change that made this
+          action ignore ``failed_when`` (https://github.com/ansible-collections/community.openwrt/issues/252,
+          https://github.com/ansible-collections/community.openwrt/pull/254).
+      minor_changes:
+        - opkg - add ``conf_file`` parameter to pass ``--conf`` to opkg install and
+          update invocations (https://github.com/ansible-collections/community.openwrt/issues/239,
+          https://github.com/ansible-collections/community.openwrt/pull/248).
+      release_summary: Regular release. One new feature and two bugfixes.
+    fragments:
+      - 1.7.0.yml
+      - 248-opkg-force-feeds.yml
+      - 253-init-role-failed-when.yml
+      - 254-template-action-error-handling.yml
+    release_date: '2026-09-08'

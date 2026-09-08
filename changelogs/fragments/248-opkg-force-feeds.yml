@@ -1,2 +1,0 @@
-minor_changes:
-  - "opkg - add ``conf_file`` parameter to pass ``--conf`` to opkg install and update invocations (https://github.com/ansible-collections/community.openwrt/issues/239, https://github.com/ansible-collections/community.openwrt/pull/248)."
