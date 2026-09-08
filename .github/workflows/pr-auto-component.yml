@@ -6,7 +6,7 @@
 name: Populate Component Name
 
 on:  # yamllint disable-line rule:truthy
-  pull_request:
+  pull_request_target:
     types: [opened]
 
 permissions:
@@ -17,14 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     # This job is best-effort: it tries to guess the component and fill it into
     # the PR description. If anything goes wrong, the workflow must still succeed.
+    #
+    # It never checks out the PR branch: the script below only reads the file
+    # list through the API, so running under pull_request_target is safe (no
+    # untrusted code is executed) while still getting a write-capable token for
+    # fork PRs.
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v6
-        continue-on-error: true
-        with:
-          fetch-depth: 0
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
-
       - name: Write changed files to temp file
         id: component
         uses: actions/github-script@v7
