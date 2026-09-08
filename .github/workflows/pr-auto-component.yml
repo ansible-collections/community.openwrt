@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Write changed files to temp file
         id: component
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         continue-on-error: true
         with:
           script: |
@@ -57,7 +57,7 @@ jobs:
       - name: Update PR description
         # Skip if the component could not be determined; the workflow still succeeds.
         if: steps.component.outcome == 'success'
-        uses: nefrob/pr-description@v1.2.0
+        uses: nefrob/pr-description@v1.3.0
         continue-on-error: true
         with:
           content: /tmp/component.txt
