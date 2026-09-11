@@ -1,0 +1,4 @@
+bugfixes:
+  - uci - compare the current value before setting a scalar option, so that ``command=set``, ``command=ensure`` and ``command=section``
+    no longer report ``changed`` when the option already holds the target value
+    (https://github.com/ansible-collections/community.openwrt/issues/262, https://github.com/ansible-collections/community.openwrt/pull/263).
