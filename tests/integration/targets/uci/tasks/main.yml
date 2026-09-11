@@ -44,6 +44,95 @@
     that:
       - uci_delete is succeeded
 
+- name: "idempotency - setup: set an option to a known value"
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: main
+    option: max_connections
+    value: "150"
+  register: uci_idem_first
+
+- name: "idempotency - set the same value again"
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: main
+    option: max_connections
+    value: "150"
+  register: uci_idem_repeat
+
+- name: "idempotency - set a different value"
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: main
+    option: max_connections
+    value: "151"
+  register: uci_idem_change
+
+- name: "idempotency - assert only a real change is reported"
+  ansible.builtin.assert:
+    that:
+      - uci_idem_first is changed
+      - uci_idem_repeat is not changed
+      - uci_idem_change is changed
+
+- name: "idempotency - set a section dict to the values it already holds"
+  community.openwrt.uci:
+    command: section
+    config: uhttpd
+    type: testidem
+    name: idemsection
+    value:
+      opta: aaa
+      optb: bbb
+  register: uci_idem_dict_first
+
+- name: "idempotency - set the same section dict again"
+  community.openwrt.uci:
+    command: section
+    config: uhttpd
+    type: testidem
+    name: idemsection
+    value:
+      opta: aaa
+      optb: bbb
+  register: uci_idem_dict_repeat
+
+- name: "idempotency - change one option in the section dict"
+  community.openwrt.uci:
+    command: section
+    config: uhttpd
+    type: testidem
+    name: idemsection
+    value:
+      opta: aaa
+      optb: ccc
+  register: uci_idem_dict_change
+
+- name: "idempotency - assert only a real section change is reported"
+  ansible.builtin.assert:
+    that:
+      - uci_idem_dict_first is changed
+      - uci_idem_dict_repeat is not changed
+      - uci_idem_dict_change is changed
+
+- name: "idempotency - teardown: delete the test option"
+  community.openwrt.uci:
+    command: delete
+    config: uhttpd
+    section: main
+    option: max_connections
+  ignore_errors: true
+
+- name: "idempotency - teardown: delete the test section"
+  community.openwrt.uci:
+    command: delete
+    config: uhttpd
+    section: idemsection
+  ignore_errors: true
+
 - name: "find - setup: add a test section"
   community.openwrt.uci:
     command: add

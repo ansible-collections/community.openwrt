@@ -55,6 +55,13 @@ uci_check_type() {
     fail "$key exists with $t instead of $type"
 }
 
+uci_compare_value() {
+    local k="${1:-$key}"
+    local current
+    current="$(uci -q get "$k")" || return 1
+    [ "$current" = "$2" ]
+}
+
 uci_compare_list() {
     local k="${1:-$key}"
     local match="1"
@@ -112,7 +119,8 @@ uci_set_dict() {
             object) fail "cannot set $k to dict";;
             *)
                 json_get_var v "$k"
-                try uci set "$key.$k=$v";;
+                uci_compare_value "$key.$k" "$v" ||
+                    try uci set "$key.$k=$v";;
         esac
     done
 }
@@ -135,7 +143,8 @@ uci_set() {
             json_select_real "$var"
             uci_set_dict
             json_select ..;;
-        *) try "uci set \"\$key=\$$var\"";;
+        *) eval "uci_compare_value \"\$key\" \"\$$var\"" ||
+                try "uci set \"\$key=\$$var\"";;
     esac
 }
 
