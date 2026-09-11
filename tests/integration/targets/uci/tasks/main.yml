@@ -118,6 +118,47 @@
       - uci_idem_dict_repeat is not changed
       - uci_idem_dict_change is changed
 
+- name: "idempotency - setup: create a list option"
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: main
+    option: listopt
+    value:
+      - a
+      - b
+
+- name: "idempotency - overwrite the list with the scalar it joins to"
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: main
+    option: listopt
+    value: "a b"
+  register: uci_idem_list_to_scalar
+
+- name: "idempotency - read back the overwritten option"
+  community.openwrt.uci:
+    command: get
+    config: uhttpd
+    section: main
+    option: listopt
+  register: uci_idem_list_readback
+
+- name: "idempotency - assert a list is replaced by an equal-looking scalar"
+  ansible.builtin.assert:
+    that:
+      - uci_idem_list_to_scalar is changed
+      - uci_idem_list_readback.result_list == ["a b"]
+
+- name: "idempotency - teardown: delete the list option"
+  community.openwrt.uci:
+    command: delete
+    config: uhttpd
+    section: main
+    option: listopt
+  ignore_errors: true
+
 - name: "idempotency - teardown: delete the test option"
   community.openwrt.uci:
     command: delete
