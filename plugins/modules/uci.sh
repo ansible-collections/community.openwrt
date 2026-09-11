@@ -57,9 +57,12 @@ uci_check_type() {
 
 uci_compare_value() {
     local k="${1:-$key}"
+    local expected="$2"
     local current
-    current="$(uci -q get "$k")" || return 1
-    [ "$current" = "$2" ]
+    current="$(uci_get_safe -q "$k")" || return 1
+    eval "set -- $current"
+    [ $# -eq 1 ] || return 1
+    [ "$1" = "$expected" ]
 }
 
 uci_compare_list() {
