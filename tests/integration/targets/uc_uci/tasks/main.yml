@@ -1,0 +1,315 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: "Set a UCI configuration value"
+  community.openwrt.uc_uci:
+    command: set
+    config: uhttpd
+    section: main
+    option: max_connections
+    value: "150"
+  register: uc_uci_set
+
+- name: Assert UCI set succeeded
+  ansible.builtin.assert:
+    that:
+      - uc_uci_set is succeeded
+
+- name: "Get the UCI configuration value"
+  community.openwrt.uc_uci:
+    command: get
+    config: uhttpd
+    section: main
+    option: max_connections
+  register: uc_uci_get
+
+- name: Assert UCI get succeeded
+  ansible.builtin.assert:
+    that:
+      - uc_uci_get is succeeded
+      - uc_uci_get.result == "150"
+
+- name: "Delete the UCI configuration value"
+  community.openwrt.uc_uci:
+    command: delete
+    config: uhttpd
+    section: main
+    option: max_connections
+  register: uc_uci_delete
+
+- name: Assert UCI delete succeeded
+  ansible.builtin.assert:
+    that:
+      - uc_uci_delete is succeeded
+
+- name: "find - setup: add a test section"
+  community.openwrt.uc_uci:
+    command: add
+    config: uhttpd
+    type: testtype
+  register: uc_uci_add_section
+
+- name: "find - setup: set option on test section"
+  community.openwrt.uc_uci:
+    command: set
+    config: uhttpd
+    section: "{{ uc_uci_add_section.result }}"
+    option: testopt
+    value: testval
+
+- name: "find_all - setup: add another matching test section"
+  community.openwrt.uc_uci:
+    command: add
+    config: uhttpd
+    type: testtype
+  register: uc_uci_add_second_section
+
+- name: "find_all - setup: set option on second test section"
+  community.openwrt.uc_uci:
+    command: set
+    config: uhttpd
+    section: "{{ uc_uci_add_second_section.result }}"
+    option: testopt
+    value: testval
+
+- name: "find - match found: find the test section by option value"
+  community.openwrt.uc_uci:
+    command: find
+    config: uhttpd
+    type: testtype
+    option: testopt
+    find: testval
+  register: uc_uci_find_match
+
+- name: "find - match found: assert result and section are always present"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_find_match is succeeded
+      - uc_uci_find_match.result is defined
+      - uc_uci_find_match.section is defined
+      - uc_uci_find_match.result == uc_uci_find_match.section
+
+- name: "find_all - matches found: find all matching test sections by option value"
+  community.openwrt.uc_uci:
+    command: find_all
+    config: uhttpd
+    type: testtype
+    option: testopt
+    find: testval
+  register: uc_uci_find_all_match
+
+- name: "find_all - matches found: assert result contains all matching sections"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_find_all_match is succeeded
+      - uc_uci_find_all_match.result_list is defined
+      - uc_uci_find_all_match.result_list is not string
+      - uc_uci_find_all_match.result_list is sequence
+      - uc_uci_find_all_match.result_list == ["@testtype[0]", "@testtype[1]"]
+
+- name: "find_all - type only: find all matching test sections by type"
+  community.openwrt.uc_uci:
+    command: find_all
+    config: uhttpd
+    type: testtype
+  register: uc_uci_find_all_type
+
+- name: "find_all - type only: assert result contains matching sections"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_find_all_type is succeeded
+      - uc_uci_find_all_type.result_list is defined
+      - uc_uci_find_all_type.result_list is not string
+      - uc_uci_find_all_type.result_list is sequence
+      - uc_uci_find_all_type.result_list == ["@testtype[0]", "@testtype[1]"]
+
+- name: "find_all - option exists: find all matching test sections with option"
+  community.openwrt.uc_uci:
+    command: find_all
+    config: uhttpd
+    type: testtype
+    option: testopt
+  register: uc_uci_find_all_option
+
+- name: "find_all - option exists: assert result contains matching sections"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_find_all_option is succeeded
+      - uc_uci_find_all_option.result_list is defined
+      - uc_uci_find_all_option.result_list is not string
+      - uc_uci_find_all_option.result_list is sequence
+      - uc_uci_find_all_option.result_list == ["@testtype[0]", "@testtype[1]"]
+
+- name: "find_all - no match: search for a non-existent option value"
+  community.openwrt.uc_uci:
+    command: find_all
+    config: uhttpd
+    type: testtype
+    option: testopt
+    find: nonexistent
+  register: uc_uci_find_all_no_match
+
+- name: "find_all - no match: assert result is an empty list"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_find_all_no_match is succeeded
+      - uc_uci_find_all_no_match.result_list is defined
+      - uc_uci_find_all_no_match.result_list is not string
+      - uc_uci_find_all_no_match.result_list is sequence
+      - uc_uci_find_all_no_match.result_list | length == 0
+
+- name: "find - no match: search for a non-existent option value"
+  community.openwrt.uc_uci:
+    command: find
+    config: uhttpd
+    type: testtype
+    option: testopt
+    find: nonexistent
+  register: uc_uci_find_no_match
+  ignore_errors: true
+
+- name: "find - no match: assert task fails with result present and meaningful message"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_find_no_match is failed
+      - uc_uci_find_no_match.result is defined
+      - uc_uci_find_no_match.result == ""
+      - >
+        "no matching section found in" in uc_uci_find_no_match.msg
+
+- name: "find - teardown: delete the test section"
+  community.openwrt.uc_uci:
+    command: delete
+    config: uhttpd
+    section: "{{ uc_uci_add_section.result }}"
+  ignore_errors: true
+
+- name: "find - teardown: delete the second test section"
+  community.openwrt.uc_uci:
+    command: delete
+    config: uhttpd
+    section: "{{ uc_uci_add_second_section.result }}"
+  ignore_errors: true
+
+- name: "redact_keys - setup: create a section with a sensitive option"
+  community.openwrt.uc_uci:
+    command: section
+    config: uhttpd
+    type: testsecret
+    name: sec1
+    value:
+      name: "A secret section"
+      password: "topsecret"
+  register: uc_uci_secret_section
+
+- name: "redact_keys - setup: assert section created"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_secret_section is succeeded
+      - uc_uci_secret_section.changed
+
+- name: "redact_keys - update the secret with diff and redaction"
+  community.openwrt.uc_uci:
+    command: section
+    config: uhttpd
+    type: testsecret
+    name: sec1
+    value:
+      name: "A secret section"
+      password: "newsecret"
+    redact_keys:
+      - password
+  register: uc_uci_redacted
+  diff: true
+
+- name: "redact_keys - assert the password is masked in the diff"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_redacted is succeeded
+      - >
+        uc_uci_redacted.diff is defined
+      - >
+        "topsecret" not in uc_uci_redacted | to_json
+      - >
+        "newsecret" not in uc_uci_redacted | to_json
+      - >
+        "REDACTED" in uc_uci_redacted | to_json
+
+- name: "redact_keys - teardown: delete the secret section"
+  community.openwrt.uc_uci:
+    command: delete
+    config: uhttpd
+    section: sec1
+  ignore_errors: true
+
+- name: "operations - run a multi-section batch in a single call"
+  community.openwrt.uc_uci:
+    operations:
+      - command: set
+        config: uhttpd
+        section: main
+        option: max_connections
+        value: "200"
+      - command: set
+        config: uhttpd
+        section: main
+        option: max_requests
+        value: "80"
+      - command: commit
+  register: uc_uci_ops
+
+- name: "operations - assert batch succeeded and reported all operations"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_ops is succeeded
+      - uc_uci_ops.changed
+      - uc_uci_ops.operations is defined
+      - uc_uci_ops.operations | length == 3
+
+- name: "operations - verify both values were committed"
+  community.openwrt.uc_uci:
+    command: get
+    config: uhttpd
+    section: main
+    option: max_requests
+  register: uc_uci_ops_get
+
+- name: "operations - assert committed value is present"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_ops_get.result == "80"
+
+- name: "operations - re-run the batch must be idempotent"
+  community.openwrt.uc_uci:
+    operations:
+      - command: set
+        config: uhttpd
+        section: main
+        option: max_connections
+        value: "200"
+      - command: set
+        config: uhttpd
+        section: main
+        option: max_requests
+        value: "80"
+      - command: commit
+  register: uc_uci_ops_idem
+
+- name: "operations - assert re-run reports no changes"
+  ansible.builtin.assert:
+    that:
+      - uc_uci_ops_idem is succeeded
+      - uc_uci_ops_idem is not changed
+
+- name: "operations - teardown: restore original value"
+  community.openwrt.uc_uci:
+    command: set
+    config: uhttpd
+    section: main
+    option: max_connections
+    value: "100"
+    autocommit: true
+  changed_when: false
+  ignore_errors: true

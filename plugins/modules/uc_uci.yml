@@ -1,0 +1,305 @@
+---
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+DOCUMENTATION:
+  module: uc_uci
+  short_description: Controls OpenWrt UCI (ucode implementation)
+  description:
+    - Controls OpenWrt UCI using the native C(ucode) uci module (C(cursor)).
+    - Supports the same commands and options as M(community.openwrt.uci), but the module
+      is implemented in ucode and emits Ansible module JSON directly, avoiding the JSON
+      corruption that can affect long diffs in the shell implementation.
+    - Requires C(ucode) and C(ucode-mod-uci) on the target (present on all modern
+      OpenWrt builds with fw4).
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: full
+    platform:
+      description: Target platform for this module.
+      support: full
+      platforms: OpenWrt
+  options:
+    autocommit:
+      description:
+        - Whether to automatically commit changes.
+        - Without it, changes are staged and persist only if C(command=commit) is
+          run (or another module invocation with C(autocommit)).
+      type: bool
+      default: false
+    command:
+      description:
+        - C(uci) command to execute.
+        - The default is V(set) if O(value) is passed, otherwise the default is V(get).
+      choices:
+        - absent
+        - add
+        - add_list
+        - batch
+        - changes
+        - commit
+        - del_list
+        - export
+        - find
+        - find_all
+        - get
+        - import
+        - rename
+        - reorder
+        - revert
+        - section
+        - set
+        - show
+      type: str
+      aliases:
+        - cmd
+    config:
+      description:
+        - Config part of the O(key).
+        - If not specified, extracted from O(key).
+      type: str
+    find:
+      description:
+        - Value(s) to match sections against.
+        - Option value to find if O(option) is set. May be list.
+        - Dict of options/values if O(option) is not set. Values may be list.
+        - Lists are compared in order.
+        - Required when O(command=find) or O(command=section).
+      aliases:
+        - find_by
+        - search
+      type: raw
+    keep_keys:
+      description:
+        - Space separated list or list of keys not in O(value) or O(find) to keep
+          when O(replace=yes).
+      aliases:
+        - keep
+      type: list
+      elements: str
+    key:
+      description:
+        - The C(uci) key to operate on.
+        - Takes precedence over O(config), O(section) and O(option).
+        - If not specified, constructed as O(config).O(section).O(option).
+      type: str
+    merge:
+      description:
+        - Whether to merge or replace when O(command=import).
+      type: bool
+      default: false
+    name:
+      description:
+        - New name when O(command=rename) or O(command=add).
+        - Desired name when O(command=section). If a matching section is found it
+          is renamed, if not it is created with that name.
+      type: str
+    option:
+      description:
+        - Option part of the O(key).
+        - If not specified, extracted from O(key).
+      type: str
+    replace:
+      description:
+        - When O(command=set) or O(command=section), whether to delete all options
+          not mentioned in O(keep_keys), O(value) or find when O(set_find=true).
+      type: bool
+      default: false
+    section:
+      description:
+        - Section part of the O(key).
+        - If not specified, extracted from O(key).
+      type: str
+    set_find:
+      description:
+        - When O(command=section) whether to set the options used to search a
+          matching section in the newly created section when no match was found.
+      type: bool
+      default: false
+    type:
+      description:
+        - Section type for O(command=section), O(command=find) and O(command=add).
+        - If not specified, defaults to the value of O(section).
+      type: str
+    unique:
+      description:
+        - When O(command=add_list), whether to add the value if it is already
+          contained in the list.
+      type: bool
+      default: false
+    value:
+      description:
+        - The value for various commands.
+      type: raw
+    redact_keys:
+      description:
+        - List of option names whose values are replaced by V(REDACTED) in the
+          diff output. Useful to avoid exposing secrets such as WireGuard private
+          keys or passwords in the module result.
+      type: list
+      elements: str
+      version_added: "1.9.0"
+    operations:
+      description:
+        - List of sub-operations to execute in a single module invocation.
+        - Each operation supports the same options as a standalone module call
+          (that is O(command), O(config), O(section), O(option), O(value), O(find),
+          O(type), O(name), O(keep_keys), O(replace), O(set_find), O(unique),
+          O(merge)) except the O(operations) and O(redact_keys) options themselves.
+        - Operations are executed in order on a single cursor; changes are
+          committed once at the end if O(autocommit) is set or if any operation
+          is C(command=commit).
+      type: list
+      elements: dict
+      version_added: "1.9.0"
+  requirements:
+    - C(ucode) and C(ucode-mod-uci) on the target.
+  notes:
+    - This module is an alternative implementation of M(community.openwrt.uci)
+      written in ucode. Prefer it when the shell module produces corrupted or
+      truncated JSON for very large configurations.
+    - The C(export), C(show), C(import) and C(batch) commands shell out to the
+      C(uci) binary to process or produce plain-text UCI. They are therefore not
+      subject to the JSON-staging, check mode and diff handling of the other
+      commands. C(import) and C(batch) apply their changes immediately and are
+      skipped in check mode; nothing is staged for a later C(commit). Use this
+      module's structured commands (C(set), C(delete), C(section), and so on)
+      whenever you need check mode, diff or transactional behaviour.
+  seealso:
+    - module: community.openwrt.uci
+  extends_documentation_fragment:
+    - community.openwrt.attributes
+  author:
+    - Alexei Znamensky (@russoz)
+
+EXAMPLES: |
+  # Set a value
+  - community.openwrt.uc_uci:
+      command: set
+      config: uhttpd
+      section: main
+      option: max_connections
+      value: "150"
+
+  # Read a value
+  - community.openwrt.uc_uci:
+      command: get
+      config: uhttpd
+      section: main
+      option: max_connections
+      register: result
+
+  # Find or create a wifi-iface section, then delete it
+  - community.openwrt.uc_uci:
+      command: section
+      config: wireless
+      type: wifi-iface
+      name: ap0
+      find:
+        device: radio0
+        ssid: My SSID
+      value:
+        encryption: none
+
+  - community.openwrt.uc_uci:
+      command: absent
+      config: wireless
+      type: wifi-iface
+      find:
+        ssid: My SSID broken
+
+  # A batch of operations in a single call, spanning multiple configs and
+  # sections. Finish with commit to persist everything at once.
+  - community.openwrt.uc_uci:
+      operations:
+        - command: set
+          config: system
+          section: system
+          option: hostname
+          value: myrouter
+        - command: set
+          config: network
+          section: lan
+          option: ipaddr
+          value: 192.168.1.1
+        - command: set
+          config: network
+          section: lan
+          option: netmask
+          value: 255.255.255.0
+        - command: add
+          config: network
+          type: interface
+          name: wan6
+        - command: set
+          config: network
+          section: wan6
+          option: proto
+          value: dhcpv6
+        - command: commit
+
+  # Mask sensitive options in the diff output
+  - community.openwrt.uc_uci:
+      command: section
+      config: network
+      type: interface
+      name: wg0
+      value:
+        private_key: "very-secret-key"
+        listen_port: "51820"
+      redact_keys:
+        - private_key
+      diff: true
+
+RETURN:
+  result:
+    description: Output of the C(uci) command.
+    returned: always
+    type: str
+    sample: cfg12523
+  result_list:
+    description:
+      - The list form of C(result).
+      - For O(command=find_all), this is the list of matching positional section IDs,
+        for example V(@wifi-iface[0]). Named sections are returned as positional IDs.
+    returned: when O(command=get) or O(command=find_all)
+    type: list
+    sample: ["0.pool.ntp.org", "1.pool.ntp.org"]
+  diff:
+    description: >-
+      Structured diff keyed by config and section name, with C(before) and
+      C(after) option maps for the changed sections. Sensitive options listed in
+      O(redact_keys) are masked.
+    returned: when diff mode and changes were detected
+    type: dict
+  changes:
+    description: Pending UCI changes, as returned by C(uci changes).
+    returned: when O(command=changes)
+    type: dict
+  config:
+    description: Config part of O(key).
+    returned: when given
+    type: str
+    sample: wireless
+  section:
+    description: Section part of O(key).
+    returned: when given
+    type: str
+    sample: "@wifi-iface[0]"
+  option:
+    description: Option part of O(key).
+    returned: when given
+    type: str
+    sample: ssid
+  command:
+    description: Command executed.
+    returned: always
+    type: str
+    sample: section
+  operations:
+    description: Results of the executed O(operations), when used.
+    returned: when O(operations) is used
+    type: list

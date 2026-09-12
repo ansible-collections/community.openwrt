@@ -413,3 +413,118 @@ Otherwise, the module will automatically bail out if executed in check mode.
 
 
 .. versionadded:: 0.3.0
+
+Ucode modules
+^^^^^^^^^^^^^
+
+Besides the shell-based modules, the collection also ships modules implemented in `ucode
+<https://github.com/jow-/ucode>`_, OpenWrt's native scripting language. Ucode is available on
+every modern OpenWrt build (with ``fw4``) and provides native JSON handling through the
+``uci``, ``ubus`` and ``fs`` ucode modules. This avoids the JSON manipulation issues that
+affect the shell/jshn path for very large configurations.
+
+A ucode module is a plain ``.uc`` file in ``plugins/modules/`` plus a ``.yml`` sidecar with
+its ``DOCUMENTATION``/``EXAMPLES``/``RETURN`` (there is no ``.py`` file - Ansible reads the
+docs from the ``.yml`` sidecar, the same way it does for PowerShell modules). For example,
+``uc_uci.uc`` + ``uc_uci.yml``.
+
+Runtime architecture
+""""""""""""""""""""
+
+Ucode modules run as ``non_native_want_json`` scripts: Ansible passes the module arguments as
+a JSON file whose path is the first command-line argument (``ARGV[0]``); the module prints a
+JSON result on ``stdout`` and exits ``0`` on success, non-zero on failure.
+
+A dedicated action plugin (``plugins/plugin_utils/ucode_action.py``,
+``UcodeOpenwrtActionBase``) takes care of:
+
+1. Transferring the module ``.uc`` file to the target.
+2. Transferring its shared helper library (``plugins/module_utils/ansible_common.uc``) into
+   the same remote directory, so the module's relative ``import`` resolves.
+3. Writing the arguments as a JSON file and executing ``ucode <module> <args>``.
+4. Parsing the JSON printed on ``stdout`` into the Ansible result.
+
+No shell wrapper is involved; JSON is produced and consumed natively by ucode.
+
+Shared helper library
+"""""""""""""""""""""
+
+All ucode modules share a single helper library, ``plugins/module_utils/ansible_common.uc``.
+It exports (with an ``ac_`` prefix) helpers for the Ansible module contract, argument
+coercion, change detection and diff redaction:
+
+  ac_load_args()
+      Read and parse the module args from ``ARGV[0]`` (the JSON args file).
+
+  ac_result()
+      Build the standard ``{changed, failed, msg}`` result object.
+
+  ac_exit(result, rc) / ac_fail(result, msg)
+      Print the result as JSON and exit; mark the result failed.
+
+  ac_bool(v)
+      Coerce a JSON value to a boolean (accepts bool, int and ``"true"/"yes"/"1"/"on"``).
+
+  ac_get(obj, key, default)
+      Safely read a value with a fallback.
+
+  ac_same(a, b)
+      Deep-compare two values (used for idempotency / change detection).
+
+  ac_strip_meta(section)
+      Drop UCI meta keys (``.name``, ``.type``, ``.anonymous``, ``.index``) from a cursor
+      ``get_all`` section so it compares cleanly against a desired option map.
+
+  ac_redact(before, after, redact_keys)
+      Mask the values of the listed keys in a diff pair with ``REDACTED`` markers.
+
+  ac_check_mode(args) / ac_trace()
+      Read the check-mode flag; return a stack trace (when the optional ``debug`` ucode
+      module is present) for error reporting.
+
+A ucode module imports it with:
+
+.. code-block:: js
+
+   import { ac_load_args, ac_result, ac_exit, ac_fail, ac_bool } from './ansible_common.uc';
+
+ucode language notes
+""""""""""""""""""""
+
+ucode is ECMAScript-inspired but has its own rules. The hard-learned ones:
+
+- ``'use strict';`` at the top of every module.
+- ``export function name(...) {...};`` must end with a semicolon.
+- No function hoisting - declare functions before use; no forward declarations.
+- No ``throw`` - use ``die()``. No ``String(x)`` - use ``sprintf("%s", x)``.
+- Arrays use global helpers: ``push(arr, ...)``, ``sort(arr)``, ``length(arr)`` - there are no
+  ``arr.push()`` methods.
+- Strings are not ``[]``-indexable - use ``substr(s, i, 1)`` / ``ord(s, i)``.
+- ``for (let x in arr)`` yields the elements; over objects it yields the keys. Loop variables
+  must be declared with ``let``.
+- JSON: decode with ``json(str)``, encode with ``sprintf("%J", obj)``.
+- ``uci`` option values are strings; coerce with ``ac_bool``/``int``/``sprintf`` as needed.
+
+Linting
+"""""""
+
+Ucode modules are linted with a small Node script, ``tests/uc-lint.mjs``. It uses Node's ESM
+parser for a syntax check (ucode is ECMAScript-based) and enforces the ucode-specific rules
+above (the ``;`` terminator on exported functions, global array helpers, no ``[]``-indexing of
+strings, no forward-declared exports). Run it with:
+
+.. code-block:: console
+
+   $ node tests/uc-lint.mjs
+
+or via the ``ucode-lint`` nox session or the ``ucode-lint`` pre-commit hook.
+
+Check mode and diff support
+"""""""""""""""""""""""""""
+
+Ucode modules honour check mode (skip persisting changes when ``_ansible_check_mode`` is set)
+and diff mode (produce a structured ``diff`` when ``_ansible_diff`` is set and the task has
+``diff: true``). The ``ac_result``/``ac_exit`` helpers carry the ``changed``/``failed``/``msg``
+contract automatically.
+
+.. versionadded:: 1.9.0
