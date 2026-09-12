@@ -11,3 +11,11 @@ repos:
       - id: ruff-check
       # Run the formatter.
       - id: ruff-format
+  - repo: local
+    hooks:
+      - id: ucode-lint
+        name: ucode-lint
+        description: Lint ucode modules (syntax + ucode-specific rules)
+        entry: node tests/uc-lint.mjs
+        language: system
+        files: \.uc$

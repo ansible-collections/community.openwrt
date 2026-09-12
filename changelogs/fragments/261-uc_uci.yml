@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - uc_uci - new ucode-based module to control OpenWrt UCI, an alternative to the shell ``uci`` module that emits Ansible module JSON directly (avoids JSON corruption on long diffs). Supports the same commands plus ``redact_keys`` to mask sensitive options in diffs and ``operations`` to run multiple operations in a single invocation (https://github.com/ansible-collections/community.openwrt/issues/261).

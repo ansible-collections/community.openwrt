@@ -77,3 +77,5 @@ plugins/modules/uci.sh shellcheck:SC2015   # Note that `A && B || C` is not if-t
 plugins/modules/uci.sh shellcheck:SC2046   # Quote this to prevent word splitting - https://www.shellcheck.net/wiki/SC2046
 plugins/modules/uci.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
 plugins/modules/uci.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166
+plugins/modules/uc_uci.uc shebang
+plugins/modules/uc_uci.uc validate-modules:invalid-extension

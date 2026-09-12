@@ -50,3 +50,53 @@ The collection will support Ansible 2.18 onwards.
 # Definition of Success
 
 - The collection must pass the molecule tests
+
+# Ucode modules
+
+Beyond the shell-based modules, the collection ships modules written in OpenWrt's native
+`ucode` language (see `docs/docsite/rst/mod_dev_guide.rst`). A ucode module is a `.uc` file in
+`plugins/modules/` plus a `.yml` sidecar with `DOCUMENTATION`/`EXAMPLES`/`RETURN`; there is no
+`.py`. It runs as a `non_native_want_json` script: Ansible passes the args as a JSON file whose
+path is `ARGV[0]`, and the module prints a JSON result on `stdout`.
+
+Modules share a single helper library at `plugins/module_utils/ansible_common.uc` (functions
+prefixed `ac_`), and a reusable action base at `plugins/plugin_utils/ucode_action.py`
+(`UcodeOpenwrtActionBase`). The action plugin transfers the module and the helper into the same
+remote directory so the module's relative `import { ... } from './ansible_common.uc'` resolves,
+then executes `ucode <module> <args>` and parses the JSON result. No shell wrapper is involved.
+
+Hard-learned ucode rules:
+
+- `'use strict';` at the top; `#!/usr/bin/ucode` shebang and a `WANT_JSON` marker.
+- JSON: decode with `json(str)`, encode with `sprintf("%J", obj)`. There is no `serialize()`.
+- `export function name(...) {...};` must end with a semicolon. Functions are not hoisted:
+  declare before use; no forward declarations; no `throw` (use `die()`).
+- Arrays use global helpers: `length(arr)`, `push(arr, ...)`, `sort(arr)`. There are no
+  `arr.push()`/`arr.sort()` methods.
+- Strings are not `[]`-indexable — use `substr(s, i, 1)` / `ord(s, i)`.
+- `for (let x in arr)` yields the elements; over objects it yields the keys. Loop variables must
+  be declared with `let`. Iterate objects with `for (let k in obj)`; iterate arrays by index.
+- No `String(x)` global — use `sprintf("%s", x)`.
+- `uci`: `import { cursor } from 'uci'; const u = cursor();` — `get/get_all/set/foreach/add/
+  save/commit`. `set(config, section, type)` creates a named section; `add` requires the config
+  to be explicitly `load()`ed first; `save()` persists changes as a delta so a subsequent module
+  invocation (new process) sees them.
+- Check mode: the args include `_ansible_check_mode`; compute the diff/changed but skip
+  `save`/`commit`.
+- Idempotency: strip UCI meta keys (`.name`, `.type`, `.anonymous`, `.index`) from `get_all`
+  output before comparing; compare via sorted-key equality (`sprintf("%J", ...)`), not raw object
+  equality.
+
+Lint ucode modules with `node tests/uc-lint.mjs` (or the `ucode-lint` nox session /
+pre-commit hook). Run unit tests with `ansible-test units`; run a module's integration target with
+`nox -e test -- <target>`.
+
+# Conventions
+
+- YAML multiline scalars in Ansible vars: use `>-` for pure `{{ }}` expressions (Ansible
+  evaluates them natively). Use `|-` when the value contains Jinja block logic (`{% set %}`,
+  `{% for %}`, etc.) — this produces a string Ansible parses as a data structure. Do NOT use `>-`
+  with block logic or `from_yaml` hacks.
+- Task names should be short and concise (e.g. "Configure general", not "Configure babeld general
+  section").
+- Keep links absolute unless requested otherwise; prefer minimal, targeted patches.
