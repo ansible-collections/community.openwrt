@@ -57,9 +57,7 @@ main() {
         json_close_object
     else
         json_add_string msg "Error retrieving package listing (package manager detected: $ansible_pkg_mgr)"
-        [ "$_rc" -eq 0 ]
-        _failed=$?
-        json_add_boolean failed "$_failed"
+        json_add_boolean failed 1
     fi
     result="$(json_dump)"
     json_cleanup
