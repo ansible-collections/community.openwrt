@@ -95,7 +95,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#file-checksum-and-base64-utilities">File, checksum and base64 utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pathname-helpers">Pathname helpers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#diff-and-change-detection">Diff and change detection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#check-mode-and-idempotence-support">Check mode and idempotence support</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ucode-modules">Ucode modules</a><ul>
@@ -104,6 +103,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#ucode-language-notes">ucode language notes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#linting">Linting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#check-mode-and-diff-support">Check mode and diff support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#check-mode-and-idempotence-support">Check mode and idempotence support</a></li>
 </ul>
 </li>
 </ul>
@@ -489,17 +489,6 @@ command is not successful. Example (from <code class="docutils literal notransla
 <p>To be done.</p>
 </div>
 </section>
-<section id="check-mode-and-idempotence-support">
-<h3>Check mode and idempotence support<a class="headerlink" href="#check-mode-and-idempotence-support" title="Link to this heading"></a></h3>
-<p>Modules that support check mode must set the variable:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">SUPPORTS_CHECK_MODE</span><span class="o">=</span><span class="m">1</span>
-</pre></div>
-</div>
-<p>Otherwise, the module will automatically bail out if executed in check mode.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">Added in version 0.3.0.</span></p>
-</div>
-</section>
 </section>
 <section id="ucode-modules">
 <h2>Ucode modules<a class="headerlink" href="#ucode-modules" title="Link to this heading"></a></h2>
@@ -529,61 +518,52 @@ the same remote directory, so the module’s relative <code class="docutils lite
 </section>
 <section id="shared-helper-library">
 <h3>Shared helper library<a class="headerlink" href="#shared-helper-library" title="Link to this heading"></a></h3>
-<p>All ucode modules share a single helper library, <code class="docutils literal notranslate"><span class="pre">plugins/module_utils/ansible_common.uc</span></code>.
-It exports (with an <code class="docutils literal notranslate"><span class="pre">ac_</span></code> prefix) helpers for the Ansible module contract, argument
-coercion, change detection and diff redaction:</p>
+<p>All ucode modules share a single helper library, <code class="docutils literal notranslate"><span class="pre">plugins/module_utils/ansible_common.uc</span></code>,
+imported under the <code class="docutils literal notranslate"><span class="pre">ac</span></code> namespace (<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">*</span> <span class="pre">as</span> <span class="pre">ac</span> <span class="pre">from</span> <span class="pre">'./ansible_common.uc'</span></code>). It exports
+helpers for the Ansible module contract, argument coercion, change detection and diff redaction:</p>
 <blockquote>
 <div><dl class="simple">
-<dt>ac_load_args()</dt><dd><p>Read and parse the module args from <code class="docutils literal notranslate"><span class="pre">ARGV[0]</span></code> (the JSON args file).</p>
+<dt>ac.load_args()</dt><dd><p>Read and parse the module args from <code class="docutils literal notranslate"><span class="pre">ARGV[0]</span></code> (the JSON args file).</p>
 </dd>
-<dt>ac_result()</dt><dd><p>Build the standard <code class="docutils literal notranslate"><span class="pre">{changed,</span> <span class="pre">failed,</span> <span class="pre">msg}</span></code> result object.</p>
+<dt>ac.new_result()</dt><dd><p>Build the standard <code class="docutils literal notranslate"><span class="pre">{changed,</span> <span class="pre">failed,</span> <span class="pre">msg}</span></code> result object.</p>
 </dd>
-<dt>ac_exit(result, rc) / ac_fail(result, msg)</dt><dd><p>Print the result as JSON and exit; mark the result failed.</p>
+<dt>ac.exit_module(result, rc) / ac.fail(result, msg)</dt><dd><p>Print the result as JSON and exit; mark the result failed.</p>
 </dd>
-<dt>ac_bool(v)</dt><dd><p>Coerce a JSON value to a boolean (accepts bool, int and <code class="docutils literal notranslate"><span class="pre">&quot;true&quot;/&quot;yes&quot;/&quot;1&quot;/&quot;on&quot;</span></code>).</p>
+<dt>ac.coerce_as_bool(v)</dt><dd><p>Coerce a JSON value to a boolean (accepts bool, int and <code class="docutils literal notranslate"><span class="pre">&quot;true&quot;/&quot;yes&quot;/&quot;1&quot;/&quot;on&quot;</span></code>).</p>
 </dd>
-<dt>ac_get(obj, key, default)</dt><dd><p>Safely read a value with a fallback.</p>
+<dt>ac.get_value(obj, key, default)</dt><dd><p>Safely read a value with a fallback.</p>
 </dd>
-<dt>ac_same(a, b)</dt><dd><p>Deep-compare two values (used for idempotency / change detection).</p>
+<dt>ac.same(a, b)</dt><dd><p>Deep-compare two values (used for idempotency / change detection).</p>
 </dd>
-<dt>ac_strip_meta(section)</dt><dd><p>Drop UCI meta keys (<code class="docutils literal notranslate"><span class="pre">.name</span></code>, <code class="docutils literal notranslate"><span class="pre">.type</span></code>, <code class="docutils literal notranslate"><span class="pre">.anonymous</span></code>, <code class="docutils literal notranslate"><span class="pre">.index</span></code>) from a cursor
+<dt>ac.strip_meta(section)</dt><dd><p>Drop UCI meta keys (<code class="docutils literal notranslate"><span class="pre">.name</span></code>, <code class="docutils literal notranslate"><span class="pre">.type</span></code>, <code class="docutils literal notranslate"><span class="pre">.anonymous</span></code>, <code class="docutils literal notranslate"><span class="pre">.index</span></code>) from a cursor
 <code class="docutils literal notranslate"><span class="pre">get_all</span></code> section so it compares cleanly against a desired option map.</p>
 </dd>
-<dt>ac_redact(before, after, redact_keys)</dt><dd><p>Mask the values of the listed keys in a diff pair with <code class="docutils literal notranslate"><span class="pre">REDACTED</span></code> markers.</p>
+<dt>ac.redact(before, after, redact_keys)</dt><dd><p>Mask the values of the listed keys in a diff pair with <code class="docutils literal notranslate"><span class="pre">REDACTED</span></code> markers.</p>
 </dd>
-<dt>ac_check_mode(args) / ac_trace()</dt><dd><p>Read the check-mode flag; return a stack trace (when the optional <code class="docutils literal notranslate"><span class="pre">debug</span></code> ucode
+<dt>ac.check_mode(args) / ac.trace()</dt><dd><p>Read the check-mode flag; return a stack trace (when the optional <code class="docutils literal notranslate"><span class="pre">debug</span></code> ucode
 module is present) for error reporting.</p>
 </dd>
 </dl>
 </div></blockquote>
 <p>A ucode module imports it with:</p>
-<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ac_load_args</span><span class="p">,</span><span class="w"> </span><span class="nx">ac_result</span><span class="p">,</span><span class="w"> </span><span class="nx">ac_exit</span><span class="p">,</span><span class="w"> </span><span class="nx">ac_fail</span><span class="p">,</span><span class="w"> </span><span class="nx">ac_bool</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./ansible_common.uc'</span><span class="p">;</span>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">ac</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./ansible_common.uc'</span><span class="p">;</span>
 </pre></div>
 </div>
 </section>
 <section id="ucode-language-notes">
 <h3>ucode language notes<a class="headerlink" href="#ucode-language-notes" title="Link to this heading"></a></h3>
-<p>ucode is ECMAScript-inspired but has its own rules. The hard-learned ones:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">'use</span> <span class="pre">strict';</span></code> at the top of every module.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">function</span> <span class="pre">name(...)</span> <span class="pre">{...};</span></code> must end with a semicolon.</p></li>
-<li><p>No function hoisting - declare functions before use; no forward declarations.</p></li>
-<li><p>No <code class="docutils literal notranslate"><span class="pre">throw</span></code> - use <code class="docutils literal notranslate"><span class="pre">die()</span></code>. No <code class="docutils literal notranslate"><span class="pre">String(x)</span></code> - use <code class="docutils literal notranslate"><span class="pre">sprintf(&quot;%s&quot;,</span> <span class="pre">x)</span></code>.</p></li>
-<li><p>Arrays use global helpers: <code class="docutils literal notranslate"><span class="pre">push(arr,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">sort(arr)</span></code>, <code class="docutils literal notranslate"><span class="pre">length(arr)</span></code> - there are no
-<code class="docutils literal notranslate"><span class="pre">arr.push()</span></code> methods.</p></li>
-<li><p>Strings are not <code class="docutils literal notranslate"><span class="pre">[]</span></code>-indexable - use <code class="docutils literal notranslate"><span class="pre">substr(s,</span> <span class="pre">i,</span> <span class="pre">1)</span></code> / <code class="docutils literal notranslate"><span class="pre">ord(s,</span> <span class="pre">i)</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">(let</span> <span class="pre">x</span> <span class="pre">in</span> <span class="pre">arr)</span></code> yields the elements; over objects it yields the keys. Loop variables
-must be declared with <code class="docutils literal notranslate"><span class="pre">let</span></code>.</p></li>
-<li><p>JSON: decode with <code class="docutils literal notranslate"><span class="pre">json(str)</span></code>, encode with <code class="docutils literal notranslate"><span class="pre">sprintf(&quot;%J&quot;,</span> <span class="pre">obj)</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">uci</span></code> option values are strings; coerce with <code class="docutils literal notranslate"><span class="pre">ac_bool</span></code>/<code class="docutils literal notranslate"><span class="pre">int</span></code>/<code class="docutils literal notranslate"><span class="pre">sprintf</span></code> as needed.</p></li>
-</ul>
+<p>ucode is ECMAScript-inspired but has its own rules (no function hoisting on the supported
+OpenWrt releases, global array helpers, no <code class="docutils literal notranslate"><span class="pre">[]</span></code>-indexing of strings, …). The consolidated
+reference — with links to the official documentation and the version-specific caveats for
+OpenWrt 25.12.x — lives in <code class="docutils literal notranslate"><span class="pre">docs/ucode.md</span></code>.</p>
 </section>
 <section id="linting">
 <h3>Linting<a class="headerlink" href="#linting" title="Link to this heading"></a></h3>
-<p>Ucode modules are linted with a small Node script, <code class="docutils literal notranslate"><span class="pre">tests/uc-lint.mjs</span></code>. It uses Node’s ESM
-parser for a syntax check (ucode is ECMAScript-based) and enforces the ucode-specific rules
-above (the <code class="docutils literal notranslate"><span class="pre">;</span></code> terminator on exported functions, global array helpers, no <code class="docutils literal notranslate"><span class="pre">[]</span></code>-indexing of
-strings, no forward-declared exports). Run it with:</p>
+<p>Ucode modules are linted with <code class="docutils literal notranslate"><span class="pre">tests/uc-lint.mjs</span></code>, which runs the <a class="reference external" href="https://github.com/NoahBPeterson/ucode-lsp">ucode-lsp</a> checker (type inference, flow analysis,
+null-safety, unused imports) gated to the OpenWrt <code class="docutils literal notranslate"><span class="pre">25.12</span></code> target, plus the <code class="docutils literal notranslate"><span class="pre">;</span></code> terminator
+rule that real ucode requires and the LSP does not flag. It stages <code class="docutils literal notranslate"><span class="pre">ansible_common.uc</span></code> next
+to each module (mirroring how the action plugin transfers it) so relative imports resolve.
+Run it with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>node<span class="w"> </span>tests/uc-lint.mjs
 </pre></div>
 </div>
@@ -593,10 +573,18 @@ strings, no forward-declared exports). Run it with:</p>
 <h3>Check mode and diff support<a class="headerlink" href="#check-mode-and-diff-support" title="Link to this heading"></a></h3>
 <p>Ucode modules honour check mode (skip persisting changes when <code class="docutils literal notranslate"><span class="pre">_ansible_check_mode</span></code> is set)
 and diff mode (produce a structured <code class="docutils literal notranslate"><span class="pre">diff</span></code> when <code class="docutils literal notranslate"><span class="pre">_ansible_diff</span></code> is set and the task has
-<code class="docutils literal notranslate"><span class="pre">diff:</span> <span class="pre">true</span></code>). The <code class="docutils literal notranslate"><span class="pre">ac_result</span></code>/<code class="docutils literal notranslate"><span class="pre">ac_exit</span></code> helpers carry the <code class="docutils literal notranslate"><span class="pre">changed</span></code>/<code class="docutils literal notranslate"><span class="pre">failed</span></code>/<code class="docutils literal notranslate"><span class="pre">msg</span></code>
+<code class="docutils literal notranslate"><span class="pre">diff:</span> <span class="pre">true</span></code>). The <code class="docutils literal notranslate"><span class="pre">ac.new_result</span></code>/<code class="docutils literal notranslate"><span class="pre">ac.exit_module</span></code> helpers carry the <code class="docutils literal notranslate"><span class="pre">changed</span></code>/<code class="docutils literal notranslate"><span class="pre">failed</span></code>/<code class="docutils literal notranslate"><span class="pre">msg</span></code>
 contract automatically.</p>
+</section>
+<section id="check-mode-and-idempotence-support">
+<h3>Check mode and idempotence support<a class="headerlink" href="#check-mode-and-idempotence-support" title="Link to this heading"></a></h3>
+<p>Modules that support check mode must set the variable:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">SUPPORTS_CHECK_MODE</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Otherwise, the module will automatically bail out if executed in check mode.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">Added in version 1.9.0.</span></p>
+<p><span class="versionmodified added">Added in version 0.3.0.</span></p>
 </div>
 </section>
 </section>
