@@ -1,0 +1,123 @@
+---
+# Copyright (c) Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Shellcheck ignores check
+
+on:  # yamllint disable-line rule:truthy
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regen-shellcheck-ignores:
+    name: Regenerate and compare shellcheck ignores
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Install nox and andebox
+        run: pip install -r requirements-test.txt --disable-pip-version-check
+
+      - name: Regenerate shellcheck ignore entries
+        run: nox -e regen_shellcheck_ignores
+
+      - name: Check for differences
+        id: diff
+        run: |
+          if git diff --quiet -- tests/sanity/; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build issue body
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          {
+            echo "### Summary"
+            echo
+            echo "The weekly [shellcheck ignores check](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) found that \`tests/sanity/ignore-*.txt\` is out of date: running \`nox -e regen_shellcheck_ignores\` produced changes that have not been committed."
+            echo
+            echo "### Issue Type"
+            echo
+            echo "Bug Report"
+            echo
+            echo "### Component Name"
+            echo
+            echo "tests/sanity"
+            echo
+            echo "### Ansible Version"
+            echo
+            echo '```console'
+            echo "N/A (automated check, not run against a specific ansible-core install)"
+            echo '```'
+            echo
+            echo "### community.openwrt Version"
+            echo
+            echo '```console'
+            echo "main branch"
+            echo '```'
+            echo
+            echo "### Steps to Reproduce"
+            echo
+            echo '```console'
+            echo '$ nox -e regen_shellcheck_ignores'
+            echo '$ git diff -- tests/sanity/'
+            echo '```'
+            echo
+            echo "### Expected Results"
+            echo
+            echo "\`tests/sanity/ignore-*.txt\` already contains all current shellcheck ignore entries, so regenerating them produces no diff."
+            echo
+            echo "### Actual Results"
+            echo
+            echo '```diff'
+            git diff -- tests/sanity/
+            echo '```'
+            echo
+            echo "### Code of Conduct"
+            echo
+            echo "- [x] I agree to follow the Ansible Code of Conduct"
+          } > /tmp/issue-body.md
+
+      - name: Check for an existing open issue
+        if: steps.diff.outputs.changed == 'true'
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          count=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --search "\"shellcheck ignore entries are out of date\" in:title" \
+            --json number --jq 'length')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+
+      - name: Create issue
+        if: steps.diff.outputs.changed == 'true' && steps.existing.outputs.count == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "ci: shellcheck ignore entries are out of date" \
+            --body-file /tmp/issue-body.md \
+            --label bug
+
+      - name: Fail if ignore entries are out of date
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          echo "::error::tests/sanity/ignore-*.txt is out of date; see the created issue (or the already-open one) for details."
+          exit 1
