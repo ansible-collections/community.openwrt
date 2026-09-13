@@ -219,7 +219,7 @@ not raw object equality.</p></li>
 </section>
 <section id="shared-helper-library">
 <h2>Shared helper library<a class="headerlink" href="#shared-helper-library" title="Link to this heading"></a></h2>
-<p>All ucode modules share <code class="docutils literal notranslate"><span class="pre">plugins/module_utils/ansible_common.uc</span></code>, imported under the <code class="docutils literal notranslate"><span class="pre">ac</span></code>
+<p>All ucode modules share <code class="docutils literal notranslate"><span class="pre">plugins/module_utils/_ansible_common.uc</span></code>, imported under the <code class="docutils literal notranslate"><span class="pre">ac</span></code>
 namespace. It exports helpers for the Ansible module contract, argument coercion, change
 detection and diff redaction:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ac.load_args()
@@ -286,7 +286,7 @@ ac.trace()
 </pre></div>
 </div>
 <p>A ucode module imports it with:</p>
-<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">ac</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./ansible_common.uc'</span><span class="p">;</span>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">ac</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./_ansible_common.uc'</span><span class="p">;</span>
 </pre></div>
 </div>
 </section>
@@ -294,7 +294,7 @@ ac.trace()
 <h2>Linting<a class="headerlink" href="#linting" title="Link to this heading"></a></h2>
 <p>Ucode modules are linted with <code class="docutils literal notranslate"><span class="pre">tests/uc-lint.mjs</span></code>, which runs the <a class="reference external" href="https://github.com/NoahBPeterson/ucode-lsp">ucode-lsp</a> checker (type inference, flow analysis,
 null-safety, unused imports) gated to the OpenWrt <code class="docutils literal notranslate"><span class="pre">25.12</span></code> target, plus the <code class="docutils literal notranslate"><span class="pre">;</span></code> terminator
-rule that real ucode requires and the LSP does not flag. It stages <code class="docutils literal notranslate"><span class="pre">ansible_common.uc</span></code> next
+rule that real ucode requires and the LSP does not flag. It stages <code class="docutils literal notranslate"><span class="pre">_ansible_common.uc</span></code> next
 to each module (mirroring how the action plugin transfers it) so relative imports resolve.
 Run it with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>node<span class="w"> </span>tests/uc-lint.mjs
@@ -302,7 +302,7 @@ Run it with:</p>
 </div>
 <p>or via the <code class="docutils literal notranslate"><span class="pre">ucode-lint</span></code> nox session or the <code class="docutils literal notranslate"><span class="pre">ucode-lint</span></code> pre-commit hook.</p>
 <p>The helper library and argument-handling logic are unit-tested with real ucode in an OpenWrt
-container: <code class="docutils literal notranslate"><span class="pre">tests/unit/ucode/</span></code> (<code class="docutils literal notranslate"><span class="pre">test_*.uc</span></code> scripts staged with <code class="docutils literal notranslate"><span class="pre">ansible_common.uc</span></code>) run
+container: <code class="docutils literal notranslate"><span class="pre">tests/unit/ucode/</span></code> (<code class="docutils literal notranslate"><span class="pre">test_*.uc</span></code> scripts staged with <code class="docutils literal notranslate"><span class="pre">_ansible_common.uc</span></code>) run
 via the <code class="docutils literal notranslate"><span class="pre">ucode_unit</span></code> nox session or <code class="docutils literal notranslate"><span class="pre">tests/unit/ucode/run.sh</span></code>.</p>
 </section>
 <section id="check-mode-and-diff-support">
