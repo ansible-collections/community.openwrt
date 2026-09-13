@@ -63,8 +63,12 @@ _exit() {
     [ -z "$_init_done" ] || cleanup "$_rc" || :
     [ -z "$NO_EXIT_JSON" ] || return $_rc
     json_set_namespace result
-    json_add_boolean changed $([ -z "$CHANGED" ]; echo $?)
-    json_add_boolean failed $([ $_rc -eq 0 ]; echo $?)
+    [ -z "$CHANGED" ]
+    _changed=$?
+    json_add_boolean changed "$_changed"
+    [ "$_rc" -eq 0 ]
+    _failed=$?
+    json_add_boolean failed "$_failed"
     [ -z "$SKIPPED" ] || json_add_boolean skipped 1
     [ -z "$MESSAGE" ] || json_add_string msg "$MESSAGE"
     [ -z "$_init_done" ] || {
