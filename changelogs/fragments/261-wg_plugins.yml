@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - wg_interface - new ucode-based module to manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules. Interfaces share a single host identity key while each peer gets a distinct pre-shared key, simplifying monitoring mapping. Interface and peer section ids, and the firewall rule name/id, are rendered from ucode templates (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/268).
+  - wg_peer - new ucode-based module to write WireGuard/AmneziaWG peer UCI sections for an interface, using key material supplied by wg_interface.

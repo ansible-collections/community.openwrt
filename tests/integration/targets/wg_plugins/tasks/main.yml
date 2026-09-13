@@ -1,0 +1,395 @@
+---
+# Copyright (c) 2026, Vladimir Ermakov (@vooon)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Initialize packaging system (detects apk / opkg)
+  ansible.builtin.include_role:
+    name: community.openwrt.init
+
+- name: Ensure WireGuard userspace and ubus key server are installed
+  when: openwrt_package_manager == "apk"
+  community.openwrt.apk:
+    name: "wireguard-tools,rpcd-mod-wireguard"
+    state: present
+
+- name: Ensure WireGuard userspace is installed (opkg)
+  when: openwrt_package_manager == "opkg"
+  community.openwrt.opkg:
+    name: "wireguard-tools"
+    state: present
+
+- name: Start rpcd (provides the wireguard ubus key object)
+  community.openwrt.service:
+    name: rpcd
+    state: started
+    enabled: true
+  register: _wg_rpcd
+
+- name: Verify the wireguard ubus object is available
+  community.openwrt.command:
+    cmd: ubus list wireguard
+  register: _wg_ubus
+  ignore_errors: true
+
+- name: Set whether the wireguard ubus key object is available
+  ansible.builtin.set_fact:
+    _wg_ubus_available: "{{ _wg_ubus is succeeded }}"
+
+- name: Skip when the wireguard ubus key object is unavailable
+  when: not _wg_ubus_available
+  ansible.builtin.debug:
+    msg: "Skipping wg tests: wireguard ubus key object not available on this version"
+
+- name: Ensure a network config exists
+  when: _wg_ubus_available
+  community.openwrt.command:
+    cmd: >-
+      printf "%s\n" "config interface 'lan'" "	option proto 'static'" | uci import network
+    uses_shell: true
+  register: _wg_network_setup
+  changed_when: false
+  failed_when: _wg_network_setup.rc not in [0, 134]
+
+- name: Commit the network config
+  when: _wg_ubus_available
+  community.openwrt.command:
+    cmd: uci commit network
+  changed_when: false
+
+# ---- Phase A: wg_interface ------------------------------------------------
+
+- name: "wg_interface - configure wg0 interface"
+  community.openwrt.wg_interface:
+    managed_interfaces:
+      - wg0
+    interfaces:
+      - name: wg0
+        proto: wireguard
+        listen_port: 51820
+        addresses:
+          - "10.0.0.1/24"
+    peers:
+      - iface: wg0
+  register: _wg_iface
+  when: _wg_ubus_available
+
+- name: "wg_interface - assert interface, key and public_key returned"
+  ansible.builtin.assert:
+    that:
+      - _wg_iface is succeeded
+      - _wg_iface.changed
+      - _wg_iface.public_key is defined
+      - _wg_iface.public_key | length > 0
+      - _wg_iface.interfaces == ["wg0"]
+      - _wg_iface.psks is defined
+      - _wg_iface.psks | length == 1
+      - _wg_iface.psks[0] | length > 0
+  when: _wg_ubus_available
+
+- name: "wg_interface - verify the interface section landed"
+  community.openwrt.command:
+    cmd: uci get network.wg0.proto
+  register: _wg_proto
+  when: _wg_ubus_available
+
+- name: "wg_interface - verify private_key is present"
+  community.openwrt.command:
+    cmd: uci get network.wg0.private_key
+  register: _wg_privkey
+  when: _wg_ubus_available
+
+- name: "wg_interface - assert UCI state"
+  ansible.builtin.assert:
+    that:
+      - _wg_proto.stdout == "wireguard"
+      - _wg_privkey.stdout | length > 0
+  when: _wg_ubus_available
+
+# ---- Phase B: wg_peer -----------------------------------------------------
+
+- name: "wg_peer - wire a peer using the resolved key and PSK"
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        public_key: "{{ _wg_iface.public_key }}"
+        preshared_key: "{{ _wg_iface.psks[0] }}"
+        endpoint_host: "peer.example.com"
+        endpoint_port: 51820
+        allowed_ips:
+          - "10.0.0.2/32"
+  register: _wg_peer
+  when: _wg_ubus_available
+
+- name: "wg_peer - assert the peer section was written"
+  ansible.builtin.assert:
+    that:
+      - _wg_peer is succeeded
+      - _wg_peer.changed
+      - _wg_peer.peers == ["peer_wg0"]
+  when: _wg_ubus_available
+
+- name: "wg_peer - verify the peer section type landed"
+  community.openwrt.command:
+    cmd: uci get network.peer_wg0
+  register: _wg_peer_type
+  when: _wg_ubus_available
+
+- name: "wg_peer - assert peer UCI state"
+  ansible.builtin.assert:
+    that:
+      - _wg_peer_type.stdout == "wireguard_wg0"
+  when: _wg_ubus_available
+
+# ---- Idempotency: re-run both, now that the peer section exists -------------
+
+- name: "wg_interface - re-run must be idempotent (reuses stored PSK)"
+  community.openwrt.wg_interface:
+    managed_interfaces:
+      - wg0
+    interfaces:
+      - name: wg0
+        proto: wireguard
+        listen_port: 51820
+        addresses:
+          - "10.0.0.1/24"
+    peers:
+      - iface: wg0
+  register: _wg_iface_idem
+  when: _wg_ubus_available
+
+- name: "wg_interface - assert idempotent re-run"
+  ansible.builtin.assert:
+    that:
+      - _wg_iface_idem is succeeded
+      - _wg_iface_idem is not changed
+  when: _wg_ubus_available
+
+- name: "wg_peer - re-run must be idempotent"
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        public_key: "{{ _wg_iface.public_key }}"
+        preshared_key: "{{ _wg_iface.psks[0] }}"
+        endpoint_host: "peer.example.com"
+        endpoint_port: 51820
+        allowed_ips:
+          - "10.0.0.2/32"
+  register: _wg_peer_idem
+  when: _wg_ubus_available
+
+- name: "wg_peer - assert idempotent re-run"
+  ansible.builtin.assert:
+    that:
+      - _wg_peer_idem is succeeded
+      - _wg_peer_idem is not changed
+  when: _wg_ubus_available
+
+# ---- Check mode -------------------------------------------------------------
+
+- name: "wg_interface - check mode makes no changes"
+  community.openwrt.wg_interface:
+    managed_interfaces:
+      - wg0
+    interfaces:
+      - name: wg0
+        proto: wireguard
+        listen_port: 51999
+        addresses:
+          - "10.0.0.1/24"
+  check_mode: true
+  register: _wg_iface_check
+  when: _wg_ubus_available
+
+- name: "wg_interface - assert check mode reports ok"
+  ansible.builtin.assert:
+    that:
+      - _wg_iface_check is succeeded
+  when: _wg_ubus_available
+
+# ---- Removal (state: absent) --------------------------------------------------
+
+- name: "wg_peer - state absent removes the peer section"
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        state: absent
+  register: _wg_peer_absent
+  when: _wg_ubus_available
+
+- name: "wg_peer - assert the peer was removed"
+  ansible.builtin.assert:
+    that:
+      - _wg_peer_absent is succeeded
+      - _wg_peer_absent.changed
+      - _wg_peer_absent.removed == ["peer_wg0"]
+  when: _wg_ubus_available
+
+- name: "wg_peer - state absent on a missing peer is a no-op"
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        state: absent
+  register: _wg_peer_absent_idem
+  when: _wg_ubus_available
+
+- name: "wg_peer - assert absent on missing peer is idempotent"
+  ansible.builtin.assert:
+    that:
+      - _wg_peer_absent_idem is succeeded
+      - _wg_peer_absent_idem is not changed
+  when: _wg_ubus_available
+
+- name: "wg_interface - state absent removes the interface and its peers"
+  community.openwrt.wg_interface:
+    managed_interfaces:
+      - wg0
+    interfaces:
+      - name: wg0
+        state: absent
+  register: _wg_iface_absent
+  when: _wg_ubus_available
+
+- name: "wg_interface - assert the interface was removed"
+  ansible.builtin.assert:
+    that:
+      - _wg_iface_absent is succeeded
+      - _wg_iface_absent.changed
+      - _wg_iface_absent.removed_interfaces == ["wg0"]
+  when: _wg_ubus_available
+
+- name: "wg_interface - verify the interface section is gone"
+  community.openwrt.command:
+    cmd: uci get network.wg0
+  register: _wg_iface_gone
+  ignore_errors: true
+  when: _wg_ubus_available
+
+- name: "wg_interface - assert the interface no longer exists"
+  ansible.builtin.assert:
+    that:
+      - _wg_iface_gone is failed
+  when: _wg_ubus_available
+
+# ---- AmneziaWG (awg) p2p scenario -------------------------------------------
+# Two p2p awg links: each has its own interface (proto=amneziawg) with a minimal
+# AWG v1 tuning set (jc/jmin/jmax) and one p2p peer (no section).
+
+- name: "awg - configure two p2p amneziawg interfaces"
+  community.openwrt.wg_interface:
+    managed_interfaces:
+      - awg1
+      - awg2
+    interfaces:
+      - name: awg1
+        proto: amneziawg
+        listen_port: 51901
+        addresses:
+          - "10.51.0.1/31"
+        awg_tuning:
+          awg_jc: "4"
+          awg_jmin: "10"
+          awg_jmax: "50"
+      - name: awg2
+        proto: amneziawg
+        listen_port: 51902
+        addresses:
+          - "10.52.0.1/31"
+        awg_tuning:
+          awg_jc: "4"
+          awg_jmin: "10"
+          awg_jmax: "50"
+    peers:
+      - iface: awg1
+      - iface: awg2
+  register: _awg_iface
+  when: _wg_ubus_available
+
+- name: "awg - assert both interfaces and their keys landed"
+  ansible.builtin.assert:
+    that:
+      - _awg_iface is succeeded
+      - _awg_iface.changed
+      - _awg_iface.interfaces == ["awg1", "awg2"]
+      - _awg_iface.public_key | length > 0
+      - _awg_iface.psks | length == 2
+  when: _wg_ubus_available
+
+- name: "awg - verify the first interface proto and tuning"
+  community.openwrt.command:
+    cmd: uci get network.awg1.proto
+  register: _awg1_proto
+  when: _wg_ubus_available
+
+- name: "awg - verify awg tuning on the first interface"
+  community.openwrt.command:
+    cmd: uci get network.awg1.awg_jmin
+  register: _awg1_jmin
+  when: _wg_ubus_available
+
+- name: "awg - assert interface config"
+  ansible.builtin.assert:
+    that:
+      - _awg1_proto.stdout == "amneziawg"
+      - _awg1_jmin.stdout == "10"
+  when: _wg_ubus_available
+
+- name: "awg - write a p2p peer on each interface"
+  community.openwrt.wg_peer:
+    peers:
+      - iface: awg1
+        public_key: "{{ _awg_iface.public_key }}"
+        preshared_key: "{{ _awg_iface.psks[0] }}"
+        endpoint_host: "peer1.example.com"
+        endpoint_port: 51902
+      - iface: awg2
+        public_key: "{{ _awg_iface.public_key }}"
+        preshared_key: "{{ _awg_iface.psks[1] }}"
+        endpoint_host: "peer2.example.com"
+        endpoint_port: 51901
+  register: _awg_peer
+  when: _wg_ubus_available
+
+- name: "awg - assert peers are of amneziawg type"
+  community.openwrt.command:
+    cmd: uci get network.peer_awg1
+  register: _awg_peer_type
+  when: _wg_ubus_available
+
+- name: "awg - assert peer sections landed"
+  ansible.builtin.assert:
+    that:
+      - _awg_peer is succeeded
+      - _awg_peer.changed
+      - _awg_peer.peers == ["peer_awg1", "peer_awg2"]
+      - _awg_peer_type.stdout == "amneziawg_awg1"
+  when: _wg_ubus_available
+
+- name: "awg - clean up the p2p interfaces"
+  community.openwrt.wg_interface:
+    managed_interfaces:
+      - awg1
+      - awg2
+    interfaces:
+      - name: awg1
+        state: absent
+      - name: awg2
+        state: absent
+  register: _awg_cleanup
+  when: _wg_ubus_available
+
+- name: "awg - assert cleanup succeeded"
+  ansible.builtin.assert:
+    that:
+      - _awg_cleanup is succeeded
+      - _awg_cleanup.changed
+  when: _wg_ubus_available
+
+# ---- teardown -------------------------------------------------------------
+# No teardown needed: the state: absent test above already removed wg0 on hosts
+# with the wireguard ubus object; other hosts never had one.
+- name: "teardown - commit network"
+  community.openwrt.command:
+    cmd: uci commit network
+  changed_when: false
+  ignore_errors: true

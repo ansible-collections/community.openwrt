@@ -77,3 +77,7 @@ plugins/modules/uci.sh shellcheck:SC2086   # Double quote to prevent globbing an
 plugins/modules/uci.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166
 plugins/modules/uc_uci.uc shebang
 plugins/modules/uc_uci.uc validate-modules:invalid-extension
+plugins/modules/wg_interface.uc shebang
+plugins/modules/wg_interface.uc validate-modules:invalid-extension
+plugins/modules/wg_peer.uc shebang
+plugins/modules/wg_peer.uc validate-modules:invalid-extension
