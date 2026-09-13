@@ -21,7 +21,7 @@
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Testing Guide" href="testing_guide.html" />
+    <link rel="next" title="Ucode reference" href="ucode.html" />
     <link rel="prev" title="Community OpenWrt How-To Guide" href="howto_guide.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
 
 
@@ -98,16 +98,12 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ucode-modules">Ucode modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Runtime architecture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#shared-helper-library">Shared helper library</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ucode-language-notes">ucode language notes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#linting">Linting</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#check-mode-and-diff-support">Check mode and diff support</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#check-mode-and-idempotence-support">Check mode and idempotence support</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="ucode.html">Ucode reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing_guide.html">Testing Guide</a></li>
 </ul>
 <ul>
@@ -492,90 +488,9 @@ command is not successful. Example (from <code class="docutils literal notransla
 </section>
 <section id="ucode-modules">
 <h2>Ucode modules<a class="headerlink" href="#ucode-modules" title="Link to this heading"></a></h2>
-<p>Besides the shell-based modules, the collection also ships modules implemented in <a class="reference external" href="https://github.com/jow-/ucode">ucode</a>, OpenWrt’s native scripting language. Ucode is available on
-every modern OpenWrt build (with <code class="docutils literal notranslate"><span class="pre">fw4</span></code>) and provides native JSON handling through the
-<code class="docutils literal notranslate"><span class="pre">uci</span></code>, <code class="docutils literal notranslate"><span class="pre">ubus</span></code> and <code class="docutils literal notranslate"><span class="pre">fs</span></code> ucode modules. This avoids the JSON manipulation issues that
-affect the shell/jshn path for very large configurations.</p>
-<p>A ucode module is a plain <code class="docutils literal notranslate"><span class="pre">.uc</span></code> file in <code class="docutils literal notranslate"><span class="pre">plugins/modules/</span></code> plus a <code class="docutils literal notranslate"><span class="pre">.yml</span></code> sidecar with
-its <code class="docutils literal notranslate"><span class="pre">DOCUMENTATION</span></code>/<code class="docutils literal notranslate"><span class="pre">EXAMPLES</span></code>/<code class="docutils literal notranslate"><span class="pre">RETURN</span></code> (there is no <code class="docutils literal notranslate"><span class="pre">.py</span></code> file - Ansible reads the
-docs from the <code class="docutils literal notranslate"><span class="pre">.yml</span></code> sidecar, the same way it does for PowerShell modules). For example,
-<code class="docutils literal notranslate"><span class="pre">uc_uci.uc</span></code> + <code class="docutils literal notranslate"><span class="pre">uc_uci.yml</span></code>.</p>
-<section id="id1">
-<h3>Runtime architecture<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<p>Ucode modules run as <code class="docutils literal notranslate"><span class="pre">non_native_want_json</span></code> scripts: Ansible passes the module arguments as
-a JSON file whose path is the first command-line argument (<code class="docutils literal notranslate"><span class="pre">ARGV[0]</span></code>); the module prints a
-JSON result on <code class="docutils literal notranslate"><span class="pre">stdout</span></code> and exits <code class="docutils literal notranslate"><span class="pre">0</span></code> on success, non-zero on failure.</p>
-<p>A dedicated action plugin (<code class="docutils literal notranslate"><span class="pre">plugins/plugin_utils/ucode_action.py</span></code>,
-<code class="docutils literal notranslate"><span class="pre">UcodeOpenwrtActionBase</span></code>) takes care of:</p>
-<ol class="arabic simple">
-<li><p>Transferring the module <code class="docutils literal notranslate"><span class="pre">.uc</span></code> file to the target.</p></li>
-<li><p>Transferring its shared helper library (<code class="docutils literal notranslate"><span class="pre">plugins/module_utils/ansible_common.uc</span></code>) into
-the same remote directory, so the module’s relative <code class="docutils literal notranslate"><span class="pre">import</span></code> resolves.</p></li>
-<li><p>Writing the arguments as a JSON file and executing <code class="docutils literal notranslate"><span class="pre">ucode</span> <span class="pre">&lt;module&gt;</span> <span class="pre">&lt;args&gt;</span></code>.</p></li>
-<li><p>Parsing the JSON printed on <code class="docutils literal notranslate"><span class="pre">stdout</span></code> into the Ansible result.</p></li>
-</ol>
-<p>No shell wrapper is involved; JSON is produced and consumed natively by ucode.</p>
-</section>
-<section id="shared-helper-library">
-<h3>Shared helper library<a class="headerlink" href="#shared-helper-library" title="Link to this heading"></a></h3>
-<p>All ucode modules share a single helper library, <code class="docutils literal notranslate"><span class="pre">plugins/module_utils/ansible_common.uc</span></code>,
-imported under the <code class="docutils literal notranslate"><span class="pre">ac</span></code> namespace (<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">*</span> <span class="pre">as</span> <span class="pre">ac</span> <span class="pre">from</span> <span class="pre">'./ansible_common.uc'</span></code>). It exports
-helpers for the Ansible module contract, argument coercion, change detection and diff redaction:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>ac.load_args()</dt><dd><p>Read and parse the module args from <code class="docutils literal notranslate"><span class="pre">ARGV[0]</span></code> (the JSON args file).</p>
-</dd>
-<dt>ac.new_result()</dt><dd><p>Build the standard <code class="docutils literal notranslate"><span class="pre">{changed,</span> <span class="pre">failed,</span> <span class="pre">msg}</span></code> result object.</p>
-</dd>
-<dt>ac.exit_module(result, rc) / ac.fail(result, msg)</dt><dd><p>Print the result as JSON and exit; mark the result failed.</p>
-</dd>
-<dt>ac.coerce_as_bool(v)</dt><dd><p>Coerce a JSON value to a boolean (accepts bool, int and <code class="docutils literal notranslate"><span class="pre">&quot;true&quot;/&quot;yes&quot;/&quot;1&quot;/&quot;on&quot;</span></code>).</p>
-</dd>
-<dt>ac.get_value(obj, key, default)</dt><dd><p>Safely read a value with a fallback.</p>
-</dd>
-<dt>ac.same(a, b)</dt><dd><p>Deep-compare two values (used for idempotency / change detection).</p>
-</dd>
-<dt>ac.strip_meta(section)</dt><dd><p>Drop UCI meta keys (<code class="docutils literal notranslate"><span class="pre">.name</span></code>, <code class="docutils literal notranslate"><span class="pre">.type</span></code>, <code class="docutils literal notranslate"><span class="pre">.anonymous</span></code>, <code class="docutils literal notranslate"><span class="pre">.index</span></code>) from a cursor
-<code class="docutils literal notranslate"><span class="pre">get_all</span></code> section so it compares cleanly against a desired option map.</p>
-</dd>
-<dt>ac.redact(before, after, redact_keys)</dt><dd><p>Mask the values of the listed keys in a diff pair with <code class="docutils literal notranslate"><span class="pre">REDACTED</span></code> markers.</p>
-</dd>
-<dt>ac.check_mode(args) / ac.trace()</dt><dd><p>Read the check-mode flag; return a stack trace (when the optional <code class="docutils literal notranslate"><span class="pre">debug</span></code> ucode
-module is present) for error reporting.</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>A ucode module imports it with:</p>
-<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">ac</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./ansible_common.uc'</span><span class="p">;</span>
-</pre></div>
-</div>
-</section>
-<section id="ucode-language-notes">
-<h3>ucode language notes<a class="headerlink" href="#ucode-language-notes" title="Link to this heading"></a></h3>
-<p>ucode is ECMAScript-inspired but has its own rules (no function hoisting on the supported
-OpenWrt releases, global array helpers, no <code class="docutils literal notranslate"><span class="pre">[]</span></code>-indexing of strings, …). The consolidated
-reference — with links to the official documentation and the version-specific caveats for
-OpenWrt 25.12.x — lives in <code class="docutils literal notranslate"><span class="pre">docs/ucode.md</span></code>.</p>
-</section>
-<section id="linting">
-<h3>Linting<a class="headerlink" href="#linting" title="Link to this heading"></a></h3>
-<p>Ucode modules are linted with <code class="docutils literal notranslate"><span class="pre">tests/uc-lint.mjs</span></code>, which runs the <a class="reference external" href="https://github.com/NoahBPeterson/ucode-lsp">ucode-lsp</a> checker (type inference, flow analysis,
-null-safety, unused imports) gated to the OpenWrt <code class="docutils literal notranslate"><span class="pre">25.12</span></code> target, plus the <code class="docutils literal notranslate"><span class="pre">;</span></code> terminator
-rule that real ucode requires and the LSP does not flag. It stages <code class="docutils literal notranslate"><span class="pre">ansible_common.uc</span></code> next
-to each module (mirroring how the action plugin transfers it) so relative imports resolve.
-Run it with:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>node<span class="w"> </span>tests/uc-lint.mjs
-</pre></div>
-</div>
-<p>or via the <code class="docutils literal notranslate"><span class="pre">ucode-lint</span></code> nox session or the <code class="docutils literal notranslate"><span class="pre">ucode-lint</span></code> pre-commit hook.</p>
-</section>
-<section id="check-mode-and-diff-support">
-<h3>Check mode and diff support<a class="headerlink" href="#check-mode-and-diff-support" title="Link to this heading"></a></h3>
-<p>Ucode modules honour check mode (skip persisting changes when <code class="docutils literal notranslate"><span class="pre">_ansible_check_mode</span></code> is set)
-and diff mode (produce a structured <code class="docutils literal notranslate"><span class="pre">diff</span></code> when <code class="docutils literal notranslate"><span class="pre">_ansible_diff</span></code> is set and the task has
-<code class="docutils literal notranslate"><span class="pre">diff:</span> <span class="pre">true</span></code>). The <code class="docutils literal notranslate"><span class="pre">ac.new_result</span></code>/<code class="docutils literal notranslate"><span class="pre">ac.exit_module</span></code> helpers carry the <code class="docutils literal notranslate"><span class="pre">changed</span></code>/<code class="docutils literal notranslate"><span class="pre">failed</span></code>/<code class="docutils literal notranslate"><span class="pre">msg</span></code>
-contract automatically.</p>
-</section>
+<p>Besides the shell-based modules, the collection also ships modules implemented in <a class="reference external" href="https://github.com/jow-/ucode">ucode</a>, OpenWrt’s native scripting language. See the <a class="reference internal" href="ucode.html#ansible-collections-community-openwrt-docsite-ucode"><span class="std std-ref">Ucode
+reference</span></a> for the language rules,
+version caveats, the shared helper library, linting and check-mode/diff conventions.</p>
 <section id="check-mode-and-idempotence-support">
 <h3>Check mode and idempotence support<a class="headerlink" href="#check-mode-and-idempotence-support" title="Link to this heading"></a></h3>
 <p>Modules that support check mode must set the variable:</p>
@@ -597,7 +512,7 @@ contract automatically.</p>
 
 <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="howto_guide.html" class="btn btn-neutral float-left" title="Community OpenWrt How-To Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="testing_guide.html" class="btn btn-neutral float-right" title="Testing Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ucode.html" class="btn btn-neutral float-right" title="Ucode reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
