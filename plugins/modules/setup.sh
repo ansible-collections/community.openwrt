@@ -105,10 +105,14 @@ main() {
     elif which opkg > /dev/null 2>&1; then
         json_add_string ansible_pkg_mgr "opkg"
     fi
-    json_add_boolean ansible_is_chroot "$([ -r /proc/1/root/. ] &&
-        { [ / -ef /proc/1/root/. ]; echo $?; } ||
-        { [ "$(ls -di / | awk '{print $1}')" -eq 2 ]; echo $?; }
-        )"
+    if [ -r /proc/1/root/. ]; then
+        [ / -ef /proc/1/root/. ]
+        _is_chroot=$?
+    else
+        [ "$(ls -di / | awk '{print $1}')" -eq 2 ]
+        _is_chroot=$?
+    fi
+    json_add_boolean ansible_is_chroot "$_is_chroot"
     json_add_object ansible_date_time
     _exit_add_vars $DATE_TIME_VARS
     json_close_object

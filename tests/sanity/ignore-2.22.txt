@@ -35,7 +35,6 @@ plugins/modules/uci.sh validate-modules:invalid-extension
 plugins/modules/wrapper.sh shebang
 plugins/modules/wrapper.sh validate-modules:invalid-extension
 plugins/module_utils/_core.sh shellcheck:SC2015   # Note that `A && B || C` is not if-then-else. C may run when A is true - https://www.shellcheck.net/wiki/SC2015
-plugins/module_utils/_core.sh shellcheck:SC2046   # Quote this to prevent word splitting - https://www.shellcheck.net/wiki/SC2046
 plugins/module_utils/_core.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
 plugins/module_utils/_core.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166
 plugins/module_utils/_file.sh shellcheck:SC2012   # Use `find` instead of `ls` to better handle non-alphanumeric filenames - https://www.shellcheck.net/wiki/SC2012
@@ -61,7 +60,6 @@ plugins/modules/opkg.sh shellcheck:SC2086   # Double quote to prevent globbing a
 plugins/modules/opkg.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166
 plugins/modules/ping.sh shellcheck:SC2319   # This `$?` refers to a condition, not a command. Assign to a variable to avoid it being overwritten - https://www.shellcheck.net/wiki/SC2319
 plugins/modules/setup.sh shellcheck:SC2012   # Use `find` instead of `ls` to better handle non-alphanumeric filenames - https://www.shellcheck.net/wiki/SC2012
-plugins/modules/setup.sh shellcheck:SC2015   # Note that `A && B || C` is not if-then-else. C may run when A is true - https://www.shellcheck.net/wiki/SC2015
 plugins/modules/setup.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
 plugins/modules/setup.sh shellcheck:SC2155   # Declare and assign separately to avoid masking return values - https://www.shellcheck.net/wiki/SC2155
 plugins/modules/stat.sh shellcheck:SC2046   # Quote this to prevent word splitting - https://www.shellcheck.net/wiki/SC2046
