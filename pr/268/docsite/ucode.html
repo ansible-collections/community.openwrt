@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ucode reference &mdash; Community.OpenWrt Collection  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Testing Guide" href="testing_guide.html" />
+    <link rel="prev" title="Community OpenWrt Module Developer Guide" href="mod_dev_guide.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="https://ansible-collections.github.io/community.openwrt/branch/main/" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">Community.OpenWrt Collection Docs</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Community.OpenWrt Collection
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">Community OpenWrt User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">Community OpenWrt Migration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_apk_guide.html">OpenWrt 25.x Package Manager changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howto_guide.html">Community OpenWrt How-To Guide</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mod_dev_guide.html">Community OpenWrt Module Developer Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Ucode reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#official-documentation">Official documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-caveat">Version caveat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#collection-conventions">Collection conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hard-learned-ucode-rules">Hard-learned ucode rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#shared-helper-library">Shared helper library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linting">Linting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-mode-and-diff-support">Check mode and diff support</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing_guide.html">Testing Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apk_module.html">community.openwrt.apk module – Manage packages with apk on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_module.html">community.openwrt.command module – Execute commands on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copy_module.html">community.openwrt.copy module – Copy files to remote OpenWrt devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_module.html">community.openwrt.file module – Manage files and file properties on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../group_module.html">community.openwrt.group module – Add or remove groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lineinfile_module.html">community.openwrt.lineinfile module – Manage lines in text files on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nohup_module.html">community.openwrt.nohup module – Starts a command in background and returns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opkg_module.html">community.openwrt.opkg module – Manage packages with opkg on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package_facts_module.html">community.openwrt.package_facts module – Gather package facts in OpenWrt systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ping_module.html">community.openwrt.ping module – Verify ability to communicate with OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_module.html">community.openwrt.service module – Manage services on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_module.html">community.openwrt.setup module – Gather facts about OpenWrt systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../slurp_module.html">community.openwrt.slurp module – Slurps a file from remote OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stat_module.html">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sysctl_module.html">community.openwrt.sysctl module – Manage sysctl entries on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tempfile_module.html">community.openwrt.tempfile module – Creates temporary files and directories on OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../template_module.html">community.openwrt.template module – Template a file out to remote OpenWrt target</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../uc_uci_module.html">community.openwrt.uc_uci module – Controls OpenWrt UCI (ucode implementation)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Community.OpenWrt Collection</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Ucode reference</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <section id="ucode-reference">
+<span id="ansible-collections-community-openwrt-docsite-ucode"></span><h1>Ucode reference<a class="headerlink" href="#ucode-reference" title="Link to this heading"></a></h1>
+<p>This page is the single source of truth for developing ucode modules in this collection. It
+points to the official ucode documentation and records the hard-learned rules that apply on the
+OpenWrt releases the collection supports.</p>
+<section id="official-documentation">
+<h2>Official documentation<a class="headerlink" href="#official-documentation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://ucode.mein.io/">ucode Reference Documentation</a> — language, syntax, memory
+management, arrays, dictionaries, and the standard library modules (<code class="docutils literal notranslate"><span class="pre">core</span></code>, <code class="docutils literal notranslate"><span class="pre">fs</span></code>,
+<code class="docutils literal notranslate"><span class="pre">log</span></code>, <code class="docutils literal notranslate"><span class="pre">math</span></code>, <code class="docutils literal notranslate"><span class="pre">ubus</span></code>, <code class="docutils literal notranslate"><span class="pre">uci</span></code>, <code class="docutils literal notranslate"><span class="pre">uloop</span></code>, …).</p></li>
+<li><p><a class="reference external" href="https://github.com/jow-/ucode">ucode source (GitHub)</a> — the interpreter and the
+<code class="docutils literal notranslate"><span class="pre">libucode</span></code> C API.</p></li>
+</ul>
+<section id="version-caveat">
+<h3>Version caveat<a class="headerlink" href="#version-caveat" title="Link to this heading"></a></h3>
+<p>The reference site documents the <strong>latest</strong> ucode (OpenWrt <code class="docutils literal notranslate"><span class="pre">master</span></code>). The OpenWrt releases the
+collection targets ship an <strong>older</strong> ucode that is missing some of the newer constructs. Known
+differences on OpenWrt <strong>25.12.x</strong>:</p>
+<ul class="simple">
+<li><p><strong>No forward declarations / function hoisting.</strong> Functions must be defined before they are
+used; there is no <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">function</span> <span class="pre">name;</span></code> forward declaration. The reference documentation
+(master) shows examples that rely on hoisting that will <strong>not</strong> run on 25.12.</p></li>
+<li><p>When in doubt, test on the oldest supported target (currently <code class="docutils literal notranslate"><span class="pre">25.12</span></code>) rather than assuming
+the reference examples work.</p></li>
+</ul>
+</section>
+</section>
+<section id="collection-conventions">
+<h2>Collection conventions<a class="headerlink" href="#collection-conventions" title="Link to this heading"></a></h2>
+<p>A ucode module is a <code class="docutils literal notranslate"><span class="pre">.uc</span></code> file in <code class="docutils literal notranslate"><span class="pre">plugins/modules/</span></code> plus a <code class="docutils literal notranslate"><span class="pre">.yml</span></code> sidecar with
+<code class="docutils literal notranslate"><span class="pre">DOCUMENTATION</span></code>/<code class="docutils literal notranslate"><span class="pre">EXAMPLES</span></code>/<code class="docutils literal notranslate"><span class="pre">RETURN</span></code>; there is no <code class="docutils literal notranslate"><span class="pre">.py</span></code>. Modules run as
+<code class="docutils literal notranslate"><span class="pre">non_native_want_json</span></code> scripts: Ansible passes the args as a JSON file whose path is
+<code class="docutils literal notranslate"><span class="pre">ARGV[0]</span></code>, and the module prints a JSON result on <code class="docutils literal notranslate"><span class="pre">stdout</span></code>.</p>
+<p>The reusable action base at <code class="docutils literal notranslate"><span class="pre">plugins/plugin_utils/ucode_action.py</span></code>
+(<code class="docutils literal notranslate"><span class="pre">UcodeOpenwrtActionBase</span></code>) transfers the module and its helper library into the same remote
+directory so the module’s relative import resolves, then executes <code class="docutils literal notranslate"><span class="pre">ucode</span> <span class="pre">&lt;module&gt;</span> <span class="pre">&lt;args&gt;</span></code> and
+parses the JSON result. No shell wrapper is involved.</p>
+</section>
+<section id="hard-learned-ucode-rules">
+<h2>Hard-learned ucode rules<a class="headerlink" href="#hard-learned-ucode-rules" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'use</span> <span class="pre">strict';</span></code> at the top; <code class="docutils literal notranslate"><span class="pre">#!/usr/bin/ucode</span></code> shebang and a <code class="docutils literal notranslate"><span class="pre">WANT_JSON</span></code> marker.</p></li>
+<li><p>JSON: decode with <code class="docutils literal notranslate"><span class="pre">json(str)</span></code>, encode with <code class="docutils literal notranslate"><span class="pre">sprintf(&quot;%J&quot;,</span> <span class="pre">obj)</span></code>. There is no
+<code class="docutils literal notranslate"><span class="pre">serialize()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">function</span> <span class="pre">name(...)</span> <span class="pre">{...};</span></code> must end with a semicolon. Functions are not hoisted:
+declare before use; no forward declarations; no <code class="docutils literal notranslate"><span class="pre">throw</span></code> (use <code class="docutils literal notranslate"><span class="pre">die()</span></code>).</p></li>
+<li><p>Arrays use global helpers: <code class="docutils literal notranslate"><span class="pre">length(arr)</span></code>, <code class="docutils literal notranslate"><span class="pre">push(arr,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">sort(arr)</span></code>. There are no
+<code class="docutils literal notranslate"><span class="pre">arr.push()</span></code>/<code class="docutils literal notranslate"><span class="pre">arr.sort()</span></code> methods.</p></li>
+<li><p>Strings are not <code class="docutils literal notranslate"><span class="pre">[]</span></code>-indexable — use <code class="docutils literal notranslate"><span class="pre">substr(s,</span> <span class="pre">i,</span> <span class="pre">1)</span></code> / <code class="docutils literal notranslate"><span class="pre">ord(s,</span> <span class="pre">i)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">(let</span> <span class="pre">val</span> <span class="pre">in</span> <span class="pre">arr)</span> <span class="pre">{}</span></code> yields the <strong>elements</strong> of an array; over objects it yields the
+<strong>keys</strong> (<code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">(let</span> <span class="pre">k</span> <span class="pre">in</span> <span class="pre">obj)</span> <span class="pre">{}</span></code> — fetch the value with <code class="docutils literal notranslate"><span class="pre">obj[k]</span></code>). Loop variables must be
+declared with <code class="docutils literal notranslate"><span class="pre">let</span></code>. The two-variable destructuring form (<code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">(k,</span> <span class="pre">v</span> <span class="pre">in</span> <span class="pre">dict)</span> <span class="pre">{}</span></code>) is
+<strong>not</strong> supported on OpenWrt 25.12.</p></li>
+<li><p>No <code class="docutils literal notranslate"><span class="pre">String(x)</span></code> global — use <code class="docutils literal notranslate"><span class="pre">sprintf(&quot;%s&quot;,</span> <span class="pre">x)</span></code>.</p></li>
+<li><p>Prefer <code class="docutils literal notranslate"><span class="pre">${template}</span></code> literals over <code class="docutils literal notranslate"><span class="pre">+</span></code> concatenation when building strings for
+readability (e.g. error messages); keep <code class="docutils literal notranslate"><span class="pre">+</span></code> for short shell command fragments.</p></li>
+<li><p>Dicts merge natively with the spread operator: <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">...base,</span> <span class="pre">...override</span> <span class="pre">}</span></code> (later wins).</p></li>
+<li><p>Test key presence with <code class="docutils literal notranslate"><span class="pre">exists(obj,</span> <span class="pre">key)</span></code> rather than <code class="docutils literal notranslate"><span class="pre">obj[key]</span> <span class="pre">==</span> <span class="pre">null</span></code> when you need to
+distinguish a present-but-null value from an absent key.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uci</span></code>: <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">cursor</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">'uci';</span> <span class="pre">const</span> <span class="pre">u</span> <span class="pre">=</span> <span class="pre">cursor();</span></code> —
+<code class="docutils literal notranslate"><span class="pre">get/get_all/set/foreach/add/save/commit</span></code>. <code class="docutils literal notranslate"><span class="pre">set(config,</span> <span class="pre">section,</span> <span class="pre">type)</span></code> creates a named
+section; <code class="docutils literal notranslate"><span class="pre">add</span></code> requires the config to be explicitly <code class="docutils literal notranslate"><span class="pre">load()``ed</span> <span class="pre">first;</span> <span class="pre">``save()</span></code> persists
+changes as a delta so a subsequent module invocation (new process) sees them.</p></li>
+<li><p>Check mode: the args include <code class="docutils literal notranslate"><span class="pre">_ansible_check_mode</span></code>; compute the diff/changed but skip
+<code class="docutils literal notranslate"><span class="pre">save</span></code>/<code class="docutils literal notranslate"><span class="pre">commit</span></code>.</p></li>
+<li><p>Idempotency: strip UCI meta keys (<code class="docutils literal notranslate"><span class="pre">.name</span></code>, <code class="docutils literal notranslate"><span class="pre">.type</span></code>, <code class="docutils literal notranslate"><span class="pre">.anonymous</span></code>, <code class="docutils literal notranslate"><span class="pre">.index</span></code>) from
+<code class="docutils literal notranslate"><span class="pre">get_all</span></code> output before comparing; compare via sorted-key equality (<code class="docutils literal notranslate"><span class="pre">sprintf(&quot;%J&quot;,</span> <span class="pre">...)</span></code>),
+not raw object equality.</p></li>
+</ul>
+</section>
+<section id="shared-helper-library">
+<h2>Shared helper library<a class="headerlink" href="#shared-helper-library" title="Link to this heading"></a></h2>
+<p>All ucode modules share <code class="docutils literal notranslate"><span class="pre">plugins/module_utils/ansible_common.uc</span></code>, imported under the <code class="docutils literal notranslate"><span class="pre">ac</span></code>
+namespace. It exports helpers for the Ansible module contract, argument coercion, change
+detection and diff redaction:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ac.load_args()
+    Read and parse the module args from ``ARGV[0]`` (the JSON args file).
+
+ac.new_result()
+    Build the standard ``{changed, failed, msg}`` result object.
+
+ac.exit_json(result) / ac.fail_json(result, msg)
+    Print the result as JSON and exit; mark the result failed.
+
+ac.coerce_as_bool(v)
+    Coerce a JSON value to a boolean (accepts bool, int and ``"true"/"yes"/"1"/"on"``).
+
+ac.coerce(v, type)
+    Coerce a value to ``'str'``, ``'path'``, ``'bool'``, ``'int'``, ``'float'``,
+    ``'list'``, ``'dict'`` or ``'raw'``; returns ``null`` when the value cannot
+    be coerced.
+
+ac.validate_argument_spec(args, spec)
+    Declaratively validate/coerce input args against a spec dict, mirroring
+    Ansible's `argument_spec &lt;https://docs.ansible.com/ansible/latest/dev_guide/developing_program_flow_modules.html#argument-spec&gt;`_.
+    Each entry supports ``type``, ``elements`` (for lists), ``default``,
+    ``required``, ``choices``, ``aliases``, ``options`` (nested sub-spec for
+    dicts and lists of dicts) and ``apply_defaults``. Returns ``{ok, values,
+    error}``; call ``fail_json`` with the error when ``ok`` is false.
+    Ansible's dependency checks (``mutually_exclusive``/``required_*``) and
+    the ``json``/``jsonarg``/``bytes``/``bits`` types are not implemented.
+
+ac.get_value(obj, key, default)
+    Safely read a value with a fallback.
+
+ac.is_equal(a, b)
+    Deep-compare two values (used for idempotency / change detection).
+
+ac.strip_meta(section)
+    Drop UCI meta keys (``.name``, ``.type``, ``.anonymous``, ``.index``) from a cursor
+    ``get_all`` section so it compares cleanly against a desired option map.
+
+ac.redact(before, after, redact_keys)
+    Mask the values of the listed keys in a diff pair with ``REDACTED`` markers.
+
+ac.render_template(str, scope)
+    Render a Jinja-style ucode template string (``{{ ... }}`` / ``{% ... %}``) against a
+    scope dict; returns the rendered string (empty on error).
+
+ac.upsert_section(u, config, sid, sec_type, want, opts)
+    Idempotently write a named UCI section (compares, writes only on change, honours check
+    mode); returns ``{before, after, changed}``.
+
+ac.push_diff(out, enabled, header, before, after)
+    Append a ``{before, after}`` entry to ``out.diff`` for Ansible ``--diff`` display
+    (no-op when ``enabled`` is false).
+
+ac.is_check_mode(args)
+    Read the check-mode flag (``args._ansible_check_mode``) and return it as a boolean.
+
+ac.is_diff_enabled(args)
+    Read the diff-mode flag (``args._ansible_diff``) and return it as a boolean.
+
+ac.trace()
+    Return a stack trace for error reporting (when the optional ``debug`` ucode
+    module is present); empty string otherwise.
+</pre></div>
+</div>
+<p>A ucode module imports it with:</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">ac</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./ansible_common.uc'</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="linting">
+<h2>Linting<a class="headerlink" href="#linting" title="Link to this heading"></a></h2>
+<p>Ucode modules are linted with <code class="docutils literal notranslate"><span class="pre">tests/uc-lint.mjs</span></code>, which runs the <a class="reference external" href="https://github.com/NoahBPeterson/ucode-lsp">ucode-lsp</a> checker (type inference, flow analysis,
+null-safety, unused imports) gated to the OpenWrt <code class="docutils literal notranslate"><span class="pre">25.12</span></code> target, plus the <code class="docutils literal notranslate"><span class="pre">;</span></code> terminator
+rule that real ucode requires and the LSP does not flag. It stages <code class="docutils literal notranslate"><span class="pre">ansible_common.uc</span></code> next
+to each module (mirroring how the action plugin transfers it) so relative imports resolve.
+Run it with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>node<span class="w"> </span>tests/uc-lint.mjs
+</pre></div>
+</div>
+<p>or via the <code class="docutils literal notranslate"><span class="pre">ucode-lint</span></code> nox session or the <code class="docutils literal notranslate"><span class="pre">ucode-lint</span></code> pre-commit hook.</p>
+<p>The helper library and argument-handling logic are unit-tested with real ucode in an OpenWrt
+container: <code class="docutils literal notranslate"><span class="pre">tests/unit/ucode/</span></code> (<code class="docutils literal notranslate"><span class="pre">test_*.uc</span></code> scripts staged with <code class="docutils literal notranslate"><span class="pre">ansible_common.uc</span></code>) run
+via the <code class="docutils literal notranslate"><span class="pre">ucode_unit</span></code> nox session or <code class="docutils literal notranslate"><span class="pre">tests/unit/ucode/run.sh</span></code>.</p>
+</section>
+<section id="check-mode-and-diff-support">
+<h2>Check mode and diff support<a class="headerlink" href="#check-mode-and-diff-support" title="Link to this heading"></a></h2>
+<p>Ucode modules honour check mode (skip persisting changes when <code class="docutils literal notranslate"><span class="pre">_ansible_check_mode</span></code> is set)
+and diff mode (produce a structured <code class="docutils literal notranslate"><span class="pre">diff</span></code> when <code class="docutils literal notranslate"><span class="pre">_ansible_diff</span></code> is set and the task has
+<code class="docutils literal notranslate"><span class="pre">diff:</span> <span class="pre">true</span></code>). The <code class="docutils literal notranslate"><span class="pre">ac.new_result</span></code>/<code class="docutils literal notranslate"><span class="pre">ac.exit_json</span></code> helpers carry the
+<code class="docutils literal notranslate"><span class="pre">changed</span></code>/<code class="docutils literal notranslate"><span class="pre">failed</span></code>/<code class="docutils literal notranslate"><span class="pre">msg</span></code> contract automatically.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mod_dev_guide.html" class="btn btn-neutral float-left" title="Community OpenWrt Module Developer Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="testing_guide.html" class="btn btn-neutral float-right" title="Testing Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Community.OpenWrt Contributors.</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

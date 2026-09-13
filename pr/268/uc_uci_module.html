@@ -81,6 +81,7 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="docsite/mod_dev_guide.html">Community OpenWrt Module Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docsite/ucode.html">Ucode reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docsite/testing_guide.html">Testing Guide</a></li>
 </ul>
 <ul class="current">
@@ -310,7 +311,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-u
 <tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-operations"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uc-uci-module-parameter-operations"><strong>operations</strong></p>
 <a class="ansibleOptionLink" href="#parameter-operations" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
-<p><em class="ansible-option-versionadded">added in community.openwrt 1.9.0</em></p>
+<p><em class="ansible-option-versionadded">added in community.openwrt 1.8.0</em></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>List of sub-operations to execute in a single module invocation.</p>
 <p>Each operation supports the same options as a standalone module call (that is <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-config"><span class="std std-ref"><span class="pre">config</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-section"><span class="std std-ref"><span class="pre">section</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-option"><span class="std std-ref"><span class="pre">option</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-value"><span class="std std-ref"><span class="pre">value</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-find"><span class="std std-ref"><span class="pre">find</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-type"><span class="std std-ref"><span class="pre">type</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-name"><span class="std std-ref"><span class="pre">name</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-keep-keys"><span class="std std-ref"><span class="pre">keep_keys</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-replace"><span class="std std-ref"><span class="pre">replace</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-set-find"><span class="std std-ref"><span class="pre">set_find</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-unique"><span class="std std-ref"><span class="pre">unique</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-merge"><span class="std std-ref"><span class="pre">merge</span></span></a></strong></code>) except the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-operations"><span class="std std-ref"><span class="pre">operations</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-redact-keys"><span class="std std-ref"><span class="pre">redact_keys</span></span></a></strong></code> options themselves.</p>
@@ -328,7 +329,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-u
 <tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-redact_keys"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uc-uci-module-parameter-redact-keys"><strong>redact_keys</strong></p>
 <a class="ansibleOptionLink" href="#parameter-redact_keys" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
-<p><em class="ansible-option-versionadded">added in community.openwrt 1.9.0</em></p>
+<p><em class="ansible-option-versionadded">added in community.openwrt 1.8.0</em></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>List of option names whose values are replaced by <code class="ansible-value docutils literal notranslate"><span class="pre">REDACTED</span></code> in the diff output. Useful to avoid exposing secrets such as WireGuard private keys or passwords in the module result.</p>
 </div></td>
@@ -628,7 +629,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-u
 <section id="authors">
 <h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p>Alexei Znamensky (&#64;russoz)</p></li>
+<li><p>Vladimir Ermakov (&#64;vooon)</p></li>
 </ul>
 </section>
 <section id="collection-links">
