@@ -117,6 +117,10 @@ options:
   value:
     description:
       - The value for various commands.
+notes:
+  - Since version 1.8.0, O(command=set), O(command=ensure) and O(command=section) compare the stored value
+    before writing, and report RV(ignore:changed=true) only when it differs. Earlier versions reported
+    RV(ignore:changed=true) on every run.
 """
 
 EXAMPLES = r"""
