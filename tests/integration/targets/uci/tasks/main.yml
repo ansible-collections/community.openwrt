@@ -44,6 +44,14 @@
     that:
       - uci_delete is succeeded
 
+- name: "idempotency - setup: set a value to change away from"
+  community.openwrt.uci:
+    command: set
+    config: uhttpd
+    section: main
+    option: max_connections
+    value: "149"
+
 - name: "idempotency - setup: set an option to a known value"
   community.openwrt.uci:
     command: set
