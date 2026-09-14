@@ -1,0 +1,3 @@
+bugfixes:
+  - uci - compare the current value before setting a scalar or dict option, so that ``command=set``, ``command=ensure`` and ``command=section`` are idempotent
+    (https://github.com/ansible-collections/community.openwrt/issues/262, https://github.com/ansible-collections/community.openwrt/pull/263).
