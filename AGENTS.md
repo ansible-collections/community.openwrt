@@ -39,6 +39,18 @@
   `docs/docsite/rst/mod_dev_guide.rst`. Read it before touching modules, action plugins, or
   `wrapper.sh`, rather than relying on assumptions from other Ansible collections.
 
+### Ucode modules
+
+The collection also ships ucode modules (`plugins/modules/*.uc` + a `.yml` sidecar), which run
+with OpenWrt's native `ucode` interpreter. Before writing one, read
+`docs/docsite/rst/ucode.rst` — it links the official ucode docs and records the rules that apply
+on the supported OpenWrt releases (note the 25.12.x version caveats, e.g. no forward
+declarations). See also `docs/docsite/rst/mod_dev_guide.rst`.
+
+Lint ucode modules with `node tests/uc-lint.mjs` (or the `ucode_lint` nox session /
+pre-commit hook). Run the ucode unit tests with `nox -e ucode_unit`; run a module's integration
+target with `nox -e test -- <target>`.
+
 ## Licensing and Copyright
 
 This project abides to the REUSE specification from the Free Software Foundation.
