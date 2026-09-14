@@ -130,7 +130,7 @@ uci_set_dict() {
 
 uci_set() {
     local var="${1:-value}"
-    local var_type
+    local var_type set_value
     eval "var_type=\"\$_type_$var\""
     [ -z "$option" ] || keep_keys="$keep_keys $option"
     case "$var_type" in
@@ -146,8 +146,9 @@ uci_set() {
             json_select_real "$var"
             uci_set_dict
             json_select ..;;
-        *) eval "uci_compare_value \"\$key\" \"\$$var\"" ||
-                try "uci set \"\$key=\$$var\"";;
+        *) eval "set_value=\$$var"
+            uci_compare_value "$key" "$set_value" ||
+                try uci set "$key=$set_value";;
     esac
 }
 
