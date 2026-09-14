@@ -162,6 +162,7 @@ You need further requirements to be able to use this module,
 see <a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-requirements"><span class="std std-ref">Requirements</span></a> for details.</p>
 <p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">community.openwrt.uc_uci</span></code>.</p>
 </div>
+<p class="ansible-version-added">New in community.openwrt 1.8.0</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
@@ -571,9 +572,9 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-u
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="return-diff"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uc-uci-module-return-diff"><strong>diff</strong></p>
-<a class="ansibleOptionLink" href="#return-diff" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+<a class="ansibleOptionLink" href="#return-diff" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>Structured diff keyed by config and section name, with <code class="docutils literal notranslate"><span class="pre">before</span></code> and <code class="docutils literal notranslate"><span class="pre">after</span></code> option maps for the changed sections. Sensitive options listed in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-redact-keys"><span class="std std-ref"><span class="pre">redact_keys</span></span></a></strong></code> are masked.</p>
+<td><div class="ansible-option-cell"><p>List of diff entries for changed sections, each with <code class="docutils literal notranslate"><span class="pre">before</span></code>, <code class="docutils literal notranslate"><span class="pre">after</span></code>, <code class="docutils literal notranslate"><span class="pre">before_header</span></code> and <code class="docutils literal notranslate"><span class="pre">after_header</span></code>. Sensitive options listed in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uc-uci-module-parameter-redact-keys"><span class="std std-ref"><span class="pre">redact_keys</span></span></a></strong></code> are masked.</p>
 <p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when diff mode and changes were detected</p>
 </div></td>
 </tr>
