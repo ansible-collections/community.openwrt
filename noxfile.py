@@ -315,6 +315,18 @@ def integration(session: nox.Session):
     _run_integration(session)
 
 
+@nox.session(default=True)
+def ucode_lint(session: nox.Session):
+    """Lint ucode modules with ucode-lsp (type/flow checks, target 25.12) via tests/uc-lint.mjs."""
+    session.run("node", "tests/uc-lint.mjs", external=True)
+
+
+@nox.session(default=False)
+def ucode_unit(session: nox.Session):
+    """Run ucode unit tests in an OpenWrt container (tests/unit/ucode)."""
+    session.run("bash", "tests/unit/ucode/run.sh", external=True)
+
+
 @nox.session(default=False)
 def roles(session: nox.Session):
     """Run molecule tests for all role scenarios. Posargs: [--role|-r ROLE] [--scenario|-s SCENARIO]"""

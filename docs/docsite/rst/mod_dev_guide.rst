@@ -400,6 +400,14 @@ Diff and change detection
 ..     changed
 ..   }
 
+Ucode modules
+^^^^^^^^^^^^^
+
+Besides the shell-based modules, the collection also ships modules implemented in `ucode
+<https://github.com/jow-/ucode>`_, OpenWrt's native scripting language. See the :ref:`Ucode
+reference <ansible_collections.community.openwrt.docsite.ucode>` for the language rules,
+version caveats, the shared helper library, linting and check-mode/diff conventions.
+
 Check mode and idempotence support
 """""""""""""""""""""""""""""""""""
 
@@ -413,3 +421,4 @@ Otherwise, the module will automatically bail out if executed in check mode.
 
 
 .. versionadded:: 0.3.0
+

@@ -13,4 +13,5 @@ sections:
   - title: Developer Guides
     toctree:
       - mod_dev_guide
+      - ucode
       - testing_guide
