@@ -360,6 +360,19 @@ export function upsert_section(u, config, sid, sec_type, want, opts) {
 	if (cur != null)
 		before = strip_meta(cur);
 
+	// Normalise a wanted scalar to the string form UCI persists: booleans as
+	// 0/1, ints as their decimal string. Lists are kept as-is (UCI list
+	// options). This keeps the compare and the write consistent with UCI's
+	// string-typed storage, so an int/bool input no longer re-diffs every run.
+	let uci_value = function(v) {
+		let t = type(v);
+		if (t == 'bool')
+			return v ? '1' : '0';
+		if (t == 'int' || t == 'double')
+			return sprintf('%s', v);
+		return v;
+	};
+
 	let drop = o.drop ?? {};
 	let changed = false;
 	for (let k in want) {
@@ -379,7 +392,7 @@ export function upsert_section(u, config, sid, sec_type, want, opts) {
 				changed = true;
 			continue;
 		}
-		if (sprintf('%J', before[k]) != sprintf('%J', want[k]))
+		if (sprintf('%J', before[k]) != sprintf('%J', uci_value(want[k])))
 			changed = true;
 	}
 	for (let k in drop) {
@@ -392,7 +405,7 @@ export function upsert_section(u, config, sid, sec_type, want, opts) {
 		for (let k in want) {
 			if (drop[k])
 				continue;
-			u.set(config, sid, k, want[k]);
+			u.set(config, sid, k, uci_value(want[k]));
 		}
 		for (let k in drop) {
 			// Setting an option to '' removes it in UCI; no explicit delete needed.
@@ -418,7 +431,7 @@ export function upsert_section(u, config, sid, sec_type, want, opts) {
 	for (let k in want) {
 		if (drop[k])
 			continue;
-		after[k] = want[k];
+		after[k] = uci_value(want[k]);
 	}
 	// Preserve unchanged options that exist before but are not in `want`; do
 	// not overwrite the wanted (new) values already written above.
