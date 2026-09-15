@@ -347,9 +347,10 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <a class="ansibleOptionLink" href="#parameter-interfaces/proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Interface protocol; selects the ubus key server (wireguard or amneziawg).</p>
+<p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code> when not set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;wireguard&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;wireguard&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;amneziawg&quot;</span></code></p></li>
 </ul>
 </div></td>
@@ -360,9 +361,10 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the interface should be present or absent.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">absent</span></code>, the interface section, its peer sections and its WAN ingress rule are removed.</p>
+<p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-state"><span class="std std-ref"><span class="pre">state</span></span></a></strong></code> when not set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;present&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;present&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
 </ul>
 </div></td>
@@ -382,9 +384,10 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-managed_interfaces"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-parameter-managed-interfaces"><strong>managed_interfaces</strong></p>
-<a class="ansibleOptionLink" href="#parameter-managed_interfaces" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-managed_interfaces" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>List of interface names on the host, used for identity-key consistency checks.</p>
+<p>When not given, it is derived from the interfaces being kept (those whose <code class="docutils literal notranslate"><span class="pre">state</span></code> is not <code class="docutils literal notranslate"><span class="pre">absent</span></code>). A pure-removal run therefore performs no key management.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
@@ -428,9 +431,10 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <a class="ansibleOptionLink" href="#parameter-peers/proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer protocol; selects the ubus key server.</p>
+<p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code> when not set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;wireguard&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;wireguard&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;amneziawg&quot;</span></code></p></li>
 </ul>
 </div></td>
@@ -441,6 +445,32 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer section suffix, available as <code class="docutils literal notranslate"><span class="pre">section</span></code> in the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peer-id-tpl"><span class="std std-ref"><span class="pre">peer_id_tpl</span></span></a></strong></code> template scope when resolving the pre-shared key.</p>
 <p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;peer&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-proto"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-parameter-proto"><strong>proto</strong></p>
+<a class="ansibleOptionLink" href="#parameter-proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Module-wide protocol, used as the default for every entry in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces"><span class="std std-ref"><span class="pre">interfaces</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers</span></span></a></strong></code> whose own <code class="docutils literal notranslate"><span class="pre">proto</span></code> is not set.</p>
+<p>An explicitly-set <code class="docutils literal notranslate"><span class="pre">proto</span></code> on an individual interface or peer overrides this.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;wireguard&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;amneziawg&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-parameter-state"><strong>state</strong></p>
+<a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Module-wide state, used as the default for every entry in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces"><span class="std std-ref"><span class="pre">interfaces</span></span></a></strong></code> whose own <code class="docutils literal notranslate"><span class="pre">state</span></code> is not set.</p>
+<p>An explicitly-set <code class="docutils literal notranslate"><span class="pre">state</span></code> on an individual interface overrides this.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;present&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
+</ul>
 </div></td>
 </tr>
 </tbody>

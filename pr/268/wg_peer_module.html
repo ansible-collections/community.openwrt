@@ -276,10 +276,10 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <a class="ansibleOptionLink" href="#parameter-peers/proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer protocol; the peer section type becomes <code class="docutils literal notranslate"><span class="pre">&lt;proto&gt;_&lt;iface&gt;</span></code>.</p>
-<p>Defaults to the interface’s <code class="docutils literal notranslate"><span class="pre">proto</span></code> when not specified.</p>
+<p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code>, then the interface’s <code class="docutils literal notranslate"><span class="pre">proto</span></code>, then <code class="docutils literal notranslate"><span class="pre">wireguard</span></code> when not set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;wireguard&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;wireguard&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;amneziawg&quot;</span></code></p></li>
 </ul>
 </div></td>
@@ -312,6 +312,33 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the peer section should be present or absent.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">absent</span></code>, the peer section is removed.</p>
+<p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-state"><span class="std std-ref"><span class="pre">state</span></span></a></strong></code> when not set.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;present&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-proto"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-parameter-proto"><strong>proto</strong></p>
+<a class="ansibleOptionLink" href="#parameter-proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Module-wide protocol, used as the default for every peer whose own <code class="docutils literal notranslate"><span class="pre">proto</span></code> is not set.</p>
+<p>Falls back to the interface section’s <code class="docutils literal notranslate"><span class="pre">proto</span></code> (then <code class="docutils literal notranslate"><span class="pre">wireguard</span></code>) when the peer’s <code class="docutils literal notranslate"><span class="pre">proto</span></code> and this option are both unset.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;wireguard&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;amneziawg&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-parameter-state"><strong>state</strong></p>
+<a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Module-wide state, used as the default for every peer whose own <code class="docutils literal notranslate"><span class="pre">state</span></code> is not set.</p>
+<p>An explicitly-set <code class="docutils literal notranslate"><span class="pre">state</span></code> on an individual peer overrides this.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;present&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
