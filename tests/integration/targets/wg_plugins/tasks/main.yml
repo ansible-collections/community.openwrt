@@ -240,6 +240,21 @@
       - _wg_peer_absent_idem is not changed
   when: _wg_ubus_available
 
+- name: "wg_peer - module-wide state absent removes the peer"
+  community.openwrt.wg_peer:
+    state: absent
+    peers:
+      - iface: wg0
+  register: _wg_peer_absent_global
+  when: _wg_ubus_available
+
+- name: "wg_peer - assert module-wide state absent is a no-op"
+  ansible.builtin.assert:
+    that:
+      - _wg_peer_absent_global is succeeded
+      - _wg_peer_absent_global is not changed
+  when: _wg_ubus_available
+
 - name: "wg_interface - state absent removes the interface and its peers"
   community.openwrt.wg_interface:
     managed_interfaces:
@@ -365,16 +380,13 @@
       - _awg_peer_type.stdout == "amneziawg_awg1"
   when: _wg_ubus_available
 
-- name: "awg - clean up the p2p interfaces"
+- name: "awg - clean up the p2p interfaces using module-wide proto/state"
   community.openwrt.wg_interface:
-    managed_interfaces:
-      - awg1
-      - awg2
+    proto: amneziawg
+    state: absent
     interfaces:
       - name: awg1
-        state: absent
       - name: awg2
-        state: absent
   register: _awg_cleanup
   when: _wg_ubus_available
 
@@ -383,6 +395,44 @@
     that:
       - _awg_cleanup is succeeded
       - _awg_cleanup.changed
+  when: _wg_ubus_available
+
+- name: "awg - verify the peer sections are gone"
+  community.openwrt.command:
+    cmd: uci get network.peer_awg1
+  register: _awg_peer1_gone
+  ignore_errors: true
+  when: _wg_ubus_available
+
+- name: "awg - verify the second peer section is gone"
+  community.openwrt.command:
+    cmd: uci get network.peer_awg2
+  register: _awg_peer2_gone
+  ignore_errors: true
+  when: _wg_ubus_available
+
+- name: "awg - assert peers were removed with the interface"
+  ansible.builtin.assert:
+    that:
+      - _awg_peer1_gone is failed
+      - _awg_peer2_gone is failed
+  when: _wg_ubus_available
+
+- name: "awg - re-run cleanup must be idempotent (no key generated)"
+  community.openwrt.wg_interface:
+    proto: amneziawg
+    state: absent
+    interfaces:
+      - name: awg1
+      - name: awg2
+  register: _awg_cleanup_idem
+  when: _wg_ubus_available
+
+- name: "awg - assert idempotent cleanup does not report changed"
+  ansible.builtin.assert:
+    that:
+      - _awg_cleanup_idem is succeeded
+      - _awg_cleanup_idem is not changed
   when: _wg_ubus_available
 
 # ---- teardown -------------------------------------------------------------

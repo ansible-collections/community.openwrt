@@ -29,12 +29,30 @@ DOCUMENTATION:
       support: full
       platforms: OpenWrt
   options:
+    proto:
+      description:
+        - Module-wide protocol, used as the default for every entry in O(interfaces)
+          and O(peers) whose own C(proto) is not set.
+        - An explicitly-set C(proto) on an individual interface or peer overrides this.
+      type: str
+      choices: [wireguard, amneziawg]
+      default: wireguard
+    state:
+      description:
+        - Module-wide state, used as the default for every entry in O(interfaces)
+          whose own C(state) is not set.
+        - An explicitly-set C(state) on an individual interface overrides this.
+      type: str
+      choices: [present, absent]
+      default: present
     managed_interfaces:
       description:
         - List of interface names on the host, used for identity-key consistency checks.
+        - When not given, it is derived from the interfaces being kept (those whose
+          C(state) is not C(absent)). A pure-removal run therefore performs no key
+          management.
       type: list
       elements: str
-      required: true
     interfaces:
       description:
         - List of interface configurations to (re)write.
@@ -52,15 +70,15 @@ DOCUMENTATION:
             - Whether the interface should be present or absent.
             - When C(absent), the interface section, its peer sections and its WAN ingress
               rule are removed.
+            - Defaults to the module-wide O(state) when not set.
           type: str
           choices: [present, absent]
-          default: present
         proto:
           description:
             - Interface protocol; selects the ubus key server (wireguard or amneziawg).
+            - Defaults to the module-wide O(proto) when not set.
           type: str
           choices: [wireguard, amneziawg]
-          default: wireguard
         listen_port:
           description:
             - Interface listen port.
@@ -152,9 +170,9 @@ DOCUMENTATION:
         proto:
           description:
             - Peer protocol; selects the ubus key server.
+            - Defaults to the module-wide O(proto) when not set.
           type: str
           choices: [wireguard, amneziawg]
-          default: wireguard
         force_psk_rekey:
           description:
             - Regenerate this peer PSK even if one already exists.

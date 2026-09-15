@@ -26,10 +26,12 @@ let diff_enabled = ac.is_diff_enabled(raw_args);
 // Declaratively validate/coerce the expected arguments (mirrors Ansible's
 // argument_spec). Applied to the top-level call and to sub-elements.
 let WG_SPEC = {
+	proto: { type: 'str', choices: ['wireguard', 'amneziawg'], default: 'wireguard' },
+	state: { type: 'str', choices: ['present', 'absent'], default: 'present' },
 	interfaces: { type: 'list', options: {
 		name: { type: 'str', required: true },
-		state: { type: 'str', choices: ['present', 'absent'], default: 'present' },
-		proto: { type: 'str', choices: ['wireguard', 'amneziawg'], default: 'wireguard' },
+		state: { type: 'str', choices: ['present', 'absent'] },
+		proto: { type: 'str', choices: ['wireguard', 'amneziawg'] },
 		listen_port: { type: 'int' },
 		addresses: { type: 'list' },
 		mtu: { type: 'int' },
@@ -213,29 +215,57 @@ function delete_interface(u, name, proto, manage_firewall, listen_port) {
 try {
 	let u = cursor();
 
-	let managed = args.managed_interfaces != null ? args.managed_interfaces : [];
-	if (type(managed) != 'array')
-		managed = [managed];
-
 	let force_rekey = ac.coerce_to_bool(args.force_rekey);
 
 	// Determine the protocol/ubus server. Only wireguard and amneziawg are
-	// supported; both may coexist on a host. Defaults to wireguard.
+	// supported; both may coexist on a host. The global proto (defaults to
+	// wireguard) is the base; an explicitly-set interface proto overrides it.
 	let interfaces = args.interfaces != null ? args.interfaces : [];
-	let proto = 'wireguard';
+	let proto = args.proto;
 	for (let iface in interfaces) {
-		let p = iface.proto != null ? iface.proto : 'wireguard';
-		if (p != 'wireguard' && p != 'amneziawg')
-			ac.fail_json(result, `unsupported proto "${p}" on interface ${iface.name}; only wireguard and amneziawg are supported`);
-		proto = p;
+		if (iface.proto != null)
+			proto = iface.proto;
 	}
 
+	// The managed set is used for identity-key consistency. When not given
+	// explicitly, derive it from the interfaces being kept (state != absent),
+	// so a pure-removal run manages nothing and performs no key handling.
+	let managed = args.managed_interfaces != null ? args.managed_interfaces : [];
+	if (type(managed) != 'array')
+		managed = [managed];
+	if (length(managed) == 0) {
+		let seen = {};
+		for (let iface in interfaces) {
+			let st = iface.state != null ? iface.state : args.state;
+			if (st != 'absent' && iface.name != null && !seen[iface.name]) {
+				seen[iface.name] = true;
+				// ucode-lsp disable-next-line incompatible-function-argument   # managed is an array
+				push(managed, iface.name);
+			}
+		}
+	}
+
+	// A pure-removal run (every interface state=absent and no managed
+	// interfaces) has nothing to keep or apply an identity key to. Skip key
+	// resolution/generation entirely so a cleanup does not spin a fresh key or
+	// report a spurious change.
+	let any_present = false;
+	for (let iface in interfaces) {
+		let st = iface.state != null ? iface.state : args.state;
+		if (st != 'absent') {
+			any_present = true;
+			break;
+		}
+	}
+	let need_key = any_present || length(managed) > 0;
+
 	// Phase 1: identity key (once, shared across all interfaces on the host).
-	let identity = resolve_identity(u, managed, force_rekey, proto);
-	result.public_key = identity.public_key;
+	let identity = need_key ? resolve_identity(u, managed, force_rekey, proto) : null;
+	result.public_key = identity != null ? identity.public_key : '';
 
 	// Ensure the identity key is applied to every managed interface, even those
 	// not being (re)configured below.
+	if (need_key) {
 	for (let mname in managed) {
 		// ucode-lsp disable-next-line UC5006   # u != null (cursor) guarded by fail_json
 		let cur = u.get('network', mname, 'private_key');
@@ -245,11 +275,12 @@ try {
 			let sec = u.get_all('network', mname);
 			if (sec != null)
 				before = ac.strip_meta(sec);
+			// ucode-lsp disable-next-line UC5006   # identity non-null when need_key
 			if (before['private_key'] != identity.key) {
 				if (sec == null)
 					// ucode-lsp disable-next-line UC5006   # u != null (cursor) guarded by fail_json
 					u.set('network', mname, 'interface');
-				// ucode-lsp disable-next-line UC5006   # u != null (cursor) guarded by fail_json
+				// ucode-lsp disable-next-line UC5006   # identity non-null when need_key
 				u.set('network', mname, 'private_key', identity.key);
 				if (!check_mode)
 					// ucode-lsp disable-next-line UC5006   # u != null (cursor) guarded by fail_json
@@ -257,6 +288,7 @@ try {
 				result.changed = true;
 			}
 		}
+	}
 	}
 
 	// Phase 2: interface sections + tuning. Each interface entry has a state
@@ -266,8 +298,8 @@ try {
 
 	for (let iface in interfaces) {
 		let name = iface.name;
-		let iproto = iface.proto != null ? iface.proto : 'wireguard';
-		let state = iface.state != null ? iface.state : 'present';
+		let iproto = iface.proto != null ? iface.proto : args.proto;
+		let state = iface.state != null ? iface.state : args.state;
 
 		if (state == 'absent') {
 			let removed = delete_interface(u, name, iproto, manage_firewall, iface.listen_port);
@@ -350,7 +382,7 @@ try {
 	let peers = args.peers != null ? args.peers : [];
 	for (let pr in peers) {
 		let iface = pr.iface;
-		let pproto = pr.proto != null ? pr.proto : 'wireguard';
+		let pproto = pr.proto != null ? pr.proto : args.proto;
 		if (pproto != 'wireguard' && pproto != 'amneziawg')
 			ac.fail_json(result, `unsupported proto "${pproto}" for peer on ${iface}; only wireguard and amneziawg are supported`);
 

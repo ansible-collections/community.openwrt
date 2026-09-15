@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - wg_interface - with ``state=absent``, peer sections are now removed even when the interface's protocol is not specified; a removal-only run no longer generates an identity key or reports a spurious change (https://github.com/ansible-collections/community.openwrt/pull/<PR>).

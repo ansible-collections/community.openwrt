@@ -15,10 +15,12 @@ import * as ac from './_ansible_common.uc';
 
 // Declaratively validate/coerce the expected arguments.
 let ARGS_SPEC = {
+	proto: { type: 'str', choices: ['wireguard', 'amneziawg'] },
+	state: { type: 'str', choices: ['present', 'absent'], default: 'present' },
 	peers: { type: 'list', options: {
 		iface: { type: 'str', required: true },
 		proto: { type: 'str' },
-		state: { type: 'str', choices: ['present', 'absent'], default: 'present' },
+		state: { type: 'str', choices: ['present', 'absent'] },
 		section: { type: 'str' },
 		description: { type: 'str' },
 		public_key: { type: 'str' },
@@ -62,11 +64,21 @@ function interface_proto(u, iface) {
 	return 'wireguard';
 }
 
+// Resolve a peer's proto: the peer's own proto, else the module-wide proto,
+// else the interface section's proto, else wireguard.
+function peer_proto(u, iface, peer) {
+	if (peer.proto != null)
+		return peer.proto;
+	if (args.proto != null)
+		return args.proto;
+	return interface_proto(u, iface);
+}
+
 // Write one peer section of type <proto>_<iface>.
 function upsert_peer(u, iface, peer) {
 	// Derive the peer proto from the interface section when not given, so the
 	// peer section type matches the interface (e.g. amneziawg_awg1).
-	let proto = peer.proto != null ? peer.proto : interface_proto(u, iface);
+	let proto = peer_proto(u, iface, peer);
 	if (proto != 'wireguard' && proto != 'amneziawg')
 		ac.fail_json(result, `unsupported proto "${proto}" for peer ${iface}; only wireguard and amneziawg are supported`);
 	let sid = peer_sid(iface, peer, proto);
@@ -119,8 +131,8 @@ try {
 
 	for (let p in peers) {
 		let iface = p.iface;
-		let proto = p.proto != null ? p.proto : interface_proto(u, iface);
-		let state = p.state != null ? p.state : 'present';
+		let proto = peer_proto(u, iface, p);
+		let state = p.state != null ? p.state : args.state;
 
 		if (state == 'absent') {
 			let sid = peer_sid(iface, p, proto);

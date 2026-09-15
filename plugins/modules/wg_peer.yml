@@ -22,6 +22,22 @@ DOCUMENTATION:
       support: full
       platforms: OpenWrt
   options:
+    proto:
+      description:
+        - Module-wide protocol, used as the default for every peer whose own C(proto)
+          is not set.
+        - Falls back to the interface section's C(proto) (then C(wireguard)) when the
+          peer's C(proto) and this option are both unset.
+      type: str
+      choices: [wireguard, amneziawg]
+    state:
+      description:
+        - Module-wide state, used as the default for every peer whose own C(state)
+          is not set.
+        - An explicitly-set C(state) on an individual peer overrides this.
+      type: str
+      choices: [present, absent]
+      default: present
     peers:
       description:
         - List of peer configurations to write.
@@ -38,9 +54,9 @@ DOCUMENTATION:
           description:
             - Whether the peer section should be present or absent.
             - When C(absent), the peer section is removed.
+            - Defaults to the module-wide O(state) when not set.
           type: str
           choices: [present, absent]
-          default: present
         section:
           description:
             - Peer section suffix, available as C(section) in the O(peer_id_tpl) template
@@ -49,10 +65,10 @@ DOCUMENTATION:
         proto:
           description:
             - Peer protocol; the peer section type becomes C(<proto>_<iface>).
-            - Defaults to the interface's C(proto) when not specified.
+            - Defaults to the module-wide O(proto), then the interface's C(proto), then
+              C(wireguard) when not set.
           type: str
           choices: [wireguard, amneziawg]
-          default: wireguard
         public_key:
           description:
             - Peer public key.

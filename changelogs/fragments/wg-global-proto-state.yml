@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - wg_interface - add module-wide ``proto`` and ``state`` options that act as defaults for the per-interface values (https://github.com/ansible-collections/community.openwrt/pull/<PR>).
+  - wg_peer - add module-wide ``proto`` and ``state`` options that act as defaults for the per-peer values (https://github.com/ansible-collections/community.openwrt/pull/<PR>).
