@@ -16,6 +16,7 @@ const module = AnsibleModule({
         force_broken_world: { type: 'bool', default: false },
         allow_untrusted:    { type: 'bool', default: false },
     },
+    mutually_exclusive: [ [ 'update_cache', 'no_cache' ] ],
     supports_check_mode: true,
 });
 
@@ -131,9 +132,6 @@ function remove_packages(pkgs) {
 // ---- main -----------------------------------------------------------------
 
 result.update({ rc: 0, stdout: '', stderr: '' });
-
-if (params.update_cache && params.no_cache)
-    module.fail_json('update_cache and no_cache parameters are mutually exclusive');
 
 let packages = requested_packages();
 
