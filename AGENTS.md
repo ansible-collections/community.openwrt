@@ -44,7 +44,7 @@
 The collection also ships ucode modules (`plugins/modules/*.uc`), which run
 with OpenWrt's native `ucode` interpreter. Before writing one, read
 `docs/docsite/rst/ucode.rst` — it links the official ucode docs and records the rules that apply
-on the supported OpenWrt releases (note the 25.12.x version caveats, e.g. no forward
+on the supported OpenWrt releases (note the 25.12.x version caveats, for example no forward
 declarations). See also `docs/docsite/rst/mod_dev_guide.rst`.
 
 Lint ucode modules with `node tests/uc-lint.mjs` (or the `ucode_lint` nox session /
