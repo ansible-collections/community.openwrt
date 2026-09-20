@@ -43,9 +43,7 @@ A ucode module is a ``.uc`` file in ``plugins/modules/`` plus a ``.yml`` sidecar
 ``ARGV[0]``, and the module prints a JSON result on ``stdout``.
 
 The reusable action base at ``plugins/plugin_utils/ucode_action.py``
-(``UcodeOpenwrtActionBase``) transfers the module and its helper library into the same remote
-directory so the module's relative import resolves, then executes ``ucode <module> <args>`` and
-parses the JSON result. No shell wrapper is involved.
+(``UcodeOpenwrtActionBase``) MUST be used by all ucode modules, otherwise Ansible is unable to execute `ucode`.
 
 Hard-learned ucode rules
 ------------------------
