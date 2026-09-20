@@ -43,6 +43,15 @@ function abort(msg) {
     emit({ failed: true, changed: false, msg: msg });
 }
 
+// Interpret the argument of exit_json()/fail_json(): a dict contributes its
+// fields to the result, anything else stands for the message.
+function result_fields(extra) {
+    if (extra == null)
+        return {};
+
+    return type(extra) == 'object' ? { ...extra } : { msg: sprintf('%s', extra) };
+}
+
 // ---- argument parsing -----------------------------------------------------
 
 // Read and parse the arguments file whose path Ansible passes as ARGV[0].
@@ -331,14 +340,15 @@ export function AnsibleModule(opts) {
         emit({ changed: false, failed: false, skipped: true,
                msg: 'remote module does not support check mode' });
 
-    // Print the accumulated result, with `extra` merged on top, and exit.
+    // Print the accumulated result and exit. Takes a dict of fields to merge
+    // on top of it, or a message.
     let exit_json = function(extra) {
-        emit(result.render(extra));
+        emit(result.render(result_fields(extra)));
     };
 
     // Print a failed result and exit. Takes a dict of fields or a message.
     let fail_json = function(extra) {
-        let fields = type(extra) == 'object' ? { ...extra } : { msg: sprintf('%s', extra) };
+        let fields = result_fields(extra);
         fields.failed = true;
         emit(result.render(fields));
     };
