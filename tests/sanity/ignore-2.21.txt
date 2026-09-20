@@ -1,5 +1,4 @@
-plugins/modules/apk.sh shebang
-plugins/modules/apk.sh validate-modules:invalid-extension
+plugins/modules/apk.uc validate-modules:invalid-extension
 plugins/modules/command.sh shebang
 plugins/modules/command.sh validate-modules:invalid-extension
 plugins/modules/copy.sh shebang
@@ -45,7 +44,6 @@ plugins/module_utils/_file.sh shellcheck:SC2119   # Use `foo "$@"` if function's
 plugins/module_utils/_file.sh shellcheck:SC2120   # foo references arguments, but none are ever passed - https://www.shellcheck.net/wiki/SC2120
 plugins/module_utils/_file.sh shellcheck:SC2155   # Declare and assign separately to avoid masking return values - https://www.shellcheck.net/wiki/SC2155
 plugins/module_utils/_file.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166
-plugins/modules/apk.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
 plugins/modules/copy.sh shellcheck:SC2016   # Expressions don't expand in single quotes, use double quotes for that - https://www.shellcheck.net/wiki/SC2016
 plugins/modules/copy.sh shellcheck:SC2059   # Don't use variables in the `printf` format string. Use `printf "..%s.." "$foo"` - https://www.shellcheck.net/wiki/SC2059
 plugins/modules/copy.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
