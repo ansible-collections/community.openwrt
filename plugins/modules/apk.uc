@@ -3,11 +3,6 @@
 // GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// apk — manage packages with the apk package manager (OpenWrt 25.12+).
-//
-// ucode counterpart of the shell implementation, executed through
-// ucode_wrapper.sh. The documentation lives in apk.py.
-
 import { stat } from 'fs';
 import { AnsibleModule } from 'basic';
 

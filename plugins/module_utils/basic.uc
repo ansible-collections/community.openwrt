@@ -234,41 +234,14 @@ function build_params(args, argument_spec) {
     return params;
 }
 
-// ---- result ---------------------------------------------------------------
-
-// The module result. ucode has no private fields, so the accumulated data lives
-// in a closure variable reachable only through these methods: module code can
-// read and amend the result, but cannot replace or corrupt it wholesale.
 function Result() {
     let data = { changed: false, failed: false, msg: '' };
 
     return {
-        // Return the value of a field.
-        get: function(key) {
-            return data[key];
-        },
-
-        // Add or modify a field.
-        set: function(key, value) {
-            data[key] = value;
-        },
-
         // Add or modify several fields at once.
         update: function(fields) {
             for (let key in fields)
                 data[key] = fields[key];
-        },
-
-        // Remove a field.
-        unset: function(key) {
-            delete data[key];
-        },
-
-        // Append to a list field, creating the list when absent.
-        append: function(key, value) {
-            if (type(data[key]) != 'array')
-                data[key] = [];
-            push(data[key], value);
         },
 
         // Mark the result as changed, or pass false to clear the flag.
