@@ -291,6 +291,20 @@ function build_params(args, argument_spec) {
 
 // ---- cross-parameter checks -----------------------------------------------
 
+// What the caller actually passed, keyed by canonical name. Defaults are no
+// part of it.
+function supplied_params(args, argument_spec) {
+    let aliases = alias_map(argument_spec);
+    let supplied = {};
+
+    for (let name in argument_spec) {
+        let value = supplied_value(args, name, aliases);
+        if (value != null)
+            supplied[name] = value;
+    }
+    return supplied;
+}
+
 // How many of `names` were supplied.
 function count_present(names, params) {
     let count = 0;
@@ -381,13 +395,26 @@ function check_required_if(requirements, params, errors) {
     }
 }
 
-// Run the checks that look at more than one parameter at a time. They are
-// declared alongside the argument spec, as in Python.
+// Mutual exclusion is checked against what the caller passed, before any
+// default is applied, so that a parameter which merely declares a default does
+// not count as given. Ansible runs this check first, for the same reason.
+function check_exclusions(supplied, opts) {
+    if (opts.mutually_exclusive == null)
+        return;
+
+    let errors = [];
+    check_mutually_exclusive(opts.mutually_exclusive, supplied, errors);
+
+    if (length(errors) > 0)
+        abort(join('; ', errors));
+}
+
+// The remaining checks run once the parameters are complete, so a parameter
+// holding its default counts as present - again as Ansible does, where these
+// checks happen after the defaults are filled in.
 function check_parameter_relations(params, opts) {
     let errors = [];
 
-    if (opts.mutually_exclusive != null)
-        check_mutually_exclusive(opts.mutually_exclusive, params, errors);
     if (opts.required_together != null)
         check_required_together(opts.required_together, params, errors);
     if (opts.required_one_of != null)
@@ -496,7 +523,11 @@ export function AnsibleModule(opts) {
         opts = {};
 
     let args = load_args();
-    let params = build_params(args, opts.argument_spec != null ? opts.argument_spec : {});
+    let argument_spec = opts.argument_spec != null ? opts.argument_spec : {};
+
+    check_exclusions(supplied_params(args, argument_spec), opts);
+
+    let params = build_params(args, argument_spec);
     check_parameter_relations(params, opts);
     let check_mode = truthy(args._ansible_check_mode);
     let result = Result();
