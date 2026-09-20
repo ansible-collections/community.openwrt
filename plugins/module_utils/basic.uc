@@ -174,6 +174,42 @@ function supplied_value(args, name, aliases) {
     return null;
 }
 
+// The name Ansible uses for the type of `value` when reporting a conversion
+// failure, rather than the name ucode uses internally.
+function native_type_name(value) {
+    switch (type(value)) {
+    case 'string': return 'str';
+    case 'double': return 'float';
+    case 'array':  return 'list';
+    case 'object': return 'dict';
+    case null:     return 'NoneType';
+    }
+    return type(value);
+}
+
+// Whether `value` is among the values a parameter is allowed to take.
+function in_choices(value, choices) {
+    for (let choice in choices)
+        if (choice == value)
+            return true;
+    return false;
+}
+
+// Convert every item of a list parameter to the type declared in `elements`.
+function coerce_elements(name, values, want, errors) {
+    let items = [];
+    for (let value in values) {
+        let conv = coerce(value, want);
+        if (!conv.ok) {
+            push(errors, sprintf("Elements value for option '%s' is of type %s and we were unable to convert to %s: %J",
+                                 name, native_type_name(value), want, value));
+            continue;
+        }
+        push(items, conv.value);
+    }
+    return items;
+}
+
 // Validate `args` against `argument_spec` and return the parameter map, keyed
 // by canonical name. Parameters the caller did not set are present with a null
 // value, mirroring AnsibleModule's None. Terminates the module on failure.
@@ -211,9 +247,14 @@ function build_params(args, argument_spec) {
 
         let conv = coerce(value, want);
         if (!conv.ok) {
-            push(errors, sprintf('cannot convert %J to %s for parameter %s', value, want, name));
+            push(errors, sprintf("argument '%s' is of type %s and we were unable to convert to %s: %J",
+                                 name, native_type_name(value), want, value));
             continue;
         }
+
+        if (want == 'list' && spec.elements != null)
+            conv.value = coerce_elements(name, conv.value, spec.elements, errors);
+
         params[name] = conv.value;
     }
 
@@ -225,14 +266,19 @@ function build_params(args, argument_spec) {
         if (choices == null || params[name] == null)
             continue;
 
-        let allowed = false;
-        for (let i = 0; i < length(choices); i++) {
-            if (choices[i] == params[name]) {
-                allowed = true;
-                break;
-            }
+        if (type(params[name]) == 'array') {
+            let rejected = [];
+            for (let item in params[name])
+                if (!in_choices(item, choices))
+                    push(rejected, item);
+
+            if (length(rejected) > 0)
+                push(errors, sprintf('value of %s must be one or more of: %s. Got no match for: %s',
+                                     name, join(', ', choices), join(', ', rejected)));
+            continue;
         }
-        if (!allowed)
+
+        if (!in_choices(params[name], choices))
             push(errors, sprintf('value of %s must be one of: %s, got: %s',
                                  name, join(', ', choices), params[name]));
     }
@@ -241,6 +287,118 @@ function build_params(args, argument_spec) {
         abort(join('; ', errors));
 
     return params;
+}
+
+// ---- cross-parameter checks -----------------------------------------------
+
+// How many of `names` were supplied.
+function count_present(names, params) {
+    let count = 0;
+    for (let name in names)
+        if (params[name] != null)
+            count++;
+    return count;
+}
+
+// Which of `names` were not supplied, in the order declared.
+function missing_from(names, params) {
+    let missing = [];
+    for (let name in names)
+        if (params[name] == null)
+            push(missing, name);
+    return missing;
+}
+
+// At most one parameter of each group may be given.
+function check_mutually_exclusive(groups, params, errors) {
+    let clashing = [];
+    for (let group in groups)
+        if (count_present(group, params) > 1)
+            push(clashing, join('|', group));
+
+    if (length(clashing) > 0)
+        push(errors, 'parameters are mutually exclusive: ' + join(', ', clashing));
+}
+
+// Every parameter of a group is required as soon as one of them is given.
+function check_required_together(groups, params, errors) {
+    for (let group in groups) {
+        if (count_present(group, params) == 0)
+            continue;
+
+        let missing = missing_from(group, params);
+        if (length(missing) > 0)
+            push(errors, 'parameters are required together: ' + join(', ', group));
+    }
+}
+
+// At least one parameter of each group is required.
+function check_required_one_of(groups, params, errors) {
+    for (let group in groups)
+        if (count_present(group, params) == 0)
+            push(errors, 'one of the following is required: ' + join(', ', group));
+}
+
+// Parameters that another parameter requires as soon as it is given.
+function check_required_by(requirements, params, errors) {
+    for (let name in requirements) {
+        if (params[name] == null)
+            continue;
+
+        let required = requirements[name];
+        if (type(required) != 'array')
+            required = [ required ];
+
+        let missing = missing_from(required, params);
+        if (length(missing) > 0)
+            push(errors, sprintf("missing parameter(s) required by '%s': %s", name, join(', ', missing)));
+    }
+}
+
+// Parameters required when another parameter holds a given value. Each entry is
+// [ name, value, [ required... ] ] and takes an optional fourth element: when
+// true, only one of the required parameters has to be given.
+function check_required_if(requirements, params, errors) {
+    for (let req in requirements) {
+        let name = req[0];
+        let value = req[1];
+        let required = req[2];
+        let one_of = length(req) > 3 ? req[3] : false;
+
+        if (params[name] == null || params[name] != value)
+            continue;
+
+        let missing = missing_from(required, params);
+        if (length(missing) == 0)
+            continue;
+
+        // With `one_of`, the check only fails when none of them was given.
+        if (one_of && length(missing) < length(required))
+            continue;
+
+        push(errors, sprintf('%s is %s but %s of the following are missing: %s',
+                             name, value, one_of ? 'any' : 'all', join(', ', missing)));
+    }
+}
+
+// Run the checks that look at more than one parameter at a time. They are
+// declared alongside the argument spec, as in Python.
+function check_parameter_relations(params, opts) {
+    let errors = [];
+
+    if (opts.mutually_exclusive != null)
+        check_mutually_exclusive(opts.mutually_exclusive, params, errors);
+    if (opts.required_together != null)
+        check_required_together(opts.required_together, params, errors);
+    if (opts.required_one_of != null)
+        check_required_one_of(opts.required_one_of, params, errors);
+    if (opts.required_if != null)
+        check_required_if(opts.required_if, params, errors);
+    if (opts.required_by != null)
+        check_required_by(opts.required_by, params, errors);
+
+    if (length(errors) > 0)
+        abort(join('; ', errors));
 }
 
 function Result() {
@@ -325,14 +483,21 @@ function stderr_file() {
 // ---- module object --------------------------------------------------------
 
 // Build the module object. Recognized options:
-//   argument_spec        parameter definitions (type, required, default, choices)
+//   argument_spec        parameter definitions (type, elements, required, default,
+//                        choices, aliases)
 //   supports_check_mode  whether the module honours check mode (default false)
+//   mutually_exclusive   groups of parameters of which at most one may be given
+//   required_together    groups of parameters that must be given together
+//   required_one_of      groups of parameters of which at least one is required
+//   required_if          [ name, value, [ required... ], one_of? ] conditions
+//   required_by          parameters required by another parameter being given
 export function AnsibleModule(opts) {
     if (opts == null)
         opts = {};
 
     let args = load_args();
     let params = build_params(args, opts.argument_spec != null ? opts.argument_spec : {});
+    check_parameter_relations(params, opts);
     let check_mode = truthy(args._ansible_check_mode);
     let result = Result();
 
