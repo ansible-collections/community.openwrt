@@ -179,9 +179,7 @@ the reference examples work.</p></li>
 <code class="docutils literal notranslate"><span class="pre">non_native_want_json</span></code> scripts: Ansible passes the args as a JSON file whose path is
 <code class="docutils literal notranslate"><span class="pre">ARGV[0]</span></code>, and the module prints a JSON result on <code class="docutils literal notranslate"><span class="pre">stdout</span></code>.</p>
 <p>The reusable action base at <code class="docutils literal notranslate"><span class="pre">plugins/plugin_utils/ucode_action.py</span></code>
-(<code class="docutils literal notranslate"><span class="pre">UcodeOpenwrtActionBase</span></code>) transfers the module and its helper library into the same remote
-directory so the module’s relative import resolves, then executes <code class="docutils literal notranslate"><span class="pre">ucode</span> <span class="pre">&lt;module&gt;</span> <span class="pre">&lt;args&gt;</span></code> and
-parses the JSON result. No shell wrapper is involved.</p>
+(<code class="docutils literal notranslate"><span class="pre">UcodeOpenwrtActionBase</span></code>) MUST be used by all ucode modules, otherwise Ansible is unable to execute <a class="reference internal" href="#"><span class="doc">Ucode reference</span></a>.</p>
 </section>
 <section id="hard-learned-ucode-rules">
 <h2>Hard-learned ucode rules<a class="headerlink" href="#hard-learned-ucode-rules" title="Link to this heading"></a></h2>
