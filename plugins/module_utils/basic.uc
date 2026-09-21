@@ -150,6 +150,12 @@ function truthy(value) {
     return conv.ok ? conv.value : false;
 }
 
+// Interpret an Ansible-supplied number (_ansible_verbosity).
+function numeric(value) {
+    let conv = coerce(value, 'int');
+    return conv.ok ? conv.value : 0;
+}
+
 // Map every declared alias to the parameter name it stands for.
 function alias_map(argument_spec) {
     let aliases = {};
@@ -594,6 +600,7 @@ export function AnsibleModule(opts) {
         params: params,
         check_mode: check_mode,
         diff_mode: truthy(args._ansible_diff),
+        verbosity: numeric(args._ansible_verbosity),
         result: result,
 
         // Record a deprecation, reported by ansible-core once the module ends.
