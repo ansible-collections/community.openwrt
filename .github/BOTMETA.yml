@@ -22,9 +22,9 @@ files:
     ignored: gekmihesg
     maintainers: $team_repo_mgrs
   $modules/apk.uc:
-    maintainers: kbialek
+    maintainers: kbialek russoz
   $modules/apk.yml:
-    maintainers: kbialek
+    maintainers: kbialek russoz
   $modules/command.uc:
     maintainers: $team_repo_mgrs
   $modules/command.yml:
