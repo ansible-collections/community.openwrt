@@ -8,16 +8,18 @@ from unittest import mock
 
 from ansible.plugins.action.wait_for_connection import ActionModule as WaitForConnectionActionModule
 
-from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import OpenwrtActionBase
+from ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action import UCodeActionBase
 
 
-class ActionModule(OpenwrtActionBase, WaitForConnectionActionModule):
+class ActionModule(UCodeActionBase, WaitForConnectionActionModule):
+    module_utils = ["basic"]
+
     def run(self, tmp=None, task_vars=None):
         _orig_execute_module = self._execute_module
 
         def _execute_module(module_name=None, module_args=None, task_vars=None, **kwargs):
             if module_name == "ansible.legacy.ping":
-                return self._run_shell_module("ping", {}, task_vars)
+                return self._run_ucode_module("ping", {}, task_vars)
             return _orig_execute_module(module_name=module_name, module_args=module_args, task_vars=task_vars, **kwargs)
 
         with mock.patch.object(self, "_execute_module", _execute_module):

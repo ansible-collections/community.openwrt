@@ -1,6 +1,5 @@
 plugins/modules/apk.uc validate-modules:invalid-extension
-plugins/modules/command.sh shebang
-plugins/modules/command.sh validate-modules:invalid-extension
+plugins/modules/command.uc validate-modules:invalid-extension
 plugins/modules/copy.sh shebang
 plugins/modules/copy.sh validate-modules:invalid-extension
 plugins/modules/file.sh shebang
@@ -11,12 +10,10 @@ plugins/modules/lineinfile.sh shebang
 plugins/modules/lineinfile.sh validate-modules:invalid-extension
 plugins/modules/nohup.sh shebang
 plugins/modules/nohup.sh validate-modules:invalid-extension
-plugins/modules/opkg.sh shebang
-plugins/modules/opkg.sh validate-modules:invalid-extension
+plugins/modules/opkg.uc validate-modules:invalid-extension
 plugins/modules/package_facts.sh shebang
 plugins/modules/package_facts.sh validate-modules:invalid-extension
-plugins/modules/ping.sh shebang
-plugins/modules/ping.sh validate-modules:invalid-extension
+plugins/modules/ping.uc validate-modules:invalid-extension
 plugins/modules/service.sh shebang
 plugins/modules/service.sh validate-modules:invalid-extension
 plugins/modules/setup.sh shebang
@@ -56,9 +53,6 @@ plugins/modules/file.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a
 plugins/modules/lineinfile.sh shellcheck:SC2015   # Note that `A && B || C` is not if-then-else. C may run when A is true - https://www.shellcheck.net/wiki/SC2015
 plugins/modules/lineinfile.sh shellcheck:SC2016   # Expressions don't expand in single quotes, use double quotes for that - https://www.shellcheck.net/wiki/SC2016
 plugins/modules/lineinfile.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166
-plugins/modules/opkg.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
-plugins/modules/opkg.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166
-plugins/modules/ping.sh shellcheck:SC2319   # This `$?` refers to a condition, not a command. Assign to a variable to avoid it being overwritten - https://www.shellcheck.net/wiki/SC2319
 plugins/modules/setup.sh shellcheck:SC2012   # Use `find` instead of `ls` to better handle non-alphanumeric filenames - https://www.shellcheck.net/wiki/SC2012
 plugins/modules/setup.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
 plugins/modules/setup.sh shellcheck:SC2155   # Declare and assign separately to avoid masking return values - https://www.shellcheck.net/wiki/SC2155

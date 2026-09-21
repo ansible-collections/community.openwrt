@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import OpenwrtActionBase
+from ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action import UCodeActionBase
 
 
-class ActionModule(OpenwrtActionBase):
-    pass
+class ActionModule(UCodeActionBase):
+    module_utils = ["basic"]

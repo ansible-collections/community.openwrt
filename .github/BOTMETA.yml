@@ -25,9 +25,9 @@ files:
     maintainers: kbialek
   $modules/apk.yml:
     maintainers: kbialek
-  $modules/command.py:
+  $modules/command.uc:
     maintainers: $team_repo_mgrs
-  $modules/command.sh:
+  $modules/command.yml:
     maintainers: $team_repo_mgrs
   $modules/copy.py:
     maintainers: $team_repo_mgrs
@@ -45,13 +45,13 @@ files:
     maintainers: $team_repo_mgrs
   $modules/nohup.sh:
     maintainers: $team_repo_mgrs
-  $modules/opkg.py:
+  $modules/opkg.uc:
     maintainers: $team_repo_mgrs
-  $modules/opkg.sh:
+  $modules/opkg.yml:
     maintainers: $team_repo_mgrs
-  $modules/ping.py:
+  $modules/ping.uc:
     maintainers: $team_repo_mgrs
-  $modules/ping.sh:
+  $modules/ping.yml:
     maintainers: $team_repo_mgrs
   $modules/service.py:
     maintainers: $team_repo_mgrs
@@ -86,6 +86,8 @@ files:
   $modules/ucode_wrapper.sh:
     maintainers: $team_repo_mgrs
   $modules/ucode_wrapper.yml:
+    maintainers: $team_repo_mgrs
+  $modules/wait_for_connection.yml:
     maintainers: $team_repo_mgrs
   $modules/wrapper.sh:
     maintainers: $team_repo_mgrs
