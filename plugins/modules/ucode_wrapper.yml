@@ -18,8 +18,6 @@ DOCUMENTATION:
     - This module is part of the internal implementation of the community.openwrt collection.
     - It should not be invoked directly in playbooks.
     - All ucode-based OpenWrt modules use this wrapper mechanism internally.
-  seealso:
-    - module: community.openwrt.uc_uci
   author:
     - Alexei Znamensky (@russoz)
 
