@@ -135,7 +135,7 @@ result.update({ rc: 0, stdout: '', stderr: '' });
 
 let packages = requested_packages();
 
-if (params.state == 'present' || params.state == 'installed')
+if (params.state in ['present', 'installed'])
     install_packages(packages);
 else
     remove_packages(packages);
