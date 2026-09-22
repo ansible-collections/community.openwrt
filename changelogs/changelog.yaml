@@ -268,3 +268,21 @@ releases:
       - 253-init-role-failed-when.yml
       - 254-template-action-error-handling.yml
     release_date: '2026-09-08'
+  1.8.0:
+    changes:
+      bugfixes:
+        - uci - compare the current value before setting a scalar or dict option,
+          so that ``command=set``, ``command=ensure`` and ``command=section`` are
+          idempotent (https://github.com/ansible-collections/community.openwrt/issues/262,
+          https://github.com/ansible-collections/community.openwrt/pull/263).
+      minor_changes:
+        - package_facts - avoid a shellcheck ``SC2319`` warning when capturing a test's
+          exit status (https://github.com/ansible-collections/community.openwrt/pull/266).
+        - setup - avoid a shellcheck ``SC2319`` warning when capturing a test's exit
+          status (https://github.com/ansible-collections/community.openwrt/pull/266).
+      release_summary: Regular release.
+    fragments:
+      - 1.8.0.yml
+      - 262-uci-idempotent-set.yml
+      - 266-shellcheck-sc2319-exit-status.yml
+    release_date: '2026-09-22'
