@@ -21,7 +21,7 @@ const params = module.params;
 const result = module.result;
 
 // Whether a filename or glob pattern matches anything.
-function exists(pattern) {
+function file_exists(pattern) {
     let matches = glob(pattern);
     return matches != null && length(matches) > 0;
 }
@@ -45,10 +45,10 @@ result.update({ cmd: params.cmd, start: '', end: '', delta: '', stdout: '', stde
 if (params.chdir != null && !chdir(params.chdir))
     module.fail_json(`cd ${params.chdir}: unable to change directory`);
 
-if (params.creates != null && exists(params.creates))
+if (params.creates != null && file_exists(params.creates))
     module.exit_json({ stdout: `skipped, since ${params.creates} exists` });
 
-if (params.removes != null && !exists(params.removes))
+if (params.removes != null && !file_exists(params.removes))
     module.exit_json({ stdout: `skipped, since ${params.removes} does not exist` });
 
 let ts_start = time();
