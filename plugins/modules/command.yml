@@ -57,7 +57,7 @@ DOCUMENTATION:
         - If it does not exist, the command does not run.
       type: str
   notes:
-    - Starting with version 1.8.0 of this collection, this module is implemented in C(ucode).
+    - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 
 EXAMPLES: |
   - name: Run a simple command

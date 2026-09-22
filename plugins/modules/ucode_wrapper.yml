@@ -6,7 +6,7 @@
 DOCUMENTATION:
   module: ucode_wrapper
   short_description: Internal wrapper module for OpenWrt ucode-based modules
-  version_added: "1.8.0"
+  version_added: "1.9.0"
   description:
     - This is an internal module used by the OpenWrt collection's action plugins.
     - It serves as a runtime wrapper that executes ucode-based module scripts.
