@@ -1,0 +1,116 @@
+#!/usr/bin/python
+# Copyright (c) 2017 Markus Weippert
+# GNU General Public License v3.0 (see https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+from __future__ import annotations
+
+DOCUMENTATION = r"""
+module: opkg
+short_description: Manage packages with opkg on OpenWrt
+description:
+  - The M(community.openwrt.opkg) module manages packages on OpenWrt using the opkg package manager.
+  - It can install, remove, and update packages.
+author: Markus Weippert (@gekmihesg)
+extends_documentation_fragment:
+  - community.openwrt.attributes
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
+options:
+  name:
+    description:
+      - Name of the package(s) to install or remove.
+      - Multiple packages can be specified as a comma-separated list.
+    type: str
+    required: true
+    aliases:
+      - pkg
+  state:
+    description:
+      - Whether the package should be installed or removed.
+    type: str
+    choices:
+      - absent
+      - installed
+      - present
+      - removed
+    default: present
+  force:
+    description:
+      - Force option to pass to opkg.
+    type: str
+    choices:
+      - depends
+      - maintainer
+      - reinstall
+      - overwrite
+      - downgrade
+      - space
+      - postinstall
+      - remove
+      - checksum
+      - removal-of-dependent-packages
+  update_cache:
+    description:
+      - Update the package cache (C(opkg update)) before performing the operation.
+    type: bool
+  autoremove:
+    description:
+      - Remove dependencies that are no longer required when removing a package.
+    type: bool
+  nodeps:
+    description:
+      - Do not follow dependencies.
+    type: bool
+  conf_file:
+    description:
+      - Path to a custom opkg configuration file, passed to opkg as C(--conf).
+      - This replaces the default opkg configuration entirely instead of adding to it, so the file must define
+        its own C(dest) and C(lists_dir) entries in addition to any C(src) feed lines it needs.
+      - Useful on devices where the default opkg configuration does not provide the desired feeds (for example,
+        Teltonika firmware).
+    type: str
+    version_added: 1.7.0
+notes:
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
+"""
+
+EXAMPLES = r"""
+- name: Install a package
+  community.openwrt.opkg:
+    name: vim
+    state: present
+
+- name: Remove a package
+  community.openwrt.opkg:
+    name: vim
+    state: absent
+
+- name: Install multiple packages
+  community.openwrt.opkg:
+    name: vim,curl,wget
+    state: present
+
+- name: Update cache and install package
+  community.openwrt.opkg:
+    name: nginx
+    state: present
+    update_cache: true
+
+- name: Force reinstall a package
+  community.openwrt.opkg:
+    name: busybox
+    state: present
+    force: reinstall
+
+- name: Install a package using a custom opkg configuration file
+  community.openwrt.opkg:
+    name: python3-base
+    state: present
+    conf_file: /etc/opkg/openwrt.conf
+"""
+
+RETURN = r""""""

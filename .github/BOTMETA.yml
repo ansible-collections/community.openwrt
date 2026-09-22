@@ -21,13 +21,13 @@ files:
   $modules/:
     ignored: gekmihesg
     maintainers: $team_repo_mgrs
+  $modules/apk.py:
+    maintainers: kbialek russoz
   $modules/apk.uc:
     maintainers: kbialek russoz
-  $modules/apk.yml:
-    maintainers: kbialek russoz
-  $modules/command.uc:
+  $modules/command.py:
     maintainers: $team_repo_mgrs
-  $modules/command.yml:
+  $modules/command.uc:
     maintainers: $team_repo_mgrs
   $modules/copy.py:
     maintainers: $team_repo_mgrs
@@ -45,13 +45,13 @@ files:
     maintainers: $team_repo_mgrs
   $modules/nohup.sh:
     maintainers: $team_repo_mgrs
+  $modules/opkg.py:
+    maintainers: $team_repo_mgrs
   $modules/opkg.uc:
     maintainers: $team_repo_mgrs
-  $modules/opkg.yml:
+  $modules/ping.py:
     maintainers: $team_repo_mgrs
   $modules/ping.uc:
-    maintainers: $team_repo_mgrs
-  $modules/ping.yml:
     maintainers: $team_repo_mgrs
   $modules/service.py:
     maintainers: $team_repo_mgrs
@@ -86,8 +86,6 @@ files:
   $modules/ucode_wrapper.sh:
     maintainers: $team_repo_mgrs
   $modules/ucode_wrapper.yml:
-    maintainers: $team_repo_mgrs
-  $modules/wait_for_connection.yml:
     maintainers: $team_repo_mgrs
   $modules/wrapper.sh:
     maintainers: $team_repo_mgrs
