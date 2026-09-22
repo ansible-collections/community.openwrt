@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { chdir, glob } from 'fs';
-import { AnsibleModule } from 'basic';
+import { AnsibleModule, shell_quote } from 'basic';
 
 const module = AnsibleModule({
     argument_spec: {
@@ -19,11 +19,6 @@ const module = AnsibleModule({
 
 const params = module.params;
 const result = module.result;
-
-// Quote a string for use as a single shell word.
-function shell_quote(value) {
-    return `'${replace(sprintf('%s', value), /'/g, "'\\''")}'`;
-}
 
 // Whether a filename or glob pattern matches anything.
 function exists(pattern) {

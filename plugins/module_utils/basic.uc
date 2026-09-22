@@ -474,9 +474,9 @@ function Result() {
 // ---- command execution ----------------------------------------------------
 
 // Quote a value for use as a single shell word.
-function shell_quote(value) {
+export function shell_quote(value) {
     return `'${replace(sprintf('%s', value), /'/g, "'\\''")}'`;
-}
+};
 
 // Render the command line. An array is quoted element by element, so that no
 // argument is ever interpreted by the shell; a string is handed to the shell
