@@ -4,6 +4,25 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.8.0
+======
+
+Release Summary
+---------------
+
+Regular release.
+
+Minor Changes
+-------------
+
+- package_facts - avoid a shellcheck ``SC2319`` warning when capturing a test's exit status (https://github.com/ansible-collections/community.openwrt/pull/266).
+- setup - avoid a shellcheck ``SC2319`` warning when capturing a test's exit status (https://github.com/ansible-collections/community.openwrt/pull/266).
+
+Bugfixes
+--------
+
+- uci - compare the current value before setting a scalar or dict option, so that ``command=set``, ``command=ensure`` and ``command=section`` are idempotent (https://github.com/ansible-collections/community.openwrt/issues/262, https://github.com/ansible-collections/community.openwrt/pull/263).
+
 v1.7.0
 ======
 
