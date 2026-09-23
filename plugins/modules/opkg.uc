@@ -40,12 +40,7 @@ function is_installed(pkg) {
 
 // The packages to act upon, given as a comma-separated list.
 function requested_packages() {
-    let pkgs = [];
-    for (let pkg in split(params.name, ',')) {
-        if (pkg != '')
-            push(pkgs, pkg);
-    }
-    return pkgs;
+    return filter(split(params.name, ','), (pkg) => pkg != '');
 }
 
 // The options that go before the opkg sub-command.
