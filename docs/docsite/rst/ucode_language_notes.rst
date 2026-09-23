@@ -48,6 +48,18 @@ There is no ``undefined``: a key that is not there reads as ``null``, so ``value
 ``type()`` names the type of a value, and the names are not always the ones you expect: a string is
 ``string``, a floating point number is ``double``, an array is ``array`` and a dictionary is ``object``.
 
+Numbers
+^^^^^^^
+
+``+`` concatenates as soon as either side is a string, so ``"1.5" + 0.0`` is the string ``"1.50"`` and not
+the number ``1.5``. Nothing complains: you get a string where you expected a number, and only notice further
+down. Convert with unary plus instead - ``+"1.5"`` is the double ``1.5`` - and note that it reads a whole
+number as an ``int``, so add ``+ 0.0`` when you need a ``double``. Unary plus does not read a leading dot
+either: ``+".5"`` is ``NaN``, not ``0.5``.
+
+Dividing two integers yields an integer: ``7 / 2`` is ``3``, not ``3.5``. Make one side a double when you
+want the fraction.
+
 Errors
 ^^^^^^
 

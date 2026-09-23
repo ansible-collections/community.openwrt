@@ -86,7 +86,7 @@ function coerce(value, want) {
         return { ok: true, value: value };
 
     case 'str':
-        if (type(value) == 'object' || type(value) == 'array')
+        if (type(value) in [ 'object', 'array' ])
             return { ok: false };
         return { ok: true, value: sprintf('%s', value) };
 
@@ -98,9 +98,9 @@ function coerce(value, want) {
         case 'double':
             return { ok: true, value: value != 0 };
         case 'string':
-            if (value == 'true' || value == 'yes' || value == 'on' || value == '1')
+            if (lc(value) in [ 'y', 'yes', 'on', '1', 'true', 't' ])
                 return { ok: true, value: true };
-            if (value == 'false' || value == 'no' || value == 'off' || value == '0')
+            if (lc(value) in [ 'n', 'no', 'off', '0', 'false', 'f' ])
                 return { ok: true, value: false };
         }
         return { ok: false };
@@ -115,17 +115,19 @@ function coerce(value, want) {
         return { ok: false };
 
     case 'float':
-        if (type(value) == 'int' || type(value) == 'double')
+        if (type(value) in [ 'int', 'double' ])
             return { ok: true, value: value + 0.0 };
-        if (type(value) == 'string' && match(value, /^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)$/))
-            return { ok: true, value: value + 0.0 };
+        if (type(value) == 'string' && match(value, /^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)$/)) {
+            let number = replace(value, /^([+-]?)\./, (m, sign) => `${sign}0.`);
+            return { ok: true, value: +number + 0.0 };
+        }
         return { ok: false };
 
     case 'list':
         if (type(value) == 'array')
             return { ok: true, value: value };
         if (type(value) == 'string')
-            return { ok: true, value: split(value, ',') };
+            return { ok: true, value: map(split(value, ','), (item) => trim(item)) };
         return { ok: true, value: [ value ] };
 
     case 'dict':

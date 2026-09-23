@@ -114,8 +114,9 @@ Anatomy of a module
 A module is three files, all named after it. For ``apk`` they are:
 
 * ``plugins/modules/apk.uc`` - the implementation, which runs on the device;
-* ``plugins/modules/apk.yml`` - the documentation, as a YAML file holding ``DOCUMENTATION``, ``EXAMPLES`` and
-  ``RETURN``;
+* ``plugins/modules/apk.py`` or ``plugins/modules/apk.yml`` - the documentation, holding ``DOCUMENTATION``,
+  ``EXAMPLES`` and ``RETURN``: a Python file carrying nothing but those, or a YAML file of the same name.
+  ``ansible-core`` reads either;
 * ``plugins/action/apk.py`` - the action plugin, which runs on the control node.
 
 Write the action plugin first, since it is the shortest thing in the collection: derive it from
@@ -151,10 +152,10 @@ Give the module itself the shape below: declare the interface, do the work, repo
 
     module.exit_json();
 
-Document the module in the YAML file, as you would document any other Ansible module: ``version_added`` takes
-the version in ``galaxy.yml``, and the ``check_mode`` and ``diff_mode`` attributes state what the module
-actually supports. Keep that file in step with the ``argument_spec`` by hand - the two are not cross-checked,
-so a parameter renamed in one and not the other is only found by someone using it.
+Document the module as you would document any other Ansible module: ``version_added`` takes the version in
+``galaxy.yml``, and the ``check_mode`` and ``diff_mode`` attributes state what the module actually supports.
+Keep the documentation in step with the ``argument_spec`` by hand - the two are not cross-checked, so a
+parameter renamed in one and not the other is only found by someone using it.
 
 A new module also needs an entry in ``.github/BOTMETA.yml`` for each of its files, and an integration test
 target under ``tests/integration/targets/``.
@@ -425,7 +426,7 @@ A worked example
 ^^^^^^^^^^^^^^^^
 
 ``apk`` installs and removes packages, and is small enough to read in one sitting. Its three files are
-``plugins/modules/apk.uc``, ``plugins/modules/apk.yml`` and ``plugins/action/apk.py``.
+``plugins/modules/apk.uc``, its documentation, and ``plugins/action/apk.py``.
 
 It starts by declaring what it accepts, and keeps the two things it uses everywhere at hand:
 
