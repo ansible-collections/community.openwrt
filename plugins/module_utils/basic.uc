@@ -33,7 +33,10 @@ function emit(result) {
     if (result.failed == null)
         die('result is missing the "failed" status');
 
-    printf('%J\n', result);
+    // The leading newline keeps the result on a line of its own: ansible-core
+    // looks for the first line starting with '{', and anything sharing that
+    // line makes the result unparseable.
+    printf('\n%J\n', result);
     exit(result.failed ? 1 : 0);
 }
 
