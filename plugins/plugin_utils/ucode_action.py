@@ -59,6 +59,7 @@ class UCodeActionBase(ActionBase):
         self._transfer_module_file(module_path, tmp_dir)
         self._transfer_module_utils(tmp_dir)
 
+        module_args["_openwrt_module_name"] = self._task.action
         return self._execute_module(
             module_name="community.openwrt.ucode_wrapper",
             module_args=module_args,

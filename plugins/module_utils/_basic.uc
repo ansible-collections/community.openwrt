@@ -22,6 +22,7 @@
 import { dirname, popen, readfile, readlink, unlink } from 'fs';
 
 const ANSIBLE_PREFIX = '_ansible_';
+const OPENWRT_PREFIX = '_openwrt_';
 const COLLECTION_NAME = 'community.openwrt';
 
 // ---- result output --------------------------------------------------------
@@ -229,13 +230,20 @@ function build_params(args, argument_spec) {
 
     let unsupported = [];
     for (let name in args) {
-        if (substr(name, 0, length(ANSIBLE_PREFIX)) == ANSIBLE_PREFIX)
+        if (substr(name, 0, length(ANSIBLE_PREFIX)) == ANSIBLE_PREFIX ||
+            substr(name, 0, length(OPENWRT_PREFIX)) == OPENWRT_PREFIX)
             continue;
         if (argument_spec[name] == null && aliases[name] == null)
             push(unsupported, name);
     }
-    if (length(unsupported) > 0)
-        abort('Unsupported parameters: ' + join(', ', sort(unsupported)));
+    if (length(unsupported) > 0) {
+        let supported = join(', ', sort(keys(argument_spec)));
+        if (length(aliases) > 0)
+            supported += ` (${join(', ', sort(keys(aliases)))})`;
+        abort(sprintf('Unsupported parameters for (%s) module: %s. Supported parameters include: %s.',
+                      args._openwrt_module_name ?? args._ansible_module_name,
+                      join(', ', sort(unsupported)), supported));
+    }
 
     let params = {};
     let missing = [];
