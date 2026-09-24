@@ -901,7 +901,194 @@
       - uci_typed_values_read.operations[3].result == '3.14'
       - uci_typed_values_read.operations[4].result_list == ['1', '0', '123', '3.14']
 
-- name: "corner cases - remove temporary sections and options"
+- name: "batch - create a named section and option"
+  community.openwrt.uci:
+    command: batch
+    config: uhttpd
+    value: |
+      set uhttpd.uci_batch=uci_test
+      set uhttpd.uci_batch.marker='batched'
+    autocommit: true
+  register: uci_batch
+
+- name: "show - read the section created by batch"
+  community.openwrt.uci:
+    command: show
+    key: uhttpd.uci_batch
+  register: uci_show
+
+- name: "export - export the uhttpd configuration"
+  community.openwrt.uci:
+    command: export
+    config: uhttpd
+  register: uci_export
+
+- name: "batch, show and export - assert command behavior"
+  ansible.builtin.assert:
+    that:
+      - uci_batch is changed
+      - "'uhttpd.uci_batch' in uci_show.result"
+      - "'batched' in uci_show.result"
+      - "'package' in uci_export.result"
+      - "'uci_batch' in uci_export.result"
+      - "'batched' in uci_export.result"
+
+- name: "import - merge a named section into uhttpd"
+  community.openwrt.uci:
+    command: import
+    config: uhttpd
+    merge: true
+    value: |
+      config uci_test 'uci_import'
+        option marker 'imported'
+    autocommit: true
+  register: uci_import
+
+- name: "import - read the imported option"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.uci_import.marker
+  register: uci_import_read
+
+- name: "import - assert merged content"
+  ansible.builtin.assert:
+    that:
+      - uci_import is changed
+      - uci_import_read.result == 'imported'
+
+- name: "ensure - create a named section"
+  community.openwrt.uci:
+    command: ensure
+    key: uhttpd.uci_ensure
+    type: uci_test
+    value:
+      marker: ensured
+    autocommit: true
+  register: uci_ensure
+
+- name: "ensure - repeat the same section"
+  community.openwrt.uci:
+    command: ensure
+    key: uhttpd.uci_ensure
+    type: uci_test
+    value:
+      marker: ensured
+    autocommit: true
+  register: uci_ensure_idempotent
+
+- name: "ensure - assert idempotency"
+  ansible.builtin.assert:
+    that:
+      - uci_ensure is changed
+      - uci_ensure_idempotent is not changed
+
+- name: "rename - create the source section"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_rename_before
+    type: uci_test
+    value:
+      marker: renamed
+    autocommit: true
+
+- name: "rename - rename the section"
+  community.openwrt.uci:
+    command: rename
+    key: uhttpd.uci_rename_before
+    name: uci_rename_after
+    autocommit: true
+  register: uci_rename
+
+- name: "rename - read the renamed section"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.uci_rename_after.marker
+  register: uci_rename_read
+
+- name: "rename - verify the old section is absent"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.uci_rename_before
+  failed_when: false
+  register: uci_rename_old
+
+- name: "rename - assert section behavior"
+  ansible.builtin.assert:
+    that:
+      - uci_rename is changed
+      - uci_rename.section == 'uci_rename_after'
+      - uci_rename_read.result == 'renamed'
+      - uci_rename_old.result == ''
+      - "'uci get failed' in uci_rename_old.msg"
+
+- name: "reorder - add the first section"
+  community.openwrt.uci:
+    command: add
+    config: uhttpd
+    type: uci_order
+    name: uci_order_first
+    autocommit: true
+  register: uci_reorder_first
+
+- name: "reorder - mark the first section"
+  community.openwrt.uci:
+    command: set
+    key: "uhttpd.{{ uci_reorder_first.result }}.marker"
+    value: first
+    autocommit: true
+
+- name: "reorder - add the second section"
+  community.openwrt.uci:
+    command: add
+    config: uhttpd
+    type: uci_order
+    name: uci_order_second
+    autocommit: true
+  register: uci_reorder_second
+
+- name: "reorder - mark the second section"
+  community.openwrt.uci:
+    command: set
+    key: "uhttpd.{{ uci_reorder_second.result }}.marker"
+    value: second
+    autocommit: true
+
+- name: "reorder - move the first section to the bottom"
+  community.openwrt.uci:
+    command: reorder
+    key: "uhttpd.{{ uci_reorder_first.result }}"
+    value: 10000
+    autocommit: true
+  register: uci_reorder
+
+- name: "reorder - repeat the same position"
+  community.openwrt.uci:
+    command: reorder
+    key: "uhttpd.{{ uci_reorder_first.result }}"
+    value: 10000
+    autocommit: true
+  register: uci_reorder_idempotent
+
+- name: "reorder - find both sections after reordering"
+  community.openwrt.uci:
+    operations:
+      - command: find
+        key: uhttpd.uci_order.marker
+        find: first
+      - command: find
+        key: uhttpd.uci_order.marker
+        find: second
+  register: uci_reorder_read
+
+- name: "reorder - assert positional order and idempotency"
+  ansible.builtin.assert:
+    that:
+      - uci_reorder is changed
+      - uci_reorder_idempotent is not changed
+      - uci_reorder_read.operations[0].result == '@uci_order[1]'
+      - uci_reorder_read.operations[1].result == '@uci_order[0]'
+
+- name: "command coverage - remove temporary sections and options"
   community.openwrt.uci:
     autocommit: true
     operations:
@@ -921,3 +1108,15 @@
         key: uhttpd.main.uci_commit_second
       - command: delete
         key: uhttpd.main.uci_addresses
+      - command: delete
+        key: uhttpd.uci_batch
+      - command: delete
+        key: uhttpd.uci_import
+      - command: delete
+        key: uhttpd.uci_ensure
+      - command: delete
+        key: uhttpd.uci_rename_after
+      - command: delete
+        key: "uhttpd.{{ uci_reorder_first.result }}"
+      - command: delete
+        key: "uhttpd.{{ uci_reorder_second.result }}"

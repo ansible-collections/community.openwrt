@@ -476,9 +476,12 @@ function execute(u, op) {
 
     if (op.command in [ 'batch', 'import' ] && op.value == null)
         fail(`value required for ${op.command}`, result);
-    if (op.command in [ 'add_list', 'del_list', 'rename', 'reorder' ]
+    if (op.command in [ 'add_list', 'del_list', 'reorder' ]
         && (key.config == null || key.section == null || op.value == null))
         fail(`key and value required for ${op.command}`, result);
+    if (op.command == 'rename'
+        && (key.config == null || key.section == null || (op.name == null && op.value == null)))
+        fail('key and name or value required for rename', result);
 
     let before_section = key.section;
     if (op.command in [ 'section', 'ensure', 'add' ] && op.name != null)
@@ -522,9 +525,32 @@ function execute(u, op) {
     }
     case 'reorder': {
         let current = u.get_all(key.config, key.section);
-        if (current != null && current['.index'] != int(op.value)) {
-            cursor_call(u, u.reorder(key.config, key.section, int(op.value)),
-                        `cannot reorder ${key_name(key)}`, result);
+        let current_index = null;
+        let target_index = int(op.value);
+        if (current != null) {
+            let sections = u.get_all(key.config) ?? {};
+            let indexed = sections[current['.name']];
+            if (indexed != null)
+                current_index = indexed['.index'];
+            let last_index = length(keys(sections)) - 1;
+            if (target_index > last_index)
+                target_index = last_index;
+        }
+        if (current != null && current_index != null && current_index != target_index) {
+            if (module.check_mode) {
+                cursor_call(u, u.reorder(key.config, key.section, int(op.value)),
+                            `cannot reorder ${key_name(key)}`, result);
+            } else {
+                let response = module.run_command([ 'uci', 'reorder', `${key_name(key)}=${int(op.value)}` ]);
+                if (response.rc != 0)
+                    fail(trim(response.stderr), { ...result, ...response });
+                if (op.autocommit) {
+                    response = module.run_command([ 'uci', 'commit', key.config ]);
+                    if (response.rc != 0)
+                        fail(trim(response.stderr), { ...result, ...response });
+                }
+                u.unload(key.config);
+            }
             result.changed = true;
         }
         break;
@@ -642,7 +668,7 @@ function execute(u, op) {
         break;
     }
 
-    let stages_changes = !(op.command in [ 'commit', 'revert', 'changes', 'export', 'show', 'import', 'batch', 'get', 'find', 'find_all' ]);
+    let stages_changes = !(op.command in [ 'commit', 'revert', 'changes', 'export', 'show', 'import', 'batch', 'reorder', 'get', 'find', 'find_all' ]);
     let after_section = result.section ?? key.section;
     if (result.changed && stages_changes && key.config != null && after_section != null) {
         let after_state = section_values(u.get_all(key.config, after_section));
@@ -652,7 +678,7 @@ function execute(u, op) {
     if (result.changed && stages_changes && !module.check_mode)
         save_changes(u, key.config, result);
     if (result.changed && op.autocommit && !module.check_mode
-        && !(op.command in [ 'commit', 'revert', 'import', 'batch' ])) {
+        && !(op.command in [ 'commit', 'revert', 'import', 'batch', 'reorder' ])) {
         commit_changes(u, key.config, result);
     }
 
