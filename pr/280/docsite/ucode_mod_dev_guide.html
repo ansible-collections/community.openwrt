@@ -368,6 +368,8 @@ converted to it: <code class="docutils literal notranslate"><span class="pre">ye
 reaches a <code class="docutils literal notranslate"><span class="pre">list</span></code> parameter as an array, a JSON string reaches a <code class="docutils literal notranslate"><span class="pre">dict</span></code> parameter as an object, and
 <code class="docutils literal notranslate"><span class="pre">raw</span></code> takes the value as it comes. A value that cannot be converted fails the module.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">elements</span></code> - the type of the items of a <code class="docutils literal notranslate"><span class="pre">list</span></code> parameter, converted the same way.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">options</span></code> - a nested argument spec used to validate a <code class="docutils literal notranslate"><span class="pre">dict</span></code> parameter or each item of a <code class="docutils literal notranslate"><span class="pre">list</span></code> whose
+<code class="docutils literal notranslate"><span class="pre">elements</span></code> type is <code class="docutils literal notranslate"><span class="pre">dict</span></code>. Nested aliases, defaults, choices and further <code class="docutils literal notranslate"><span class="pre">options</span></code> are supported.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">required</span></code> - the module fails when the parameter is not supplied.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">default</span></code> - the value to use when the parameter is not supplied. Without one, the parameter is <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">choices</span></code> - the values the parameter may take; for a list, every item must be one of them.</p></li>
@@ -410,7 +412,6 @@ complete set, where a default does count. This is how <code class="docutils lite
 you nothing:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">no_log</span></code> does not redact anything. Keep secrets out of the result and out of anything you log.</p></li>
-<li><p>Sub-options - a nested <code class="docutils literal notranslate"><span class="pre">options</span></code> spec - are not validated. A <code class="docutils literal notranslate"><span class="pre">dict</span></code> parameter arrives as it was written.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fallback</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_defaults</span></code> and the <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">jsonarg</span></code>, <code class="docutils literal notranslate"><span class="pre">bytes</span></code> and <code class="docutils literal notranslate"><span class="pre">bits</span></code> types are not
 implemented.</p></li>
 <li><p>Parameters cannot be deprecated through the spec. Announce the deprecation with <code class="docutils literal notranslate"><span class="pre">module.deprecate()</span></code>
