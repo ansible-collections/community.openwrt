@@ -2,12 +2,12 @@
 // GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// basic.uc — ucode counterpart of Ansible's AnsibleModule.
+// _basic.uc — ucode counterpart of Ansible's AnsibleModule.
 //
 // ucode has no classes, so AnsibleModule() is a factory returning an object that
 // carries the parsed parameters together with the methods acting on them:
 //
-//   import { AnsibleModule } from 'basic';
+//   import { AnsibleModule } from '_basic';
 //
 //   const module = AnsibleModule({
 //           argument_spec: {

@@ -84,16 +84,17 @@ action plugin that runs on the control node. The action plugin is mandatory: ``a
 ``module_utils`` only for Python modules, so a ucode module's dependencies are transferred by its action
 plugin.
 
-Declare there every ucode module your module imports symbols from, apart from the ones bundled with the
-interpreter. Only what is declared gets transferred, so an import you did not declare may not be available on
-the target and the module fails. The form of that declaration is covered further down.
+Declare there every ucode module your module imports symbols from, apart from ``_basic``, which is always
+transferred, and the ones bundled with the interpreter. Nothing else reaches the target unless it is declared,
+so an import you did not declare may not be available there and the module fails. The form of that
+declaration is covered further down.
 
 What is declared lands in a temporary directory alongside the module, and the interpreter is started with those
 module utils on its search path, so a plain name resolves to one of them:
 
 .. code-block:: text
 
-    import { AnsibleModule } from 'basic';
+    import { AnsibleModule } from '_basic';
 
 Importing by path works as it does anywhere else - it names a file, and that file has to be on the target.
 
@@ -120,7 +121,7 @@ A module is three files, all named after it. For ``apk`` they are:
 * ``plugins/action/apk.py`` - the action plugin, which runs on the control node.
 
 Write the action plugin first, since it is the shortest thing in the collection: derive it from
-``UCodeActionBase`` and list the ucode modules to transfer.
+``UCodeActionBase`` and, if the module needs any module utils beyond ``_basic``, list them.
 
 .. code-block:: python
 
@@ -128,15 +129,16 @@ Write the action plugin first, since it is the shortest thing in the collection:
 
 
     class ActionModule(UCodeActionBase):
-        module_utils = ["basic"]
+        pass
 
-Include ``basic`` in that list whenever the module uses ``AnsibleModule()``, which is to say always.
+``_basic`` is always transferred, so it never goes in that list. Anything else the module imports does:
+``module_utils = ["_file"]``.
 
 Give the module itself the shape below: declare the interface, do the work, report the result.
 
 .. code-block:: text
 
-    import { AnsibleModule } from 'basic';
+    import { AnsibleModule } from '_basic';
 
     const module = AnsibleModule({
         argument_spec: {

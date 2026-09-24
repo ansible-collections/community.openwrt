@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { chdir, glob } from 'fs';
-import { AnsibleModule, shell_quote } from 'basic';
+import { AnsibleModule, shell_quote } from '_basic';
 
 const module = AnsibleModule({
     argument_spec: {

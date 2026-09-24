@@ -12,8 +12,6 @@ from ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action imp
 
 
 class ActionModule(UCodeActionBase, WaitForConnectionActionModule):
-    module_utils = ["basic"]
-
     def run(self, tmp=None, task_vars=None):
         _orig_execute_module = self._execute_module
 

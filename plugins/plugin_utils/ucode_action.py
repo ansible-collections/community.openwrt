@@ -24,10 +24,10 @@ class UCodeActionBase(ActionBase):
     """Base action plugin for ucode-based OpenWrt modules.
 
     Modules written in ucode (``plugins/modules/<name>.uc``) are transferred, together with
-    their declared module_utils, into a shared remote temporary directory, then executed
-    through the ``community.openwrt.ucode_wrapper`` module via ``_execute_module()``. That
+    ``_basic`` and any module_utils they declare, into a shared remote temporary directory, then
+    executed through the ``community.openwrt.ucode_wrapper`` module via ``_execute_module()``. That
     wrapper execs ``ucode -S -L <module_utils dir> module.uc <args>``, so module_utils are
-    imported by name (e.g. ``import { ... } from 'ansible_common';``) rather than by relative
+    imported by name (e.g. ``import { AnsibleModule } from '_basic';``) rather than by relative
     file path.
     """
 
@@ -91,10 +91,10 @@ class UCodeActionBase(ActionBase):
         self._fixup_perms2([remote_module])
 
     def _transfer_module_utils(self, tmp_dir):
-        """Transfer declared ucode module utils into <tmp_dir>/module_utils/."""
+        """Transfer _basic and any declared ucode module utils into <tmp_dir>/module_utils/."""
         remote_utils_dir = self._connection._shell.join_path(tmp_dir, "module_utils")
         self._low_level_execute_command(f"mkdir -p '{remote_utils_dir}'")
-        for util_name in self.module_utils:
+        for util_name in ["_basic"] + list(self.module_utils):
             util_path = self._find_module_util_script(util_name)
             remote_util = self._connection._shell.join_path(remote_utils_dir, f"{util_name}.uc")
             self._transfer_file(str(util_path), remote_util)

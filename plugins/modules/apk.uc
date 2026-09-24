@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { stat } from 'fs';
-import { AnsibleModule } from 'basic';
+import { AnsibleModule } from '_basic';
 
 const module = AnsibleModule({
     argument_spec: {

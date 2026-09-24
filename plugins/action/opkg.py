@@ -8,4 +8,4 @@ from ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action imp
 
 
 class ActionModule(UCodeActionBase):
-    module_utils = ["basic"]
+    pass
