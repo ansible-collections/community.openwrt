@@ -86,7 +86,6 @@ options:
     type: str
 notes:
   - This module does not support recursive directory copy. Only regular files can be copied.
-  - Supports C(check_mode).
   - Diff output is produced for text files only. Binary files are not detected and may render as corrupted
     text diffs; avoid C(--diff) for binary transfers.
   - Files larger than the controller's C(MAX_FILE_SIZE_FOR_DIFF) configuration are skipped in diff output.
