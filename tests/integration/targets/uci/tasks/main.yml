@@ -330,3 +330,594 @@
     config: uhttpd
     section: "{{ uci_add_second_section.result }}"
   ignore_errors: true
+
+- name: "redaction - create a section containing a secret"
+  community.openwrt.uci:
+    command: section
+    config: uhttpd
+    type: testsecret
+    name: redaction_test
+    value:
+      description: visible
+      password: old-secret
+    autocommit: true
+
+- name: "redaction - update the secret with diff enabled"
+  community.openwrt.uci:
+    command: section
+    config: uhttpd
+    type: testsecret
+    name: redaction_test
+    value:
+      description: visible
+      password: new-secret
+    redact_keys:
+      - password
+    autocommit: true
+  diff: true
+  register: uci_redacted
+
+- name: "redaction - assert secrets are hidden from the result"
+  ansible.builtin.assert:
+    that:
+      - uci_redacted is succeeded
+      - uci_redacted is changed
+      - uci_redacted.diff is defined
+      - "'old-secret' not in (uci_redacted | to_json)"
+      - "'new-secret' not in (uci_redacted | to_json)"
+      - "'REDACTED-present' in (uci_redacted | to_json)"
+      - "'REDACTED-wanted' in (uci_redacted | to_json)"
+
+- name: "redaction - remove the test section"
+  community.openwrt.uci:
+    command: delete
+    config: uhttpd
+    section: redaction_test
+    autocommit: true
+
+- name: "operations - apply and commit multiple changes"
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        config: uhttpd
+        section: main
+        option: batch_first
+        value: one
+      - command: set
+        config: uhttpd
+        section: main
+        option: batch_second
+        value: two
+      - command: get
+        config: uhttpd
+        section: main
+        option: batch_first
+  register: uci_operations
+
+- name: "operations - assert individual outcomes"
+  ansible.builtin.assert:
+    that:
+      - uci_operations is succeeded
+      - uci_operations is changed
+      - uci_operations.operations | length == 3
+      - uci_operations.operations[0] is changed
+      - uci_operations.operations[1] is changed
+      - uci_operations.operations[2] is not changed
+      - uci_operations.operations[2].result == 'one'
+
+- name: "operations - apply the same batch again"
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        config: uhttpd
+        section: main
+        option: batch_first
+        value: one
+      - command: set
+        config: uhttpd
+        section: main
+        option: batch_second
+        value: two
+  register: uci_operations_repeat
+
+- name: "operations - assert the repeated batch is idempotent"
+  ansible.builtin.assert:
+    that:
+      - uci_operations_repeat is succeeded
+      - uci_operations_repeat is not changed
+      - uci_operations_repeat.operations[0] is not changed
+      - uci_operations_repeat.operations[1] is not changed
+
+- name: "operations - accept an empty list"
+  community.openwrt.uci:
+    operations: []
+  register: uci_operations_empty
+
+- name: "operations - assert an empty list is a no-op"
+  ansible.builtin.assert:
+    that:
+      - uci_operations_empty is succeeded
+      - uci_operations_empty is not changed
+      - uci_operations_empty.operations == []
+
+- name: "operations - reject unsupported operation parameters"
+  community.openwrt.uci:
+    operations:
+      - command: get
+        key: uhttpd.main
+        unsupported: true
+  register: uci_operations_unsupported
+  ignore_errors: true
+
+- name: "operations - assert nested parameters are validated"
+  ansible.builtin.assert:
+    that:
+      - uci_operations_unsupported is failed
+      - "'Unsupported parameters in operations[0]: unsupported' in uci_operations_unsupported.msg"
+
+- name: "operations - remove the test options"
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: delete
+        key: uhttpd.main.batch_first
+      - command: delete
+        key: uhttpd.main.batch_second
+
+- name: "check mode - simulate setting an option"
+  community.openwrt.uci:
+    command: set
+    key: uhttpd.main.check_mode_test
+    value: simulated
+    autocommit: true
+  check_mode: true
+  register: uci_check_mode
+
+- name: "check mode - assert the simulated operation reports a change"
+  ansible.builtin.assert:
+    that:
+      - uci_check_mode is succeeded
+      - uci_check_mode is changed
+
+- name: "check mode - read the simulated option"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.main.check_mode_test
+  failed_when: false
+  register: uci_check_mode_read
+
+- name: "check mode - assert the simulated option was not saved"
+  ansible.builtin.assert:
+    that:
+      - uci_check_mode_read.result == ''
+      - "'uci get failed' in uci_check_mode_read.msg"
+
+- name: "absent value - create a section with options and list values"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_absent_value
+    type: uci_test
+    value:
+      keep_option: keep
+      remove_option: remove
+      addresses:
+        - 1.2.3.4
+        - 5.6.7.8
+    autocommit: true
+
+- name: "absent value - remove selected values without deleting the section"
+  community.openwrt.uci:
+    command: absent
+    key: uhttpd.uci_absent_value
+    type: uci_test
+    value:
+      remove_option:
+      addresses: 1.2.3.4
+    autocommit: true
+  register: uci_absent_value
+
+- name: "absent value - repeat the selective removal"
+  community.openwrt.uci:
+    command: absent
+    key: uhttpd.uci_absent_value
+    type: uci_test
+    value:
+      remove_option:
+      addresses: 1.2.3.4
+    autocommit: true
+  register: uci_absent_value_idempotent
+
+- name: "absent value - read the remaining values"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.uci_absent_value.addresses
+  register: uci_absent_value_read
+
+- name: "absent value - assert selective removal and idempotency"
+  ansible.builtin.assert:
+    that:
+      - uci_absent_value is changed
+      - uci_absent_value_idempotent is not changed
+      - uci_absent_value_read.result_list == ['5.6.7.8']
+
+- name: "absent value - verify the section and kept option still exist"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.uci_absent_value.keep_option
+  register: uci_absent_value_kept
+
+- name: "absent value - assert the kept option"
+  ansible.builtin.assert:
+    that:
+      - uci_absent_value_kept.result == 'keep'
+
+- name: "empty section - create a named section without options"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_empty_section
+    type: uci_test
+    autocommit: true
+  register: uci_empty_section
+
+- name: "empty section - repeat creation"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_empty_section
+    type: uci_test
+    autocommit: true
+  register: uci_empty_section_idempotent
+
+- name: "empty section - read the section type"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.uci_empty_section
+  register: uci_empty_section_read
+
+- name: "empty section - assert persistence and idempotency"
+  ansible.builtin.assert:
+    that:
+      - uci_empty_section is changed
+      - uci_empty_section_idempotent is not changed
+      - uci_empty_section_read.result == 'uci_test'
+
+- name: "check-mode revert - stage an option"
+  community.openwrt.uci:
+    command: set
+    key: uhttpd.main.uci_check_revert
+    value: staged
+
+- name: "check-mode revert - simulate reverting the option"
+  community.openwrt.uci:
+    command: revert
+    key: uhttpd.main.uci_check_revert
+  check_mode: true
+  register: uci_check_revert
+
+- name: "check-mode revert - verify the staged option remains"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.main.uci_check_revert
+  register: uci_check_revert_read
+
+- name: "check-mode revert - assert the simulated result"
+  ansible.builtin.assert:
+    that:
+      - uci_check_revert is changed
+      - uci_check_revert_read.result == 'staged'
+
+- name: "check-mode revert - apply the revert"
+  community.openwrt.uci:
+    command: revert
+    key: uhttpd.main.uci_check_revert
+
+- name: "replace keep keys - create the test section"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_replace_keep
+    type: uci_test
+    value:
+      kept: original
+      replaced: old
+      dropped: stale
+    autocommit: true
+
+- name: "replace keep keys - replace options while retaining a key"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_replace_keep
+    type: uci_test
+    replace: true
+    keep_keys:
+      - kept
+    value:
+      replaced: new
+    autocommit: true
+  register: uci_replace_keep
+
+- name: "replace keep keys - repeat replacement"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_replace_keep
+    type: uci_test
+    replace: true
+    keep_keys:
+      - kept
+    value:
+      replaced: new
+    autocommit: true
+  register: uci_replace_keep_idempotent
+
+- name: "replace keep keys - read retained and replaced options"
+  community.openwrt.uci:
+    operations:
+      - command: get
+        key: uhttpd.uci_replace_keep.kept
+      - command: get
+        key: uhttpd.uci_replace_keep.replaced
+  register: uci_replace_keep_read
+
+- name: "replace keep keys - assert replacement behavior"
+  ansible.builtin.assert:
+    that:
+      - uci_replace_keep is changed
+      - uci_replace_keep_idempotent is not changed
+      - uci_replace_keep_read.operations[0].result == 'original'
+      - uci_replace_keep_read.operations[1].result == 'new'
+
+- name: "replace keep keys - verify the stale option was removed"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.uci_replace_keep.dropped
+  failed_when: false
+  register: uci_replace_keep_dropped
+
+- name: "replace keep keys - assert the stale option is absent"
+  ansible.builtin.assert:
+    that:
+      - uci_replace_keep_dropped.result == ''
+      - "'uci get failed' in uci_replace_keep_dropped.msg"
+
+- name: "explicit commit - stage changes without autocommit"
+  community.openwrt.uci:
+    operations:
+      - command: set
+        key: uhttpd.main.uci_commit_first
+        value: first
+      - command: set
+        key: uhttpd.main.uci_commit_second
+        value: second
+  register: uci_explicit_commit_staged
+
+- name: "explicit commit - read the staged values"
+  community.openwrt.uci:
+    operations:
+      - command: get
+        key: uhttpd.main.uci_commit_first
+      - command: get
+        key: uhttpd.main.uci_commit_second
+  register: uci_explicit_commit_staged_read
+
+- name: "explicit commit - read pending changes"
+  community.openwrt.uci:
+    command: changes
+    config: uhttpd
+  register: uci_explicit_commit_pending
+
+- name: "explicit commit - assert the staged state"
+  ansible.builtin.assert:
+    that:
+      - uci_explicit_commit_staged is changed
+      - uci_explicit_commit_staged_read.operations[0].result == 'first'
+      - uci_explicit_commit_staged_read.operations[1].result == 'second'
+      - "'uci_commit_first' in uci_explicit_commit_pending.result"
+      - "'uci_commit_second' in uci_explicit_commit_pending.result"
+
+- name: "explicit commit - commit the staged changes"
+  community.openwrt.uci:
+    command: commit
+    config: uhttpd
+  register: uci_explicit_commit
+
+- name: "explicit commit - read the committed values"
+  community.openwrt.uci:
+    operations:
+      - command: get
+        key: uhttpd.main.uci_commit_first
+      - command: get
+        key: uhttpd.main.uci_commit_second
+  register: uci_explicit_commit_read
+
+- name: "explicit commit - verify no changes remain pending"
+  community.openwrt.uci:
+    command: changes
+    config: uhttpd
+  register: uci_explicit_commit_clean
+
+- name: "explicit commit - repeat set and global commit operations"
+  community.openwrt.uci:
+    operations:
+      - command: set
+        key: uhttpd.main.uci_commit_first
+        value: first
+      - command: set
+        key: uhttpd.main.uci_commit_second
+        value: second
+      - command: commit
+  register: uci_explicit_commit_idempotent
+
+- name: "explicit commit - assert commit behavior"
+  ansible.builtin.assert:
+    that:
+      - uci_explicit_commit is changed
+      - uci_explicit_commit_read.operations[0].result == 'first'
+      - uci_explicit_commit_read.operations[1].result == 'second'
+      - uci_explicit_commit_clean.result == ''
+      - uci_explicit_commit_idempotent is not changed
+      - uci_explicit_commit_idempotent.operations[2] is not changed
+
+- name: "list maintenance - create the initial address set"
+  community.openwrt.uci:
+    command: set
+    key: uhttpd.main.uci_addresses
+    value:
+      - 1.2.3.4
+      - 5.6.7.8
+      - 9.10.11.12
+    autocommit: true
+
+- name: "list maintenance - remove one address and add another uniquely"
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: del_list
+        key: uhttpd.main.uci_addresses
+        value: 1.2.3.4
+      - command: add_list
+        key: uhttpd.main.uci_addresses
+        value: 5.6.7.8
+        unique: true
+      - command: add_list
+        key: uhttpd.main.uci_addresses
+        value: 13.14.15.16
+        unique: true
+  register: uci_list_maintenance
+
+- name: "list maintenance - repeat the set maintenance operations"
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: del_list
+        key: uhttpd.main.uci_addresses
+        value: 1.2.3.4
+      - command: add_list
+        key: uhttpd.main.uci_addresses
+        value: 5.6.7.8
+        unique: true
+      - command: add_list
+        key: uhttpd.main.uci_addresses
+        value: 13.14.15.16
+        unique: true
+  register: uci_list_maintenance_idempotent
+
+- name: "list maintenance - read the resulting address set"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.main.uci_addresses
+  register: uci_list_maintenance_read
+
+- name: "list maintenance - assert unrelated entries and idempotency"
+  ansible.builtin.assert:
+    that:
+      - uci_list_maintenance is changed
+      - uci_list_maintenance.operations | map(attribute='changed') | list == [true, false, true]
+      - uci_list_maintenance_idempotent is not changed
+      - uci_list_maintenance_idempotent.operations | map(attribute='changed') | list == [false, false, false]
+      - uci_list_maintenance_read.result_list == ['5.6.7.8', '9.10.11.12', '13.14.15.16']
+
+- name: "named add - add a named section"
+  community.openwrt.uci:
+    command: add
+    key: uhttpd.uci_test
+    name: uci_named_add
+    autocommit: true
+  register: uci_named_add
+
+- name: "search alias - find the named section"
+  community.openwrt.uci:
+    command: find
+    key: uhttpd.uci_test
+    search:
+      .name: uci_named_add
+  register: uci_search_alias
+
+- name: "named add - assert add and search alias behavior"
+  ansible.builtin.assert:
+    that:
+      - uci_named_add is changed
+      - uci_named_add.result == 'uci_named_add'
+      - uci_search_alias.section != ''
+
+- name: "typed values - create a section with scalar and list values"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_typed_values
+    type: uci_test
+    value:
+      boolean_true: true
+      boolean_false: false
+      integer: 123
+      floating_point: 3.14
+      mixed_list:
+        - true
+        - false
+        - 123
+        - 3.14
+    autocommit: true
+  register: uci_typed_values
+
+- name: "typed values - repeat the normalized values"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_typed_values
+    type: uci_test
+    value:
+      boolean_true: true
+      boolean_false: false
+      integer: 123
+      floating_point: 3.14
+      mixed_list:
+        - true
+        - false
+        - 123
+        - 3.14
+    autocommit: true
+  register: uci_typed_values_idempotent
+
+- name: "typed values - read normalized values"
+  community.openwrt.uci:
+    operations:
+      - command: get
+        key: uhttpd.uci_typed_values.boolean_true
+      - command: get
+        key: uhttpd.uci_typed_values.boolean_false
+      - command: get
+        key: uhttpd.uci_typed_values.integer
+      - command: get
+        key: uhttpd.uci_typed_values.floating_point
+      - command: get
+        key: uhttpd.uci_typed_values.mixed_list
+  register: uci_typed_values_read
+
+- name: "typed values - assert normalization and idempotency"
+  ansible.builtin.assert:
+    that:
+      - uci_typed_values is changed
+      - uci_typed_values_idempotent is not changed
+      - uci_typed_values_read.operations[0].result == '1'
+      - uci_typed_values_read.operations[1].result == '0'
+      - uci_typed_values_read.operations[2].result == '123'
+      - uci_typed_values_read.operations[3].result == '3.14'
+      - uci_typed_values_read.operations[4].result_list == ['1', '0', '123', '3.14']
+
+- name: "corner cases - remove temporary sections and options"
+  community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: delete
+        key: uhttpd.uci_absent_value
+      - command: delete
+        key: uhttpd.uci_empty_section
+      - command: delete
+        key: uhttpd.uci_replace_keep
+      - command: delete
+        key: uhttpd.uci_named_add
+      - command: delete
+        key: uhttpd.uci_typed_values
+      - command: delete
+        key: uhttpd.main.uci_commit_first
+      - command: delete
+        key: uhttpd.main.uci_commit_second
+      - command: delete
+        key: uhttpd.main.uci_addresses
