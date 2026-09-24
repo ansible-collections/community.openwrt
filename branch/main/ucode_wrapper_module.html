@@ -3,9 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta content="2.27.0" name="antsibull-docs" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Search &mdash; Community.OpenWrt Collection  documentation</title>
+  <title>community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules &mdash; Community.OpenWrt Collection  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=41de9001" />
       <link rel="stylesheet" type="text/css" href="_static/css/ansible.css?v=b54c304f" />
       <link rel="stylesheet" type="text/css" href="_static/antsibull-minimal.css" />
@@ -13,16 +15,15 @@
 
   
     <link rel="shortcut icon" href="_static/images/Ansible-Mark-RGB_Black.png"/>
-    
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=7f41d439"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
-    <script src="_static/searchtools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <link rel="search" title="Search" href="#" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable" href="wait_for_connection_module.html" />
+    <link rel="prev" title="community.openwrt.uci module – Controls OpenWrt UCI" href="uci_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
 
 
 
@@ -63,7 +64,7 @@
   
 </div>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <label class="sr-only" for="q">Search docs:</label>
     <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
@@ -84,7 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="docsite/ucode_language_notes.html">ucode Language Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docsite/testing_guide.html">Testing Guide</a></li>
 </ul>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="apk_module.html">community.openwrt.apk module – Manage packages with apk on OpenWrt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_module.html">community.openwrt.command module – Execute commands on OpenWrt targets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="copy_module.html">community.openwrt.copy module – Copy files to remote OpenWrt devices</a></li>
@@ -103,7 +104,16 @@
 <li class="toctree-l1"><a class="reference internal" href="tempfile_module.html">community.openwrt.tempfile module – Creates temporary files and directories on OpenWrt nodes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="template_module.html">community.openwrt.template module – Template a file out to remote OpenWrt target</a></li>
 <li class="toctree-l1"><a class="reference internal" href="uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ucode_wrapper_module.html">community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#authors">Authors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#collection-links">Collection links</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
@@ -123,8 +133,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Search</li>
+      <li class="breadcrumb-item active">community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules</li>
       <li class="wy-breadcrumbs-aside">
+              <!-- User defined GitHub URL -->
+              <a href="https://github.com/ansible-collections/community.openwrt/edit/main/plugins/modules/ucode_wrapper.yml?description=%23%23%23%23%23%20SUMMARY%0A%3C!—%20Your%20description%20here%20–%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -134,24 +146,77 @@
   
            <div itemprop="articleBody">
              
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search functionality.
-    </p>
-  </div>
-  </noscript>
+  <span class="target" id="ansible-collections-community-openwrt-ucode-wrapper-module"></span><section id="community-openwrt-ucode-wrapper-module-internal-wrapper-module-for-openwrt-ucode-based-modules">
+<h1>community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules<a class="headerlink" href="#community-openwrt-ucode-wrapper-module-internal-wrapper-module-for-openwrt-ucode-based-modules" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/community/openwrt/">community.openwrt collection</a> (version 1.9.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">community.openwrt</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">community.openwrt.ucode_wrapper</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in community.openwrt 1.9.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id2">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id3">Examples</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>This is an internal module used by the OpenWrt collection’s action plugins.</p></li>
+<li><p>It serves as a runtime wrapper that executes ucode-based module scripts.</p></li>
+<li><p>End users should not call this module directly.</p></li>
+<li><p>The action plugins transfer the target module and its helper libraries into a shared temporary directory before invoking this wrapper.</p></li>
+</ul>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>This module is part of the internal implementation of the community.openwrt collection.</p></li>
+<li><p>It should not be invoked directly in playbooks.</p></li>
+<li><p>All ucode-based OpenWrt modules use this wrapper mechanism internally.</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># This module is not intended to be used directly in playbooks.</span>
+<span class="c1"># It is invoked automatically by action plugins.</span>
+</pre></div>
+</div>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Alexei Znamensky (&#64;russoz)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/ansible-collections/community.openwrt/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/ansible-collections/community.openwrt" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/ansible-collections/community.openwrt/issues/new/choose" rel="noopener external" target="_blank">Report an issue</a></span></li>
+<li><span><a class="reference internal" href="index.html#communication-for-community-openwrt"><span class="std std-ref">Communication</span></a></span></li>
+</ul>
+</section>
+</section>
+</section>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
           </div>
           
 
-<footer>
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="uci_module.html" class="btn btn-neutral float-left" title="community.openwrt.uci module – Controls OpenWrt UCI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="wait_for_connection_module.html" class="btn btn-neutral float-right" title="community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
@@ -171,14 +236,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-  <script>
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script id="searchindexloader"></script>
-  <!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
-
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
 
 </body>
 </html>
