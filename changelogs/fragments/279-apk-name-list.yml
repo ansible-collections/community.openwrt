@@ -1,0 +1,2 @@
+minor_changes:
+  - apk - accept a list of packages in the ``name`` option (https://github.com/ansible-collections/community.openwrt/pull/279).
