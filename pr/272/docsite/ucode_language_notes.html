@@ -84,6 +84,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ucode Language Notes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#values-and-collections">Values and collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#numbers">Numbers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#errors">Errors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#standard-library-corners">Standard library corners</a></li>
 </ul>
@@ -171,6 +172,16 @@ iterates over the keys. Use a counting <code class="docutils literal notranslate
 “not set”. Strings cannot be indexed with <code class="docutils literal notranslate"><span class="pre">[]</span></code> - take one character with <code class="docutils literal notranslate"><span class="pre">substr(s,</span> <span class="pre">i,</span> <span class="pre">1)</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">type()</span></code> names the type of a value, and the names are not always the ones you expect: a string is
 <code class="docutils literal notranslate"><span class="pre">string</span></code>, a floating point number is <code class="docutils literal notranslate"><span class="pre">double</span></code>, an array is <code class="docutils literal notranslate"><span class="pre">array</span></code> and a dictionary is <code class="docutils literal notranslate"><span class="pre">object</span></code>.</p>
+</section>
+<section id="numbers">
+<h2>Numbers<a class="headerlink" href="#numbers" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">+</span></code> concatenates as soon as either side is a string, so <code class="docutils literal notranslate"><span class="pre">&quot;1.5&quot;</span> <span class="pre">+</span> <span class="pre">0.0</span></code> is the string <code class="docutils literal notranslate"><span class="pre">&quot;1.50&quot;</span></code> and not
+the number <code class="docutils literal notranslate"><span class="pre">1.5</span></code>. Nothing complains: you get a string where you expected a number, and only notice further
+down. Convert with unary plus instead - <code class="docutils literal notranslate"><span class="pre">+&quot;1.5&quot;</span></code> is the double <code class="docutils literal notranslate"><span class="pre">1.5</span></code> - and note that it reads a whole
+number as an <code class="docutils literal notranslate"><span class="pre">int</span></code>, so add <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">0.0</span></code> when you need a <code class="docutils literal notranslate"><span class="pre">double</span></code>. Unary plus does not read a leading dot
+either: <code class="docutils literal notranslate"><span class="pre">+&quot;.5&quot;</span></code> is <code class="docutils literal notranslate"><span class="pre">NaN</span></code>, not <code class="docutils literal notranslate"><span class="pre">0.5</span></code>.</p>
+<p>Dividing two integers yields an integer: <code class="docutils literal notranslate"><span class="pre">7</span> <span class="pre">/</span> <span class="pre">2</span></code> is <code class="docutils literal notranslate"><span class="pre">3</span></code>, not <code class="docutils literal notranslate"><span class="pre">3.5</span></code>. Make one side a double when you
+want the fraction.</p>
 </section>
 <section id="errors">
 <h2>Errors<a class="headerlink" href="#errors" title="Link to this heading"></a></h2>

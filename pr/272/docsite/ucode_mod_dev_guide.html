@@ -230,12 +230,13 @@ it prints. Three consequences of that shape how you write it.</p>
 action plugin that runs on the control node. The action plugin is mandatory: <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code> bundles
 <code class="docutils literal notranslate"><span class="pre">module_utils</span></code> only for Python modules, so a ucode module’s dependencies are transferred by its action
 plugin.</p>
-<p>Declare there every ucode module your module imports symbols from, apart from the ones bundled with the
-interpreter. Only what is declared gets transferred, so an import you did not declare may not be available on
-the target and the module fails. The form of that declaration is covered further down.</p>
+<p>Declare there every ucode module your module imports symbols from, apart from <code class="docutils literal notranslate"><span class="pre">_basic</span></code>, which is always
+transferred, and the ones bundled with the interpreter. Nothing else reaches the target unless it is declared,
+so an import you did not declare may not be available there and the module fails. The form of that
+declaration is covered further down.</p>
 <p>What is declared lands in a temporary directory alongside the module, and the interpreter is started with those
 module utils on its search path, so a plain name resolves to one of them:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>import { AnsibleModule } from 'basic';
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>import { AnsibleModule } from '_basic';
 </pre></div>
 </div>
 <p>Importing by path works as it does anywhere else - it names a file, and that file has to be on the target.</p>
@@ -254,22 +255,24 @@ output untouched.</p>
 <p>A module is three files, all named after it. For <code class="docutils literal notranslate"><span class="pre">apk</span></code> they are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">plugins/modules/apk.uc</span></code> - the implementation, which runs on the device;</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">plugins/modules/apk.yml</span></code> - the documentation, as a YAML file holding <code class="docutils literal notranslate"><span class="pre">DOCUMENTATION</span></code>, <code class="docutils literal notranslate"><span class="pre">EXAMPLES</span></code> and
-<code class="docutils literal notranslate"><span class="pre">RETURN</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plugins/modules/apk.py</span></code> or <code class="docutils literal notranslate"><span class="pre">plugins/modules/apk.yml</span></code> - the documentation, holding <code class="docutils literal notranslate"><span class="pre">DOCUMENTATION</span></code>,
+<code class="docutils literal notranslate"><span class="pre">EXAMPLES</span></code> and <code class="docutils literal notranslate"><span class="pre">RETURN</span></code>: a Python file carrying nothing but those, or a YAML file of the same name.
+<code class="docutils literal notranslate"><span class="pre">ansible-core</span></code> reads either;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">plugins/action/apk.py</span></code> - the action plugin, which runs on the control node.</p></li>
 </ul>
 <p>Write the action plugin first, since it is the shortest thing in the collection: derive it from
-<code class="docutils literal notranslate"><span class="pre">UCodeActionBase</span></code> and list the ucode modules to transfer.</p>
+<code class="docutils literal notranslate"><span class="pre">UCodeActionBase</span></code> and, if the module needs any module utils beyond <code class="docutils literal notranslate"><span class="pre">_basic</span></code>, list them.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action</span><span class="w"> </span><span class="kn">import</span> <span class="n">UCodeActionBase</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ActionModule</span><span class="p">(</span><span class="n">UCodeActionBase</span><span class="p">):</span>
-    <span class="n">module_utils</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"basic"</span><span class="p">]</span>
+    <span class="k">pass</span>
 </pre></div>
 </div>
-<p>Include <code class="docutils literal notranslate"><span class="pre">basic</span></code> in that list whenever the module uses <code class="docutils literal notranslate"><span class="pre">AnsibleModule()</span></code>, which is to say always.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_basic</span></code> is always transferred, so it never goes in that list. Anything else the module imports does:
+<code class="docutils literal notranslate"><span class="pre">module_utils</span> <span class="pre">=</span> <span class="pre">[&quot;_file&quot;]</span></code>.</p>
 <p>Give the module itself the shape below: declare the interface, do the work, report the result.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>import { AnsibleModule } from 'basic';
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>import { AnsibleModule } from '_basic';
 
 const module = AnsibleModule({
     argument_spec: {
@@ -286,10 +289,10 @@ const params = module.params;
 module.exit_json();
 </pre></div>
 </div>
-<p>Document the module in the YAML file, as you would document any other Ansible module: <code class="docutils literal notranslate"><span class="pre">version_added</span></code> takes
-the version in <code class="docutils literal notranslate"><span class="pre">galaxy.yml</span></code>, and the <code class="docutils literal notranslate"><span class="pre">check_mode</span></code> and <code class="docutils literal notranslate"><span class="pre">diff_mode</span></code> attributes state what the module
-actually supports. Keep that file in step with the <code class="docutils literal notranslate"><span class="pre">argument_spec</span></code> by hand - the two are not cross-checked,
-so a parameter renamed in one and not the other is only found by someone using it.</p>
+<p>Document the module as you would document any other Ansible module: <code class="docutils literal notranslate"><span class="pre">version_added</span></code> takes the version in
+<code class="docutils literal notranslate"><span class="pre">galaxy.yml</span></code>, and the <code class="docutils literal notranslate"><span class="pre">check_mode</span></code> and <code class="docutils literal notranslate"><span class="pre">diff_mode</span></code> attributes state what the module actually supports.
+Keep the documentation in step with the <code class="docutils literal notranslate"><span class="pre">argument_spec</span></code> by hand - the two are not cross-checked, so a
+parameter renamed in one and not the other is only found by someone using it.</p>
 <p>A new module also needs an entry in <code class="docutils literal notranslate"><span class="pre">.github/BOTMETA.yml</span></code> for each of its files, and an integration test
 target under <code class="docutils literal notranslate"><span class="pre">tests/integration/targets/</span></code>.</p>
 </section>
@@ -518,7 +521,7 @@ assert it reports no change, and cover check mode where the module claims to sup
 <section id="a-worked-example">
 <h2>A worked example<a class="headerlink" href="#a-worked-example" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">apk</span></code> installs and removes packages, and is small enough to read in one sitting. Its three files are
-<code class="docutils literal notranslate"><span class="pre">plugins/modules/apk.uc</span></code>, <code class="docutils literal notranslate"><span class="pre">plugins/modules/apk.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">plugins/action/apk.py</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">plugins/modules/apk.uc</span></code>, its documentation, and <code class="docutils literal notranslate"><span class="pre">plugins/action/apk.py</span></code>.</p>
 <p>It starts by declaring what it accepts, and keeps the two things it uses everywhere at hand:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>const module = AnsibleModule({
     argument_spec: {
