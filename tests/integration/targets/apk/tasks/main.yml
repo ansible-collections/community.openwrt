@@ -38,6 +38,60 @@
         that:
           - apk_remove is succeeded
 
+    - name: Install packages given as a comma-separated string with spaces
+      community.openwrt.apk:
+        name: "htop, tcpdump"
+        state: present
+      register: apk_install_csv
+
+    - name: Verify packages are installed
+      community.openwrt.command:
+        cmd: "apk info -e {{ item }}"
+      loop:
+        - htop
+        - tcpdump
+      register: apk_verify_installed
+      failed_when: apk_verify_installed.rc != 0
+
+    - name: Install packages given as a list (idempotency)
+      community.openwrt.apk:
+        name:
+          - htop
+          - tcpdump
+        state: present
+      register: apk_install_list
+
+    - name: Remove packages given as a list
+      community.openwrt.apk:
+        name:
+          - htop
+          - tcpdump
+        state: absent
+      register: apk_remove_list
+
+    - name: Verify packages are removed
+      community.openwrt.command:
+        cmd: "apk info -e {{ item }}"
+      loop:
+        - htop
+        - tcpdump
+      register: apk_verify_removed
+      failed_when: apk_verify_removed.rc == 0
+
+    - name: Remove packages given as a comma-separated string with spaces (idempotency)
+      community.openwrt.apk:
+        name: "htop, tcpdump"
+        state: absent
+      register: apk_remove_csv
+
+    - name: Assert list handling
+      ansible.builtin.assert:
+        that:
+          - apk_install_csv is changed
+          - apk_install_list is not changed
+          - apk_remove_list is changed
+          - apk_remove_csv is not changed
+
     - name: Test --allow-untrusted
       block:
         - name: Download a test package

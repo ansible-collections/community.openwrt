@@ -8,7 +8,7 @@ import { AnsibleModule } from '_basic';
 
 const module = AnsibleModule({
     argument_spec: {
-        name:               { type: 'str', required: true, aliases: [ 'pkg' ] },
+        name:               { type: 'list', elements: 'str', required: true, aliases: [ 'pkg' ] },
         state:              { type: 'str', default: 'present',
                               choices: [ 'absent', 'installed', 'present', 'removed' ] },
         update_cache:       { type: 'bool', default: false },
@@ -35,9 +35,9 @@ function is_installed(pkg) {
     return module.run_command([ 'apk', 'info', '-e', pkg ]).rc == 0;
 }
 
-// The packages to act upon, given as a comma-separated list.
+// The packages to act upon.
 function requested_packages() {
-    return filter(split(params.name, ','), (pkg) => pkg != '');
+    return filter(params.name, (pkg) => pkg != '');
 }
 
 // A package installed from a local file is registered under the name recorded
