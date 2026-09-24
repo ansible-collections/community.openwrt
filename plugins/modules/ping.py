@@ -24,6 +24,7 @@ options:
 notes:
   - This module is designed for OpenWrt devices without Python installed.
   - This module does not support check mode.
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 """
 
 EXAMPLES = r"""

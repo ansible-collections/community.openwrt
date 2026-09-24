@@ -1,0 +1,26 @@
+---
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+DOCUMENTATION:
+  module: ucode_wrapper
+  short_description: Internal wrapper module for OpenWrt ucode-based modules
+  version_added: "1.9.0"
+  description:
+    - This is an internal module used by the OpenWrt collection's action plugins.
+    - It serves as a runtime wrapper that executes ucode-based module scripts.
+    - End users should not call this module directly.
+    - The action plugins transfer the target module and its helper libraries into a shared
+      temporary directory before invoking this wrapper.
+  options: {}
+  notes:
+    - This module is part of the internal implementation of the community.openwrt collection.
+    - It should not be invoked directly in playbooks.
+    - All ucode-based OpenWrt modules use this wrapper mechanism internally.
+  author:
+    - Alexei Znamensky (@russoz)
+
+EXAMPLES: |
+  # This module is not intended to be used directly in playbooks.
+  # It is invoked automatically by action plugins.

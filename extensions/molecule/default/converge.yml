@@ -192,4 +192,5 @@
             no_cache: true
           register:
             _apk_result
-          failed_when: _apk_result.msg != "update_cache and no_cache parameters are mutually exclusive"
+          failed_when: >-
+            _apk_result.msg != "parameters are mutually exclusive: update_cache|no_cache"

@@ -22,12 +22,12 @@ files:
     ignored: gekmihesg
     maintainers: $team_repo_mgrs
   $modules/apk.py:
-    maintainers: kbialek
-  $modules/apk.sh:
-    maintainers: kbialek
+    maintainers: kbialek russoz
+  $modules/apk.uc:
+    maintainers: kbialek russoz
   $modules/command.py:
     maintainers: $team_repo_mgrs
-  $modules/command.sh:
+  $modules/command.uc:
     maintainers: $team_repo_mgrs
   $modules/copy.py:
     maintainers: $team_repo_mgrs
@@ -47,11 +47,11 @@ files:
     maintainers: $team_repo_mgrs
   $modules/opkg.py:
     maintainers: $team_repo_mgrs
-  $modules/opkg.sh:
+  $modules/opkg.uc:
     maintainers: $team_repo_mgrs
   $modules/ping.py:
     maintainers: $team_repo_mgrs
-  $modules/ping.sh:
+  $modules/ping.uc:
     maintainers: $team_repo_mgrs
   $modules/service.py:
     maintainers: $team_repo_mgrs
@@ -83,11 +83,17 @@ files:
     maintainers: $team_repo_mgrs
   $modules/uci.sh:
     maintainers: $team_repo_mgrs
+  $modules/ucode_wrapper.sh:
+    maintainers: $team_repo_mgrs
+  $modules/ucode_wrapper.yml:
+    maintainers: $team_repo_mgrs
   $modules/wrapper.sh:
     maintainers: $team_repo_mgrs
   $modules/wrapper.yml:
     maintainers: $team_repo_mgrs
   $plugin_utils/openwrt_action.py:
+    maintainers: $team_repo_mgrs
+  $plugin_utils/ucode_action.py:
     maintainers: $team_repo_mgrs
   #########################
   docs/docsite/rst/migration_guide.rst:

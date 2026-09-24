@@ -57,6 +57,8 @@ options:
       - A filename or glob pattern.
       - If it does not exist, the command does not run.
     type: str
+notes:
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 """
 
 EXAMPLES = r"""

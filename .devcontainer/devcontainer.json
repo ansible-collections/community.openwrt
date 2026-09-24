@@ -9,8 +9,6 @@
       "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",
         "python.pythonPath": "/usr/local/bin/python",
-        "editor.defaultFormatter": "charliermarsh.ruff",
-        "editor.formatOnSave": true,
         "files.autoSave": "afterDelay",
         "files.eol": "\n",
         "files.insertFinalNewline": true,
@@ -22,6 +20,7 @@
         "chrislajoie.vscode-modelines",
         "ms-python.python",
         "ms-python.vscode-pylance",
+        "noahbpeterson.ucode-lsp",
         "redhat.ansible",
         "redhat.vscode-yaml",
         "trond-snekvik.simple-rst",
