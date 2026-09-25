@@ -1,0 +1,4 @@
+minor_changes:
+  - group - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/276).
+bugfixes:
+  - group - fix changing the GID of an existing group, and check mode reporting a change where a real run fails (https://github.com/ansible-collections/community.openwrt/pull/276).

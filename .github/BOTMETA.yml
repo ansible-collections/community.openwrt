@@ -37,6 +37,8 @@ files:
     maintainers: $team_repo_mgrs
   $modules/file.sh:
     maintainers: $team_repo_mgrs
+  $modules/group.uc:
+    maintainers: s-hamann
   $modules/lineinfile.py:
     maintainers: $team_repo_mgrs
   $modules/lineinfile.sh:
