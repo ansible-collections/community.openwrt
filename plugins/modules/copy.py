@@ -89,6 +89,7 @@ notes:
   - Diff output is produced for text files only. Binary files are not detected and may render as corrupted
     text diffs; avoid C(--diff) for binary transfers.
   - Files larger than the controller's C(MAX_FILE_SIZE_FOR_DIFF) configuration are skipped in diff output.
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 """
 
 EXAMPLES = r"""
