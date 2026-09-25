@@ -23,8 +23,10 @@ options:
   name:
     description:
       - Name of the package(s) to install or remove.
-      - Multiple packages can be specified as a comma-separated list.
-    type: str
+      - Multiple packages can be specified as a list, or as a comma-separated string, for example V(curl,wget).
+      - Before community.openwrt 1.9.0, this option was of type C(str) and spaces around the commas were not allowed.
+    type: list
+    elements: str
     required: true
     aliases:
       - pkg
@@ -91,7 +93,10 @@ EXAMPLES = r"""
 
 - name: Install multiple packages
   community.openwrt.opkg:
-    name: vim,curl,wget
+    name:
+      - vim
+      - curl
+      - wget
     state: present
 
 - name: Update cache and install package
