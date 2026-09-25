@@ -247,6 +247,8 @@ Each parameter takes:
   reaches a ``list`` parameter as an array, a JSON string reaches a ``dict`` parameter as an object, and
   ``raw`` takes the value as it comes. A value that cannot be converted fails the module.
 * ``elements`` - the type of the items of a ``list`` parameter, converted the same way.
+* ``options`` - a nested argument spec used to validate a ``dict`` parameter or each item of a ``list`` whose
+  ``elements`` type is ``dict``. Nested aliases, defaults, choices and further ``options`` are supported.
 * ``required`` - the module fails when the parameter is not supplied.
 * ``default`` - the value to use when the parameter is not supplied. Without one, the parameter is ``null``.
 * ``choices`` - the values the parameter may take; for a list, every item must be one of them.
@@ -292,7 +294,6 @@ Some of what an ``argument_spec`` covers in Python has no counterpart here, and 
 you nothing:
 
 * ``no_log`` does not redact anything. Keep secrets out of the result and out of anything you log.
-* Sub-options - a nested ``options`` spec - are not validated. A ``dict`` parameter arrives as it was written.
 * ``fallback``, ``apply_defaults`` and the ``path``, ``jsonarg``, ``bytes`` and ``bits`` types are not
   implemented.
 * Parameters cannot be deprecated through the spec. Announce the deprecation with ``module.deprecate()``

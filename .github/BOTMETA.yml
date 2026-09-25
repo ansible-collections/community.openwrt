@@ -12,12 +12,20 @@ files:
   $actions:
     labels: action
     maintainers: $team_repo_mgrs
+  $actions/wg_interface.py:
+    maintainers: vooon
+  $actions/wg_peer.py:
+    maintainers: vooon
   $doc_fragments/:
     labels: docs_fragments
     maintainers: $team_repo_mgrs
   $module_utils/:
     labels: module_utils
     maintainers: $team_repo_mgrs
+  $module_utils/_uci.uc:
+    maintainers: $team_repo_mgrs
+  $module_utils/_wg.uc:
+    maintainers: vooon
   $modules/:
     ignored: gekmihesg
     maintainers: $team_repo_mgrs
@@ -81,12 +89,20 @@ files:
     maintainers: zeerayne
   $modules/uci.py:
     maintainers: $team_repo_mgrs
-  $modules/uci.sh:
+  $modules/uci.uc:
     maintainers: $team_repo_mgrs
   $modules/ucode_wrapper.sh:
     maintainers: $team_repo_mgrs
   $modules/ucode_wrapper.yml:
     maintainers: $team_repo_mgrs
+  $modules/wg_interface.uc:
+    maintainers: vooon
+  $modules/wg_interface.yml:
+    maintainers: vooon
+  $modules/wg_peer.uc:
+    maintainers: vooon
+  $modules/wg_peer.yml:
+    maintainers: vooon
   $modules/wrapper.sh:
     maintainers: $team_repo_mgrs
   $modules/wrapper.yml:

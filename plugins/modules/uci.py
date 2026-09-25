@@ -9,9 +9,11 @@ DOCUMENTATION = r"""
 module: uci
 short_description: Controls OpenWrt UCI
 description:
-  - The M(community.openwrt.uci) module is a Ansible wrapper for OpenWrt's C(uci).
+  - The M(community.openwrt.uci) module controls OpenWrt UCI through the native C(ucode) UCI bindings.
   - It supports all the command line functionality plus some extra commands.
-author: Markus Weippert (@gekmihesg)
+author:
+  - Markus Weippert (@gekmihesg)
+  - Vladimir Ermakov (@vooon)
 extends_documentation_fragment:
   - community.openwrt.attributes
 attributes:
@@ -38,6 +40,8 @@ options:
       - changes
       - commit
       - del_list
+      - delete
+      - ensure
       - export
       - find
       - find_all
@@ -89,6 +93,26 @@ options:
     description:
       - Option part of the O(key).
       - If not specified, extracted from O(key).
+  operations:
+    description:
+      - A list of UCI operations to execute in order using one UCI cursor.
+      - Each entry accepts the same options as a standalone invocation except O(operations).
+      - Per-operation results are returned in RV(operations).
+      - An empty list performs no operations and reports no change.
+      - Set top-level O(autocommit=true) to commit all staged changes once after the list succeeds, or include an
+        operation with C(command=commit).
+    type: list
+    elements: dict
+    version_added: "1.9.0"
+  redact_keys:
+    description:
+      - UCI option names whose values must be hidden in diff output.
+      - Changed values are represented by V(REDACTED-present) and V(REDACTED-wanted); unchanged values are
+        represented by V(REDACTED).
+      - A value set on an individual O(operations) entry overrides this top-level list for that operation.
+    type: list
+    elements: str
+    version_added: "1.9.0"
   replace:
     description:
       - When O(command=set) or O(command=section), whether to delete all options not mentioned in O(keep_keys), O(value)
@@ -104,7 +128,7 @@ options:
       - When O(command=section) whether to set the options used to search a matching section in the newly created
         section when no match was found.
     type: bool
-    default: false
+    default: true
   type:
     description:
       - Section type for O(command=section), O(command=find) and O(command=add).
@@ -121,6 +145,11 @@ notes:
   - Since version 1.8.0, O(command=set), O(command=ensure) and O(command=section) compare the stored value
     before writing, and report RV(ignore:changed=true) only when it differs. Earlier versions reported
     RV(ignore:changed=true) on every run.
+  - Starting with version 1.9.0, this module is implemented in C(ucode).
+  - O(redact_keys) hides values from diffs, but does not prevent O(command=get), O(command=show), or
+    O(command=export) from returning them. Use the C(no_log) task keyword when reading sensitive values.
+requirements:
+  - C(ucode) and C(ucode-mod-uci) on the target.
 """
 
 EXAMPLES = r"""
@@ -162,6 +191,25 @@ EXAMPLES = r"""
 - community.openwrt.uci:
     cmd: commit
   notify: restart wifi
+
+# Apply several changes through one UCI cursor and commit once at the end.
+- community.openwrt.uci:
+    autocommit: true
+    operations:
+      - command: set
+        key: system.@system[0].hostname
+        value: my-router
+      - command: set
+        key: network.lan.ipaddr
+        value: 192.168.1.1
+
+# Hide a password in the before/after diff.
+- community.openwrt.uci:
+    command: set
+    key: wireless.default_radio0.key
+    value: top-secret
+    redact_keys:
+      - key
 """
 
 RETURN = r"""
@@ -178,6 +226,15 @@ result_list:
   returned: when O(command=get) or O(command=find_all)
   type: list
   sample: ["0.pool.ntp.org", "1.pool.ntp.org"]
+changes:
+  description: Pending UCI changes.
+  returned: when O(command=changes)
+  type: dict
+diff:
+  description: UCI state before and after each changed operation, with options from O(redact_keys) hidden.
+  returned: in diff mode when a supported operation changes state
+  type: list
+  elements: dict
 config:
   description: Config part of O(key).
   returned: when given
@@ -198,4 +255,9 @@ command:
   returned: always
   type: str
   sample: section
+operations:
+  description: Result of each entry passed through O(operations), in execution order.
+  returned: when O(operations) is given
+  type: list
+  elements: dict
 """
