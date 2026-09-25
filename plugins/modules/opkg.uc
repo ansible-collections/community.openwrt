@@ -7,7 +7,7 @@ import { AnsibleModule } from '_basic';
 
 const module = AnsibleModule({
     argument_spec: {
-        name:         { type: 'str', required: true, aliases: [ 'pkg' ] },
+        name:         { type: 'list', elements: 'str', required: true, aliases: [ 'pkg' ] },
         state:        { type: 'str', default: 'present',
                         choices: [ 'absent', 'installed', 'present', 'removed' ] },
         force:        { type: 'str',
@@ -38,9 +38,9 @@ function is_installed(pkg) {
     return trim(module.run_command([ 'opkg', 'status', pkg ]).stdout) != '';
 }
 
-// The packages to act upon, given as a comma-separated list.
+// The packages to act upon.
 function requested_packages() {
-    return filter(split(params.name, ','), (pkg) => pkg != '');
+    return filter(params.name, (pkg) => pkg != '');
 }
 
 // The options that go before the opkg sub-command.

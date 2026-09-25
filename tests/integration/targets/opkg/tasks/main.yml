@@ -38,6 +38,60 @@
         that:
           - opkg_remove is succeeded
 
+    - name: Install packages given as a comma-separated string with spaces
+      community.openwrt.opkg:
+        name: "htop, tcpdump"
+        state: present
+      register: opkg_install_csv
+
+    - name: Verify packages are installed
+      community.openwrt.command:
+        cmd: "opkg status {{ item }}"
+      loop:
+        - htop
+        - tcpdump
+      register: opkg_verify_installed
+      failed_when: opkg_verify_installed.stdout == ""
+
+    - name: Install packages given as a list (idempotency)
+      community.openwrt.opkg:
+        name:
+          - htop
+          - tcpdump
+        state: present
+      register: opkg_install_list
+
+    - name: Remove packages given as a list
+      community.openwrt.opkg:
+        name:
+          - htop
+          - tcpdump
+        state: absent
+      register: opkg_remove_list
+
+    - name: Verify packages are removed
+      community.openwrt.command:
+        cmd: "opkg status {{ item }}"
+      loop:
+        - htop
+        - tcpdump
+      register: opkg_verify_removed
+      failed_when: opkg_verify_removed.stdout != ""
+
+    - name: Remove packages given as a comma-separated string with spaces (idempotency)
+      community.openwrt.opkg:
+        name: "htop, tcpdump"
+        state: absent
+      register: opkg_remove_csv
+
+    - name: Assert list handling
+      ansible.builtin.assert:
+        that:
+          - opkg_install_csv is changed
+          - opkg_install_list is not changed
+          - opkg_remove_list is changed
+          - opkg_remove_csv is not changed
+
     - name: Test conf_file parameter (custom opkg configuration)
       vars:
         custom_opkg_conf: /tmp/opkg-custom.conf
