@@ -553,6 +553,52 @@
     that:
       - uci_absent_value_kept.result == 'keep'
 
+- name: "absent section - create a named section"
+  community.openwrt.uci:
+    command: section
+    key: uhttpd.uci_absent_section
+    type: uci_test
+    value:
+      marker: remove-me
+    autocommit: true
+
+- name: "absent section - remove the whole section by name"
+  community.openwrt.uci:
+    command: absent
+    config: uhttpd
+    type: uci_test
+    name: uci_absent_section
+    autocommit: true
+  register: uci_absent_section
+
+- name: "absent section - repeat the removal"
+  community.openwrt.uci:
+    command: absent
+    config: uhttpd
+    type: uci_test
+    name: uci_absent_section
+    autocommit: true
+  register: uci_absent_section_idempotent
+
+- name: "absent section - assert removal and idempotency"
+  ansible.builtin.assert:
+    that:
+      - uci_absent_section is changed
+      - uci_absent_section_idempotent is not changed
+
+- name: "absent section - verify the section is gone"
+  community.openwrt.uci:
+    command: get
+    key: uhttpd.uci_absent_section
+  failed_when: false
+  register: uci_absent_section_read
+
+- name: "absent section - assert the section no longer exists"
+  ansible.builtin.assert:
+    that:
+      - uci_absent_section_read.result == ''
+      - "'uci get failed' in uci_absent_section_read.msg"
+
 - name: "empty section - create a named section without options"
   community.openwrt.uci:
     command: section

@@ -427,15 +427,13 @@ function command_ensure(u, op, key, result) {
 }
 
 function command_absent(u, op, key, result) {
-    if (op.find == null && op.value == null) {
-        command_delete(u, op, key, result);
-        return;
-    }
-
     let section_type = op.type ?? key.section;
     if (key.config == null || (op.find != null && section_type == null))
         fail('config and type required for absent', result);
     let section = op.name ?? (op.find == null || op.type != null ? key.section : null);
+    if (op.find == null && op.value == null && section == null)
+        fail('key required for delete', result);
+
     let existing = section != null ? u.get_all(key.config, section) : null;
     if (existing != null && op.type != null && existing['.type'] != section_type)
         fail(`${key.config}.${section} exists with ${existing['.type']} instead of ${section_type}`, result);
