@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ucode Language Notes &mdash; Community.OpenWrt Collection  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Testing Guide" href="testing_guide.html" />
+    <link rel="prev" title="Community OpenWrt ucode Module Developer Guide" href="ucode_mod_dev_guide.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="https://ansible-collections.github.io/community.openwrt/branch/main/" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">Community.OpenWrt Collection Docs</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Community.OpenWrt Collection
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">Community OpenWrt User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">Community OpenWrt Migration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_apk_guide.html">OpenWrt 25.x Package Manager changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howto_guide.html">Community OpenWrt How-To Guide</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mod_dev_guide.html">Community OpenWrt Module Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ucode_mod_dev_guide.html">Community OpenWrt ucode Module Developer Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ucode Language Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#values-and-collections">Values and collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#numbers">Numbers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#errors">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#standard-library-corners">Standard library corners</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing_guide.html">Testing Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apk_module.html">community.openwrt.apk module – Manage packages with apk on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_module.html">community.openwrt.command module – Execute commands on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copy_module.html">community.openwrt.copy module – Copy files to remote OpenWrt devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../file_module.html">community.openwrt.file module – Manage files and file properties on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../group_module.html">community.openwrt.group module – Add or remove groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lineinfile_module.html">community.openwrt.lineinfile module – Manage lines in text files on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nohup_module.html">community.openwrt.nohup module – Starts a command in background and returns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opkg_module.html">community.openwrt.opkg module – Manage packages with opkg on OpenWrt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../package_facts_module.html">community.openwrt.package_facts module – Gather package facts in OpenWrt systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ping_module.html">community.openwrt.ping module – Verify ability to communicate with OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_module.html">community.openwrt.service module – Manage services on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_module.html">community.openwrt.setup module – Gather facts about OpenWrt systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../slurp_module.html">community.openwrt.slurp module – Slurps a file from remote OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stat_module.html">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sysctl_module.html">community.openwrt.sysctl module – Manage sysctl entries on OpenWrt targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tempfile_module.html">community.openwrt.tempfile module – Creates temporary files and directories on OpenWrt nodes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../template_module.html">community.openwrt.template module – Template a file out to remote OpenWrt target</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ucode_wrapper_module.html">community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Community.OpenWrt Collection</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ucode Language Notes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <section id="ucode-language-notes">
+<span id="ansible-collections-community-openwrt-docsite-ucode-language-notes"></span><h1>ucode Language Notes<a class="headerlink" href="#ucode-language-notes" title="Link to this heading"></a></h1>
+<p>ucode reads like JavaScript, and that is exactly what makes it worth writing these notes down: the places
+where the resemblance stops are the places where a module breaks. What follows are the differences that come
+up while writing modules for this collection. It is not a tutorial - the
+<a class="reference external" href="https://ucode.mein.io/">ucode documentation</a> is, and it is worth keeping open.</p>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<p>Parameters have no default values. Writing <code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">f(x</span> <span class="pre">=</span> <span class="pre">1)</span></code> does not compile, so test for <code class="docutils literal notranslate"><span class="pre">null</span></code> inside
+the function and fill the default in yourself.</p>
+<p>Rest parameters work: <code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">f(a,</span> <span class="pre">...rest)</span></code> collects the remaining arguments into an array, empty when
+none were passed, and it has to be the last parameter. Spreading works too, in calls and in array and object
+literals:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>push(cmd, 'add', ...packages);
+let merged = { ...defaults, ...overrides };
+</pre></div>
+</div>
+<p>There are no classes. Where you would reach for one, write a function that builds an object and returns it,
+with the state captured in the closure - which is what <code class="docutils literal notranslate"><span class="pre">AnsibleModule()</span></code> is.</p>
+</section>
+<section id="values-and-collections">
+<h2>Values and collections<a class="headerlink" href="#values-and-collections" title="Link to this heading"></a></h2>
+<p>Arrays and objects are manipulated with global functions rather than methods: <code class="docutils literal notranslate"><span class="pre">push()</span></code>, <code class="docutils literal notranslate"><span class="pre">length()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">sort()</span></code>, <code class="docutils literal notranslate"><span class="pre">map()</span></code>, <code class="docutils literal notranslate"><span class="pre">split()</span></code>, <code class="docutils literal notranslate"><span class="pre">join()</span></code>, <code class="docutils literal notranslate"><span class="pre">substr()</span></code>, <code class="docutils literal notranslate"><span class="pre">replace()</span></code>, <code class="docutils literal notranslate"><span class="pre">match()</span></code>. There is no
+<code class="docutils literal notranslate"><span class="pre">array.push()</span></code> and no <code class="docutils literal notranslate"><span class="pre">string.length</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">(let</span> <span class="pre">item</span> <span class="pre">in</span> <span class="pre">array)</span></code> iterates over the <strong>values</strong> of an array, not over its indices. Over an object, it
+iterates over the keys. Use a counting <code class="docutils literal notranslate"><span class="pre">for</span></code> loop when you need an index.</p>
+<p>There is no <code class="docutils literal notranslate"><span class="pre">undefined</span></code>: a key that is not there reads as <code class="docutils literal notranslate"><span class="pre">null</span></code>, so <code class="docutils literal notranslate"><span class="pre">value</span> <span class="pre">==</span> <span class="pre">null</span></code> is the test for
+“not set”. Strings cannot be indexed with <code class="docutils literal notranslate"><span class="pre">[]</span></code> - take one character with <code class="docutils literal notranslate"><span class="pre">substr(s,</span> <span class="pre">i,</span> <span class="pre">1)</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">type()</span></code> names the type of a value, and the names are not always the ones you expect: a string is
+<code class="docutils literal notranslate"><span class="pre">string</span></code>, a floating point number is <code class="docutils literal notranslate"><span class="pre">double</span></code>, an array is <code class="docutils literal notranslate"><span class="pre">array</span></code> and a dictionary is <code class="docutils literal notranslate"><span class="pre">object</span></code>.</p>
+</section>
+<section id="numbers">
+<h2>Numbers<a class="headerlink" href="#numbers" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">+</span></code> concatenates as soon as either side is a string, so <code class="docutils literal notranslate"><span class="pre">&quot;1.5&quot;</span> <span class="pre">+</span> <span class="pre">0.0</span></code> is the string <code class="docutils literal notranslate"><span class="pre">&quot;1.50&quot;</span></code> and not
+the number <code class="docutils literal notranslate"><span class="pre">1.5</span></code>. Nothing complains: you get a string where you expected a number, and only notice further
+down. Convert with unary plus instead - <code class="docutils literal notranslate"><span class="pre">+&quot;1.5&quot;</span></code> is the double <code class="docutils literal notranslate"><span class="pre">1.5</span></code> - and note that it reads a whole
+number as an <code class="docutils literal notranslate"><span class="pre">int</span></code>, so add <code class="docutils literal notranslate"><span class="pre">+</span> <span class="pre">0.0</span></code> when you need a <code class="docutils literal notranslate"><span class="pre">double</span></code>. Unary plus does not read a leading dot
+either: <code class="docutils literal notranslate"><span class="pre">+&quot;.5&quot;</span></code> is <code class="docutils literal notranslate"><span class="pre">NaN</span></code>, not <code class="docutils literal notranslate"><span class="pre">0.5</span></code>.</p>
+<p>Dividing two integers yields an integer: <code class="docutils literal notranslate"><span class="pre">7</span> <span class="pre">/</span> <span class="pre">2</span></code> is <code class="docutils literal notranslate"><span class="pre">3</span></code>, not <code class="docutils literal notranslate"><span class="pre">3.5</span></code>. Make one side a double when you
+want the fraction.</p>
+</section>
+<section id="errors">
+<h2>Errors<a class="headerlink" href="#errors" title="Link to this heading"></a></h2>
+<p>Errors are raised with <code class="docutils literal notranslate"><span class="pre">die()</span></code>, not <code class="docutils literal notranslate"><span class="pre">throw</span></code>, and caught with <code class="docutils literal notranslate"><span class="pre">try</span></code>/<code class="docutils literal notranslate"><span class="pre">catch</span></code> as usual:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>let meta;
+try {
+    meta = json(dump.stdout);
+} catch (e) {
+    meta = null;
+}
+</pre></div>
+</div>
+</section>
+<section id="standard-library-corners">
+<h2>Standard library corners<a class="headerlink" href="#standard-library-corners" title="Link to this heading"></a></h2>
+<p>A few behaviors are worth knowing before they cost you an afternoon:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">printf()</span></code> and <code class="docutils literal notranslate"><span class="pre">sprintf()</span></code> take <code class="docutils literal notranslate"><span class="pre">%J</span></code> to format a value as JSON, and <code class="docutils literal notranslate"><span class="pre">json()</span></code> parses a JSON string.</p></li>
+<li><p>Template literals in backticks interpolate with <code class="docutils literal notranslate"><span class="pre">${...}</span></code>, as in JavaScript.</p></li>
+<li><p>Regular expressions are written as literals - <code class="docutils literal notranslate"><span class="pre">match(value,</span> <span class="pre">/^[0-9]+$/)</span></code> - and <code class="docutils literal notranslate"><span class="pre">replace()</span></code> takes the
+<code class="docutils literal notranslate"><span class="pre">g</span></code> flag for a global replacement.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">math.rand()</span></code> seeds itself from the clock with millisecond resolution, so two processes starting together
+produce the same sequence. Do not use it to make something unique.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fs.mkstemp()</span></code> unlinks the file it creates and hands back an open handle, so there is no path to give to
+another program. <code class="docutils literal notranslate"><span class="pre">fs.mkdtemp()</span></code> returns a directory path, and <code class="docutils literal notranslate"><span class="pre">open(path,</span> <span class="pre">&quot;x&quot;)</span></code> creates a file only if
+it does not exist yet.</p></li>
+<li><p>There is no <code class="docutils literal notranslate"><span class="pre">getpid()</span></code>. Reading the link <code class="docutils literal notranslate"><span class="pre">/proc/self</span></code> gives the process id as a string.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ucode_mod_dev_guide.html" class="btn btn-neutral float-left" title="Community OpenWrt ucode Module Developer Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="testing_guide.html" class="btn btn-neutral float-right" title="Testing Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Community.OpenWrt Contributors.</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>
