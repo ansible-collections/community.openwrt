@@ -18,6 +18,8 @@ files:
   $module_utils/:
     labels: module_utils
     maintainers: $team_repo_mgrs
+  $module_utils/_uci.uc:
+    maintainers: $team_repo_mgrs
   $modules/:
     ignored: gekmihesg
     maintainers: $team_repo_mgrs
@@ -81,7 +83,7 @@ files:
     maintainers: zeerayne
   $modules/uci.py:
     maintainers: $team_repo_mgrs
-  $modules/uci.sh:
+  $modules/uci.uc:
     maintainers: $team_repo_mgrs
   $modules/ucode_wrapper.sh:
     maintainers: $team_repo_mgrs

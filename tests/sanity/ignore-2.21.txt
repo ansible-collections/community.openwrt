@@ -26,8 +26,7 @@ plugins/modules/sysctl.sh shebang
 plugins/modules/sysctl.sh validate-modules:invalid-extension
 plugins/modules/tempfile.sh shebang
 plugins/modules/tempfile.sh validate-modules:invalid-extension
-plugins/modules/uci.sh shebang
-plugins/modules/uci.sh validate-modules:invalid-extension
+plugins/modules/uci.uc validate-modules:invalid-extension
 plugins/modules/ucode_wrapper.sh shebang
 plugins/modules/ucode_wrapper.sh validate-modules:invalid-extension
 plugins/modules/wrapper.sh shebang
@@ -64,8 +63,3 @@ plugins/modules/sysctl.sh shellcheck:SC2046   # Quote this to prevent word split
 plugins/modules/sysctl.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
 plugins/modules/sysctl.sh shellcheck:SC2162   # `read` without `-r` will mangle backslashes - https://www.shellcheck.net/wiki/SC2162
 plugins/modules/sysctl.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166
-plugins/modules/uci.sh shellcheck:SC1087   # Use braces when expanding arrays, e.g. `${array[idx]}` (or `${var}[..` to quiet) - https://www.shellcheck.net/wiki/SC1087
-plugins/modules/uci.sh shellcheck:SC2015   # Note that `A && B || C` is not if-then-else. C may run when A is true - https://www.shellcheck.net/wiki/SC2015
-plugins/modules/uci.sh shellcheck:SC2046   # Quote this to prevent word splitting - https://www.shellcheck.net/wiki/SC2046
-plugins/modules/uci.sh shellcheck:SC2086   # Double quote to prevent globbing and word splitting - https://www.shellcheck.net/wiki/SC2086
-plugins/modules/uci.sh shellcheck:SC2166   # Prefer `[ p ] && [ q ]` as `[ p -a q ]` is not well-defined - https://www.shellcheck.net/wiki/SC2166

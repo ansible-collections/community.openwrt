@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - uci - adds ordered operation batching and secret-safe diffs while retaining the existing module interface (https://github.com/ansible-collections/community.openwrt/pull/264, https://github.com/ansible-collections/community.openwrt/pull/280).
+  - uci action plugin - supports execution through the collection's ucode framework (https://github.com/ansible-collections/community.openwrt/pull/264, https://github.com/ansible-collections/community.openwrt/pull/280).
