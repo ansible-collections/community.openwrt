@@ -330,3 +330,6 @@
     config: uhttpd
     section: "{{ uci_add_second_section.result }}"
   ignore_errors: true
+
+- name: "Behaviours preserved from earlier releases"
+  ansible.builtin.include_tasks: compat.yml

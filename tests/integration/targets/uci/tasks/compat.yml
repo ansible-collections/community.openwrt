@@ -1,0 +1,253 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: "compat - setup: create an empty config"
+  community.openwrt.file:
+    path: /etc/config/uci_compat
+    state: touch
+
+- name: "absent find list - setup: create a section holding the option"
+  community.openwrt.uci:
+    command: section
+    config: uci_compat
+    type: compat_absent
+    name: absent_list
+    value:
+      marker: keep
+
+- name: "absent find list - run absent with a list find and no option"
+  community.openwrt.uci:
+    command: absent
+    config: uci_compat
+    type: compat_absent
+    find:
+      - marker
+  register: uci_absent_find_list
+
+- name: "absent find list - read the option back"
+  community.openwrt.uci:
+    command: get
+    key: uci_compat.absent_list.marker
+  register: uci_absent_find_list_read
+
+- name: "absent find list - assert nothing was removed"
+  ansible.builtin.assert:
+    that:
+      - uci_absent_find_list is not changed
+      - uci_absent_find_list_read.result == "keep"
+
+- name: "absent list item - setup: create a section"
+  community.openwrt.uci:
+    command: section
+    config: uci_compat
+    type: compat_absent
+    name: absent_index
+
+- name: "absent list item - setup: create a list option"
+  community.openwrt.uci:
+    command: set
+    key: uci_compat.absent_index.items
+    value:
+      - one
+      - two
+
+- name: "absent list item - remove the first item by index without find"
+  community.openwrt.uci:
+    command: absent
+    key: uci_compat.absent_index.items
+    value: 0
+  register: uci_absent_item
+
+- name: "absent list item - read the list back"
+  community.openwrt.uci:
+    command: get
+    key: uci_compat.absent_index.items
+  register: uci_absent_item_read
+
+- name: "absent list item - assert only the first item was removed"
+  ansible.builtin.assert:
+    that:
+      - uci_absent_item is changed
+      - uci_absent_item_read.result_list == ["two"]
+
+- name: "absent list item - attempt to remove an item by value without find"
+  community.openwrt.uci:
+    command: absent
+    key: uci_compat.absent_index.items
+    value: two
+  register: uci_absent_by_value
+
+- name: "absent list item - read the list back after the attempt by value"
+  community.openwrt.uci:
+    command: get
+    key: uci_compat.absent_index.items
+  register: uci_absent_by_value_read
+
+- name: "absent list item - assert a value is not accepted as an index"
+  ansible.builtin.assert:
+    that:
+      - uci_absent_by_value is succeeded
+      - uci_absent_by_value is not changed
+      - uci_absent_by_value_read.result_list == ["two"]
+
+- name: "delete list item - setup: create a list option"
+  community.openwrt.uci:
+    command: set
+    key: uci_compat.absent_index.delete_items
+    value:
+      - one
+      - two
+
+- name: "delete list item - remove the first item by index"
+  community.openwrt.uci:
+    command: delete
+    key: uci_compat.absent_index.delete_items
+    value: 0
+  register: uci_delete_item
+
+- name: "delete list item - read the list back"
+  community.openwrt.uci:
+    command: get
+    key: uci_compat.absent_index.delete_items
+  register: uci_delete_item_read
+
+- name: "delete list item - assert only the first item was removed"
+  ansible.builtin.assert:
+    that:
+      - uci_delete_item is changed
+      - uci_delete_item_read.result_list == ["two"]
+
+- name: "delete list item - attempt to remove an item by value"
+  community.openwrt.uci:
+    command: delete
+    key: uci_compat.absent_index.delete_items
+    value: two
+  register: uci_delete_by_value
+  ignore_errors: true
+
+- name: "delete list item - read the list back after the attempt by value"
+  community.openwrt.uci:
+    command: get
+    key: uci_compat.absent_index.delete_items
+  register: uci_delete_by_value_read
+
+- name: "delete list item - assert a value is not accepted as an index"
+  ansible.builtin.assert:
+    that:
+      - uci_delete_by_value is failed
+      - uci_delete_by_value_read.result_list == ["two"]
+
+- name: "add named by value - add a section named after value"
+  community.openwrt.uci:
+    command: add
+    config: uci_compat
+    type: compat_add
+    value: add_named
+  register: uci_add_named
+
+- name: "add named by value - repeat the add"
+  community.openwrt.uci:
+    command: add
+    config: uci_compat
+    type: compat_add
+    value: add_named
+  register: uci_add_named_repeat
+
+- name: "add named by value - read the section type"
+  community.openwrt.uci:
+    command: get
+    key: uci_compat.add_named
+  register: uci_add_named_read
+
+- name: "add named by value - list the sections of that type"
+  community.openwrt.uci:
+    command: find_all
+    config: uci_compat
+    type: compat_add
+  register: uci_add_named_all
+
+- name: "add named by value - assert a single named section"
+  ansible.builtin.assert:
+    that:
+      - uci_add_named is changed
+      - uci_add_named_repeat is not changed
+      - uci_add_named_read.result == "compat_add"
+      - uci_add_named_all.result_list | length == 1
+
+- name: "section by option - setup: create a section holding the option"
+  community.openwrt.uci:
+    command: section
+    config: uci_compat
+    type: compat_option
+    name: option_named
+    value:
+      opt: one
+
+- name: "section by option - update the section matched by option alone"
+  community.openwrt.uci:
+    command: section
+    config: uci_compat
+    type: compat_option
+    option: opt
+    value: two
+  register: uci_section_option
+
+- name: "section by option - read the option back"
+  community.openwrt.uci:
+    command: get
+    key: uci_compat.option_named.opt
+  register: uci_section_option_read
+
+- name: "section by option - list the sections of that type"
+  community.openwrt.uci:
+    command: find_all
+    config: uci_compat
+    type: compat_option
+  register: uci_section_option_all
+
+- name: "section by option - assert the existing section was updated"
+  ansible.builtin.assert:
+    that:
+      - uci_section_option is changed
+      - uci_section_option.section == "@compat_option[0]"
+      - uci_section_option_read.result == "two"
+      - uci_section_option_all.result_list | length == 1
+
+- name: "missing config - find_all in a config that does not exist"
+  community.openwrt.uci:
+    command: find_all
+    config: uci_compat_missing
+    type: compat_missing
+  register: uci_missing_find_all
+
+- name: "missing config - find in a config that does not exist"
+  community.openwrt.uci:
+    command: find
+    config: uci_compat_missing
+    type: compat_missing
+    option: opt
+    find: value
+  register: uci_missing_find
+  ignore_errors: true
+
+- name: "missing config - assert empty result and no-match failure"
+  ansible.builtin.assert:
+    that:
+      - uci_missing_find_all is succeeded
+      - uci_missing_find_all.result_list == []
+      - uci_missing_find is failed
+      - >
+        "no matching section found in uci_compat_missing" in uci_missing_find.msg
+
+- name: "compat - teardown: revert staged changes"
+  community.openwrt.uci:
+    command: revert
+    config: uci_compat
+  ignore_errors: true
+
+- name: "compat - teardown: remove the config"
+  community.openwrt.file:
+    path: /etc/config/uci_compat
+    state: absent
