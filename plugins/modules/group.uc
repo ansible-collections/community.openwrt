@@ -20,7 +20,7 @@ const module = AnsibleModule({
         gid:        { type: 'int' },
         gid_max:    { type: 'int' },
         gid_min:    { type: 'int' },
-        state:      { type: 'str', default: 'present', choices: [ 'absent', 'present' ] },
+        state:      { type: 'str', default: 'present' },
         force:      { type: 'bool', default: false },
         system:     { type: 'bool', default: false },
         non_unique: { type: 'bool', default: false },
@@ -119,16 +119,17 @@ function group_absent(groups) {
     if (group == null)
         return;
 
+    result.changed();
+    if (module.check_mode)
+        return;
+
     if (!params.force) {
         let users = users_with_primary_gid(id_field(group, 2));
         if (length(users) > 0)
             module.fail_json(`cannot remove the primary group of user '${users[0]}'`);
     }
 
-    if (!module.check_mode)
-        write_groups(filter(groups, (g) => g != group));
-
-    result.changed();
+    write_groups(filter(groups, (g) => g != group));
 }
 
 function group_present(groups) {
@@ -136,52 +137,49 @@ function group_present(groups) {
     let gid = params.gid;
 
     if (group == null) {
-        if (gid == null)
+        result.changed();
+        if (gid == null) {
             gid = unused_gid(groups);
+            result.update({ gid: gid });
+        }
         else
             ensure_gid_unique(groups, gid);
 
         if (!module.check_mode)
             write_groups([ ...groups, { line: `${params.name}:x:${gid}:` } ]);
-
-        result.update({ gid: gid });
-        result.changed();
         return;
     }
 
-    let current_gid = id_field(group, 2);
-    if (gid == null || gid == current_gid) {
-        result.update({ gid: current_gid });
+    if (gid == null)
         return;
-    }
 
     ensure_gid_unique(groups, gid);
 
-    if (!module.check_mode) {
-        let fields = [ ...group.fields ];
-        fields[2] = gid;
-        group.line = join(':', fields);
-        write_groups(groups);
-    }
-
-    result.update({ gid: gid });
-    result.changed();
+    // A new GID for an existing group is reported as a change but not written,
+    // as the shell implementation did.
+    if (gid != id_field(group, 2))
+        result.changed();
 }
 
 // ---- main -----------------------------------------------------------------
+
+if (!(params.state in [ 'present', 'installed', 'absent', 'removed' ]))
+    module.fail_json('state must be present or absent');
 
 if (params.state == 'present' && params.non_unique && params.gid == null)
     module.fail_json('non_unique is `true` but all of the following are missing: gid');
 
 result.update({ name: params.name, state: params.state });
+if (params.gid != null)
+    result.update({ gid: params.gid });
+if (params.system)
+    result.update({ system: true });
 
 let groups = read_entries(GROUP_FILE);
 
-if (params.state == 'present') {
-    result.update({ system: params.system });
+if (params.state == 'present')
     group_present(groups);
-}
-else
+else if (params.state == 'absent')
     group_absent(groups);
 
 module.exit_json();
