@@ -38,6 +38,7 @@ options:
     default: ansible
 notes:
   - This module always returns C(changed=true) because it creates a new temporary file or directory each time it runs.
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 """
 
 EXAMPLES = r"""

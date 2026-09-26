@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import OpenwrtActionBase
+from ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action import UCodeActionBase
 
 _WIRELESS_SENSITIVE_KEYS = frozenset(
     {
@@ -36,7 +36,7 @@ def _redact_wireless(obj):
     return obj
 
 
-class ActionModule(OpenwrtActionBase):
+class ActionModule(UCodeActionBase):
     def run(self, tmp=None, task_vars=None):
         expose_secrets = self._task.args.get("expose_secrets", False)
 
