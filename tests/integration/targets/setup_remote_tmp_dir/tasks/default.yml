@@ -6,7 +6,6 @@
 - name: Create temporary directory
   community.openwrt.tempfile:
     state: directory
-    suffix: .test
   register: remote_tmp_dir
   notify:
     - Delete temporary directory
