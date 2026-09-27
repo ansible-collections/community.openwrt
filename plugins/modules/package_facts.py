@@ -21,6 +21,7 @@ extends_documentation_fragment:
 options: {}
 notes:
   - Facts are returned in the C(ansible_facts) namespace (C(packages) key).
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 """
 
 EXAMPLES = r"""

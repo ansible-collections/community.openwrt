@@ -49,6 +49,8 @@ options:
       - Pattern to search for in the process table to determine if the service is running.
       - If specified, this pattern is used with C(pgrep) instead of the init script's running command.
     type: str
+notes:
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 """
 
 EXAMPLES = r"""
