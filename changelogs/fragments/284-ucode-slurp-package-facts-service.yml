@@ -1,0 +1,4 @@
+minor_changes:
+  - package_facts - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+  - service - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+  - slurp - reimplement the module in ucode, failing on directories and always returning ``content`` (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
