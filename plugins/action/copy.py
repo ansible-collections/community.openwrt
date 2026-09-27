@@ -12,14 +12,14 @@ from ansible.errors import AnsibleError
 from ansible.module_utils.common.text.converters import to_bytes
 from ansible.module_utils.parsing.convert_bool import boolean
 
-from ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action import OpenwrtActionBase
+from ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action import UCodeActionBase
 
 
-class ActionModule(OpenwrtActionBase):
+class ActionModule(UCodeActionBase):
     """Action plugin for community.openwrt.copy module
 
     Handles file transfer from controller to remote OpenWrt device,
-    then invokes the shell-based copy module to handle permissions,
+    then invokes the ucode copy module to handle permissions,
     backup, and other file operations.
     """
 
@@ -90,6 +90,9 @@ class ActionModule(OpenwrtActionBase):
         self._task.args["_original_basename"] = os.path.basename(source)
         self._task.args["_diff_max_bytes"] = C.MAX_FILE_SIZE_FOR_DIFF
         self._task.args.pop("content", None)
+        # decrypt is handled here, on the controller; the module rejects parameters
+        # it does not declare.
+        self._task.args.pop("decrypt", None)
         return super().run(tmp, task_vars)
 
     def _create_content_tempfile(self, content):

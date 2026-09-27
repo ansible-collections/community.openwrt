@@ -31,7 +31,7 @@ files:
     maintainers: $team_repo_mgrs
   $modules/copy.py:
     maintainers: $team_repo_mgrs
-  $modules/copy.sh:
+  $modules/copy.uc:
     maintainers: $team_repo_mgrs
   $modules/file.py:
     maintainers: $team_repo_mgrs
