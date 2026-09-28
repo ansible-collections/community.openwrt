@@ -507,6 +507,41 @@ function Result() {
     };
 }
 
+// ---- value comparison -----------------------------------------------------
+
+// Compare two values structurally. sprintf('%J') is not a substitute: it
+// serializes object keys in insertion order. Arrays are compared in order,
+// objects regardless of key order, and int/double by numeric value.
+export function deep_equal(left, right) {
+    let left_type = type(left);
+    let right_type = type(right);
+
+    if (left_type in [ 'int', 'double' ] && right_type in [ 'int', 'double' ])
+        return left == right;
+    if (left_type != right_type)
+        return false;
+
+    if (left_type == 'array') {
+        if (length(left) != length(right))
+            return false;
+        for (let i = 0; i < length(left); i++)
+            if (!deep_equal(left[i], right[i]))
+                return false;
+        return true;
+    }
+
+    if (left_type == 'object') {
+        if (length(left) != length(right))
+            return false;
+        for (let name in left)
+            if (!exists(right, name) || !deep_equal(left[name], right[name]))
+                return false;
+        return true;
+    }
+
+    return left == right;
+};
+
 // ---- command execution ----------------------------------------------------
 
 // Quote a value for use as a single shell word.
