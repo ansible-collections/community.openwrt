@@ -18,6 +18,8 @@ files:
   $module_utils/:
     labels: module_utils
     maintainers: $team_repo_mgrs
+  $module_utils/_uci.uc:
+    maintainers: $team_repo_mgrs
   $modules/:
     ignored: gekmihesg
     maintainers: $team_repo_mgrs
