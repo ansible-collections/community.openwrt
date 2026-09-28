@@ -87,7 +87,7 @@ files:
     maintainers: zeerayne
   $modules/uci.py:
     maintainers: $team_repo_mgrs
-  $modules/uci.sh:
+  $modules/uci.uc:
     maintainers: $team_repo_mgrs
   $modules/ucode_wrapper.sh:
     maintainers: $team_repo_mgrs
