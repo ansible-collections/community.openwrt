@@ -334,6 +334,50 @@
 - name: "Behaviours preserved from earlier releases"
   ansible.builtin.include_tasks: compat.yml
 
+- name: "redaction - create a section containing a secret"
+  community.openwrt.uci:
+    command: section
+    config: uhttpd
+    type: testsecret
+    name: redaction_test
+    value:
+      description: visible
+      password: old-secret
+    autocommit: true
+
+- name: "redaction - update the secret with diff enabled"
+  community.openwrt.uci:
+    command: section
+    config: uhttpd
+    type: testsecret
+    name: redaction_test
+    value:
+      description: visible
+      password: new-secret
+    redact_keys:
+      - password
+    autocommit: true
+  diff: true
+  register: uci_redacted
+
+- name: "redaction - assert secrets are hidden from the result"
+  ansible.builtin.assert:
+    that:
+      - uci_redacted is succeeded
+      - uci_redacted is changed
+      - uci_redacted.diff is defined
+      - "'old-secret' not in (uci_redacted | to_json)"
+      - "'new-secret' not in (uci_redacted | to_json)"
+      - "'REDACTED-present' in (uci_redacted | to_json)"
+      - "'REDACTED-wanted' in (uci_redacted | to_json)"
+
+- name: "redaction - remove the test section"
+  community.openwrt.uci:
+    command: delete
+    config: uhttpd
+    section: redaction_test
+    autocommit: true
+
 - name: "operations - apply and commit multiple changes"
   community.openwrt.uci:
     autocommit: true

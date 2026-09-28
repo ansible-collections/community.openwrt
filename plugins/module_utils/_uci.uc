@@ -38,14 +38,40 @@ function copy_object(value) {
     return copied;
 }
 
-export function diff_entry(config, section, section_type, before, after) {
+// Return redacted copies, leaving the state used for change detection intact.
+export function redact(before, after, redact_keys) {
+    let safe_before = copy_object(before);
+    let safe_after = copy_object(after);
+
+    if (redact_keys == null)
+        return { before: safe_before, after: safe_after };
+
+    for (let name in redact_keys) {
+        let old_value = safe_before[name];
+        let new_value = safe_after[name];
+        let had_old = old_value != null;
+        let has_new = new_value != null;
+
+        if (had_old)
+            safe_before[name] = has_new && deep_equal(old_value, new_value)
+                ? 'REDACTED' : 'REDACTED-present';
+        if (has_new)
+            safe_after[name] = had_old && deep_equal(old_value, new_value)
+                ? 'REDACTED' : 'REDACTED-wanted';
+    }
+
+    return { before: safe_before, after: safe_after };
+};
+
+export function diff_entry(config, section, section_type, before, after, redact_keys) {
+    let safe = redact(before, after, redact_keys);
     let header = `${config}.${section}`;
     if (section_type != null && section_type != '')
         header += `=${section_type}`;
 
     return {
-        before: copy_object(before),
-        after: copy_object(after),
+        before: safe.before,
+        after: safe.after,
         before_header: header,
         after_header: header,
     };

@@ -8,7 +8,7 @@
 import { cursor } from 'uci';
 import { mkdir, open } from 'fs';
 import { deep_equal } from '_basic';
-import { normalize_value, section_values, upsert_section } from '_uci';
+import { normalize_value, redact, section_values, upsert_section } from '_uci';
 
 let failures = [];
 let checks = 0;
@@ -39,6 +39,16 @@ check('normalize_value: null', normalize_value(null), null);
 check('section_values: drops metadata',
       section_values({ '.name': 'main', '.type': 'uhttpd', '.anonymous': false, a: '1' }), { a: '1' });
 check('section_values: null section', section_values(null), {});
+
+// redact(): an unchanged value compares equal even when key order differs
+let safe = redact({ key: 'secret', other: 'x' }, { other: 'x', key: 'secret' }, [ 'key' ]);
+check('redact: unchanged before', safe.before, { key: 'REDACTED', other: 'x' });
+check('redact: unchanged after', safe.after, { key: 'REDACTED', other: 'x' });
+safe = redact({ key: 'old' }, { key: 'new' }, [ 'key' ]);
+check('redact: changed before', safe.before, { key: 'REDACTED-present' });
+check('redact: changed after', safe.after, { key: 'REDACTED-wanted' });
+safe = redact({ list: [ 'a', 'b' ] }, { list: [ 'a', 'b' ] }, [ 'list' ]);
+check('redact: unchanged list', safe.after, { list: 'REDACTED' });
 
 // upsert_section() against a scratch UCI config
 let scratch = ARGV[0];

@@ -93,6 +93,17 @@ options:
     description:
       - Option part of the O(key).
       - If not specified, extracted from O(key).
+  redact_keys:
+    description:
+      - UCI option names whose values must be hidden in diff output.
+      - Changed values are represented by V(REDACTED-present) and V(REDACTED-wanted); unchanged values are
+        represented by V(REDACTED).
+      - A value set on an individual O(operations) entry overrides this top-level list for that operation.
+      - This only affects diffs. O(command=get), O(command=show), and O(command=export) still return the values; use
+        the C(no_log) task keyword when reading sensitive values.
+    type: list
+    elements: str
+    version_added: "1.9.0"
   replace:
     description:
       - When O(command=set) or O(command=section), whether to delete all options not mentioned in O(keep_keys), O(value)
@@ -173,6 +184,13 @@ options:
       option:
         description:
           - See O(option).
+      redact_keys:
+        description:
+          - UCI option names whose values must be hidden in the diff of this operation.
+          - When set, replaces the top-level O(redact_keys) for this operation.
+          - See O(redact_keys).
+        type: list
+        elements: str
       replace:
         description:
           - See O(replace).
@@ -254,6 +272,14 @@ EXAMPLES = r"""
       - command: set
         key: network.lan.ipaddr
         value: 192.168.1.1
+
+# Hide a password in the before/after diff.
+- community.openwrt.uci:
+    command: set
+    key: wireless.default_radio0.key
+    value: top-secret
+    redact_keys:
+      - key
 """
 
 RETURN = r"""
@@ -275,7 +301,7 @@ changes:
   returned: when O(command=changes)
   type: dict
 diff:
-  description: UCI state before and after each changed operation.
+  description: UCI state before and after each changed operation, with options from O(redact_keys) hidden.
   returned: in diff mode when a supported operation changes state
   type: list
   elements: dict

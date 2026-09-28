@@ -31,6 +31,7 @@ const OPERATION_SPEC = {
     merge: { type: 'bool', default: false },
     name: { type: 'str' },
     option: { type: 'str' },
+    redact_keys: { type: 'list', elements: 'str' },
     replace: { type: 'bool', default: false },
     section: { type: 'str' },
     set_find: { type: 'bool', default: true },
@@ -114,10 +115,11 @@ function operation(raw) {
     return op;
 }
 
-function add_diff(config, section, section_type, before, after) {
+function add_diff(config, section, section_type, before, after, redact_keys) {
     if (!module.diff_mode || deep_equal(before, after))
         return;
-    push(diffs, diff_entry(config, section, section_type, before, after));
+    push(diffs, diff_entry(config, section, section_type, before, after,
+                           redact_keys ?? params.redact_keys));
 }
 
 function command_get(u, op, key, result) {
@@ -644,7 +646,7 @@ function execute(u, op) {
     if (result.changed && stages_changes && key.config != null && after_section != null) {
         let after_state = section_values(u.get_all(key.config, after_section));
         let after_type = u.get(key.config, after_section) ?? before_type;
-        add_diff(key.config, after_section, after_type, before_state, after_state);
+        add_diff(key.config, after_section, after_type, before_state, after_state, op.redact_keys);
     }
     if (result.changed && stages_changes && !module.check_mode)
         save_changes(u, key.config, result);
