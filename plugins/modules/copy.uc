@@ -3,9 +3,9 @@
 // GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { access, basename, dirname, error, lstat, mkdir, open, readfile, realpath, stat, unlink } from 'fs';
+import { access, basename, dirname, error, mkdir, open, readfile, realpath, stat, unlink } from 'fs';
 import { AnsibleModule } from '_basic';
-import { FILE_COMMON_ARGS, backup_local, digest, set_file_attributes } from '_file';
+import { FILE_COMMON_ARGS, backup_local, digest, is_link, set_file_attributes } from '_file';
 
 const module = AnsibleModule({
     argument_spec: {
@@ -37,11 +37,6 @@ let dest = params.dest;
 function is_dir(path) {
     let info = stat(path);
     return info != null && info.type == 'directory';
-}
-
-function is_link(path) {
-    let info = lstat(path);
-    return info != null && info.type == 'link';
 }
 
 function file_size(path) {
