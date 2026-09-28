@@ -89,8 +89,8 @@ function chmod_mode(mode) {
     let value = 0;
 
     for (let i = 0; i < length(mode); i++) {
-        let digit = ord(mode, i) - 48;
-        if (digit >= base)
+        let digit = ord(mode, i) - ord('0');
+        if (digit < 0 || digit >= base)
             return mode;
 
         value = value * base + digit;
@@ -109,7 +109,7 @@ export function is_link(path) {
 // changed anything.
 function attributes_of(path, follow) {
     let info = follow ? stat(path) : lstat(path);
-    return info != null ? sprintf('%d:%d:%d', info.uid, info.gid, info.mode) : '';
+    return info != null ? sprintf('%d:%d:%04o', info.uid, info.gid, info.mode) : '';
 }
 
 // Set the owner, group and mode the module was asked for on `path`. `overrides`
