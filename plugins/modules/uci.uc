@@ -206,17 +206,96 @@ function command_set(u, op, key, result) {
     result.changed = true;
 }
 
+// Parse the leading integer of a value, mirroring the C `sscanf(value, "%d")`
+// that `uci delete key=value` uses to select a list item by index. Returns null
+// when the value does not start with an integer.
+function parse_index(value) {
+    let text = sprintf('%s', normalize_value(value));
+    let found = match(text, /^[[:space:]]*([-+]?[0-9]+)/);
+    return found != null ? int(found[1]) : null;
+}
+
+function list_without(values, index) {
+    return filter(values, (item, position) => position != index);
+}
+
+// Remove the list item at `index`, or the whole option when it is scalar.
+// Returns true when the cursor was modified.
+function delete_index(u, key, index, result) {
+    let current = u.get(key.config, key.section, key.option);
+    if (current == null)
+        return false;
+
+    if (type(current) == 'array') {
+        if (index < 0 || index >= length(current))
+            return false;
+        let kept = list_without(current, index);
+        if (length(kept) == 0)
+            cursor_call(u, u.delete(key.config, key.section, key.option),
+                        `cannot delete ${key_name(key)}`, result);
+        else
+            cursor_call(u, u.set(key.config, key.section, key.option, kept),
+                        `cannot set ${key_name(key)}`, result);
+    } else {
+        cursor_call(u, u.delete(key.config, key.section, key.option),
+                    `cannot delete ${key_name(key)}`, result);
+    }
+    return true;
+}
+
+function delete_option(u, key, result) {
+    if (u.get(key.config, key.section, key.option) == null)
+        return;
+    cursor_call(u, u.delete(key.config, key.section, key.option),
+                `cannot delete ${key_name(key)}`, result);
+    result.changed = true;
+}
+
+// `command=absent` given a dict of option/value pairs removes each listed
+// option, or the matching item of a list option.
+function remove_option_value(u, key, value, result) {
+    if (value == null) {
+        delete_option(u, key, result);
+        return;
+    }
+
+    let wanted = sprintf('%s', normalize_value(value));
+    let current = u.get(key.config, key.section, key.option);
+    if (current == null)
+        return;
+
+    if (type(current) == 'array') {
+        if (!(wanted in current))
+            return;
+        cursor_call(u, list_remove(u, key.config, key.section, key.option, wanted),
+                    `cannot remove list value from ${key_name(key)}`, result);
+    } else if (sprintf('%s', current) == wanted) {
+        cursor_call(u, u.delete(key.config, key.section, key.option),
+                    `cannot delete ${key_name(key)}`, result);
+    } else {
+        return;
+    }
+    result.changed = true;
+}
+
 function command_delete(u, op, key, result) {
     if (key.config == null)
         fail('key required for delete', result);
 
-    if (key.option != null && op.value != null) {
-        let wanted = sprintf('%s', normalize_value(op.value));
-        let present = wanted in list_get(u, key.config, key.section, key.option);
-        if (present) {
-            cursor_call(u, list_remove(u, key.config, key.section, key.option, wanted),
-                        `cannot remove list value from ${key_name(key)}`, result);
+    if (op.value != null) {
+        let index = parse_index(op.value);
+        if (index == null)
+            fail(`cannot delete ${key_name(key)}=${sprintf('%s', normalize_value(op.value))}: `
+                 + 'the value must be a list index', result);
+        if (key.option != null) {
+            if (delete_index(u, key, index, result))
+                result.changed = true;
+        } else if (key.section != null && u.get_all(key.config, key.section) != null) {
+            cursor_call(u, u.delete(key.config, key.section),
+                        `cannot delete ${key_name(key)}`, result);
             result.changed = true;
+        } else {
+            fail('key required for delete', result);
         }
     } else if (key.option != null) {
         if (u.get(key.config, key.section, key.option) != null) {
@@ -236,8 +315,9 @@ function command_delete(u, op, key, result) {
 }
 
 function command_add(u, op, key, result) {
-    let section_type = op.type ?? key.section ?? op.value;
-    let name = op.name ?? (op.type != null ? key.section : null);
+    let section = key.section ?? (op.value != null ? sprintf('%s', op.value) : null);
+    let section_type = op.type ?? section;
+    let name = op.name ?? (op.type != null ? section : null);
     if (key.config == null || section_type == null)
         fail('config and type required for add', result);
 
@@ -252,15 +332,15 @@ function command_add(u, op, key, result) {
     }
 
     cursor_call(u, u.get_all(key.config), `cannot load UCI configuration ${key.config}`, result);
-    let section = u.add(key.config, section_type);
-    if (section == null)
+    let created = u.add(key.config, section_type);
+    if (created == null)
         fail(`uci add failed for ${key.config} type ${section_type}`, result);
     if (name != null) {
-        cursor_call(u, u.rename(key.config, section, name),
-                    `cannot rename ${key.config}.${section} to ${name}`, result);
-        section = name;
+        cursor_call(u, u.rename(key.config, created, name),
+                    `cannot rename ${key.config}.${created} to ${name}`, result);
+        created = name;
     }
-    result.result = section;
+    result.result = created;
     result.changed = true;
 }
 
@@ -313,9 +393,7 @@ function command_find(u, op, key, result, find_all) {
     if (!find_all && key.option == null && op.find == null)
         fail('config, type and option required for find', result);
 
-    let config = u.get_all(key.config);
-    if (config == null)
-        fail(`config not found: ${key.config}`, result);
+    let config = u.get_all(key.config) ?? {};
 
     let matches = [];
     let index = 0;
@@ -366,7 +444,7 @@ function command_ensure(u, op, key, result) {
     if (existing != null && existing['.type'] != section_type)
         fail(`${key.config}.${section} exists with ${existing['.type']} instead of ${section_type}`, result);
 
-    if (existing == null && op.find != null) {
+    if (existing == null && (op.find != null || key.option != null)) {
         let found = find_section(u, op, key, section_type);
         section = found != null ? found.positional : null;
         existing = found != null ? u.get_all(key.config, found.id) : null;
@@ -437,6 +515,10 @@ function command_absent(u, op, key, result) {
     if (existing != null && op.type != null && existing['.type'] != section_type)
         fail(`${key.config}.${section} exists with ${existing['.type']} instead of ${section_type}`, result);
     if (existing == null && op.find != null) {
+        // A list (non-mapping) find without an option cannot select a section
+        // for removal; the legacy shell module treats this as a no-op.
+        if (type(op.find) != 'object' && key.option == null)
+            return;
         let found = find_section(u, op, key, section_type);
         if (found == null)
             return;
@@ -453,9 +535,19 @@ function command_absent(u, op, key, result) {
             command_delete(u, { ...op, value: null }, { ...selected, option: option }, result);
     } else if (type(op.value) == 'object') {
         for (let option in op.value)
-            command_delete(u, { ...op, value: op.value[option] }, { ...selected, option: option }, result);
+            remove_option_value(u, { ...selected, option: option }, op.value[option], result);
     } else {
-        command_delete(u, { ...op, value: null }, { ...selected, option: sprintf('%s', op.value) }, result);
+        // A scalar value is passed to `uci delete <key>=<value>`, which only
+        // acts on a numeric list index; any other value is a silent no-op.
+        let index = parse_index(op.value);
+        if (index != null && selected.option != null) {
+            if (delete_index(u, selected, index, result))
+                result.changed = true;
+        } else if (index != null && u.get_all(key.config, section) != null) {
+            cursor_call(u, u.delete(key.config, section),
+                        `cannot delete ${key.config}.${section}`, result);
+            result.changed = true;
+        }
     }
     result.section = section;
     result.result = section;
