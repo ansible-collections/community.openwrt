@@ -501,10 +501,10 @@ function command_line(args) {
 }
 
 // ucode has no getpid(); Linux exposes the process id through /proc/self.
-function process_id() {
+export function process_id() {
     let pid = readlink('/proc/self');
     return pid != null ? pid : 'unknown';
-}
+};
 
 let stderr_seq = 0;
 

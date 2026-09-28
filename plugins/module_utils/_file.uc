@@ -7,9 +7,10 @@
 // counterpart of _file.sh. It covers the attributes such a module sets on what
 // it writes, the backup it takes before writing, and the digests it compares:
 //
-//   import { FILE_COMMON_ARGS, backup_local, digest, set_file_attributes } from '_file';
+//   import { FILE_COMMON_ARGS, backup_local, digest, is_link, set_file_attributes } from '_file';
 
-import { lstat, readlink, stat } from 'fs';
+import { lstat, stat } from 'fs';
+import { process_id } from '_basic';
 
 // The parameters every module setting attributes on a file accepts. Spread it
 // into the module's argument_spec:
@@ -57,12 +58,6 @@ export function digest(module, alg, path) {
 
 // ---- backup ---------------------------------------------------------------
 
-// ucode has no getpid(); Linux exposes the process id through /proc/self.
-function process_id() {
-    let pid = readlink('/proc/self');
-    return pid != null ? pid : 'unknown';
-}
-
 // Copy a file next to itself, under a name carrying the moment it was taken,
 // and return the name of the copy. A file that is not there is not backed up,
 // and the empty string says so.
@@ -105,10 +100,10 @@ function chmod_mode(mode) {
 }
 
 // Whether the path is a symbolic link, rather than whatever it points at.
-function is_link(path) {
+export function is_link(path) {
     let info = lstat(path);
     return info != null && info.type == 'link';
-}
+};
 
 // The ownership and permissions of a path, for telling whether setting them
 // changed anything.
