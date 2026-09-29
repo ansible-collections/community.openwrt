@@ -48,6 +48,8 @@ options:
     description:
       - Sets the GID_MAX value for group creation.
     type: int
+notes:
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 extends_documentation_fragment:
   - community.openwrt.attributes
 attributes:
