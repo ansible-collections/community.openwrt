@@ -79,6 +79,8 @@ options:
       - Without this option, the task fails if the file does not exist.
     type: bool
     default: false
+notes:
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 """
 
 EXAMPLES = r"""

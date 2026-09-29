@@ -41,7 +41,7 @@ files:
     maintainers: s-hamann
   $modules/lineinfile.py:
     maintainers: $team_repo_mgrs
-  $modules/lineinfile.sh:
+  $modules/lineinfile.uc:
     maintainers: $team_repo_mgrs
   $modules/nohup.py:
     maintainers: $team_repo_mgrs
