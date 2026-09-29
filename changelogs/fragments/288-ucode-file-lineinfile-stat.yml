@@ -1,0 +1,7 @@
+minor_changes:
+  - file - reimplement the module in ucode, fixing ``state=touch`` with ``follow`` and hard links with a relative ``src`` (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - lineinfile - reimplement the module in ucode, no longer reporting a diff when nothing is removed (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - stat - reimplement the module in ucode, honoring ``follow`` and returning ``dev`` (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - file action plugin - adapt to the ucode implementation of the ``file`` module (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - lineinfile action plugin - adapt to the ucode implementation of the ``lineinfile`` module (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - stat action plugin - adapt to the ucode implementation of the ``stat`` module (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
