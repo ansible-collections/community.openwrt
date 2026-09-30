@@ -7,8 +7,6 @@
   community.openwrt.file:
     path: /etc/crontabs/root
     state: touch
-    content: |
-      * * * * * /bin/echo "Holy canole,    it\\'s OpenWrt"
 
 - name: Disable cron service
   community.openwrt.service:

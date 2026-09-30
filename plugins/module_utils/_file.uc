@@ -5,11 +5,12 @@
 
 // _file.uc — helpers for modules managing filesystem objects, the ucode
 // counterpart of _file.sh. It covers the attributes such a module sets on what
-// it writes, the backup it takes before writing, and the digests it compares:
+// it writes, the directories it creates, the backup it takes before writing,
+// the digests it compares and the diff it reports:
 //
 //   import { FILE_COMMON_ARGS, backup_local, digest, is_link, set_file_attributes } from '_file';
 
-import { lstat, stat } from 'fs';
+import { error, lsdir, lstat, mkdir, stat } from 'fs';
 import { process_id } from '_basic';
 
 // The parameters every module setting attributes on a file accepts. Spread it
@@ -105,17 +106,33 @@ export function is_link(path) {
     return info != null && info.type == 'link';
 };
 
-// The ownership and permissions of a path, for telling whether setting them
-// changed anything.
-function attributes_of(path, follow) {
+// Whether the path is a directory, or a symbolic link to one.
+export function is_dir(path) {
+    let info = stat(path);
+    return info != null && info.type == 'directory';
+};
+
+// The ownership and permissions of a path - and, with `recurse`, of everything
+// below it - for telling whether setting them changed anything.
+function attributes_of(path, follow, recurse) {
     let info = follow ? stat(path) : lstat(path);
-    return info != null ? sprintf('%d:%d:%04o', info.uid, info.gid, info.mode) : '';
+    if (info == null)
+        return '';
+
+    let attrs = sprintf('%d:%d:%04o', info.uid, info.gid, info.mode);
+    if (recurse && info.type == 'directory') {
+        for (let entry in sort(lsdir(path) ?? []))
+            attrs += `\n${entry}=${attributes_of(`${path}/${entry}`, false, true)}`;
+    }
+
+    return attrs;
 }
 
 // Set the owner, group and mode the module was asked for on `path`. `overrides`
 // replaces individual attributes, as a module giving a mode of its own to the
-// directories it creates does. Nothing is set in check mode. Returns whether
-// anything actually changed.
+// directories it creates does, and may set `recurse` to apply them to
+// everything below a directory as well. Nothing is set in check mode. Returns
+// whether anything actually changed.
 export function set_file_attributes(module, path, overrides) {
     if (module.check_mode)
         return false;
@@ -126,6 +143,7 @@ export function set_file_attributes(module, path, overrides) {
         group: params.group,
         mode: params.mode,
         follow: params.follow,
+        recurse: false,
         ...(overrides != null ? overrides : {}),
     };
 
@@ -136,28 +154,65 @@ export function set_file_attributes(module, path, overrides) {
     if (attrs.owner == null && attrs.group == null && attrs.mode == null)
         return false;
 
-    let before = attributes_of(path, attrs.follow);
+    let before = attributes_of(path, attrs.follow, attrs.recurse);
     // Without `follow`, the attributes belong to the link and not to its target.
     let on_link = attrs.follow ? [] : [ '-h' ];
+    let recursive = attrs.recurse ? [ '-R' ] : [];
 
     if (attrs.owner != null) {
-        let res = module.run_command([ 'chown', ...on_link, attrs.owner, '--', path ]);
+        let res = module.run_command([ 'chown', ...on_link, ...recursive, attrs.owner, '--', path ]);
         if (res.rc != 0)
             module.fail_json(`chown (${path}) failed: ${trim(res.stderr)}`);
     }
 
     if (attrs.group != null) {
-        let res = module.run_command([ 'chgrp', ...on_link, attrs.group, '--', path ]);
+        let res = module.run_command([ 'chgrp', ...on_link, ...recursive, attrs.group, '--', path ]);
         if (res.rc != 0)
             module.fail_json(`chgrp (${path}) failed: ${trim(res.stderr)}`);
     }
 
     // There is no mode to set on a link that is not being followed.
     if (attrs.mode != null && (attrs.follow || !is_link(path))) {
-        let res = module.run_command([ 'chmod', chmod_mode(attrs.mode), '--', path ]);
+        let res = module.run_command([ 'chmod', ...recursive, chmod_mode(attrs.mode), '--', path ]);
         if (res.rc != 0)
             module.fail_json(`chmod (${path}) failed: ${trim(res.stderr)}`);
     }
 
-    return before != attributes_of(path, attrs.follow);
+    return before != attributes_of(path, attrs.follow, attrs.recurse);
+};
+
+// ---- directories ----------------------------------------------------------
+
+// Create whichever of the directories leading to and including `path` are not
+// there yet, giving each one the attributes set_file_attributes() would, with
+// `overrides` applied the same way. Returns whether any directory was created.
+export function make_dirs(module, path, overrides) {
+    let created = substr(path, 0, 1) == '/' ? '' : '.';
+    let changed = false;
+
+    for (let part in split(path, '/')) {
+        if (part == '')
+            continue;
+
+        created += `/${part}`;
+        if (is_dir(created))
+            continue;
+
+        if (!mkdir(created))
+            module.fail_json(`mkdir ${created}: ${error()}`);
+
+        set_file_attributes(module, created, overrides);
+        changed = true;
+    }
+
+    return changed;
+};
+
+// ---- diff -----------------------------------------------------------------
+
+// One side of a diff, as a text ending in a single newline - or nothing at all,
+// which is how a file that is not there is told apart from an empty one.
+export function diff_side(text) {
+    let content = rtrim(text, '\n');
+    return content != '' ? `${content}\n` : '';
 };

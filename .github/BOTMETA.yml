@@ -35,13 +35,13 @@ files:
     maintainers: $team_repo_mgrs
   $modules/file.py:
     maintainers: $team_repo_mgrs
-  $modules/file.sh:
+  $modules/file.uc:
     maintainers: $team_repo_mgrs
   $modules/group.uc:
     maintainers: s-hamann
   $modules/lineinfile.py:
     maintainers: $team_repo_mgrs
-  $modules/lineinfile.sh:
+  $modules/lineinfile.uc:
     maintainers: $team_repo_mgrs
   $modules/nohup.py:
     maintainers: $team_repo_mgrs
@@ -71,7 +71,7 @@ files:
     maintainers: $team_repo_mgrs
   $modules/stat.py:
     maintainers: $team_repo_mgrs
-  $modules/stat.sh:
+  $modules/stat.uc:
     maintainers: $team_repo_mgrs
   $modules/sysctl.py:
     maintainers: $team_repo_mgrs

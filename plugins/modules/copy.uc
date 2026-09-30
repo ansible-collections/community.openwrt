@@ -3,9 +3,9 @@
 // GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { access, basename, dirname, error, mkdir, open, readfile, realpath, stat, unlink } from 'fs';
+import { access, basename, dirname, error, open, readfile, realpath, stat, unlink } from 'fs';
 import { AnsibleModule } from '_basic';
-import { FILE_COMMON_ARGS, backup_local, digest, is_link, set_file_attributes } from '_file';
+import { FILE_COMMON_ARGS, backup_local, diff_side, digest, is_dir, is_link, make_dirs, set_file_attributes } from '_file';
 
 const module = AnsibleModule({
     argument_spec: {
@@ -34,11 +34,6 @@ let dest = params.dest;
 
 // ---- helpers --------------------------------------------------------------
 
-function is_dir(path) {
-    let info = stat(path);
-    return info != null && info.type == 'directory';
-}
-
 function file_size(path) {
     let info = stat(path);
     return info != null ? info.size : 0;
@@ -48,34 +43,6 @@ function file_size(path) {
 function set_dest(value) {
     dest = value;
     result.update({ dest: dest });
-}
-
-// Create the directories leading to the destination, giving each one the mode
-// the task asked for its directories.
-function make_parents(path) {
-    let created = substr(path, 0, 1) == '/' ? '' : '.';
-
-    for (let part in split(path, '/')) {
-        if (part == '')
-            continue;
-
-        created += `/${part}`;
-        if (is_dir(created))
-            continue;
-
-        if (!mkdir(created))
-            module.fail_json(`mkdir ${created}: ${error()}`);
-
-        if (set_file_attributes(module, created, { mode: params.directory_mode }))
-            result.changed();
-    }
-}
-
-// One side of the diff, as a text ending in a single newline - or nothing at
-// all, which is how a file that is not there is told apart from an empty one.
-function diff_side(text) {
-    let content = rtrim(text, '\n');
-    return content != '' ? `${content}\n` : '';
 }
 
 // Show what the copy does to the destination. A file too large on either side
@@ -160,9 +127,11 @@ if (md5sum_src != '')
 if (params.original_basename != null && substr(dest, -1) == '/') {
     set_dest(`${dest}${params.original_basename}`);
 
+    // The directories leading to the destination get the mode the task asked
+    // for its directories.
     let parent = dirname(dest);
-    if (!is_dir(parent))
-        make_parents(parent);
+    if (make_dirs(module, parent, { mode: params.directory_mode }))
+        result.changed();
 }
 
 // So does a destination that is a directory already.
