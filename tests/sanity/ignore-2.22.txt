@@ -8,14 +8,11 @@ plugins/modules/lineinfile.sh shebang
 plugins/modules/lineinfile.sh validate-modules:invalid-extension
 plugins/modules/nohup.uc validate-modules:invalid-extension
 plugins/modules/opkg.uc validate-modules:invalid-extension
-plugins/modules/package_facts.sh shebang
-plugins/modules/package_facts.sh validate-modules:invalid-extension
+plugins/modules/package_facts.uc validate-modules:invalid-extension
 plugins/modules/ping.uc validate-modules:invalid-extension
-plugins/modules/service.sh shebang
-plugins/modules/service.sh validate-modules:invalid-extension
+plugins/modules/service.uc validate-modules:invalid-extension
 plugins/modules/setup.uc validate-modules:invalid-extension
-plugins/modules/slurp.sh shebang
-plugins/modules/slurp.sh validate-modules:invalid-extension
+plugins/modules/slurp.uc validate-modules:invalid-extension
 plugins/modules/stat.sh shebang
 plugins/modules/stat.sh validate-modules:invalid-extension
 plugins/modules/sysctl.uc validate-modules:invalid-extension

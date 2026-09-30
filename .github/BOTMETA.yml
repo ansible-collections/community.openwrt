@@ -51,13 +51,15 @@ files:
     maintainers: $team_repo_mgrs
   $modules/opkg.uc:
     maintainers: $team_repo_mgrs
+  $modules/package_facts.uc:
+    maintainers: $team_repo_mgrs
   $modules/ping.py:
     maintainers: $team_repo_mgrs
   $modules/ping.uc:
     maintainers: $team_repo_mgrs
   $modules/service.py:
     maintainers: $team_repo_mgrs
-  $modules/service.sh:
+  $modules/service.uc:
     maintainers: $team_repo_mgrs
   $modules/setup.py:
     maintainers: $team_repo_mgrs
@@ -65,7 +67,7 @@ files:
     maintainers: $team_repo_mgrs
   $modules/slurp.py:
     maintainers: $team_repo_mgrs
-  $modules/slurp.sh:
+  $modules/slurp.uc:
     maintainers: $team_repo_mgrs
   $modules/stat.py:
     maintainers: $team_repo_mgrs
