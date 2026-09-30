@@ -65,6 +65,8 @@ options:
     type: bool
     aliases:
       - ignoreerrors
+notes:
+  - Starting with version 1.9.0 of this collection, this module is implemented in C(ucode).
 """
 
 EXAMPLES = r"""

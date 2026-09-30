@@ -45,7 +45,7 @@ files:
     maintainers: $team_repo_mgrs
   $modules/nohup.py:
     maintainers: $team_repo_mgrs
-  $modules/nohup.sh:
+  $modules/nohup.uc:
     maintainers: $team_repo_mgrs
   $modules/opkg.py:
     maintainers: $team_repo_mgrs
@@ -61,7 +61,7 @@ files:
     maintainers: $team_repo_mgrs
   $modules/setup.py:
     maintainers: $team_repo_mgrs
-  $modules/setup.sh:
+  $modules/setup.uc:
     maintainers: $team_repo_mgrs
   $modules/slurp.py:
     maintainers: $team_repo_mgrs
@@ -73,11 +73,11 @@ files:
     maintainers: $team_repo_mgrs
   $modules/sysctl.py:
     maintainers: $team_repo_mgrs
-  $modules/sysctl.sh:
+  $modules/sysctl.uc:
     maintainers: $team_repo_mgrs
   $modules/tempfile.py:
     maintainers: zeerayne
-  $modules/tempfile.sh:
+  $modules/tempfile.uc:
     maintainers: zeerayne
   $modules/template.py:
     maintainers: zeerayne

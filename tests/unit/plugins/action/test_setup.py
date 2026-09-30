@@ -108,7 +108,7 @@ def test_redact_wireless_handles_empty():
 def test_run_redacts_wireless_facts(mocker):
     action = _make_action()
     mocker.patch(
-        "ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action.OpenwrtActionBase.run",
+        "ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action.UCodeActionBase.run",
         return_value={"changed": False, "ansible_facts": {"openwrt_wireless": WIRELESS_WITH_SECRETS}},
     )
     result = action.run(task_vars={})
@@ -125,7 +125,7 @@ def test_run_expose_secrets_requires_explicit_no_log(mocker):
     action._task.args = {"expose_secrets": True}
     action._task.get_ds.return_value = {"expose_secrets": True}  # no_log absent
     mocker.patch(
-        "ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action.OpenwrtActionBase.run",
+        "ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action.UCodeActionBase.run",
         return_value={"changed": False, "ansible_facts": {"openwrt_wireless": WIRELESS_WITH_SECRETS}},
     )
     result = action.run(task_vars={})
@@ -139,7 +139,7 @@ def test_run_expose_secrets_preserves_wireless_facts(mocker):
     action._task.args = {"expose_secrets": True}
     action._task.get_ds.return_value = {"expose_secrets": True, "no_log": False}
     mocker.patch(
-        "ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action.OpenwrtActionBase.run",
+        "ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action.UCodeActionBase.run",
         return_value={"changed": False, "ansible_facts": {"openwrt_wireless": WIRELESS_WITH_SECRETS}},
     )
     result = action.run(task_vars={})
@@ -149,7 +149,7 @@ def test_run_expose_secrets_preserves_wireless_facts(mocker):
 def test_run_without_wireless_facts(mocker):
     action = _make_action()
     mocker.patch(
-        "ansible_collections.community.openwrt.plugins.plugin_utils.openwrt_action.OpenwrtActionBase.run",
+        "ansible_collections.community.openwrt.plugins.plugin_utils.ucode_action.UCodeActionBase.run",
         return_value={"changed": False, "ansible_facts": {"ansible_hostname": "router"}},
     )
     result = action.run(task_vars={})
