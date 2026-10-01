@@ -264,9 +264,6 @@ the full picture; the essentials are summarized below.
 - Role tests: `nox -e roles -- --role <role> --scenario <scenario>` (omit `--scenario` for all
   scenarios of a role, omit both for every role)
 - Collection-level default Molecule scenario: `nox -e molecule`
-- shellcheck failures MUST be suppressed via the appropriate `tests/sanity/ignore-X.Y.txt` file —
-  never with inline `# shellcheck disable=` in the module files. Regenerate ignore files after
-  significant shell changes with `nox -e regen_shellcheck_ignores`.
 - Other nox sessions worth knowing: `nox -e lint` (formatters, codeqa, yamllint, antsibull-nox-config),
   `nox -e license-check` (REUSE compliance), `nox -e extra-checks`, `nox -e build-import-check`. Plain
   `nox` runs all default sessions.

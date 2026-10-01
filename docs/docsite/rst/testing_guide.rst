@@ -209,30 +209,6 @@ Unit tests:
 See the :ref:`ansible_collections.community.openwrt.docsite.ucode_mod_dev_guide` for more
 on what the sanity checks cover.
 
-shellcheck and ignore files
-""""""""""""""""""""""""""""
-
-Because this collection is largely shell code, the ``shellcheck`` sanity check is
-particularly relevant. When ``shellcheck`` flags an issue that cannot or should not be
-fixed, the correct way to suppress it is to add an entry to the appropriate
-``tests/sanity/ignore-X.Y.txt`` file — **never** use inline ``# shellcheck disable=``
-directives inside the module files themselves.
-
-Some project-wide suppressions live in ``.shellcheckrc`` at the repository root.
-
-To regenerate the ignore-file entries systematically, use the ``regen_shellcheck_ignores``
-nox session. It strips all existing ``shellcheck`` lines from every ``ignore-X.Y.txt``
-file, runs the check for each supported ansible-core version, and appends the new
-failures (with descriptions from the ``shellcheck`` wiki) back to the appropriate
-ignore files.
-
-.. code-block:: console
-
-   $ nox -e regen_shellcheck_ignores
-
-Run this after adding or significantly modifying shell files, or whenever the set of
-supported ansible-core versions changes.
-
 
 Code Quality and Linting (nox)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
