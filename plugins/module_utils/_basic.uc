@@ -222,10 +222,14 @@ function coerce_elements(name, values, want, errors) {
     return items;
 }
 
+function parameter_name(parent, name) {
+    return parent != null ? `${parent}.${name}` : name;
+}
+
 // Validate `args` against `argument_spec` and return the parameter map, keyed
 // by canonical name. Parameters the caller did not set are present with a null
 // value, mirroring AnsibleModule's None. Terminates the module on failure.
-function build_params(args, argument_spec) {
+function build_params(args, argument_spec, parent) {
     let aliases = alias_map(argument_spec);
 
     let unsupported = [];
@@ -240,6 +244,10 @@ function build_params(args, argument_spec) {
         let supported = join(', ', sort(keys(argument_spec)));
         if (length(aliases) > 0)
             supported += ` (${join(', ', sort(keys(aliases)))})`;
+        if (parent != null) {
+            abort(sprintf('Unsupported parameters in %s: %s. Supported parameters include: %s.',
+                          parent, join(', ', sort(unsupported)), supported));
+        }
         abort(sprintf('Unsupported parameters for (%s) module: %s. Supported parameters include: %s.',
                       args._openwrt_module_name ?? args._ansible_module_name,
                       join(', ', sort(unsupported)), supported));
@@ -251,6 +259,7 @@ function build_params(args, argument_spec) {
 
     for (let name in argument_spec) {
         let spec = argument_spec[name];
+        let display_name = parameter_name(parent, name);
         let want = spec.type != null ? spec.type : 'str';
         let value = supplied_value(args, name, aliases);
         if (value == null)
@@ -258,7 +267,7 @@ function build_params(args, argument_spec) {
 
         if (value == null) {
             if (spec.required)
-                push(missing, name);
+                push(missing, display_name);
             else
                 params[name] = null;
             continue;
@@ -267,12 +276,25 @@ function build_params(args, argument_spec) {
         let conv = coerce(value, want);
         if (!conv.ok) {
             push(errors, sprintf("argument '%s' is of type %s and we were unable to convert to %s: %J",
-                                 name, native_type_name(value), want, value));
+                                 display_name, native_type_name(value), want, value));
             continue;
         }
 
         if (want == 'list' && spec.elements != null)
-            conv.value = coerce_elements(name, conv.value, spec.elements, errors);
+            conv.value = coerce_elements(display_name, conv.value, spec.elements, errors);
+
+        if (spec.options != null) {
+            if (want == 'dict') {
+                conv.value = build_params(conv.value, spec.options, display_name);
+            } else if (want == 'list' && spec.elements == 'dict') {
+                let items = [];
+                for (let i = 0; i < length(conv.value); i++)
+                    push(items, build_params(conv.value[i], spec.options, `${display_name}[${i}]`));
+                conv.value = items;
+            } else {
+                abort(`argument spec for '${display_name}' uses options without type dict or list elements dict`);
+            }
+        }
 
         params[name] = conv.value;
     }
@@ -281,6 +303,7 @@ function build_params(args, argument_spec) {
         abort('missing required arguments: ' + join(', ', sort(missing)));
 
     for (let name in argument_spec) {
+        let display_name = parameter_name(parent, name);
         let choices = argument_spec[name].choices;
         if (choices == null || params[name] == null)
             continue;
@@ -293,13 +316,13 @@ function build_params(args, argument_spec) {
 
             if (length(rejected) > 0)
                 push(errors, sprintf('value of %s must be one or more of: %s. Got no match for: %s',
-                                     name, join(', ', choices), join(', ', rejected)));
+                                     display_name, join(', ', choices), join(', ', rejected)));
             continue;
         }
 
         if (!in_choices(params[name], choices))
             push(errors, sprintf('value of %s must be one of: %s, got: %s',
-                                 name, join(', ', choices), params[name]));
+                                 display_name, join(', ', choices), params[name]));
     }
 
     if (length(errors) > 0)
@@ -484,6 +507,41 @@ function Result() {
     };
 }
 
+// ---- value comparison -----------------------------------------------------
+
+// Compare two values structurally. sprintf('%J') is not a substitute: it
+// serializes object keys in insertion order. Arrays are compared in order,
+// objects regardless of key order, and int/double by numeric value.
+export function deep_equal(left, right) {
+    let left_type = type(left);
+    let right_type = type(right);
+
+    if (left_type in [ 'int', 'double' ] && right_type in [ 'int', 'double' ])
+        return left == right;
+    if (left_type != right_type)
+        return false;
+
+    if (left_type == 'array') {
+        if (length(left) != length(right))
+            return false;
+        for (let i = 0; i < length(left); i++)
+            if (!deep_equal(left[i], right[i]))
+                return false;
+        return true;
+    }
+
+    if (left_type == 'object') {
+        if (length(left) != length(right))
+            return false;
+        for (let name in left)
+            if (!exists(right, name) || !deep_equal(left[name], right[name]))
+                return false;
+        return true;
+    }
+
+    return left == right;
+};
+
 // ---- command execution ----------------------------------------------------
 
 // Quote a value for use as a single shell word.
@@ -529,8 +587,8 @@ function stderr_file() {
 // ---- module object --------------------------------------------------------
 
 // Build the module object. Recognized options:
-//   argument_spec        parameter definitions (type, elements, required, default,
-//                        choices, aliases)
+//   argument_spec        parameter definitions (type, elements, options, required,
+//                        default, choices, aliases)
 //   supports_check_mode  whether the module honours check mode (default false)
 //   mutually_exclusive   groups of parameters of which at most one may be given
 //   required_together    groups of parameters that must be given together
