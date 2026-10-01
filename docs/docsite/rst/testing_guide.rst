@@ -206,7 +206,7 @@ Unit tests:
 `andebox <https://github.com/russoz/andebox>`_ is a convenience wrapper around
 ``ansible-test`` that handles the collection path setup for you, so either tool works.
 
-See the :ref:`ansible_collections.community.openwrt.docsite.mod_dev_guide` for more
+See the :ref:`ansible_collections.community.openwrt.docsite.ucode_mod_dev_guide` for more
 on what the sanity checks cover.
 
 shellcheck and ignore files
@@ -321,4 +321,4 @@ Further Reading
 - `OpenWrt container images <https://github.com/openwrt/docker>`_
 - `nox documentation <https://nox.thea.codes/>`_
 - `antsibull-nox documentation <https://docs.ansible.com/projects/antsibull-nox/>`_
-- :ref:`ansible_collections.community.openwrt.docsite.mod_dev_guide`
+- :ref:`ansible_collections.community.openwrt.docsite.ucode_mod_dev_guide`
