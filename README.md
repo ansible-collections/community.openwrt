@@ -102,6 +102,8 @@ The collection is currently tested with `ansible-core` versions:
 - 2.18
 - 2.19
 - 2.20
+- 2.21
+- 2.22
 - devel
 
 ## External requirements
