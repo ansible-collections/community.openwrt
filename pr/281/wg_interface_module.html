@@ -205,8 +205,8 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <li><p>Resolve or generate a per-peer pre-shared key (<code class="docutils literal notranslate"><span class="pre">genpsk</span></code>) for each peer skeleton, reusing an existing on-device PSK, and return them keyed by interface name.</p></li>
 </ol>
 </li>
-<li><p>Implemented in ucode and run directly on the OpenWrt target.</p></li>
 <li><p>For the available WireGuard UCI config options see <a class="reference external" href="https://openwrt.org/docs/guide-user/services/vpn/wireguard/start">https://openwrt.org/docs/guide-user/services/vpn/wireguard/start</a>.</p></li>
+<li><p>AmneziaWG support relies on the <code class="docutils literal notranslate"><span class="pre">amneziawg</span></code> ubus key server; see <a class="reference external" href="https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg">https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg</a>.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -217,7 +217,6 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <span id="ansible-collections-community-openwrt-wg-interface-module-requirements"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink">Requirements</a><a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
 <p>The below requirements are needed on the host that executes this module.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ucode</span></code>, <code class="docutils literal notranslate"><span class="pre">ucode-mod-uci</span></code> and <code class="docutils literal notranslate"><span class="pre">ucode-mod-ubus</span></code> on the target.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">wireguard</span></code> ubus object (provided by <code class="docutils literal notranslate"><span class="pre">rpcd-mod-wireguard</span></code> with <code class="docutils literal notranslate"><span class="pre">rpcd</span></code> running, or the <code class="docutils literal notranslate"><span class="pre">amneziawg</span></code> object) to generate identity keys and peer PSKs.</p></li>
 </ul>
 </section>
@@ -252,7 +251,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <div class="ansibleOptionAnchor" id="parameter-force_psk_rekey"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-parameter-force-psk-rekey"><strong>force_psk_rekey</strong></p>
 <a class="ansibleOptionLink" href="#parameter-force_psk_rekey" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>Regenerate every peer PSK (via ubus genpsk) even if one already exists on-device.</p>
+<td><div class="ansible-option-cell"><p>Regenerate every peer PSK even if one already exists on-device.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
@@ -303,7 +302,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-interfaces/dns_metric"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces-dns-metric"><strong>dns_metric</strong></p>
-<a class="ansibleOptionLink" href="#parameter-interfaces/dns_metric" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+<a class="ansibleOptionLink" href="#parameter-interfaces/dns_metric" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>DNS metric for the interface (OpenWrt <code class="docutils literal notranslate"><span class="pre">dns_metric</span></code> option).</p>
 </div></td>
@@ -333,21 +332,26 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <div class="ansibleOptionAnchor" id="parameter-interfaces/name"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces-name"><strong>name</strong></p>
 <a class="ansibleOptionLink" href="#parameter-interfaces/name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>UCI interface name.</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Interface name.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-interfaces/peerdns"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces-peerdns"><strong>peerdns</strong></p>
-<a class="ansibleOptionLink" href="#parameter-interfaces/peerdns" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+<a class="ansibleOptionLink" href="#parameter-interfaces/peerdns" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether to push DNS to peers (OpenWrt <code class="docutils literal notranslate"><span class="pre">peerdns</span></code> option).</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether to accept DNS servers provided by this interface (OpenWrt <code class="docutils literal notranslate"><span class="pre">peerdns</span></code> option).</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-interfaces/proto"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces-proto"><strong>proto</strong></p>
 <a class="ansibleOptionLink" href="#parameter-interfaces/proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Interface protocol; selects the ubus key server (wireguard or amneziawg).</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Interface protocol.</p>
 <p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code> when not set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
@@ -431,7 +435,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <div class="ansibleOptionAnchor" id="parameter-peers/proto"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-parameter-peers-proto"><strong>proto</strong></p>
 <a class="ansibleOptionLink" href="#parameter-peers/proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer protocol; selects the ubus key server.</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer protocol.</p>
 <p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code> when not set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
