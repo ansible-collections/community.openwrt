@@ -61,7 +61,7 @@ The collection will release minor versions periodically, between major versions.
 
 ### Caveats
 
-- The shell-based implementation of community.openwrt does not support the standard deprecation mechanism in modules or other plugins, so the **deprecation is documentary only**. Until that [mechanism is implemented](https://github.com/ansible-collections/community.openwrt/issues/28), there are no deprecation warnings sent to users or developers.
+- Modules in community.openwrt are written in ucode, which cannot deprecate parameters through the argument specification. Each deprecation is raised explicitly in the module code, and is reported to users by ansible-core as a regular deprecation warning.
 
 ## Collection Release Process
 
