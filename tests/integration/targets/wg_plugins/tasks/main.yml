@@ -1,0 +1,284 @@
+---
+# Copyright (c) 2026, Vladimir Ermakov (@vooon)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Initialize packaging system
+  ansible.builtin.include_role:
+    name: community.openwrt.init
+
+- name: Ensure WireGuard userspace and ubus key server are installed (apk)
+  when: openwrt_package_manager == "apk"
+  community.openwrt.apk:
+    name: "wireguard-tools,rpcd-mod-wireguard"
+    state: present
+
+- name: Ensure WireGuard userspace is installed (opkg)
+  when: openwrt_package_manager == "opkg"
+  community.openwrt.opkg:
+    name: wireguard-tools
+    state: present
+
+- name: Start rpcd
+  community.openwrt.service:
+    name: rpcd
+    state: started
+    enabled: true
+
+- name: Check for the wireguard ubus object
+  community.openwrt.command:
+    cmd: ubus list wireguard
+  register: wg_ubus
+  ignore_errors: true
+
+- name: Record WireGuard test availability
+  ansible.builtin.set_fact:
+    wg_ubus_available: "{{ wg_ubus is succeeded }}"
+
+- name: Explain skipped WireGuard tests
+  when: not wg_ubus_available
+  ansible.builtin.debug:
+    msg: Skipping WireGuard tests because the wireguard ubus object is unavailable
+
+- name: Ensure test UCI configs exist
+  when: wg_ubus_available
+  community.openwrt.command:
+    cmd: >-
+      test -e /etc/config/network || touch /etc/config/network;
+      test -e /etc/config/firewall || touch /etc/config/firewall
+    uses_shell: true
+  changed_when: false
+
+- name: Configure a WireGuard interface
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    managed_interfaces: [wg0]
+    interfaces:
+      - name: wg0
+        listen_port: 51820
+        addresses: [10.0.0.1/24]
+    peers:
+      - iface: wg0
+  register: wg_interface
+
+- name: Assert interface result
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_interface is changed
+      - wg_interface.public_key | length > 0
+      - wg_interface.interfaces == ["wg0"]
+      - wg_interface.psks | length == 1
+      - wg_interface.psks[0] | length > 0
+      - wg_interface.firewall_changed
+
+- name: Read the configured interface
+  when: wg_ubus_available
+  community.openwrt.uci:
+    command: get
+    key: network.wg0.proto
+  register: wg_proto
+
+- name: Assert interface UCI state
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_proto.result == "wireguard"
+
+- name: Configure a WireGuard peer
+  when: wg_ubus_available
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        public_key: "{{ wg_interface.public_key }}"
+        preshared_key: "{{ wg_interface.psks[0] }}"
+        endpoint_host: peer.example.com
+        endpoint_port: 51820
+        allowed_ips: [10.0.0.2/32]
+  register: wg_peer
+
+- name: Assert peer result
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_peer is changed
+      - wg_peer.peers == ["peer_wg0"]
+
+- name: Read the configured peer type
+  when: wg_ubus_available
+  community.openwrt.uci:
+    command: get
+    key: network.peer_wg0
+  register: wg_peer_type
+
+- name: Assert peer UCI state
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_peer_type.result == "wireguard_wg0"
+
+- name: Reconfigure the WireGuard interface
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    managed_interfaces: [wg0]
+    interfaces:
+      - name: wg0
+        listen_port: 51820
+        addresses: [10.0.0.1/24]
+    peers:
+      - iface: wg0
+  register: wg_interface_idempotent
+
+- name: Reconfigure the WireGuard peer
+  when: wg_ubus_available
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        public_key: "{{ wg_interface.public_key }}"
+        preshared_key: "{{ wg_interface.psks[0] }}"
+        endpoint_host: peer.example.com
+        endpoint_port: 51820
+        allowed_ips: [10.0.0.2/32]
+  register: wg_peer_idempotent
+
+- name: Assert idempotency
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_interface_idempotent is not changed
+      - wg_peer_idempotent is not changed
+
+- name: Change the listen port in check mode
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    interfaces:
+      - name: wg0
+        listen_port: 51999
+        addresses: [10.0.0.1/24]
+  check_mode: true
+  register: wg_interface_check
+
+- name: Read the listen port after check mode
+  when: wg_ubus_available
+  community.openwrt.uci:
+    command: get
+    key: network.wg0.listen_port
+  register: wg_port_after_check
+
+- name: Assert check mode
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_interface_check is changed
+      - wg_port_after_check.result == "51820"
+
+- name: Remove the WireGuard peer
+  when: wg_ubus_available
+  community.openwrt.wg_peer:
+    state: absent
+    peers:
+      - iface: wg0
+  register: wg_peer_absent
+
+- name: Remove the missing WireGuard peer again
+  when: wg_ubus_available
+  community.openwrt.wg_peer:
+    state: absent
+    peers:
+      - iface: wg0
+  register: wg_peer_absent_idempotent
+
+- name: Assert peer removal
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_peer_absent is changed
+      - wg_peer_absent.removed == ["peer_wg0"]
+      - wg_peer_absent_idempotent is not changed
+
+- name: Configure AmneziaWG interfaces
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    proto: amneziawg
+    managed_interfaces: [awg1, awg2]
+    interfaces:
+      - name: awg1
+        listen_port: 51901
+        addresses: [10.51.0.1/31]
+        awg_tuning:
+          awg_jc: 4
+          awg_jmin: 10
+          awg_jmax: 50
+      - name: awg2
+        listen_port: 51902
+        addresses: [10.52.0.1/31]
+    peers:
+      - iface: awg1
+      - iface: awg2
+  register: awg_interfaces
+
+- name: Configure AmneziaWG peers using interface-derived protocols
+  when: wg_ubus_available
+  community.openwrt.wg_peer:
+    peers:
+      - iface: awg1
+        public_key: "{{ awg_interfaces.public_key }}"
+        preshared_key: "{{ awg_interfaces.psks[0] }}"
+      - iface: awg2
+        public_key: "{{ awg_interfaces.public_key }}"
+        preshared_key: "{{ awg_interfaces.psks[1] }}"
+  register: awg_peers
+
+- name: Read an AmneziaWG peer type
+  when: wg_ubus_available
+  community.openwrt.uci:
+    command: get
+    key: network.peer_awg1
+  register: awg_peer_type
+
+- name: Assert AmneziaWG state
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - awg_interfaces.interfaces == ["awg1", "awg2"]
+      - awg_interfaces.psks | length == 2
+      - awg_peers.peers == ["peer_awg1", "peer_awg2"]
+      - awg_peer_type.result == "amneziawg_awg1"
+
+- name: Remove AmneziaWG interfaces and their peers
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    proto: amneziawg
+    state: absent
+    interfaces:
+      - name: awg1
+      - name: awg2
+  register: awg_absent
+
+- name: Repeat AmneziaWG removal
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    proto: amneziawg
+    state: absent
+    interfaces:
+      - name: awg1
+      - name: awg2
+  register: awg_absent_idempotent
+
+- name: Remove WireGuard interface and firewall rule
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    state: absent
+    interfaces:
+      - name: wg0
+        listen_port: 51820
+  register: wg_interface_absent
+
+- name: Assert interface cleanup
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - awg_absent is changed
+      - awg_absent_idempotent is not changed
+      - wg_interface_absent is changed
+      - wg_interface_absent.removed_interfaces == ["wg0"]
