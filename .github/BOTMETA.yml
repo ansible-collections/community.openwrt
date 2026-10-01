@@ -40,7 +40,7 @@ files:
   $modules/file.uc:
     maintainers: $team_repo_mgrs
   $modules/group.uc:
-    maintainers: s-hamann
+    maintainers: s-hamann $team_repo_mgrs
   $modules/lineinfile.py:
     maintainers: $team_repo_mgrs
   $modules/lineinfile.uc:
