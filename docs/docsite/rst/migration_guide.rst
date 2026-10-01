@@ -24,8 +24,11 @@ remains similar, there are important changes in structure and usage patterns tha
 to address when migrating your playbooks.
 
 The good news is that both projects share the same approach: they enable you to manage OpenWrt
-devices without requiring Python on the target systems. All modules are implemented as shell
-scripts, making them compatible with resource-constrained devices. While the underlying code
+devices without requiring Python on the target systems, making them compatible with
+resource-constrained devices.
+
+The role's modules are shell scripts. Starting with community.openwrt 1.9.0, the collection's
+modules are written in ucode, and their internal structure has changed significantly. While the underlying logic
 is largely the same, the collection now provides proper documentation for each module, accessible
 via ``ansible-doc`` or the `collection documentation site <https://galaxy.ansible.com/ui/repo/published/community/openwrt/>`_.
 

@@ -9,7 +9,7 @@ Testing Guide
 =============
 
 This guide explains how to run and write tests for the ``community.openwrt`` collection.
-Because the modules in this collection run as shell scripts on real OpenWrt devices (or
+Because the modules in this collection run as ucode scripts on real OpenWrt devices (or
 container images of them), testing works a little differently from a typical Python-based
 collection. Read on for the full picture.
 

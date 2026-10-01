@@ -14,7 +14,8 @@ or manage OpenWrt routers and you would like to use Ansible to manage them.
 As you may well know, some devices have limitations of resources, preventing Python from being installed.
 
 This collection is based on the Ansible role ``gekmihesg.openwrt`` and as such it does not require Python
-installed on the OpenWrt devices - all the code is written in plain shell scripts.
+installed on the OpenWrt devices. The role's modules were plain shell scripts; starting with
+community.openwrt 1.9.0, all modules are written in ucode.
 If you have been using ``gekmihesg.openwrt`` before and want to move to ``community.openwrt``,
 please check the :ref:`ansible_collections.community.openwrt.docsite.migration_guide`.
 
@@ -53,7 +54,7 @@ Requirements
 Check the collection's `README <https://github.com/ansible-collections/community.openwrt?tab=readme-ov-file>`_
 for the supported versions of Ansible and OpenWrt.
 
-The modules in this collection are all written in shell script (more specifically ``ash``, used in OpenWrt devices). The control node requires Python.
+The modules in this collection are all written in ucode script. The control node requires Python.
 
 This collection is tested using OpenWrt container images for the ``x86_64`` architecture.
 
