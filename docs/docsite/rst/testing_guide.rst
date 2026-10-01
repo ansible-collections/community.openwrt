@@ -94,7 +94,7 @@ The test suite is built around Molecule, which orchestrates Docker containers ru
 actual OpenWrt root filesystem images. This means your tests exercise real OpenWrt
 userspace — BusyBox shell, ``uci``, ``opkg``, etc. — rather than mocks.
 
-The collection tests fall into two broad categories:
+The collection tests fall into three broad categories:
 
    Integration tests (modules)
        Tests under ``tests/integration/targets/<module>/`` that verify each module's
@@ -104,7 +104,10 @@ The collection tests fall into two broad categories:
        Molecule scenarios under ``roles/<role>/molecule/<scenario>/`` that test the
        bundled Ansible roles.
 
-Both categories use real OpenWrt container images. The list of tested OpenWrt versions
+   Collection tests
+       Tests under ``extensions/molecule`` that do not fall under the previous categories.
+
+All categories use real OpenWrt container images. The list of tested OpenWrt versions
 is maintained in a single file: ``tests/molecule/openwrt.yml``.
 
 Molecule has native support for Ansible collections and automatically discovers scenarios
