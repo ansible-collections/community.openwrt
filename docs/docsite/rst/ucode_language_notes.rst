@@ -12,7 +12,7 @@ ucode Language Notes
 ucode reads like JavaScript, and that is exactly what makes it worth writing these notes down: the places
 where the resemblance stops are the places where a module breaks. What follows are the differences that come
 up while writing modules for this collection. It is not a tutorial - the
-`ucode documentation <https://ucode.mein.io/>`_ is, and it is worth keeping open.
+`ucode documentation <https://ucode-lang.org/>`_ is, and it is worth keeping open.
 
 Functions
 ^^^^^^^^^

@@ -9,7 +9,7 @@
 Community OpenWrt ucode Module Developer Guide
 ==============================================
 
-This guide is about writing modules for ``community.openwrt`` in `ucode <https://github.com/jow-/ucode>`_.
+This guide is about writing modules for ``community.openwrt`` in `ucode <https://github.com/ucode-lang/ucode>`_.
 If you are reading it, you probably already use the collection and want to extend it: Awesome! Everyone is
 welcome to contribute!
 
@@ -36,7 +36,7 @@ Skills that help
 * A fair understanding of how Ansible modules work in general. Having written Python modules helps the most,
   since some of the idioms here deliberately resemble the ones used on the Python side.
 * Enough JavaScript to read ucode comfortably, plus the willingness to check the
-  `ucode documentation <https://ucode.mein.io/>`_ when something behaves unexpectedly.
+  `ucode documentation <https://ucode-lang.org/>`_ when something behaves unexpectedly.
 * Familiarity with the OpenWrt userspace - ``uci``, ``ubus``, ``opkg``/``apk``, BusyBox - since that is still
   what a module ends up driving.
 

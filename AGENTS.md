@@ -33,7 +33,7 @@
 ## Architecture
 
 - This collection manages OpenWrt devices **without requiring Python on the target**: module logic
-  is written in [ucode](https://github.com/jow-/ucode), OpenWrt's own scripting language, which ships
+  is written in [ucode](https://github.com/ucode-lang/ucode), OpenWrt's own scripting language, which ships
   in the base image of every supported OpenWrt release.
 - Each module is made of:
   - `plugins/modules/<name>.uc` — the implementation, run on the target;
