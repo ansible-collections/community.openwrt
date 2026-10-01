@@ -3,10 +3,10 @@
 // GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// _file.uc — helpers for modules managing filesystem objects, the ucode
-// counterpart of _file.sh. It covers the attributes such a module sets on what
-// it writes, the directories it creates, the backup it takes before writing,
-// the digests it compares and the diff it reports:
+// _file.uc — helpers for modules managing filesystem objects. It covers the
+// attributes such a module sets on what it writes, the directories it creates,
+// the backup it takes before writing, the digests it compares and the diff it
+// reports:
 //
 //   import { FILE_COMMON_ARGS, backup_local, digest, is_link, set_file_attributes } from '_file';
 
