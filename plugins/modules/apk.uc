@@ -58,7 +58,7 @@ function installed_name(pkg) {
         meta = null;
     }
     if (type(meta) != 'object' || type(meta.info) != 'object' || meta.info.name == null)
-        module.fail_json('could not parse output of apk adbdump');
+        module.fail_json(`could not parse output of apk adbdump for ${pkg}`);
 
     return meta.info.name;
 }

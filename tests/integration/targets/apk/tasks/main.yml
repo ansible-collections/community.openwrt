@@ -122,3 +122,24 @@
             cmd: apk info -e terminfo
           register: apk_verify_untrusted
           failed_when: apk_verify_untrusted.rc != 0
+
+    - name: Test a local file that is not a package
+      block:
+        - name: Create a file that is not a package
+          community.openwrt.copy:
+            content: "not a package\n"
+            dest: "{{ remote_tmp_dir }}/not-a-package.apk"
+
+        - name: Install the file
+          community.openwrt.apk:
+            name: "{{ remote_tmp_dir }}/not-a-package.apk"
+            state: present
+            allow_untrusted: true
+          register: apk_not_a_package
+          ignore_errors: true
+
+        - name: Assert the failure names the file
+          ansible.builtin.assert:
+            that:
+              - apk_not_a_package is failed
+              - apk_not_a_package.msg == 'could not parse output of apk adbdump for ' ~ remote_tmp_dir ~ '/not-a-package.apk'
