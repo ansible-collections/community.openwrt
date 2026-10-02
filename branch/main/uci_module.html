@@ -118,7 +118,6 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ucode_wrapper_module.html">community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -172,7 +171,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <section id="synopsis">
 <h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>The <a class="reference internal" href="#ansible-collections-community-openwrt-uci-module"><span class="std std-ref">community.openwrt.uci</span></a> module is a Ansible wrapper for OpenWrt’s <code class="docutils literal notranslate"><span class="pre">uci</span></code>.</p></li>
+<li><p>The <a class="reference internal" href="#ansible-collections-community-openwrt-uci-module"><span class="std std-ref">community.openwrt.uci</span></a> module controls OpenWrt UCI through the native <code class="docutils literal notranslate"><span class="pre">ucode</span></code> UCI bindings.</p></li>
 <li><p>It supports all the command line functionality plus some extra commands.</p></li>
 </ul>
 <div class="admonition note">
@@ -219,6 +218,8 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;changes&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;commit&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;del_list&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;delete&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ensure&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;export&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;find&quot;</span></code></p></li>
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;find_all&quot;</span></code></p></li>
@@ -294,11 +295,204 @@ To check whether it is installed, run <code class="code docutils literal notrans
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations"><strong>operations</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+<p><em class="ansible-option-versionadded">added in community.openwrt 1.9.0</em></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>A list of UCI operations to execute in order using one UCI cursor.</p>
+<p>Each entry accepts the same options as a standalone invocation except <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-operations"><span class="std std-ref"><span class="pre">operations</span></span></a></strong></code>.</p>
+<p>Per-operation results are returned in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-return-operations"><span class="std std-ref"><span class="pre">operations</span></span></a></code>.</p>
+<p>An empty list performs no operations and reports no change.</p>
+<p>Set top-level <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-autocommit"><span class="std std-ref"><span class="pre">autocommit=true</span></span></a></code> to commit all staged changes once after the list succeeds, or include an operation with <code class="docutils literal notranslate"><span class="pre">command=commit</span></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/autocommit"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-autocommit"><strong>autocommit</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/autocommit" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether to commit the changes of this operation right after it runs.</p>
+<p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-autocommit"><span class="std std-ref"><span class="pre">autocommit</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/command"></div>
+<div class="ansibleOptionAnchor" id="parameter-operations/cmd"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-command"><span id="ansible-collections-community-openwrt-uci-module-parameter-operations-cmd"></span><strong>command</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/command" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-aliases">aliases: cmd</span></p>
+<p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;add&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;add_list&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;batch&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;changes&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;commit&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;del_list&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;delete&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ensure&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;export&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;find&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;find_all&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;get&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;import&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;rename&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;reorder&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;revert&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;section&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;set&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;show&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/config"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-config"><strong>config</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/config" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-config"><span class="std std-ref"><span class="pre">config</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/find"></div>
+<div class="ansibleOptionAnchor" id="parameter-operations/find_by"></div>
+<div class="ansibleOptionAnchor" id="parameter-operations/search"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-search"><span id="ansible-collections-community-openwrt-uci-module-parameter-operations-find-by"></span><span id="ansible-collections-community-openwrt-uci-module-parameter-operations-find"></span><strong>find</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/find" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-aliases">aliases: find_by, search</span></p>
+<p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-find"><span class="std std-ref"><span class="pre">find</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/keep_keys"></div>
+<div class="ansibleOptionAnchor" id="parameter-operations/keep"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-keep-keys"><span id="ansible-collections-community-openwrt-uci-module-parameter-operations-keep"></span><strong>keep_keys</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/keep_keys" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-aliases">aliases: keep</span></p>
+<p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-keep-keys"><span class="std std-ref"><span class="pre">keep_keys</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/key"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-key"><strong>key</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/key" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-key"><span class="std std-ref"><span class="pre">key</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/merge"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-merge"><strong>merge</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/merge" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-merge"><span class="std std-ref"><span class="pre">merge</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/name"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-name"><strong>name</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-name"><span class="std std-ref"><span class="pre">name</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/option"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-option"><strong>option</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/option" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-option"><span class="std std-ref"><span class="pre">option</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/redact_keys"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-redact-keys"><strong>redact_keys</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/redact_keys" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>UCI option names whose values must be hidden in the diff of this operation.</p>
+<p>When set, replaces the top-level <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-redact-keys"><span class="std std-ref"><span class="pre">redact_keys</span></span></a></strong></code> for this operation.</p>
+<p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-redact-keys"><span class="std std-ref"><span class="pre">redact_keys</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/replace"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-replace"><strong>replace</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/replace" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-replace"><span class="std std-ref"><span class="pre">replace</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/section"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-section"><strong>section</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/section" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-section"><span class="std std-ref"><span class="pre">section</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/set_find"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-set-find"><strong>set_find</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/set_find" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-set-find"><span class="std std-ref"><span class="pre">set_find</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/type"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-type"><strong>type</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/type" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-type"><span class="std std-ref"><span class="pre">type</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/unique"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-unique"><strong>unique</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/unique" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-unique"><span class="std std-ref"><span class="pre">unique</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-operations/value"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-operations-value"><strong>value</strong></p>
+<a class="ansibleOptionLink" href="#parameter-operations/value" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>See <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-value"><span class="std std-ref"><span class="pre">value</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-option"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-option"><strong>option</strong></p>
 <a class="ansibleOptionLink" href="#parameter-option" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Option part of the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-key"><span class="std std-ref"><span class="pre">key</span></span></a></strong></code>.</p>
 <p>If not specified, extracted from <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-key"><span class="std std-ref"><span class="pre">key</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-redact_keys"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-parameter-redact-keys"><strong>redact_keys</strong></p>
+<a class="ansibleOptionLink" href="#parameter-redact_keys" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+<p><em class="ansible-option-versionadded">added in community.openwrt 1.9.0</em></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>UCI option names whose values must be hidden in diff output.</p>
+<p>Changed values are represented by <code class="ansible-value docutils literal notranslate"><span class="pre">REDACTED-present</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">REDACTED-wanted</span></code>; unchanged values are represented by <code class="ansible-value docutils literal notranslate"><span class="pre">REDACTED</span></code>.</p>
+<p>A value set on an individual <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-operations"><span class="std std-ref"><span class="pre">operations</span></span></a></strong></code> entry overrides this top-level list for that operation.</p>
+<p>This only affects diffs. <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command=get</span></span></a></code>, <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command=show</span></span></a></code>, and <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command=export</span></span></a></code> still return the values; use the <code class="docutils literal notranslate"><span class="pre">no_log</span></code> task keyword when reading sensitive values.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-cell">
@@ -328,8 +522,8 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <td><div class="ansible-option-cell"><p>When <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command=section</span></span></a></code> whether to set the options used to search a matching section in the newly created section when no match was found.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
-<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
-<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
 </ul>
 </div></td>
 </tr>
@@ -406,6 +600,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>Since version 1.8.0, <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command=set</span></span></a></code>, <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command=ensure</span></span></a></code> and <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command=section</span></span></a></code> compare the stored value before writing, and report <code class="ansible-return-value docutils literal notranslate"><span><span class="pre">changed=true</span></span></code> only when it differs. Earlier versions reported <code class="ansible-return-value docutils literal notranslate"><span><span class="pre">changed=true</span></span></code> on every run.</p></li>
+<li><p>Starting with version 1.9.0 of this collection, this module is implemented in <code class="docutils literal notranslate"><span class="pre">ucode</span></code>.</p></li>
 </ul>
 </div>
 </section>
@@ -449,6 +644,25 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">community.openwrt.uci</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cmd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">commit</span>
 <span class="w">  </span><span class="nt">notify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">restart wifi</span>
+
+<span class="c1"># Apply several changes through one UCI cursor and commit once at the end.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">community.openwrt.uci</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">autocommit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">operations</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">set</span>
+<span class="w">        </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system.@system[0].hostname</span>
+<span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-router</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">set</span>
+<span class="w">        </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">network.lan.ipaddr</span>
+<span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">192.168.1.1</span>
+
+<span class="c1"># Hide a password in the before/after diff.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">community.openwrt.uci</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">set</span>
+<span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wireless.default_radio0.key</span>
+<span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">top-secret</span>
+<span class="w">    </span><span class="nt">redact_keys</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">key</span>
 </pre></div>
 </div>
 </section>
@@ -463,6 +677,14 @@ To check whether it is installed, run <code class="code docutils literal notrans
 </thead>
 <tbody>
 <tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-changes"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-return-changes"><strong>changes</strong></p>
+<a class="ansibleOptionLink" href="#return-changes" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Pending UCI changes.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-command"><span class="std std-ref"><span class="pre">command=changes</span></span></a></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="return-command"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-return-command"><strong>command</strong></p>
 <a class="ansibleOptionLink" href="#return-command" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -471,7 +693,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;section&quot;</span></code></p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="return-config"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-return-config"><strong>config</strong></p>
 <a class="ansibleOptionLink" href="#return-config" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -480,7 +702,23 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;wireless&quot;</span></code></p>
 </div></td>
 </tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-diff"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-return-diff"><strong>diff</strong></p>
+<a class="ansibleOptionLink" href="#return-diff" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>UCI state before and after each changed operation, with options from <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-redact-keys"><span class="std std-ref"><span class="pre">redact_keys</span></span></a></strong></code> hidden.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> in diff mode when a supported operation changes state</p>
+</div></td>
+</tr>
 <tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-operations"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-return-operations"><strong>operations</strong></p>
+<a class="ansibleOptionLink" href="#return-operations" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Result of each entry passed through <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-operations"><span class="std std-ref"><span class="pre">operations</span></span></a></strong></code>, in execution order.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-uci-module-parameter-operations"><span class="std std-ref"><span class="pre">operations</span></span></a></strong></code> is given</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="return-option"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-return-option"><strong>option</strong></p>
 <a class="ansibleOptionLink" href="#return-option" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -489,7 +727,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;ssid&quot;</span></code></p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="return-result"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-return-result"><strong>result</strong></p>
 <a class="ansibleOptionLink" href="#return-result" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -498,7 +736,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;cfg12523&quot;</span></code></p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="return-result_list"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-return-result-list"><strong>result_list</strong></p>
 <a class="ansibleOptionLink" href="#return-result_list" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
 </div></td>
@@ -508,7 +746,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[&quot;0.pool.ntp.org&quot;,</span> <span class="pre">&quot;1.pool.ntp.org&quot;]</span></code></p>
 </div></td>
 </tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
+<tr class="row-even"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="return-section"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-uci-module-return-section"><strong>section</strong></p>
 <a class="ansibleOptionLink" href="#return-section" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
@@ -523,6 +761,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Markus Weippert (&#64;gekmihesg)</p></li>
+<li><p>Vladimir Ermakov (&#64;vooon)</p></li>
 </ul>
 </section>
 <section id="collection-links">

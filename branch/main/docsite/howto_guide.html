@@ -116,7 +116,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ucode_wrapper_module.html">community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -150,7 +149,7 @@
 <p>Welcome to the Community OpenWrt How-To Guide! This is a collection of recipes that will help you
 using the <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> role in real world scenarios.</p>
 <p>Most OpenWrt devices have a very small footprint and there is no space available to install Python. Based on this constraint, virtually all of the standard Ansible modules are not available.</p>
-<p>It is a design rule of <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> not to require Python, rather providing modules based on shell scripts (<code class="docutils literal notranslate"><span class="pre">/bin/sh</span></code>) instead.</p>
+<p>It is a design rule of <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> not to require Python, rather providing modules based on ucode scripts instead.</p>
 <p>Also by the nature of OpenWrt and its CLI-based <code class="docutils literal notranslate"><span class="pre">uci</span></code> tool, you need to be very familiar how
 this ecosystem works. Even the creation of a Wifi passwort or a simple forwarding rule can
 be challenging.</p>
@@ -225,6 +224,9 @@ be challenging.</p>
 <li><p>Restore</p></li>
 <li><p>Crontab</p></li>
 </ul>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
+</div>
 </section>
 </section>
 
