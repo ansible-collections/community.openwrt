@@ -37,7 +37,7 @@
   in the base image of every supported OpenWrt release.
 - Each module is made of:
   - `plugins/modules/<name>.uc` — the implementation, run on the target;
-  - `plugins/modules/<name>.py` — the documentation only, no code;
+  - `plugins/modules/<name>.yml` — the documentation (`DOCUMENTATION`, `EXAMPLES`, `RETURN`);
   - `plugins/action/<name>.py` — an action plugin subclassing `UCodeActionBase`
     (`plugins/plugin_utils/ucode_action.py`), which transfers the module and its module_utils to the
     target and runs it through `plugins/modules/ucode_wrapper.sh`.

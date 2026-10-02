@@ -23,71 +23,75 @@ files:
   $modules/:
     ignored: gekmihesg
     maintainers: $team_repo_mgrs
-  $modules/apk.py:
-    maintainers: kbialek russoz
   $modules/apk.uc:
     maintainers: kbialek russoz
-  $modules/command.py:
-    maintainers: $team_repo_mgrs
+  $modules/apk.yml:
+    maintainers: kbialek russoz
   $modules/command.uc:
     maintainers: $team_repo_mgrs
-  $modules/copy.py:
+  $modules/command.yml:
     maintainers: $team_repo_mgrs
   $modules/copy.uc:
     maintainers: $team_repo_mgrs
-  $modules/file.py:
+  $modules/copy.yml:
     maintainers: $team_repo_mgrs
   $modules/file.uc:
     maintainers: $team_repo_mgrs
+  $modules/file.yml:
+    maintainers: $team_repo_mgrs
   $modules/group.uc:
     maintainers: s-hamann $team_repo_mgrs
-  $modules/lineinfile.py:
-    maintainers: $team_repo_mgrs
+  $modules/group.yml:
+    maintainers: s-hamann $team_repo_mgrs
   $modules/lineinfile.uc:
     maintainers: $team_repo_mgrs
-  $modules/nohup.py:
+  $modules/lineinfile.yml:
     maintainers: $team_repo_mgrs
   $modules/nohup.uc:
     maintainers: $team_repo_mgrs
-  $modules/opkg.py:
+  $modules/nohup.yml:
     maintainers: $team_repo_mgrs
   $modules/opkg.uc:
     maintainers: $team_repo_mgrs
+  $modules/opkg.yml:
+    maintainers: $team_repo_mgrs
   $modules/package_facts.uc:
     maintainers: $team_repo_mgrs
-  $modules/ping.py:
+  $modules/package_facts.yml:
     maintainers: $team_repo_mgrs
   $modules/ping.uc:
     maintainers: $team_repo_mgrs
-  $modules/service.py:
+  $modules/ping.yml:
     maintainers: $team_repo_mgrs
   $modules/service.uc:
     maintainers: $team_repo_mgrs
-  $modules/setup.py:
+  $modules/service.yml:
     maintainers: $team_repo_mgrs
   $modules/setup.uc:
     maintainers: $team_repo_mgrs
-  $modules/slurp.py:
+  $modules/setup.yml:
     maintainers: $team_repo_mgrs
   $modules/slurp.uc:
     maintainers: $team_repo_mgrs
-  $modules/stat.py:
+  $modules/slurp.yml:
     maintainers: $team_repo_mgrs
   $modules/stat.uc:
     maintainers: $team_repo_mgrs
-  $modules/sysctl.py:
+  $modules/stat.yml:
     maintainers: $team_repo_mgrs
   $modules/sysctl.uc:
     maintainers: $team_repo_mgrs
-  $modules/tempfile.py:
-    maintainers: zeerayne
+  $modules/sysctl.yml:
+    maintainers: $team_repo_mgrs
   $modules/tempfile.uc:
+    maintainers: zeerayne
+  $modules/tempfile.yml:
     maintainers: zeerayne
   $modules/template.py:
     maintainers: zeerayne
-  $modules/uci.py:
-    maintainers: $team_repo_mgrs
   $modules/uci.uc:
+    maintainers: $team_repo_mgrs
+  $modules/uci.yml:
     maintainers: $team_repo_mgrs
   $modules/ucode_wrapper.sh:
     maintainers: $team_repo_mgrs
