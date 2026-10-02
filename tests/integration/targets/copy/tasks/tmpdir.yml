@@ -1,0 +1,29 @@
+---
+# Copyright (c) 2026 Alexei Znamensky
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Count remote ansible-tmp-* directories before copying
+  ansible.builtin.raw: ls -d {{ ansible_remote_tmp | default('~/.ansible/tmp') }}/ansible-tmp-* 2>/dev/null | wc -l
+  changed_when: false
+  register: tmpdirs_before
+
+- name: Copy content, to check remote tmpdir cleanup
+  community.openwrt.copy:
+    content: "tmpdir cleanup content"
+    dest: "{{ remote_tmp_dir }}/test_tmpdir_content.txt"
+
+- name: Copy file from controller, to check remote tmpdir cleanup
+  community.openwrt.copy:
+    src: "{{ dummy_file.dest }}"
+    dest: "{{ remote_tmp_dir }}/test_tmpdir_src.txt"
+
+- name: Count remote ansible-tmp-* directories after copying
+  ansible.builtin.raw: ls -d {{ ansible_remote_tmp | default('~/.ansible/tmp') }}/ansible-tmp-* 2>/dev/null | wc -l
+  changed_when: false
+  register: tmpdirs_after
+
+- name: Assert no remote ansible-tmp-* directory was left behind
+  ansible.builtin.assert:
+    that:
+      - tmpdirs_after.stdout | trim == tmpdirs_before.stdout | trim

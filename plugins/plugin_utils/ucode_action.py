@@ -52,7 +52,7 @@ class UCodeActionBase(ActionBase):
         """Transfer a ucode module + module_utils, then run it via the ucode wrapper."""
         module_path = self._find_module_file(module_name)
 
-        tmp_dir = self._make_tmp_path()
+        tmp_dir = self._connection._shell.tmpdir or self._make_tmp_path()
 
         self._transfer_module_file(module_path, tmp_dir)
         self._transfer_module_utils(tmp_dir)
