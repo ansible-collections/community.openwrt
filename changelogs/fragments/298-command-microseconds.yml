@@ -1,0 +1,2 @@
+minor_changes:
+  - command - report ``start``, ``end``, and ``delta`` with microsecond precision (https://github.com/ansible-collections/community.openwrt/pull/298).
