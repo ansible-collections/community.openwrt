@@ -1,0 +1,2 @@
+minor_changes:
+  - sysctl - use the result's own ``changed`` flag to decide whether to write the sysctl file and reload (https://github.com/ansible-collections/community.openwrt/pull/296).
