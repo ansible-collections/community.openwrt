@@ -20,6 +20,8 @@
       ansible.builtin.assert:
         that:
           - apk_install is succeeded
+          - apk_install.stdout | length > 0
+          - not apk_install.stdout.endswith('\n')
 
     - name: "Verify package is installed"
       community.openwrt.command:
@@ -37,6 +39,8 @@
       ansible.builtin.assert:
         that:
           - apk_remove is succeeded
+          - apk_remove.stdout | length > 0
+          - not apk_remove.stdout.endswith('\n')
 
     - name: Install packages given as a comma-separated string with spaces
       community.openwrt.apk:

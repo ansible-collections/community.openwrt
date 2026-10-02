@@ -25,9 +25,12 @@ const result = module.result;
 
 // ---- helpers --------------------------------------------------------------
 
-// Record the outcome of an apk invocation in the result.
+// Record the outcome of an apk invocation in the result, without the trailing
+// newlines of its output, and return it.
 function record(res) {
-    result.update({ rc: res.rc, stdout: res.stdout, stderr: res.stderr });
+    let outcome = { rc: res.rc, stdout: rtrim(res.stdout, '\n'), stderr: rtrim(res.stderr, '\n') };
+    result.update(outcome);
+    return outcome;
 }
 
 // `apk info -e` exits 0 when the package is installed, non-zero otherwise.
@@ -84,8 +87,7 @@ function install_packages(pkgs) {
             push(cmd, '--allow-untrusted');
         push(cmd, 'add', ...to_install);
 
-        let res = module.run_command(cmd);
-        record(res);
+        let res = record(module.run_command(cmd));
 
         for (let pkg in to_install) {
             if (!is_installed(installed_name(pkg)))
@@ -112,8 +114,7 @@ function remove_packages(pkgs) {
             push(cmd, '--no-cache');
         push(cmd, 'del', ...to_remove);
 
-        let res = module.run_command(cmd);
-        record(res);
+        let res = record(module.run_command(cmd));
 
         for (let pkg in to_remove) {
             if (is_installed(pkg))
