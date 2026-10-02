@@ -315,7 +315,9 @@ module goes, rather than assembling a dict at the end:</p>
 result.changed();
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">result.changed()</span></code> marks the task as changed and <code class="docutils literal notranslate"><span class="pre">result.changed(false)</span></code> clears it again. Every field you
+<p><code class="docutils literal notranslate"><span class="pre">result.changed()</span></code> marks the task as changed and <code class="docutils literal notranslate"><span class="pre">result.changed(false)</span></code> clears it again;
+<code class="docutils literal notranslate"><span class="pre">result.is_changed()</span></code> tells whether it is marked, so a module that has several places deciding on a change
+can act on the outcome at the end without keeping a flag of its own. Every field you
 put in the result is returned to the user, and the ones your module adds should be described in <code class="docutils literal notranslate"><span class="pre">RETURN</span></code>.
 The <a class="reference external" href="https://docs.ansible.com/projects/ansible/latest/reference_appendices/common_return_values.html">common return values</a>
 are documented by <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code> and do not belong there.</p>
