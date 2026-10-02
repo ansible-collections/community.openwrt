@@ -513,8 +513,8 @@ assert it reports no change, and cover check mode where the module claims to sup
 </pre></div>
 </div>
 <p>Run the sanity and unit tests with:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
-<span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
+<span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 </pre></div>
 </div>
 </section>
@@ -583,6 +583,9 @@ else
 
 module.exit_json();
 </pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.9.0.</span></p>
 </div>
 </section>
 </section>

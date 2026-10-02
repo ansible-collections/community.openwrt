@@ -196,8 +196,8 @@ collection. Read on for the full picture.</p>
 </pre></div>
 </div>
 <p><strong>Sanity / unit tests:</strong></p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
-<span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
+<span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 </pre></div>
 </div>
 <p>Everything else is explained in the sections below.</p>
@@ -308,11 +308,11 @@ comment). The actual platform list is read at runtime from
 <h2><a class="toc-backref" href="#id8" role="doc-backlink">Sanity and Unit Tests</a><a class="headerlink" href="#sanity-and-unit-tests" title="Link to this heading"></a></h2>
 <p>These use the standard Ansible tooling and are not Molecule-based.</p>
 <p>Sanity:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 </pre></div>
 </div>
 <p>Unit tests:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 </pre></div>
 </div>
 <p><a class="reference external" href="https://github.com/russoz/andebox">andebox</a> is a convenience wrapper around
@@ -424,6 +424,9 @@ reuse an existing one and save time on subsequent runs:</p>
 <li><p><a class="reference external" href="https://docs.ansible.com/projects/antsibull-nox/">antsibull-nox documentation</a></p></li>
 <li><p><a class="reference internal" href="ucode_mod_dev_guide.html#ansible-collections-community-openwrt-docsite-ucode-mod-dev-guide"><span class="std std-ref">Community OpenWrt ucode Module Developer Guide</span></a></p></li>
 </ul>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.0.</span></p>
+</div>
 </section>
 </section>
 
