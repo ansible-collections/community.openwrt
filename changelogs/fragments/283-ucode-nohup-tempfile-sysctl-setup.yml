@@ -1,5 +1,0 @@
-minor_changes:
-  - nohup - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
-  - setup - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
-  - sysctl - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
-  - tempfile - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).

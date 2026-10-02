@@ -1,2 +1,0 @@
-minor_changes:
-  - group - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/276).

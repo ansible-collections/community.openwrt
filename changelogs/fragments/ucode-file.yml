@@ -1,0 +1,2 @@
+bugfixes:
+  - file - fix ``state=touch`` with ``follow`` and hard links with a relative ``src`` (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).

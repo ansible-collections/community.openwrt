@@ -1,2 +1,0 @@
-minor_changes:
-  - copy - reuse the shared file helpers instead of module-local copies (https://github.com/ansible-collections/community.openwrt/pull/287).
