@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 from ansible.plugins.action import ActionBase
@@ -53,8 +52,7 @@ class UCodeActionBase(ActionBase):
         """Transfer a ucode module + module_utils, then run it via the ucode wrapper."""
         module_path = self._find_module_file(module_name)
 
-        self._make_tmp_path()
-        tmp_dir = self._connection._shell.tmpdir
+        tmp_dir = self._make_tmp_path()
 
         self._transfer_module_file(module_path, tmp_dir)
         self._transfer_module_utils(tmp_dir)
@@ -68,14 +66,9 @@ class UCodeActionBase(ActionBase):
 
     def _find_module_file(self, module_name):
         """Find the module's .uc file in the collection."""
-        plugin_utils_dir = os.path.dirname(os.path.abspath(__file__))
-        plugins_dir = os.path.dirname(plugin_utils_dir)
-        modules_dir = os.path.join(plugins_dir, "modules")
-        module_path = os.path.join(modules_dir, f"{module_name}.uc")
-
-        if not os.path.exists(module_path):
-            raise UCodeModuleNotFound(module_name, module_path)
-
+        module_path = Path(__file__).parent.parent / "modules" / f"{module_name}.uc"
+        if not module_path.exists():
+            raise UCodeModuleNotFound(module_name, str(module_path))
         return module_path
 
     def _find_module_util_script(self, util_name):
@@ -88,8 +81,7 @@ class UCodeActionBase(ActionBase):
     def _transfer_module_file(self, module_path, tmp_dir):
         """Transfer the module .uc file into the shared tmp dir under a fixed name."""
         remote_module = self._connection._shell.join_path(tmp_dir, "module.uc")
-        self._transfer_file(str(module_path), remote_module)
-        self._fixup_perms2([remote_module])
+        self._transfer_and_fixup(module_path, remote_module)
 
     def _transfer_module_utils(self, tmp_dir):
         """Transfer _basic and any declared ucode module utils into <tmp_dir>/module_utils/."""
@@ -98,5 +90,11 @@ class UCodeActionBase(ActionBase):
         for util_name in ["_basic"] + list(self.module_utils):
             util_path = self._find_module_util_script(util_name)
             remote_util = self._connection._shell.join_path(remote_utils_dir, f"{util_name}.uc")
-            self._transfer_file(str(util_path), remote_util)
-            self._fixup_perms2([remote_util])
+            self._transfer_and_fixup(util_path, remote_util)
+
+    def _transfer_and_fixup(self, local_path, remote_path):
+        try:
+            self._transfer_file(str(local_path), remote_path)
+            self._fixup_perms2([remote_path])
+        except Exception as e:
+            raise UCodeModuleTransferFailed(str(e)) from e
