@@ -199,14 +199,6 @@ function native_type_name(value) {
     return type(value);
 }
 
-// Whether `value` is among the values a parameter is allowed to take.
-function in_choices(value, choices) {
-    for (let choice in choices)
-        if (choice == value)
-            return true;
-    return false;
-}
-
 // Convert every item of a list parameter to the type declared in `elements`.
 function coerce_elements(name, values, want, errors) {
     let items = [];
@@ -311,7 +303,7 @@ function build_params(args, argument_spec, parent) {
         if (type(params[name]) == 'array') {
             let rejected = [];
             for (let item in params[name])
-                if (!in_choices(item, choices))
+                if (!(item in choices))
                     push(rejected, item);
 
             if (length(rejected) > 0)
@@ -320,7 +312,7 @@ function build_params(args, argument_spec, parent) {
             continue;
         }
 
-        if (!in_choices(params[name], choices))
+        if (!(params[name] in choices))
             push(errors, sprintf('value of %s must be one of: %s, got: %s',
                                  display_name, join(', ', choices), params[name]));
     }
