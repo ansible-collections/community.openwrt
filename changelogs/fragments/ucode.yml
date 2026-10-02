@@ -1,0 +1,35 @@
+minor_changes:
+  - apk - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+  - command - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+  - copy - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/275).
+  - file - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - group - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/276).
+  - lineinfile - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - nohup - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+  - opkg - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+  - package_facts - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+  - ping - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+  - service - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+  - setup - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+  - slurp - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+  - stat - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - sysctl - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+  - tempfile - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+  - uci - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/280).
+  - apk - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+  - command - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+  - copy - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/275).
+  - file - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - group - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/276).
+  - lineinfile - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - nohup - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+  - opkg - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+  - package_facts - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+  - ping - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+  - service - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+  - setup - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+  - slurp - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+  - stat - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+  - sysctl - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+  - tempfile - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+  - uci - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/280).

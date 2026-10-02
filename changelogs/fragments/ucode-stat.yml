@@ -1,0 +1,2 @@
+bugfixes:
+  - stat - honor ``follow`` and return ``dev`` (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).

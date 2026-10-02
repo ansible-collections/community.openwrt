@@ -1,0 +1,2 @@
+bugfixes:
+  - slurp - fail on directories and always return ``content`` (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
