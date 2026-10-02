@@ -9,6 +9,12 @@
 Community OpenWrt Module Developer Guide
 ========================================
 
+.. warning::
+
+   Shell-based modules are no longer in use in this collection: all modules are now written in ucode.
+   This guide is kept for reference only. To write or change a module, read the
+   :ref:`ansible_collections.community.openwrt.docsite.ucode_mod_dev_guide` instead.
+
 If you are reading this, it is likely you are already an user of the collection and want to extend it:
 Awesome! Everyone is welcome to contribute!
 This collection is based on the Ansible role ``gekmihesg.openwrt`` and as such it does not require Python

@@ -14,7 +14,8 @@ or manage OpenWrt routers and you would like to use Ansible to manage them.
 As you may well know, some devices have limitations of resources, preventing Python from being installed.
 
 This collection is based on the Ansible role ``gekmihesg.openwrt`` and as such it does not require Python
-installed on the OpenWrt devices - all the code is written in plain shell scripts.
+installed on the OpenWrt devices. The role's modules were plain shell scripts; starting with
+community.openwrt 1.9.0, all modules are written in ucode.
 If you have been using ``gekmihesg.openwrt`` before and want to move to ``community.openwrt``,
 please check the :ref:`ansible_collections.community.openwrt.docsite.migration_guide`.
 
@@ -53,22 +54,25 @@ Requirements
 Check the collection's `README <https://github.com/ansible-collections/community.openwrt?tab=readme-ov-file>`_
 for the supported versions of Ansible and OpenWrt.
 
-The modules in this collection are all written in shell script (more specifically ``ash``, used in OpenWrt devices). The control node requires Python.
+The control node requires Python.
 
 This collection is tested using OpenWrt container images for the ``x86_64`` architecture.
 
 Additional packages
 """""""""""""""""""
 
-To provide some specific features, additional packages are required in the OpenWrt devices:
+Stock OpenWrt images provide only MD5 and SHA256 checksums. To provide some specific features, additional
+packages are needed in the OpenWrt devices:
 
     coreutils-sha1sum
-      Required for any module that uses/provides SHA1 hashes.
+      Needed for ``community.openwrt.stat`` to return ``checksum`` with the default algorithm (SHA1);
+      without it, the module succeeds but omits ``checksum``. Alternatively, install ``openssl-util``.
 
-    coreutils-base64
-      Used to improve the performance of modules that manipulate content using the Base64 encoding.
+The SHA224, SHA384 and SHA512 algorithms are only needed if you select one of them in the ``checksum_algorithm``
+option of ``community.openwrt.stat``. In that case, the task fails unless the matching package
+(``coreutils-sha224sum``, ``coreutils-sha384sum`` or ``coreutils-sha512sum``) or ``openssl-util`` is installed.
 
-The installation of those packages is performed by the ``community.openwrt.init`` role.
+When ``openssl-util`` is not installed, the ``community.openwrt.init`` role installs ``coreutils-sha1sum``.
 
 
 Configuration
@@ -84,7 +88,7 @@ These variables control Ansible behavior:
         Value can be ``true``, ``false`` or ``smart``. (default: ``smart``)
 
     openwrt_remote_tmp:
-        Ansibles ``remote_tmp`` (sets ``ansible_remote_tmp``) setting for OpenWrt systems.
+        Ansible's ``remote_tmp`` (sets ``ansible_remote_tmp``) setting for OpenWrt systems.
         Setting to ``/tmp`` helps prevent flash wear on target device. (default: ``/tmp``)
 
 This variable is used when including the ``community.openwrt.init`` role:
@@ -96,7 +100,7 @@ This variable is used when including the ``community.openwrt.init`` role:
 These variables are used by the handlers defined in the collection:
 
     openwrt_wait_for_connection, openwrt_wait_for_connection_timeout:
-        Whether to wait for the host (default: ``true``) and how long (default: ``300``) after a
+        Whether to wait for the host (default: ``true``) and how long (default: ``600``) after a
         network or wifi restart (see handlers below).
 
 These variables are created as convenience to perform some specific tasks:
@@ -121,7 +125,7 @@ The ``init`` role:
 
 * Installs additional packages
 * Sets variables controlling the behavior of the modules
-* Register notification handlers
+* Registers notification handlers
 
 You can use it like any other role and you should use it before using any module from this collection.
 
@@ -148,7 +152,7 @@ You can find the detailed documentation for each module on the
 Handlers
 """"""""
 
-The collection providers some standard handlers you can use in your playbooks:
+The collection provides some standard handlers you can use in your playbooks:
 
     Setup wifi
         Runs ``/sbin/wifi`` to setup WiFi
@@ -180,7 +184,9 @@ but they are made available when ``community.openwrt.init`` is executed.
 Facts
 """""
 
-In playbooks ``gather_facts=true`` will **always** try to run Python in the target node.
+In playbooks ``gather_facts=true`` will **always** try to run Python in the target node, unless you enable the
+:ref:`transparent gather_facts support <ansible_collections.community.openwrt.docsite.user_guide.gather_facts_shim>`
+described below.
 Because of that, it is recommended that you disable
 `default fact gathering <https://docs.ansible.com/projects/ansible/latest/reference_appendices/config.html#default-gathering>`_
 in your ``ansible.cfg`` file, or make sure to always set ``gather_facts=false``.
@@ -192,9 +198,6 @@ It is as easy as:
 
     - name: Gather OpenWrt facts
       community.openwrt.setup:
-
-
-.. versionadded:: 0.3.0
 
 
 .. _ansible_collections.community.openwrt.docsite.user_guide.gather_facts_shim:
@@ -225,6 +228,7 @@ Add the shim directory to the ``action_plugins`` search path in ``ansible.cfg``:
 ..  code-block:: ini
 
     [defaults]
+    # example path
     action_plugins = ~/.ansible/collections/ansible_collections/community/openwrt/plugins/plugin_utils/_setup
 
 **Per-host opt-in**
@@ -238,3 +242,6 @@ unchanged.
 
     # group_vars/openwrt.yml
     openwrt_gather_facts: true
+
+
+.. versionadded:: 0.3.0

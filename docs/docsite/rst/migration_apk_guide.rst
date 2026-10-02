@@ -60,3 +60,6 @@ Playbooks supporting both apk and legacy opkg
           args:
             name: luci
             state: absent
+
+
+.. versionadded:: 1.1.0

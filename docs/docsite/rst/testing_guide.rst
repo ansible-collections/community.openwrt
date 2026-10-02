@@ -9,7 +9,7 @@ Testing Guide
 =============
 
 This guide explains how to run and write tests for the ``community.openwrt`` collection.
-Because the modules in this collection run as shell scripts on real OpenWrt devices (or
+Because the modules in this collection run as ucode scripts on real OpenWrt devices (or
 container images of them), testing works a little differently from a typical Python-based
 collection. Read on for the full picture.
 
@@ -56,8 +56,8 @@ Already familiar with Molecule and just need the commands?  Here you go.
 
 .. code-block:: console
 
-   $ ansible-test sanity --docker default --python 3.13
-   $ ansible-test units --docker default --python 3.13
+   $ ansible-test sanity --docker default --python 3.14
+   $ ansible-test units --docker default --python 3.14
 
 Everything else is explained in the sections below.
 
@@ -94,7 +94,7 @@ The test suite is built around Molecule, which orchestrates Docker containers ru
 actual OpenWrt root filesystem images. This means your tests exercise real OpenWrt
 userspace — BusyBox shell, ``uci``, ``opkg``, etc. — rather than mocks.
 
-The collection tests fall into two broad categories:
+The collection tests fall into three broad categories:
 
    Integration tests (modules)
        Tests under ``tests/integration/targets/<module>/`` that verify each module's
@@ -104,7 +104,10 @@ The collection tests fall into two broad categories:
        Molecule scenarios under ``roles/<role>/molecule/<scenario>/`` that test the
        bundled Ansible roles.
 
-Both categories use real OpenWrt container images. The list of tested OpenWrt versions
+   Collection tests
+       Tests under ``extensions/molecule`` that do not fall under the previous categories.
+
+All categories use real OpenWrt container images. The list of tested OpenWrt versions
 is maintained in a single file: ``tests/molecule/openwrt.yml``.
 
 Molecule has native support for Ansible collections and automatically discovers scenarios
@@ -195,43 +198,19 @@ Sanity:
 
 .. code-block:: console
 
-   $ ansible-test sanity --docker default --python 3.13
+   $ ansible-test sanity --docker default --python 3.14
 
 Unit tests:
 
 .. code-block:: console
 
-   $ ansible-test units --docker default --python 3.13
+   $ ansible-test units --docker default --python 3.14
 
 `andebox <https://github.com/russoz/andebox>`_ is a convenience wrapper around
 ``ansible-test`` that handles the collection path setup for you, so either tool works.
 
-See the :ref:`ansible_collections.community.openwrt.docsite.mod_dev_guide` for more
+See the :ref:`ansible_collections.community.openwrt.docsite.ucode_mod_dev_guide` for more
 on what the sanity checks cover.
-
-shellcheck and ignore files
-""""""""""""""""""""""""""""
-
-Because this collection is largely shell code, the ``shellcheck`` sanity check is
-particularly relevant. When ``shellcheck`` flags an issue that cannot or should not be
-fixed, the correct way to suppress it is to add an entry to the appropriate
-``tests/sanity/ignore-X.Y.txt`` file — **never** use inline ``# shellcheck disable=``
-directives inside the module files themselves.
-
-Some project-wide suppressions live in ``.shellcheckrc`` at the repository root.
-
-To regenerate the ignore-file entries systematically, use the ``regen_shellcheck_ignores``
-nox session. It strips all existing ``shellcheck`` lines from every ``ignore-X.Y.txt``
-file, runs the check for each supported ansible-core version, and appends the new
-failures (with descriptions from the ``shellcheck`` wiki) back to the appropriate
-ignore files.
-
-.. code-block:: console
-
-   $ nox -e regen_shellcheck_ignores
-
-Run this after adding or significantly modifying shell files, or whenever the set of
-supported ansible-core versions changes.
 
 
 Code Quality and Linting (nox)
@@ -321,4 +300,7 @@ Further Reading
 - `OpenWrt container images <https://github.com/openwrt/docker>`_
 - `nox documentation <https://nox.thea.codes/>`_
 - `antsibull-nox documentation <https://docs.ansible.com/projects/antsibull-nox/>`_
-- :ref:`ansible_collections.community.openwrt.docsite.mod_dev_guide`
+- :ref:`ansible_collections.community.openwrt.docsite.ucode_mod_dev_guide`
+
+
+.. versionadded:: 1.3.0

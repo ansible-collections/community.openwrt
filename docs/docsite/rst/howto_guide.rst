@@ -14,7 +14,7 @@ using the ``community.openwrt`` role in real world scenarios.
 
 Most OpenWrt devices have a very small footprint and there is no space available to install Python. Based on this constraint, virtually all of the standard Ansible modules are not available.
 
-It is a design rule of ``community.openwrt`` not to require Python, rather providing modules based on shell scripts (``/bin/sh``) instead.
+It is a design rule of ``community.openwrt`` not to require Python, rather providing modules based on ucode scripts instead.
 
 Also by the nature of OpenWrt and its CLI-based ``uci`` tool, you need to be very familiar how
 this ecosystem works. Even the creation of a Wifi passwort or a simple forwarding rule can
@@ -91,3 +91,6 @@ Backup/Restore
 - Backup
 - Restore
 - Crontab
+
+
+.. versionadded:: 1.1.0

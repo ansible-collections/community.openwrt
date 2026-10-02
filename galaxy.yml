@@ -13,7 +13,7 @@ authors:
   - Alexei Znamensky (github.com/russoz)
 description: >-
   The community.openwrt collection enables management of OpenWrt devices
-  without Python installed by using shell-based modules.
+  without Python installed by using ucode-based modules.
 license_file: LICENSES/GPL-3.0-or-later.txt
 tags:
   - openwrt

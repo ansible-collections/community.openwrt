@@ -12,7 +12,7 @@ ucode Language Notes
 ucode reads like JavaScript, and that is exactly what makes it worth writing these notes down: the places
 where the resemblance stops are the places where a module breaks. What follows are the differences that come
 up while writing modules for this collection. It is not a tutorial - the
-`ucode documentation <https://ucode.mein.io/>`_ is, and it is worth keeping open.
+`ucode documentation <https://ucode-lang.org/>`_ is, and it is worth keeping open.
 
 Functions
 ^^^^^^^^^
@@ -89,3 +89,6 @@ A few behaviors are worth knowing before they cost you an afternoon:
   another program. ``fs.mkdtemp()`` returns a directory path, and ``open(path, "x")`` creates a file only if
   it does not exist yet.
 * There is no ``getpid()``. Reading the link ``/proc/self`` gives the process id as a string.
+
+
+.. versionadded:: 1.9.0

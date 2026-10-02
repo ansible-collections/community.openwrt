@@ -16,7 +16,7 @@
 - For this collection, you will want to read the description of the issue:
   https://github.com/ansible-collections/community.openwrt/issues/100
 - The guidelines for contributors are found in `CONTRIBUTING.md`, which in turn points to the
-  `Community OpenWrt Module Developer Guide` (`docs/docsite/rst/mod_dev_guide.rst`) and the
+  `Community OpenWrt ucode Module Developer Guide` (`docs/docsite/rst/ucode_mod_dev_guide.rst`) and the
   `Testing Guide` (`docs/docsite/rst/testing_guide.rst`) for collection-specific details.
 - It is very important to maintain backwards compatibility in the changes.
 - When something needs to change and break that, a longer process must be taken,
@@ -33,11 +33,21 @@
 ## Architecture
 
 - This collection manages OpenWrt devices **without requiring Python on the target**: module logic
-  runs as POSIX shell (BusyBox `/bin/ash`), not Python.
-- The full architecture — module/action-plugin pairing, the `wrapper.sh` framework, its API
-  (`PARAMS`/`RESPONSE_VARS`, JSON helpers, lifecycle hooks, check-mode support) — is documented in
-  `docs/docsite/rst/mod_dev_guide.rst`. Read it before touching modules, action plugins, or
-  `wrapper.sh`, rather than relying on assumptions from other Ansible collections.
+  is written in [ucode](https://github.com/ucode-lang/ucode), OpenWrt's own scripting language, which ships
+  in the base image of every supported OpenWrt release.
+- Each module is made of:
+  - `plugins/modules/<name>.uc` — the implementation, run on the target;
+  - `plugins/modules/<name>.py` — the documentation only, no code;
+  - `plugins/action/<name>.py` — an action plugin subclassing `UCodeActionBase`
+    (`plugins/plugin_utils/ucode_action.py`), which transfers the module and its module_utils to the
+    target and runs it through `plugins/modules/ucode_wrapper.sh`.
+- Shared ucode code lives in `plugins/module_utils/*.uc`. `_basic.uc` is always transferred and provides
+  `AnsibleModule` (argument spec, check mode, result building, `run_command()`, `deprecate()`); other
+  module_utils are transferred only when declared in the action plugin's `module_utils` list.
+- The full architecture and API are documented in `docs/docsite/rst/ucode_mod_dev_guide.rst`, and the
+  ucode pitfalls in `docs/docsite/rst/ucode_language_notes.rst`. Read them before touching modules,
+  action plugins, module_utils, or `ucode_wrapper.sh`, rather than relying on assumptions from other
+  Ansible collections — ucode looks like JavaScript but is not.
 
 ## Licensing and Copyright
 
@@ -72,8 +82,8 @@ Reference guide: https://github.com/russoz-ansible/ansible-contrib-unofficial/bl
 
 This guide targets Python `AnsibleModule`/`argument_spec` components. In this collection it applies
 directly only to Python-side pieces (action plugins, `plugin_utils`) that use those constructs.
-Shell modules (`plugins/modules/*.sh`) have no equivalent deprecation runtime yet — see the note under
-**Ansible Collection** above.
+ucode modules (`plugins/modules/*.uc`) follow the same policy with their own mechanism — see
+**Deprecations in ucode modules** below.
 
 ### Deprecating a parameter with no default value (Python components only)
 
@@ -95,6 +105,17 @@ Instead:
   )
   ```
   Depending on the option, only call `module.deprecate()` if the changing default has an effect on the task.
+
+### Deprecations in ucode modules
+
+- The ucode `argument_spec` has no `removed_in_version` nor `deprecated_aliases`: parameters cannot be
+  deprecated through the spec.
+- Call `module.deprecate(msg, version)` from the module code instead. `version` is mandatory (the module
+  fails without it); the collection name is filled in by `_basic.uc`.
+- For a parameter that has a default value, follow the same steps as for Python components above: drop
+  `default` from the spec and the docs, detect `null`, apply the old default manually, and call
+  `module.deprecate()` only when the changing default has an effect on the task.
+- Add the deprecation note to the parameter description in the module's `.py` documentation.
 
 ### Removal target versions
 
@@ -225,7 +246,7 @@ approval before committing or pushing it.
 
 This collection combines two very different kinds of tests: standard `ansible-test` sanity/unit tests
 (Python, for action plugins and `plugin_utils`), and Molecule-based integration tests that exercise
-the shell modules against real OpenWrt container images. See `docs/docsite/rst/testing_guide.rst` for
+the ucode modules against real OpenWrt container images. See `docs/docsite/rst/testing_guide.rst` for
 the full picture; the essentials are summarized below.
 
 ### Running Tests
@@ -243,9 +264,6 @@ the full picture; the essentials are summarized below.
 - Role tests: `nox -e roles -- --role <role> --scenario <scenario>` (omit `--scenario` for all
   scenarios of a role, omit both for every role)
 - Collection-level default Molecule scenario: `nox -e molecule`
-- shellcheck failures MUST be suppressed via the appropriate `tests/sanity/ignore-X.Y.txt` file —
-  never with inline `# shellcheck disable=` in the module files. Regenerate ignore files after
-  significant shell changes with `nox -e regen_shellcheck_ignores`.
 - Other nox sessions worth knowing: `nox -e lint` (formatters, codeqa, yamllint, antsibull-nox-config),
   `nox -e license-check` (REUSE compliance), `nox -e extra-checks`, `nox -e build-import-check`. Plain
   `nox` runs all default sessions.
@@ -255,8 +273,8 @@ the full picture; the essentials are summarized below.
 ## Writing unit tests
 
 Unit tests in this collection exercise Python components only — action plugins and `plugin_utils`
-(e.g. `OpenwrtActionBase`). There is no Python module code (`AnsibleModule`, `argument_spec`) to test,
-since modules run as shell scripts on the target; shell behavior is covered by integration tests instead.
+(e.g. `UCodeActionBase`). There is no Python module code (`AnsibleModule`, `argument_spec`) to test,
+since modules run as ucode scripts on the target; module behavior is covered by integration tests instead.
 
 - Prefer `pytest` idioms to write tests
   - Prefer plain functions instead of Test classes

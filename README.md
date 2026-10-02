@@ -102,9 +102,15 @@ The collection is currently tested with `ansible-core` versions:
 - 2.18
 - 2.19
 - 2.20
+- 2.21
+- 2.22
 - devel
 
 ## External requirements
+
+Python is not required on the OpenWrt devices: the modules run with [ucode](https://ucode-lang.org/), OpenWrt's own
+scripting language, and its `fs`, `uci` and `ubus` modules. These are part of the base image of every supported
+OpenWrt release; custom firmware builds that leave them out cannot run the modules.
 
 The collection is currently tested against OpenWrt versions:
 

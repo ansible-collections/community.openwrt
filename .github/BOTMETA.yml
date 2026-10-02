@@ -93,12 +93,6 @@ files:
     maintainers: $team_repo_mgrs
   $modules/ucode_wrapper.yml:
     maintainers: $team_repo_mgrs
-  $modules/wrapper.sh:
-    maintainers: $team_repo_mgrs
-  $modules/wrapper.yml:
-    maintainers: $team_repo_mgrs
-  $plugin_utils/openwrt_action.py:
-    maintainers: $team_repo_mgrs
   $plugin_utils/ucode_action.py:
     maintainers: $team_repo_mgrs
   #########################
