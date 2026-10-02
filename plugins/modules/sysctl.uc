@@ -29,13 +29,6 @@ const name = params.name;
 const value = params.value != null ? params.value : '';
 const sysctl_file = params.sysctl_file ? params.sysctl_file : DEFAULT_SYSCTL_FILE;
 
-let is_changed = false;
-
-function changed() {
-    is_changed = true;
-    result.changed();
-}
-
 // Split a line into words, as the shell does with an unquoted expansion.
 function words_of(line) {
     let trimmed = trim(line, ' \t\n');
@@ -116,7 +109,7 @@ function set_kernel_value() {
     if (current == value)
         return;
 
-    changed();
+    result.changed();
     if (module.check_mode)
         return;
 
@@ -152,7 +145,7 @@ function updated_lines() {
         if (k == name) {
             found = true;
             if (params.state != 'present') {
-                changed();
+                result.changed();
                 continue;
             }
 
@@ -164,7 +157,7 @@ function updated_lines() {
             if (v != value) {
                 let comment = slice(words, i);
                 line = `${k}=${value}` + (length(comment) > 0 ? ` ${join(' ', comment)}` : '');
-                changed();
+                result.changed();
             }
         }
         push(out, line);
@@ -172,7 +165,7 @@ function updated_lines() {
 
     if (params.state == 'present' && !found) {
         push(out, `${name}=${value}`);
-        changed();
+        result.changed();
     }
 
     return out;
@@ -203,7 +196,7 @@ if (params.sysctl_set)
 
 let lines = updated_lines();
 
-if (is_changed && !module.check_mode) {
+if (result.is_changed() && !module.check_mode) {
     writefile(sysctl_file, join('', map(lines, shell_echo_line)));
 
     if (params.reload && params.state == 'present') {
