@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 from ansible.plugins.action import ActionBase
@@ -67,14 +66,9 @@ class UCodeActionBase(ActionBase):
 
     def _find_module_file(self, module_name):
         """Find the module's .uc file in the collection."""
-        plugin_utils_dir = os.path.dirname(os.path.abspath(__file__))
-        plugins_dir = os.path.dirname(plugin_utils_dir)
-        modules_dir = os.path.join(plugins_dir, "modules")
-        module_path = os.path.join(modules_dir, f"{module_name}.uc")
-
-        if not os.path.exists(module_path):
-            raise UCodeModuleNotFound(module_name, module_path)
-
+        module_path = Path(__file__).parent.parent / "modules" / f"{module_name}.uc"
+        if not module_path.exists():
+            raise UCodeModuleNotFound(module_name, str(module_path))
         return module_path
 
     def _find_module_util_script(self, util_name):
