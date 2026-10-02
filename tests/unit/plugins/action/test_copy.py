@@ -36,6 +36,22 @@ def _make_action(src=None, dest="/tmp/dest.txt", content=None):
     return obj
 
 
+def test_remote_tmpdir_created_once():
+    """source, module and module_utils share one remote tmpdir."""
+    action = _make_action(src="secret.pem")
+    action._connection._shell.tmpdir = None
+
+    def make_tmp_path():
+        action._connection._shell.tmpdir = "/tmp/remote"
+        return "/tmp/remote"
+
+    action._make_tmp_path = MagicMock(side_effect=make_tmp_path)
+    action._low_level_execute_command = MagicMock()
+    result = action.run(task_vars={})
+    assert not result.get("failed"), result
+    action._make_tmp_path.assert_called_once_with()
+
+
 def test_get_real_file_called_for_src():
     """get_real_file must be called so vault content is decrypted before transfer."""
     action = _make_action(src="secret.pem")

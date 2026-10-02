@@ -180,3 +180,6 @@
 
 - name: Diff mode tests
   ansible.builtin.include_tasks: diff.yml
+
+- name: Remote tmpdir cleanup tests
+  ansible.builtin.include_tasks: tmpdir.yml

@@ -1,0 +1,2 @@
+bugfixes:
+  - ucode_action plugin utils - stop leaving a remote temporary directory behind on the target after each ``community.openwrt.copy`` or ``community.openwrt.template`` task (https://github.com/ansible-collections/community.openwrt/pull/303).
