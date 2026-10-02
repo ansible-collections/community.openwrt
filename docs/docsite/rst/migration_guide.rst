@@ -27,10 +27,11 @@ The good news is that both projects share the same approach: they enable you to 
 devices without requiring Python on the target systems, making them compatible with
 resource-constrained devices.
 
-The role's modules are shell scripts. Starting with community.openwrt 1.9.0, the collection's
-modules are written in ucode, and their internal structure has changed significantly. While the underlying logic
-is largely the same, the collection now provides proper documentation for each module, accessible
-via ``ansible-doc`` or the `collection documentation site <https://galaxy.ansible.com/ui/repo/published/community/openwrt/>`_.
+The role's modules were shell scripts, but starting with community.openwrt 1.9.0, the collection's
+modules are written in ucode, and their internal structure has changed significantly.
+While the underlying logic is largely the same, the collection now provides proper documentation
+for each module, accessible via ``ansible-doc`` or the
+`collection documentation site <https://galaxy.ansible.com/ui/repo/published/community/openwrt/>`_.
 
 
 Key Differences
@@ -63,8 +64,32 @@ This collection does **not** include monkey patching. If you are migrating playb
 standard Ansible modules (such as ``ansible.builtin.*``), you must update them to use the
 equivalent ``community.openwrt.*`` implementation.
 
-Attempting to use standard modules like ``fetch`` or ``template``
-(see `Issue #63 <https://github.com/ansible-collections/community.openwrt/issues/63>`_)
+For example, the task on the left, written for the ``gekmihesg.openwrt`` role, **does NOT work** with
+``community.openwrt``: without the role's monkey patch, ``lineinfile`` resolves to ``ansible.builtin.lineinfile``,
+which requires Python on the device. Use the module's fully qualified collection name (FQCN) instead:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
+
+   * - gekmihesg.openwrt (does NOT work with community.openwrt)
+     - community.openwrt
+   * - .. code-block:: yaml+jinja
+
+          - name: Run a script at boot
+            lineinfile:
+              path: /etc/rc.local
+              line: /usr/local/bin/startup.sh
+              insertbefore: exit 0
+     - .. code-block:: yaml+jinja
+
+          - name: Run a script at boot
+            community.openwrt.lineinfile:
+              path: /etc/rc.local
+              line: /usr/local/bin/startup.sh
+              insertbefore: exit 0
+
+Attempting to use standard modules like ``fetch``
 will typically fail with an error indicating missing Python:
 
    ``Task failed: Action failed: The module interpreter '/usr/bin/python3' was not found``
@@ -72,16 +97,21 @@ will typically fail with an error indicating missing Python:
 Workarounds
 -----------
 
-There are some easy work-arounds until native equivalents are added to ``community.openwrt``.
-For example, you can use the ``lookup`` plugin along with ``community.openwrt.copy``
-as a replacement for ``ansible.builtin.template``:
+There is no ``community.openwrt.fetch``. To retrieve a text file from the device, you can combine
+``community.openwrt.slurp`` with ``ansible.builtin.copy`` running on the controller:
 
 .. code-block:: yaml+jinja
 
-    - name: Generate template and copy to device
-      community.openwrt.copy:
-        content: "{{ lookup('template', 'config_template.j2') }}"
-        dest: /etc/app/config.json
+    - name: Read the file from the device
+      community.openwrt.slurp:
+        src: /etc/config/network
+      register: network_config
+
+    - name: Save the file on the controller
+      ansible.builtin.copy:
+        content: "{{ network_config.content | b64decode }}"
+        dest: "backups/{{ inventory_hostname }}/network"
+      delegate_to: localhost
 
 Installation
 """"""""""""
@@ -387,8 +417,7 @@ If you see errors like ``could not resolve module/action 'community.openwrt.opkg
 * Verify the collection is installed: ``ansible-galaxy collection list``
 * Check you are using the correct namespace prefix
 * Ensure your Ansible version meets the minimum requirements (see the collection README)
-* ``community.openwrt.opkg`` was only available until OpenWrt 24 for 25+ you have to use
-  ``community.openwrt.apk`` instead
+* OpenWrt 25.12.x and later use ``apk`` instead of ``opkg``; use ``community.openwrt.apk`` there
 
 
 Module Behavior Differences

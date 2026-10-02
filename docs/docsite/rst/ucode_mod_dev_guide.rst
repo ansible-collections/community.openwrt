@@ -422,8 +422,8 @@ Run the sanity and unit tests with:
 
 .. code-block:: console
 
-   $ ansible-test sanity --docker default --python 3.13
-   $ ansible-test units --docker default --python 3.13
+   $ ansible-test sanity --docker default --python 3.14
+   $ ansible-test units --docker default --python 3.14
 
 A worked example
 ^^^^^^^^^^^^^^^^
@@ -501,3 +501,6 @@ What is left is the flow, which reads like the documentation:
         remove_packages(requested_packages());
 
     module.exit_json();
+
+
+.. versionadded:: 1.9.0

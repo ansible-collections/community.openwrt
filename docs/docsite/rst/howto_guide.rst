@@ -91,3 +91,6 @@ Backup/Restore
 - Backup
 - Restore
 - Crontab
+
+
+.. versionadded:: 1.1.0

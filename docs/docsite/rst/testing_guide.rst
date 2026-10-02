@@ -56,8 +56,8 @@ Already familiar with Molecule and just need the commands?  Here you go.
 
 .. code-block:: console
 
-   $ ansible-test sanity --docker default --python 3.13
-   $ ansible-test units --docker default --python 3.13
+   $ ansible-test sanity --docker default --python 3.14
+   $ ansible-test units --docker default --python 3.14
 
 Everything else is explained in the sections below.
 
@@ -198,13 +198,13 @@ Sanity:
 
 .. code-block:: console
 
-   $ ansible-test sanity --docker default --python 3.13
+   $ ansible-test sanity --docker default --python 3.14
 
 Unit tests:
 
 .. code-block:: console
 
-   $ ansible-test units --docker default --python 3.13
+   $ ansible-test units --docker default --python 3.14
 
 `andebox <https://github.com/russoz/andebox>`_ is a convenience wrapper around
 ``ansible-test`` that handles the collection path setup for you, so either tool works.
@@ -301,3 +301,6 @@ Further Reading
 - `nox documentation <https://nox.thea.codes/>`_
 - `antsibull-nox documentation <https://docs.ansible.com/projects/antsibull-nox/>`_
 - :ref:`ansible_collections.community.openwrt.docsite.ucode_mod_dev_guide`
+
+
+.. versionadded:: 1.3.0

@@ -89,3 +89,6 @@ A few behaviors are worth knowing before they cost you an afternoon:
   another program. ``fs.mkdtemp()`` returns a directory path, and ``open(path, "x")`` creates a file only if
   it does not exist yet.
 * There is no ``getpid()``. Reading the link ``/proc/self`` gives the process id as a string.
+
+
+.. versionadded:: 1.9.0

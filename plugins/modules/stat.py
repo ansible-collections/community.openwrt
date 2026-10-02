@@ -265,8 +265,11 @@ stat:
       type: str
       sample: 9a8ad92c50cae39aa2c5604fd0ab6d8c
     checksum:
-      description: Hash of the file using the specified algorithm.
-      returned: when O(get_checksum=true) and file is readable
+      description:
+        - Hash of the file using the algorithm specified in O(checksum_algorithm).
+        - With the default algorithm V(sha1), it is not returned when the device has neither C(sha1sum) nor C(openssl),
+          which are provided by the packages C(coreutils-sha1sum) and C(openssl-util), respectively.
+      returned: when O(get_checksum=true), the file is readable, and the device can compute the checksum
       type: str
       sample: 4e1243bd22c66e76c2ba9eddc1f91394e57f9f83
     charset:
