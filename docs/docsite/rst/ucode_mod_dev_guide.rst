@@ -186,7 +186,9 @@ module goes, rather than assembling a dict at the end:
     result.update({ rc: res.rc, stdout: res.stdout, stderr: res.stderr });
     result.changed();
 
-``result.changed()`` marks the task as changed and ``result.changed(false)`` clears it again. Every field you
+``result.changed()`` marks the task as changed and ``result.changed(false)`` clears it again;
+``result.is_changed()`` tells whether it is marked, so a module that has several places deciding on a change
+can act on the outcome at the end without keeping a flag of its own. Every field you
 put in the result is returned to the user, and the ones your module adds should be described in ``RETURN``.
 The `common return values <https://docs.ansible.com/projects/ansible/latest/reference_appendices/common_return_values.html>`_
 are documented by ``ansible-core`` and do not belong there.

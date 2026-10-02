@@ -485,6 +485,11 @@ function Result() {
             data.changed = value != null ? value : true;
         },
 
+        // Whether the result is marked as changed.
+        is_changed: function() {
+            return data.changed;
+        },
+
         // Record a deprecation. The version the feature is removed in is
         // mandatory, so that every deprecation carries a removal target.
         deprecate: function(msg, version) {
