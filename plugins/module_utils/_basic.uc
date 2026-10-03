@@ -482,6 +482,13 @@ function Result() {
             return data.changed;
         },
 
+        // Record a warning.
+        warn: function(msg) {
+            if (type(data.warnings) != 'array')
+                data.warnings = [];
+            push(data.warnings, msg);
+        },
+
         // Record a deprecation. The version the feature is removed in is
         // mandatory, so that every deprecation carries a removal target.
         deprecate: function(msg, version) {
@@ -670,6 +677,11 @@ export function AnsibleModule(opts) {
         diff_mode: truthy(args._ansible_diff),
         verbosity: numeric(args._ansible_verbosity),
         result: result,
+
+        // Record a warning, reported by ansible-core once the module ends.
+        warn: function(msg) {
+            result.warn(msg);
+        },
 
         // Record a deprecation, reported by ansible-core once the module ends.
         deprecate: function(msg, version) {
