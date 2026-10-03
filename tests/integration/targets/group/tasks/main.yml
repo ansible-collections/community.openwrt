@@ -158,6 +158,152 @@
           - create_group_gid_non_unique.gid | int == 1234
           - missing_gid is failed
 
+    - name: request the gid a group already has, shared with another group
+      community.openwrt.group:
+        name: ansibullgroup2
+        gid: 1234
+        state: present
+      register: same_gid_shared
+
+    - name: get an existing group without a gid
+      community.openwrt.group:
+        name: ansibullgroup2
+        state: present
+      register: existing_group
+
+    - name: assert existing group results
+      ansible.builtin.assert:
+        that:
+          - same_gid_shared is not failed
+          - same_gid_shared is not changed
+          - existing_group is not changed
+          - existing_group.gid == 1234
+          - existing_group.system is false
+
+    ##
+    ## group change gid
+    ##
+
+    - block:
+        - name: create user with primary group of ansibullgroup2
+          community.openwrt.lineinfile:
+            path: '/etc/passwd'
+            line: 'gidchangeuser:x:2346:1234::/:/bin/false'
+            state: present
+
+        - name: change the gid of a group (check mode)
+          community.openwrt.group:
+            name: ansibullgroup2
+            gid: 1235
+            state: present
+          register: change_gid_check
+          check_mode: true
+
+        - name: get gid of the group (check mode)
+          ansible.builtin.raw: "grep ^ansibullgroup2: /etc/group | cut -d: -f3"
+          register: change_gid_actual_check
+
+        - name: assert change the gid of a group (check mode)
+          ansible.builtin.assert:
+            that:
+              - change_gid_check is changed
+              - change_gid_check.gid == 1235
+              - change_gid_actual_check.stdout | trim | int == 1234
+
+        - name: change the gid of a group
+          community.openwrt.group:
+            name: ansibullgroup2
+            gid: 1235
+            state: present
+          register: change_gid
+
+        - name: get gid of the group
+          ansible.builtin.raw: "grep ^ansibullgroup2: /etc/group | cut -d: -f3"
+          register: change_gid_actual
+
+        - name: get primary gid of the user
+          ansible.builtin.raw: "grep ^gidchangeuser: /etc/passwd | cut -d: -f4"
+          register: change_gid_user
+
+        - name: get gid of the group sharing the old gid
+          ansible.builtin.raw: "grep ^ansibullgroup3: /etc/group | cut -d: -f3"
+          register: change_gid_other
+
+        - name: assert change the gid of a group
+          ansible.builtin.assert:
+            that:
+              - change_gid is changed
+              - change_gid.gid == 1235
+              - change_gid_actual.stdout | trim | int == 1235
+              - change_gid_user.stdout | trim | int == 1235
+              - change_gid_other.stdout | trim | int == 1234
+
+        - name: change the gid of a group (idempotent)
+          community.openwrt.group:
+            name: ansibullgroup2
+            gid: 1235
+            state: present
+          register: change_gid_again
+
+        - name: assert change the gid of a group (idempotent)
+          ansible.builtin.assert:
+            that:
+              - change_gid_again is not changed
+
+        - name: change the gid of a group to one already in use
+          community.openwrt.group:
+            name: ansibullgroup2
+            gid: 1234
+            state: present
+          register: change_gid_clash
+          ignore_errors: true
+
+        - name: assert change the gid of a group to one already in use
+          ansible.builtin.assert:
+            that:
+              - change_gid_clash is failed
+              - change_gid_clash is not changed
+
+      always:
+        - name: cleanup user
+          community.openwrt.lineinfile:
+            path: '/etc/passwd'
+            regex: '^gidchangeuser:'
+            state: absent
+
+    - name: use an invalid state
+      community.openwrt.group:
+        name: ansibullgroup
+        state: installed
+      register: invalid_state
+      ignore_errors: true
+
+    - name: assert invalid state
+      ansible.builtin.assert:
+        that:
+          - invalid_state is failed
+
+    - name: use an invalid group name
+      community.openwrt.group:
+        name: '{{ item }}'
+        state: present
+      loop:
+        - ''
+        - 'ansibull:x:0:'
+        - "ansibull\nroot2:x:0:"
+      register: invalid_name
+      ignore_errors: true
+
+    - name: get the groups after using invalid group names
+      ansible.builtin.raw: 'grep -c ^ansibull: /etc/group; grep -c ^root2: /etc/group; grep -c ^: /etc/group; true'
+      register: invalid_name_actual
+
+    - name: assert invalid group name
+      ansible.builtin.assert:
+        that:
+          - invalid_name.results | map(attribute='failed') is all
+          - invalid_name_actual.stdout_lines | map('trim') | list == ['0', '0', '0']
+
     ##
     ## group remove
     ##
@@ -193,6 +339,8 @@
       ansible.builtin.assert:
         that:
           - delete_group is changed
+          - delete_group.gid is not defined
+          - delete_group.system is not defined
           - '"ansibullgroup" not in delete_group_actual.stdout_lines'
 
     - name: delete group (idempotent)
@@ -231,6 +379,7 @@
           ansible.builtin.assert:
             that:
               - failed_delete is failed
+              - failed_delete is not changed
 
         - name: force delete the group
           community.openwrt.group:
