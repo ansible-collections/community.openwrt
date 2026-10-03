@@ -88,7 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#the-ansiblemodule-api">The AnsibleModule API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#building-the-result">Building the result</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#running-commands">Running commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#deprecations">Deprecations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#warnings-and-deprecations">Warnings and deprecations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ending-the-module">Ending the module</a></li>
 </ul>
 </li>
@@ -305,6 +305,7 @@ from the framework:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">module.result</span></code> - the result being built up;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">module.run_command()</span></code> - run a command on the device;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">module.exit_json()</span></code> and <code class="docutils literal notranslate"><span class="pre">module.fail_json()</span></code> - end the module;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">module.warn()</span></code> - record a warning;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">module.deprecate()</span></code> - record a deprecation.</p></li>
 </ul>
 <section id="building-the-result">
@@ -337,8 +338,10 @@ yourself - use it only when you need those, and never build it out of parameter 
 <p>Pass <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">check_rc:</span> <span class="pre">true</span> <span class="pre">}</span></code> to end the module in failure when the command exits non-zero, with the command’s
 standard error as the message.</p>
 </section>
-<section id="deprecations">
-<h3>Deprecations<a class="headerlink" href="#deprecations" title="Link to this heading"></a></h3>
+<section id="warnings-and-deprecations">
+<h3>Warnings and deprecations<a class="headerlink" href="#warnings-and-deprecations" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">module.warn(msg)</span></code> records a warning for something the user should know about but that does not make the task
+fail. Warnings accumulate, and <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code> displays them when the module ends, whether it succeeds or fails.</p>
 <p>Deprecating something the module used to do is <code class="docutils literal notranslate"><span class="pre">module.deprecate(msg,</span> <span class="pre">version)</span></code>, where <code class="docutils literal notranslate"><span class="pre">version</span></code> is the
 version the behavior is removed in. It is mandatory: a deprecation without a removal target is a bug, and the
 module fails instead of recording it. The warning reaches the user when the module ends.</p>
