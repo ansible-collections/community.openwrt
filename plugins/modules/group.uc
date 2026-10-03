@@ -20,11 +20,12 @@ const module = AnsibleModule({
         gid:        { type: 'int' },
         gid_max:    { type: 'int' },
         gid_min:    { type: 'int' },
-        state:      { type: 'str', default: 'present' },
+        state:      { type: 'str', default: 'present', choices: [ 'absent', 'present' ] },
         force:      { type: 'bool', default: false },
         system:     { type: 'bool', default: false },
         non_unique: { type: 'bool', default: false },
     },
+    required_if: [ [ 'non_unique', true, [ 'gid' ] ] ],
     supports_check_mode: true,
 });
 
@@ -97,19 +98,38 @@ function ensure_gid_unique(groups, gid) {
         module.fail_json(`GID '${gid}' already exists with group '${join(', ', clashing)}'`);
 }
 
-// Replace the group file, through a temporary file renamed over it so that the
+// Replace a database file, through a temporary file renamed over it so that the
 // file is never seen half-written, keeping its ownership and permissions.
-function write_groups(groups) {
-    let info = stat(GROUP_FILE);
-    let tmp = `${GROUP_FILE}.ansible_tmp`;
-    let content = join('', map(groups, (group) => `${group.line}\n`));
+function write_entries(path, entries) {
+    let info = stat(path);
+    let tmp = `${path}.ansible_tmp`;
+    let content = join('', map(entries, (entry) => `${entry.line}\n`));
 
     if (writefile(tmp, content) == null ||
         !chmod(tmp, info.mode) || !chown(tmp, info.uid, info.gid) ||
-        !rename(tmp, GROUP_FILE)) {
+        !rename(tmp, path)) {
         unlink(tmp);
-        module.fail_json(`cannot write ${GROUP_FILE}`);
+        module.fail_json(`cannot write ${path}`);
     }
+}
+
+// A copy of the entry with the ID in the given field replaced.
+function with_id(entry, index, id) {
+    let fields = [ ...entry.fields ];
+    fields[index] = id;
+    return { line: join(':', fields), fields: fields };
+}
+
+// Give the group a new GID, and move the users having the old one as their
+// primary group along with it, as groupmod does.
+function change_gid(groups, group, gid) {
+    let old_gid = id_field(group, 2);
+    write_entries(GROUP_FILE, map(groups, (g) => g == group ? with_id(g, 2, gid) : g));
+
+    let users = read_entries(PASSWD_FILE);
+    let moved = (user) => old_gid != null && id_field(user, 3) == old_gid;
+    if (length(filter(users, moved)) > 0)
+        write_entries(PASSWD_FILE, map(users, (user) => moved(user) ? with_id(user, 3, gid) : user));
 }
 
 // ---- operations -----------------------------------------------------------
@@ -119,17 +139,15 @@ function group_absent(groups) {
     if (group == null)
         return;
 
-    result.changed();
-    if (module.check_mode)
-        return;
-
-    if (!params.force) {
+    if (!module.check_mode && !params.force) {
         let users = users_with_primary_gid(id_field(group, 2));
         if (length(users) > 0)
             module.fail_json(`cannot remove the primary group of user '${users[0]}'`);
     }
 
-    write_groups(filter(groups, (g) => g != group));
+    result.changed();
+    if (!module.check_mode)
+        write_entries(GROUP_FILE, filter(groups, (g) => g != group));
 }
 
 function group_present(groups) {
@@ -137,49 +155,40 @@ function group_present(groups) {
     let gid = params.gid;
 
     if (group == null) {
-        result.changed();
-        if (gid == null) {
+        if (gid == null)
             gid = unused_gid(groups);
-            result.update({ gid: gid });
-        }
         else
             ensure_gid_unique(groups, gid);
 
-        if (!module.check_mode)
-            write_groups([ ...groups, { line: `${params.name}:x:${gid}:` } ]);
-        return;
-    }
-
-    if (gid == null)
-        return;
-
-    ensure_gid_unique(groups, gid);
-
-    // A new GID for an existing group is reported as a change but not written,
-    // as the shell implementation did.
-    if (gid != id_field(group, 2))
         result.changed();
+        if (!module.check_mode)
+            write_entries(GROUP_FILE, [ ...groups, { line: `${params.name}:x:${gid}:` } ]);
+    }
+    else if (gid != null && gid != id_field(group, 2)) {
+        ensure_gid_unique(groups, gid);
+
+        result.changed();
+        if (!module.check_mode)
+            change_gid(groups, group, gid);
+    }
+    else
+        gid = id_field(group, 2);
+
+    result.update({ gid: gid, system: params.system });
 }
 
 // ---- main -----------------------------------------------------------------
 
-if (!(params.state in [ 'present', 'installed', 'absent', 'removed' ]))
-    module.fail_json('state must be present or absent');
-
-if (params.state == 'present' && params.non_unique && params.gid == null)
-    module.fail_json('non_unique is `true` but all of the following are missing: gid');
+if (params.name == '' || match(params.name, /[:\n]/))
+    module.fail_json(`'${params.name}' is not a valid group name`);
 
 result.update({ name: params.name, state: params.state });
-if (params.gid != null)
-    result.update({ gid: params.gid });
-if (params.system)
-    result.update({ system: true });
 
 let groups = read_entries(GROUP_FILE);
 
 if (params.state == 'present')
     group_present(groups);
-else if (params.state == 'absent')
+else
     group_absent(groups);
 
 module.exit_json();
