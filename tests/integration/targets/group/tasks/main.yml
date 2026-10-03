@@ -423,7 +423,7 @@
         - name: add entries libc skips or reads loosely
           ansible.builtin.raw: >-
             printf '%s\n' 'malformed:x:3000' 'malformed2:x:abc:' 'extracolon:x:3001:a:b' 'emptygid:x::' >> /etc/group &&
-            printf '%s\n' 'malformeduser:x:3000:3000:secret' >> /etc/passwd
+            printf '%s\n' 'malformeduser:x:3000:3000:secret' 'emptyuid:x::3000:g:/h:/s' >> /etc/passwd
 
         - name: create a group alongside malformed entries
           community.openwrt.group:
@@ -465,21 +465,25 @@
         - name: get the malformed entries after the changes
           ansible.builtin.raw: >-
             grep -Fx -e 'malformed:x:3000' -e 'malformed2:x:abc:' -e 'extracolon:x:3001:a:b' -e 'emptygid:x::' /etc/group;
-            grep -Fx 'malformeduser:x:3000:3000:secret' /etc/passwd
+            grep -Fx -e 'malformeduser:x:3000:3000:secret' -e 'emptyuid:x::3000:g:/h:/s' /etc/passwd
           register: malformed_kept
 
         - name: assert malformed entries
           ansible.builtin.assert:
             that:
               - malformed_create is changed
+              - malformed_create.warnings | select('search', '^/etc/group, line [0-9]+: entry ignored, expected 4 fields, found 3$') | list | length == 1
+              - malformed_create.warnings | select('search', '^/etc/group, line [0-9]+: entry ignored, gid is not a number$') | list | length == 1
               - malformed_create_again is not changed
               - malformed_extracolon is not changed
               - malformed_extracolon.gid == 3001
               - malformed_emptygid is not changed
               - malformed_emptygid.gid == 0
+              - malformed_emptygid.warnings | select('search', '^/etc/group, line [0-9]+: empty gid read as 0$') | list | length == 1
               - malformed_skipped is changed
               - malformed_passwd is changed
-              - malformed_kept.stdout_lines == ['malformed:x:3000', 'malformed2:x:abc:', 'extracolon:x:3001:a:b', 'emptygid:x::', 'malformeduser:x:3000:3000:secret']
+              - malformed_passwd.warnings | default([]) | select('search', '/etc/passwd') | list | length == 0
+              - malformed_kept.stdout_lines == ['malformed:x:3000', 'malformed2:x:abc:', 'extracolon:x:3001:a:b', 'emptygid:x::', 'malformeduser:x:3000:3000:secret', 'emptyuid:x::3000:g:/h:/s']
 
       always:
         - name: restore the database files

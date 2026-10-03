@@ -49,9 +49,10 @@ function to_id(value) {
 // Read a colon-separated database, one entry per line, into objects holding
 // the given fields, parsed as musl does: the last field takes the rest of the
 // line, and the IDs are numbers. A line musl skips is kept as `{ line }` alone,
-// so that it matches no name nor ID. Each line is also kept as written so that
-// the entries left untouched are written back unchanged.
-function read_entries(path, names) {
+// so that it matches no name nor ID. With `warnings` set, skipped lines and empty
+// IDs are warned about. Each line is also kept as written so that the entries
+// left untouched are written back unchanged.
+function read_entries(path, names, warnings) {
     let content = readfile(path);
     if (content == null)
         module.fail_json(`cannot read ${path}`);
@@ -60,27 +61,44 @@ function read_entries(path, names) {
     if (lines[length(lines) - 1] == '')
         pop(lines);
 
-    return map(lines, (line) => {
+    return map(lines, (line, index) => {
+        let warn = (msg) => {
+            if (warnings)
+                module.warn(`${path}, line ${index + 1}: ${msg}`);
+        };
+        let skip = (reason) => {
+            warn(`entry ignored, ${reason}`);
+            return { line: line };
+        };
+
         let values = split(line, ':', length(names));
         if (length(values) != length(names))
-            return { line: line };
+            return skip(`expected ${length(names)} fields, found ${length(values)}`);
 
         let entry = { line: line };
+        let empty_ids = [];
         for (let i = 0; i < length(names); i++) {
             let value = values[i];
             if (names[i] in ID_FIELDS) {
+                if (value == '')
+                    push(empty_ids, names[i]);
                 value = to_id(value);
                 if (value == null)
-                    return { line: line };
+                    return skip(`${names[i]} is not a number`);
             }
             entry[names[i]] = value;
         }
+
+        for (let name in empty_ids)
+            warn(`empty ${name} read as 0`);
         return entry;
     });
 }
 
+// /etc/group is the database this module manages, so its oddities are warned
+// about. /etc/passwd is only consulted, and taken as it is.
 function read_groups() {
-    return read_entries(GROUP_FILE, GROUP_FIELDS);
+    return read_entries(GROUP_FILE, GROUP_FIELDS, true);
 }
 
 function read_users() {
