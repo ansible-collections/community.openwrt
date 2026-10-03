@@ -412,6 +412,79 @@
         state: present
         system: true
 
+    ##
+    ## malformed entries
+    ##
+
+    - block:
+        - name: back up the database files
+          ansible.builtin.raw: cp /etc/group /tmp/group.bak && cp /etc/passwd /tmp/passwd.bak
+
+        - name: add entries libc skips or reads loosely
+          ansible.builtin.raw: >-
+            printf '%s\n' 'malformed:x:3000' 'malformed2:x:abc:' 'extracolon:x:3001:a:b' 'emptygid:x::' >> /etc/group &&
+            printf '%s\n' 'malformeduser:x:3000:3000:secret' >> /etc/passwd
+
+        - name: create a group alongside malformed entries
+          community.openwrt.group:
+            name: malformednew
+            state: present
+          register: malformed_create
+
+        - name: create a group alongside malformed entries (idempotent)
+          community.openwrt.group:
+            name: malformednew
+            state: present
+          register: malformed_create_again
+
+        - name: check a group whose last field holds a colon
+          community.openwrt.group:
+            name: extracolon
+            state: present
+          register: malformed_extracolon
+
+        - name: check a group with an empty GID
+          community.openwrt.group:
+            name: emptygid
+            state: present
+          register: malformed_emptygid
+
+        - name: check a group libc skips
+          community.openwrt.group:
+            name: malformed
+            state: present
+          register: malformed_skipped
+          check_mode: true
+
+        - name: remove a group alongside a malformed /etc/passwd
+          community.openwrt.group:
+            name: ansibullgroup
+            state: absent
+          register: malformed_passwd
+
+        - name: get the malformed entries after the changes
+          ansible.builtin.raw: >-
+            grep -Fx -e 'malformed:x:3000' -e 'malformed2:x:abc:' -e 'extracolon:x:3001:a:b' -e 'emptygid:x::' /etc/group;
+            grep -Fx 'malformeduser:x:3000:3000:secret' /etc/passwd
+          register: malformed_kept
+
+        - name: assert malformed entries
+          ansible.builtin.assert:
+            that:
+              - malformed_create is changed
+              - malformed_create_again is not changed
+              - malformed_extracolon is not changed
+              - malformed_extracolon.gid == 3001
+              - malformed_emptygid is not changed
+              - malformed_emptygid.gid == 0
+              - malformed_skipped is changed
+              - malformed_passwd is changed
+              - malformed_kept.stdout_lines == ['malformed:x:3000', 'malformed2:x:abc:', 'extracolon:x:3001:a:b', 'emptygid:x::', 'malformeduser:x:3000:3000:secret']
+
+      always:
+        - name: restore the database files
+          ansible.builtin.raw: cp /tmp/group.bak /etc/group && cp /tmp/passwd.bak /etc/passwd && rm -f /tmp/group.bak /tmp/passwd.bak
+
   always:
     - name: remove test groups after test
       community.openwrt.group:

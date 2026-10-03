@@ -11,6 +11,7 @@ const PASSWD_FILE = '/etc/passwd';
 
 const GROUP_FIELDS = [ 'name', 'password', 'gid', 'members' ];
 const PASSWD_FIELDS = [ 'name', 'password', 'uid', 'gid', 'gecos', 'home', 'shell' ];
+const ID_FIELDS = [ 'uid', 'gid' ];
 
 const GID_RANGE_REGULAR = { min: 1000, max: 65535 };
 // Several OpenWrt packages add a group with a fixed ID.
@@ -37,14 +38,19 @@ const result = module.result;
 
 // ---- /etc/group and /etc/passwd -------------------------------------------
 
-// The numeric ID held in a field, null when there is none.
+// The ID held in a field, as libc reads it: digits only, an empty field being 0.
+// null when the field holds anything else.
 function to_id(value) {
-    return value != null && match(value, /^[0-9]+$/) ? int(value) : null;
+    if (!match(value, /^[0-9]*$/))
+        return null;
+    return value == '' ? 0 : int(value);
 }
 
 // Read a colon-separated database, one entry per line, into objects holding
-// the given fields, with `gid` as a number (null when it is not one). Each line
-// is also kept as written so that the entries left untouched are written back unchanged.
+// the given fields, parsed as musl does: the last field takes the rest of the
+// line, and the IDs are numbers. A line musl skips is kept as `{ line }` alone,
+// so that it matches no name nor ID. Each line is also kept as written so that
+// the entries left untouched are written back unchanged.
 function read_entries(path, names) {
     let content = readfile(path);
     if (content == null)
@@ -55,11 +61,20 @@ function read_entries(path, names) {
         pop(lines);
 
     return map(lines, (line) => {
-        let values = split(line, ':');
+        let values = split(line, ':', length(names));
+        if (length(values) != length(names))
+            return { line: line };
+
         let entry = { line: line };
-        for (let i = 0; i < length(names); i++)
-            entry[names[i]] = values[i];
-        entry.gid = to_id(entry.gid);
+        for (let i = 0; i < length(names); i++) {
+            let value = values[i];
+            if (names[i] in ID_FIELDS) {
+                value = to_id(value);
+                if (value == null)
+                    return { line: line };
+            }
+            entry[names[i]] = value;
+        }
         return entry;
     });
 }
@@ -133,7 +148,7 @@ function write_entries(path, entries) {
 
 // A copy of the entry with its GID replaced, in the line as well.
 function with_gid(entry, names, gid) {
-    let values = split(entry.line, ':');
+    let values = split(entry.line, ':', length(names));
     values[index(names, 'gid')] = gid;
     return { ...entry, gid: gid, line: join(':', values) };
 }
@@ -144,7 +159,7 @@ function change_gid(groups, group, gid) {
     write_entries(GROUP_FILE, map(groups, (g) => g == group ? with_gid(g, GROUP_FIELDS, gid) : g));
 
     let users = read_users();
-    let moved = (user) => group.gid != null && user.gid == group.gid;
+    let moved = (user) => user.gid == group.gid;
     if (length(filter(users, moved)) > 0)
         write_entries(PASSWD_FILE, map(users, (user) => moved(user) ? with_gid(user, PASSWD_FIELDS, gid) : user));
 }
