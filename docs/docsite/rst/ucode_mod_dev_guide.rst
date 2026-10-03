@@ -173,6 +173,7 @@ from the framework:
 * ``module.result`` - the result being built up;
 * ``module.run_command()`` - run a command on the device;
 * ``module.exit_json()`` and ``module.fail_json()`` - end the module;
+* ``module.warn()`` - record a warning;
 * ``module.deprecate()`` - record a deprecation.
 
 Building the result
@@ -212,8 +213,11 @@ yourself - use it only when you need those, and never build it out of parameter 
 Pass ``{ check_rc: true }`` to end the module in failure when the command exits non-zero, with the command's
 standard error as the message.
 
-Deprecations
-""""""""""""
+Warnings and deprecations
+"""""""""""""""""""""""""
+
+``module.warn(msg)`` records a warning for something the user should know about but that does not make the task
+fail. Warnings accumulate, and ``ansible-core`` displays them when the module ends, whether it succeeds or fails.
 
 Deprecating something the module used to do is ``module.deprecate(msg, version)``, where ``version`` is the
 version the behavior is removed in. It is mandatory: a deprecation without a removal target is a bug, and the
