@@ -73,12 +73,14 @@ function report_diff() {
 }
 
 // Run the command the task wants the file checked with before it is put in
-// place, with %s standing for the file.
+// place, with %s standing for the file. The command is split into words and
+// run without a shell, so the file is always passed as a single argument.
 function validate_source() {
     if (index(params.validate, '%s') < 0)
         module.fail_json(`validate must contain %s: ${params.validate}`);
 
-    let res = module.run_command(replace(params.validate, '%s', () => src));
+    let words = split(trim(params.validate), /[ \t\n]+/);
+    let res = module.run_command(map(words, (word) => replace(word, '%s', () => src)));
     if (res.rc != 0)
         module.fail_json(`failed to validate: ${trim(`${res.stdout}${res.stderr}`)}`);
 }
