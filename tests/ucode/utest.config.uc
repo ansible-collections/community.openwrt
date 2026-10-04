@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 return {
+    reporter: 'compact',
     pattern: 'test_*.uc',
     lib_paths: [ '../../plugins/module_utils' ],
     mocks: {
