@@ -79,7 +79,7 @@ DOCUMENTATION:
         - Command to run to validate the file before copying it into place.
         - The file path is substituted for C(%s) in the command.
         - The command must include C(%s) or the validation fails.
-        - The command is executed through C(printf) substitution, so shell features like pipes do not work.
+        - The command is split into words on whitespace and executed without a shell, so shell features like pipes and quoting do not work.
         - If the validation command fails, the copy operation is aborted.
       type: str
   notes:
