@@ -1,0 +1,2 @@
+bugfixes:
+  - ucode_action plugin utils - mark hosts as unreachable when the connection fails, instead of failing the task (https://github.com/ansible-collections/community.openwrt/issues/240, https://github.com/ansible-collections/community.openwrt/pull/312).
