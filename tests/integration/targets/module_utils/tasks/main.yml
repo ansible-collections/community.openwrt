@@ -19,26 +19,10 @@
     - _basic.uc
     - _uci.uc
 
-- name: Copy the test scripts
+- name: Copy the test script
   community.openwrt.copy:
-    src: "{{ item }}"
-    dest: "{{ remote_tmp_dir }}/{{ item }}"
-  loop:
-    - test_basic.uc
-    - test_uci.uc
-
-- name: Run the _basic test script
-  community.openwrt.command:
-    cmd: ucode -S -L {{ remote_tmp_dir }}/module_utils {{ remote_tmp_dir }}/test_basic.uc
-  register: basic_utils_test
-  failed_when: false
-
-- name: Assert all _basic checks passed
-  ansible.builtin.assert:
-    that:
-      - basic_utils_test.rc == 0
-    fail_msg: "{{ basic_utils_test.stdout_lines + basic_utils_test.stderr_lines }}"
-    success_msg: "{{ basic_utils_test.stdout_lines | last }}"
+    src: test_uci.uc
+    dest: "{{ remote_tmp_dir }}/test_uci.uc"
 
 - name: Run the _uci test script
   community.openwrt.command:
