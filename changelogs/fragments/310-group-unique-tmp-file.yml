@@ -1,0 +1,2 @@
+bugfixes:
+  - group - do not share nor follow symlinks on the temporary file used to replace ``/etc/group`` and ``/etc/passwd`` (https://github.com/ansible-collections/community.openwrt/pull/310).
