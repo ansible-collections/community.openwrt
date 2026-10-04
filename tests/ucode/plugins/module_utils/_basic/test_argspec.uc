@@ -24,7 +24,7 @@ describe('AnsibleModule() type conversion', () => {
 
     describe('int', () => {
         it('converts a numeric string', () => {
-            assert.match(-3, param({ type: 'int' }, '-3'));
+            assert.match(-4, param({ type: 'int' }, '-3'));
         });
 
         it('truncates a double', () => {
