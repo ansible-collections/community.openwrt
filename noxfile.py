@@ -378,6 +378,32 @@ def _utest_summary(version: str, report: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _annotation_escape(text: str, is_property: bool = False) -> str:
+    text = text.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    return text.replace(":", "%3A").replace(",", "%2C") if is_property else text
+
+
+def _test_line(test_file: Path, test_name: str) -> int | None:
+    for number, line in enumerate(test_file.read_text().splitlines(), start=1):
+        if f"'{test_name}'" in line or f'"{test_name}"' in line:
+            return number
+    return None
+
+
+def _utest_annotations(version: str, report: dict) -> list[str]:
+    annotations = []
+    for failure in report["failures"]:
+        test_file = UCODE_TESTS / failure["suite"]
+        names = [step["name"] for step in failure.get("path", [])[1:]]
+        properties = {"file": str(test_file), "title": f"OpenWrt {version}: {' › '.join(names) or failure['event']}"}
+        line = _test_line(test_file, names[-1]) if names and test_file.is_file() else None
+        if line:
+            properties["line"] = str(line)
+        props = ",".join(f"{key}={_annotation_escape(value, True)}" for key, value in properties.items())
+        annotations.append(f"::error {props}::{_annotation_escape(str(failure['error']))}")
+    return annotations
+
+
 def _run_utest_with_summary(session: nox.Session, cmd: list[str], version: str, summary_file: Path) -> bool:
     output = session.run(*cmd, external=True, silent=True, success_codes=range(256))
     try:
@@ -386,6 +412,8 @@ def _run_utest_with_summary(session: nox.Session, cmd: list[str], version: str, 
         session.error(f"utest produced no JSON report on OpenWrt {version}:\n{output}")
     summary = _utest_summary(version, report)
     print(summary)
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        print("\n".join(_utest_annotations(version, report)))
     with summary_file.open("a") as f:
         f.write(summary)
     stats = report["stats"]
