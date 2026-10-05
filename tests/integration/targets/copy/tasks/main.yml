@@ -178,6 +178,9 @@
         "vault" in (copy_vault_decrypt_fail.msg | lower)
         or "vault" in (copy_vault_decrypt_fail.exception | default("") | lower)
 
+- name: Validation tests
+  ansible.builtin.include_tasks: validate.yml
+
 - name: Diff mode tests
   ansible.builtin.include_tasks: diff.yml
 

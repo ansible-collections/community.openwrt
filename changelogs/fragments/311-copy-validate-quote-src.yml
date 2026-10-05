@@ -1,0 +1,2 @@
+bugfixes:
+  - copy - pass the file path to the ``validate`` command as a single argument (https://github.com/ansible-collections/community.openwrt/pull/311).

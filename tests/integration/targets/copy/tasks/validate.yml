@@ -1,0 +1,62 @@
+---
+# Copyright (c) 2026 Alexei Znamensky
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Copy content with a passing validation
+  community.openwrt.copy:
+    content: "validated content\n"
+    dest: "{{ remote_tmp_dir }}/test_copy_validate_ok.txt"
+    validate: grep -q validated %s
+  register: copy_validate_ok
+
+- name: Assert the validated file was copied
+  ansible.builtin.assert:
+    that:
+      - copy_validate_ok is changed
+
+- name: Copy content with a failing validation
+  community.openwrt.copy:
+    content: "unexpected content\n"
+    dest: "{{ remote_tmp_dir }}/test_copy_validate_fail.txt"
+    validate: grep -q validated %s
+  register: copy_validate_fail
+  ignore_errors: true
+
+- name: Check whether the file that failed validation exists
+  community.openwrt.stat:
+    path: "{{ remote_tmp_dir }}/test_copy_validate_fail.txt"
+  register: copy_validate_fail_stat
+
+- name: Assert the file that failed validation was not copied
+  ansible.builtin.assert:
+    that:
+      - copy_validate_fail is failed
+      - "'failed to validate' in copy_validate_fail.msg"
+      - not copy_validate_fail_stat.stat.exists
+
+- name: Copy content with a validation that a shell would reject
+  community.openwrt.copy:
+    content: "no shell content\n"
+    dest: "{{ remote_tmp_dir }}/test_copy_validate_noshell.txt"
+    validate: echo %s;false
+  register: copy_validate_noshell
+
+- name: Assert the validation was not run through a shell
+  ansible.builtin.assert:
+    that:
+      - copy_validate_noshell is changed
+
+- name: Copy a file with validation through a remote tmp path containing a space
+  community.openwrt.copy:
+    src: "{{ dummy_file.dest }}"
+    dest: "{{ remote_tmp_dir }}/test_copy_validate_space.txt"
+    validate: grep -q dummy %s
+  vars:
+    ansible_remote_tmp: "{{ remote_tmp_dir }}/remote tmp"
+  register: copy_validate_space
+
+- name: Assert the file was validated as a single argument
+  ansible.builtin.assert:
+    that:
+      - copy_validate_space is changed
