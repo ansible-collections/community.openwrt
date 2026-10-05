@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ansible.errors import AnsibleConnectionFailure
 from ansible.plugins.action import ActionBase
 
 
@@ -42,6 +43,8 @@ class UCodeActionBase(ActionBase):
         module_name = self._task.action.split(".")[-1]
         try:
             result.update(self._run_ucode_module(module_name, self._task.args.copy(), task_vars))
+        except AnsibleConnectionFailure:
+            raise
         except Exception as e:
             result["failed"] = True
             result["msg"] = str(e)
@@ -96,5 +99,7 @@ class UCodeActionBase(ActionBase):
         try:
             self._transfer_file(str(local_path), remote_path)
             self._fixup_perms2([remote_path])
+        except AnsibleConnectionFailure:
+            raise
         except Exception as e:
             raise UCodeModuleTransferFailed(str(e)) from e
