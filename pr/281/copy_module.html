@@ -120,7 +120,6 @@
 <li class="toctree-l1"><a class="reference internal" href="wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -141,7 +140,7 @@
       <li class="breadcrumb-item active">community.openwrt.copy module – Copy files to remote OpenWrt devices</li>
       <li class="wy-breadcrumbs-aside">
               <!-- User defined GitHub URL -->
-              <a href="https://github.com/ansible-collections/community.openwrt/edit/main/plugins/modules/copy.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!—%20Your%20description%20here%20–%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/ansible-collections/community.openwrt/edit/main/plugins/modules/copy.yml?description=%23%23%23%23%23%20SUMMARY%0A%3C!—%20Your%20description%20here%20–%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -326,7 +325,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <td><div class="ansible-option-cell"><p>Command to run to validate the file before copying it into place.</p>
 <p>The file path is substituted for <code class="docutils literal notranslate"><span class="pre">%s</span></code> in the command.</p>
 <p>The command must include <code class="docutils literal notranslate"><span class="pre">%s</span></code> or the validation fails.</p>
-<p>The command is executed through <code class="docutils literal notranslate"><span class="pre">printf</span></code> substitution, so shell features like pipes do not work.</p>
+<p>The command is split into words on whitespace and executed without a shell, so shell features like pipes and quoting do not work.</p>
 <p>If the validation command fails, the copy operation is aborted.</p>
 </div></td>
 </tr>

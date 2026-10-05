@@ -114,7 +114,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -148,7 +147,7 @@
 <p>ucode reads like JavaScript, and that is exactly what makes it worth writing these notes down: the places
 where the resemblance stops are the places where a module breaks. What follows are the differences that come
 up while writing modules for this collection. It is not a tutorial - the
-<a class="reference external" href="https://ucode.mein.io/">ucode documentation</a> is, and it is worth keeping open.</p>
+<a class="reference external" href="https://ucode-lang.org/">ucode documentation</a> is, and it is worth keeping open.</p>
 <section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <p>Parameters have no default values. Writing <code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">f(x</span> <span class="pre">=</span> <span class="pre">1)</span></code> does not compile, so test for <code class="docutils literal notranslate"><span class="pre">null</span></code> inside
@@ -212,6 +211,9 @@ another program. <code class="docutils literal notranslate"><span class="pre">fs
 it does not exist yet.</p></li>
 <li><p>There is no <code class="docutils literal notranslate"><span class="pre">getpid()</span></code>. Reading the link <code class="docutils literal notranslate"><span class="pre">/proc/self</span></code> gives the process id as a string.</p></li>
 </ul>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.9.0.</span></p>
+</div>
 </section>
 </section>
 

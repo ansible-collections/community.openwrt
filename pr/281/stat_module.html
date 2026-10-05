@@ -120,7 +120,6 @@
 <li class="toctree-l1"><a class="reference internal" href="wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -141,7 +140,7 @@
       <li class="breadcrumb-item active">community.openwrt.stat module – Retrieve file or file system status on OpenWrt targets</li>
       <li class="wy-breadcrumbs-aside">
               <!-- User defined GitHub URL -->
-              <a href="https://github.com/ansible-collections/community.openwrt/edit/main/plugins/modules/stat.py?description=%23%23%23%23%23%20SUMMARY%0A%3C!—%20Your%20description%20here%20–%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/ansible-collections/community.openwrt/edit/main/plugins/modules/stat.yml?description=%23%23%23%23%23%20SUMMARY%0A%3C!—%20Your%20description%20here%20–%3E%0A%0A%0A%23%23%23%23%23%20ISSUE%20TYPE%0A-%20Docs%20Pull%20Request%0A%0A%2Blabel:%20docsite_pr" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -374,8 +373,9 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <div class="ansibleOptionAnchor" id="return-stat/checksum"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-stat-module-return-stat-checksum"><strong>checksum</strong></p>
 <a class="ansibleOptionLink" href="#return-stat/checksum" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Hash of the file using the specified algorithm.</p>
-<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-stat-module-parameter-get-checksum"><span class="std std-ref"><span class="pre">get_checksum=true</span></span></a></code> and file is readable</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Hash of the file using the algorithm specified in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-stat-module-parameter-checksum-algorithm"><span class="std std-ref"><span class="pre">checksum_algorithm</span></span></a></strong></code>.</p>
+<p>With the default algorithm <code class="ansible-value docutils literal notranslate"><span class="pre">sha1</span></code>, it is not returned when the device has neither <code class="docutils literal notranslate"><span class="pre">sha1sum</span></code> nor <code class="docutils literal notranslate"><span class="pre">openssl</span></code>, which are provided by the packages <code class="docutils literal notranslate"><span class="pre">coreutils-sha1sum</span></code> and <code class="docutils literal notranslate"><span class="pre">openssl-util</span></code>, respectively.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-stat-module-parameter-get-checksum"><span class="std std-ref"><span class="pre">get_checksum=true</span></span></a></code>, the file is readable, and the device can compute the checksum</p>
 <p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;4e1243bd22c66e76c2ba9eddc1f91394e57f9f83&quot;</span></code></p>
 </div></td>
 </tr>

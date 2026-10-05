@@ -88,7 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#the-ansiblemodule-api">The AnsibleModule API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#building-the-result">Building the result</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#running-commands">Running commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#deprecations">Deprecations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#warnings-and-deprecations">Warnings and deprecations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ending-the-module">Ending the module</a></li>
 </ul>
 </li>
@@ -138,7 +138,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -169,7 +168,7 @@
              
   <section id="community-openwrt-ucode-module-developer-guide">
 <span id="ansible-collections-community-openwrt-docsite-ucode-mod-dev-guide"></span><h1>Community OpenWrt ucode Module Developer Guide<a class="headerlink" href="#community-openwrt-ucode-module-developer-guide" title="Link to this heading"></a></h1>
-<p>This guide is about writing modules for <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> in <a class="reference external" href="https://github.com/jow-/ucode">ucode</a>.
+<p>This guide is about writing modules for <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> in <a class="reference external" href="https://github.com/ucode-lang/ucode">ucode</a>.
 If you are reading it, you probably already use the collection and want to extend it: Awesome! Everyone is
 welcome to contribute!</p>
 <p>ucode is OpenWrt’s own scripting language. It looks like JavaScript, it is small enough to live on a router,
@@ -191,7 +190,7 @@ carries over: the differences that come up while writing modules are collected i
 <li><p>A fair understanding of how Ansible modules work in general. Having written Python modules helps the most,
 since some of the idioms here deliberately resemble the ones used on the Python side.</p></li>
 <li><p>Enough JavaScript to read ucode comfortably, plus the willingness to check the
-<a class="reference external" href="https://ucode.mein.io/">ucode documentation</a> when something behaves unexpectedly.</p></li>
+<a class="reference external" href="https://ucode-lang.org/">ucode documentation</a> when something behaves unexpectedly.</p></li>
 <li><p>Familiarity with the OpenWrt userspace - <code class="docutils literal notranslate"><span class="pre">uci</span></code>, <code class="docutils literal notranslate"><span class="pre">ubus</span></code>, <code class="docutils literal notranslate"><span class="pre">opkg</span></code>/<code class="docutils literal notranslate"><span class="pre">apk</span></code>, BusyBox - since that is still
 what a module ends up driving.</p></li>
 </ul>
@@ -308,6 +307,7 @@ from the framework:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">module.result</span></code> - the result being built up;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">module.run_command()</span></code> - run a command on the device;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">module.exit_json()</span></code> and <code class="docutils literal notranslate"><span class="pre">module.fail_json()</span></code> - end the module;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">module.warn()</span></code> - record a warning;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">module.deprecate()</span></code> - record a deprecation.</p></li>
 </ul>
 <section id="building-the-result">
@@ -318,7 +318,9 @@ module goes, rather than assembling a dict at the end:</p>
 result.changed();
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">result.changed()</span></code> marks the task as changed and <code class="docutils literal notranslate"><span class="pre">result.changed(false)</span></code> clears it again. Every field you
+<p><code class="docutils literal notranslate"><span class="pre">result.changed()</span></code> marks the task as changed and <code class="docutils literal notranslate"><span class="pre">result.changed(false)</span></code> clears it again;
+<code class="docutils literal notranslate"><span class="pre">result.is_changed()</span></code> tells whether it is marked, so a module that has several places deciding on a change
+can act on the outcome at the end without keeping a flag of its own. Every field you
 put in the result is returned to the user, and the ones your module adds should be described in <code class="docutils literal notranslate"><span class="pre">RETURN</span></code>.
 The <a class="reference external" href="https://docs.ansible.com/projects/ansible/latest/reference_appendices/common_return_values.html">common return values</a>
 are documented by <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code> and do not belong there.</p>
@@ -338,8 +340,10 @@ yourself - use it only when you need those, and never build it out of parameter 
 <p>Pass <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">check_rc:</span> <span class="pre">true</span> <span class="pre">}</span></code> to end the module in failure when the command exits non-zero, with the command’s
 standard error as the message.</p>
 </section>
-<section id="deprecations">
-<h3>Deprecations<a class="headerlink" href="#deprecations" title="Link to this heading"></a></h3>
+<section id="warnings-and-deprecations">
+<h3>Warnings and deprecations<a class="headerlink" href="#warnings-and-deprecations" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">module.warn(msg)</span></code> records a warning for something the user should know about but that does not make the task
+fail. Warnings accumulate, and <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code> displays them when the module ends, whether it succeeds or fails.</p>
 <p>Deprecating something the module used to do is <code class="docutils literal notranslate"><span class="pre">module.deprecate(msg,</span> <span class="pre">version)</span></code>, where <code class="docutils literal notranslate"><span class="pre">version</span></code> is the
 version the behavior is removed in. It is mandatory: a deprecation without a removal target is a bug, and the
 module fails instead of recording it. The warning reaches the user when the module ends.</p>
@@ -516,8 +520,8 @@ assert it reports no change, and cover check mode where the module claims to sup
 </pre></div>
 </div>
 <p>Run the sanity and unit tests with:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
-<span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.13
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
+<span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 </pre></div>
 </div>
 </section>
@@ -586,6 +590,9 @@ else
 
 module.exit_json();
 </pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.9.0.</span></p>
 </div>
 </section>
 </section>

@@ -128,7 +128,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -163,7 +162,8 @@
 or manage OpenWrt routers and you would like to use Ansible to manage them.
 As you may well know, some devices have limitations of resources, preventing Python from being installed.</p>
 <p>This collection is based on the Ansible role <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> and as such it does not require Python
-installed on the OpenWrt devices - all the code is written in plain shell scripts.
+installed on the OpenWrt devices. The role’s modules were plain shell scripts; starting with
+community.openwrt 1.9.0, all modules are written in ucode.
 If you have been using <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> before and want to move to <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code>,
 please check the <a class="reference internal" href="migration_guide.html#ansible-collections-community-openwrt-docsite-migration-guide"><span class="std std-ref">Community OpenWrt Migration Guide</span></a>.</p>
 <section id="quickstart">
@@ -195,20 +195,23 @@ please check the <a class="reference internal" href="migration_guide.html#ansibl
 <h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
 <p>Check the collection’s <a class="reference external" href="https://github.com/ansible-collections/community.openwrt?tab=readme-ov-file">README</a>
 for the supported versions of Ansible and OpenWrt.</p>
-<p>The modules in this collection are all written in shell script (more specifically <code class="docutils literal notranslate"><span class="pre">ash</span></code>, used in OpenWrt devices). The control node requires Python.</p>
+<p>The control node requires Python.</p>
 <p>This collection is tested using OpenWrt container images for the <code class="docutils literal notranslate"><span class="pre">x86_64</span></code> architecture.</p>
 <section id="additional-packages">
 <h3>Additional packages<a class="headerlink" href="#additional-packages" title="Link to this heading"></a></h3>
-<p>To provide some specific features, additional packages are required in the OpenWrt devices:</p>
+<p>Stock OpenWrt images provide only MD5 and SHA256 checksums. To provide some specific features, additional
+packages are needed in the OpenWrt devices:</p>
 <blockquote>
 <div><dl class="simple">
-<dt>coreutils-sha1sum</dt><dd><p>Required for any module that uses/provides SHA1 hashes.</p>
-</dd>
-<dt>coreutils-base64</dt><dd><p>Used to improve the performance of modules that manipulate content using the Base64 encoding.</p>
+<dt>coreutils-sha1sum</dt><dd><p>Needed for <code class="docutils literal notranslate"><span class="pre">community.openwrt.stat</span></code> to return <code class="docutils literal notranslate"><span class="pre">checksum</span></code> with the default algorithm (SHA1);
+without it, the module succeeds but omits <code class="docutils literal notranslate"><span class="pre">checksum</span></code>. Alternatively, install <code class="docutils literal notranslate"><span class="pre">openssl-util</span></code>.</p>
 </dd>
 </dl>
 </div></blockquote>
-<p>The installation of those packages is performed by the <code class="docutils literal notranslate"><span class="pre">community.openwrt.init</span></code> role.</p>
+<p>The SHA224, SHA384 and SHA512 algorithms are only needed if you select one of them in the <code class="docutils literal notranslate"><span class="pre">checksum_algorithm</span></code>
+option of <code class="docutils literal notranslate"><span class="pre">community.openwrt.stat</span></code>. In that case, the task fails unless the matching package
+(<code class="docutils literal notranslate"><span class="pre">coreutils-sha224sum</span></code>, <code class="docutils literal notranslate"><span class="pre">coreutils-sha384sum</span></code> or <code class="docutils literal notranslate"><span class="pre">coreutils-sha512sum</span></code>) or <code class="docutils literal notranslate"><span class="pre">openssl-util</span></code> is installed.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">openssl-util</span></code> is not installed, the <code class="docutils literal notranslate"><span class="pre">community.openwrt.init</span></code> role installs <code class="docutils literal notranslate"><span class="pre">coreutils-sha1sum</span></code>.</p>
 </section>
 </section>
 <section id="configuration">
@@ -221,7 +224,7 @@ for the supported versions of Ansible and OpenWrt.</p>
 <dt>openwrt_scp_if_ssh:</dt><dd><p>Whether to use <code class="docutils literal notranslate"><span class="pre">scp</span></code> instead of <code class="docutils literal notranslate"><span class="pre">sftp</span></code> for OpenWrt systems (sets <code class="docutils literal notranslate"><span class="pre">ansible_scp_if_ssh</span></code>).
 Value can be <code class="docutils literal notranslate"><span class="pre">true</span></code>, <code class="docutils literal notranslate"><span class="pre">false</span></code> or <code class="docutils literal notranslate"><span class="pre">smart</span></code>. (default: <code class="docutils literal notranslate"><span class="pre">smart</span></code>)</p>
 </dd>
-<dt>openwrt_remote_tmp:</dt><dd><p>Ansibles <code class="docutils literal notranslate"><span class="pre">remote_tmp</span></code> (sets <code class="docutils literal notranslate"><span class="pre">ansible_remote_tmp</span></code>) setting for OpenWrt systems.
+<dt>openwrt_remote_tmp:</dt><dd><p>Ansible’s <code class="docutils literal notranslate"><span class="pre">remote_tmp</span></code> (sets <code class="docutils literal notranslate"><span class="pre">ansible_remote_tmp</span></code>) setting for OpenWrt systems.
 Setting to <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> helps prevent flash wear on target device. (default: <code class="docutils literal notranslate"><span class="pre">/tmp</span></code>)</p>
 </dd>
 </dl>
@@ -237,7 +240,7 @@ missing. See the item above. (default: <code class="docutils literal notranslate
 <p>These variables are used by the handlers defined in the collection:</p>
 <blockquote>
 <div><dl class="simple">
-<dt>openwrt_wait_for_connection, openwrt_wait_for_connection_timeout:</dt><dd><p>Whether to wait for the host (default: <code class="docutils literal notranslate"><span class="pre">true</span></code>) and how long (default: <code class="docutils literal notranslate"><span class="pre">300</span></code>) after a
+<dt>openwrt_wait_for_connection, openwrt_wait_for_connection_timeout:</dt><dd><p>Whether to wait for the host (default: <code class="docutils literal notranslate"><span class="pre">true</span></code>) and how long (default: <code class="docutils literal notranslate"><span class="pre">600</span></code>) after a
 network or wifi restart (see handlers below).</p>
 </dd>
 </dl>
@@ -263,7 +266,7 @@ The <code class="docutils literal notranslate"><span class="pre">init</span></co
 <ul class="simple">
 <li><p>Installs additional packages</p></li>
 <li><p>Sets variables controlling the behavior of the modules</p></li>
-<li><p>Register notification handlers</p></li>
+<li><p>Registers notification handlers</p></li>
 </ul>
 <p>You can use it like any other role and you should use it before using any module from this collection.</p>
 <div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Init community.openwrt</span>
@@ -284,7 +287,7 @@ The <code class="docutils literal notranslate"><span class="pre">init</span></co
 </section>
 <section id="handlers">
 <h3>Handlers<a class="headerlink" href="#handlers" title="Link to this heading"></a></h3>
-<p>The collection providers some standard handlers you can use in your playbooks:</p>
+<p>The collection provides some standard handlers you can use in your playbooks:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Setup wifi</dt><dd><p>Runs <code class="docutils literal notranslate"><span class="pre">/sbin/wifi</span></code> to setup WiFi</p>
@@ -311,7 +314,9 @@ but they are made available when <code class="docutils literal notranslate"><spa
 </section>
 <section id="facts">
 <h3>Facts<a class="headerlink" href="#facts" title="Link to this heading"></a></h3>
-<p>In playbooks <code class="docutils literal notranslate"><span class="pre">gather_facts=true</span></code> will <strong>always</strong> try to run Python in the target node.
+<p>In playbooks <code class="docutils literal notranslate"><span class="pre">gather_facts=true</span></code> will <strong>always</strong> try to run Python in the target node, unless you enable the
+<a class="reference internal" href="#ansible-collections-community-openwrt-docsite-user-guide-gather-facts-shim"><span class="std std-ref">transparent gather_facts support</span></a>
+described below.
 Because of that, it is recommended that you disable
 <a class="reference external" href="https://docs.ansible.com/projects/ansible/latest/reference_appendices/config.html#default-gathering">default fact gathering</a>
 in your <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code> file, or make sure to always set <code class="docutils literal notranslate"><span class="pre">gather_facts=false</span></code>.</p>
@@ -320,9 +325,6 @@ It is as easy as:</p>
 <div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Gather OpenWrt facts</span>
 <span class="w">  </span><span class="nt">community.openwrt.setup</span><span class="p">:</span>
 </pre></div>
-</div>
-<div class="versionadded">
-<p><span class="versionmodified added">Added in version 0.3.0.</span></p>
 </div>
 <section id="transparent-gather-facts-support">
 <span id="ansible-collections-community-openwrt-docsite-user-guide-gather-facts-shim"></span><h4>Transparent <code class="docutils literal notranslate"><span class="pre">gather_facts</span></code> support<a class="headerlink" href="#transparent-gather-facts-support" title="Link to this heading"></a></h4>
@@ -342,6 +344,7 @@ built-in action plugins.</p>
 <p><strong>Required configuration</strong></p>
 <p>Add the shim directory to the <code class="docutils literal notranslate"><span class="pre">action_plugins</span></code> search path in <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code>:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[defaults]</span>
+<span class="c1"># example path</span>
 <span class="na">action_plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">~/.ansible/collections/ansible_collections/community/openwrt/plugins/plugin_utils/_setup</span>
 </pre></div>
 </div>
@@ -353,6 +356,9 @@ unchanged.</p>
 <div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/openwrt.yml</span>
 <span class="nt">openwrt_gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.3.0.</span></p>
 </div>
 </section>
 </section>

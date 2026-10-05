@@ -137,7 +137,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../wrapper_module.html">community.openwrt.wrapper module – Internal wrapper module for OpenWrt shell-based modules</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -179,10 +178,13 @@ Ansible role, which was maintained by Markus Weippert until 2022. While the core
 remains similar, there are important changes in structure and usage patterns that you will need
 to address when migrating your playbooks.</p>
 <p>The good news is that both projects share the same approach: they enable you to manage OpenWrt
-devices without requiring Python on the target systems. All modules are implemented as shell
-scripts, making them compatible with resource-constrained devices. While the underlying code
-is largely the same, the collection now provides proper documentation for each module, accessible
-via <code class="docutils literal notranslate"><span class="pre">ansible-doc</span></code> or the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/community/openwrt/">collection documentation site</a>.</p>
+devices without requiring Python on the target systems, making them compatible with
+resource-constrained devices.</p>
+<p>The role’s modules were shell scripts, but starting with community.openwrt 1.9.0, the collection’s
+modules are written in ucode, and their internal structure has changed significantly.
+While the underlying logic is largely the same, the collection now provides proper documentation
+for each module, accessible via <code class="docutils literal notranslate"><span class="pre">ansible-doc</span></code> or the
+<a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/community/openwrt/">collection documentation site</a>.</p>
 </section>
 <section id="key-differences">
 <h2>Key Differences<a class="headerlink" href="#key-differences" title="Link to this heading"></a></h2>
@@ -208,21 +210,58 @@ equivalents. This allowed execution on hosts without Python.</p>
 <p>This collection does <strong>not</strong> include monkey patching. If you are migrating playbooks that utilize
 standard Ansible modules (such as <code class="docutils literal notranslate"><span class="pre">ansible.builtin.*</span></code>), you must update them to use the
 equivalent <code class="docutils literal notranslate"><span class="pre">community.openwrt.*</span></code> implementation.</p>
-<p>Attempting to use standard modules like <code class="docutils literal notranslate"><span class="pre">fetch</span></code> or <code class="docutils literal notranslate"><span class="pre">template</span></code>
-(see <a class="reference external" href="https://github.com/ansible-collections/community.openwrt/issues/63">Issue #63</a>)
+<p>For example, the task on the left, written for the <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> role, <strong>does NOT work</strong> with
+<code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code>: without the role’s monkey patch, <code class="docutils literal notranslate"><span class="pre">lineinfile</span></code> resolves to <code class="docutils literal notranslate"><span class="pre">ansible.builtin.lineinfile</span></code>,
+which requires Python on the device. Use the module’s fully qualified collection name (FQCN) instead:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>gekmihesg.openwrt (does NOT work with community.openwrt)</p></th>
+<th class="head"><p>community.openwrt</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run a script at boot</span>
+<span class="w">  </span><span class="nt">lineinfile</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/rc.local</span>
+<span class="w">    </span><span class="nt">line</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/local/bin/startup.sh</span>
+<span class="w">    </span><span class="nt">insertbefore</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exit 0</span>
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run a script at boot</span>
+<span class="w">  </span><span class="nt">community.openwrt.lineinfile</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/rc.local</span>
+<span class="w">    </span><span class="nt">line</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/local/bin/startup.sh</span>
+<span class="w">    </span><span class="nt">insertbefore</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exit 0</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Attempting to use standard modules like <code class="docutils literal notranslate"><span class="pre">fetch</span></code>
 will typically fail with an error indicating missing Python:</p>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">Task</span> <span class="pre">failed:</span> <span class="pre">Action</span> <span class="pre">failed:</span> <span class="pre">The</span> <span class="pre">module</span> <span class="pre">interpreter</span> <span class="pre">'/usr/bin/python3'</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">found</span></code></p>
 </div></blockquote>
 <section id="workarounds">
 <h4>Workarounds<a class="headerlink" href="#workarounds" title="Link to this heading"></a></h4>
-<p>There are some easy work-arounds until native equivalents are added to <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code>.
-For example, you can use the <code class="docutils literal notranslate"><span class="pre">lookup</span></code> plugin along with <code class="docutils literal notranslate"><span class="pre">community.openwrt.copy</span></code>
-as a replacement for <code class="docutils literal notranslate"><span class="pre">ansible.builtin.template</span></code>:</p>
-<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Generate template and copy to device</span>
-<span class="w">  </span><span class="nt">community.openwrt.copy</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">lookup</span><span class="o">(</span><span class="s1">'template'</span><span class="o">,</span> <span class="s1">'config_template.j2'</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
-<span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/app/config.json</span>
+<p>There is no <code class="docutils literal notranslate"><span class="pre">community.openwrt.fetch</span></code>. To retrieve a text file from the device, you can combine
+<code class="docutils literal notranslate"><span class="pre">community.openwrt.slurp</span></code> with <code class="docutils literal notranslate"><span class="pre">ansible.builtin.copy</span></code> running on the controller:</p>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the file from the device</span>
+<span class="w">  </span><span class="nt">community.openwrt.slurp</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/config/network</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">network_config</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Save the file on the controller</span>
+<span class="w">  </span><span class="nt">ansible.builtin.copy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">network_config.content</span> <span class="o">|</span> <span class="nf">b64decode</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="s">"backups/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">/network"</span>
+<span class="w">  </span><span class="nt">delegate_to</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
 </pre></div>
 </div>
 </section>
@@ -562,8 +601,7 @@ set when including the initialization role, as shown in the complete example bel
 <li><p>Verify the collection is installed: <code class="docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code></p></li>
 <li><p>Check you are using the correct namespace prefix</p></li>
 <li><p>Ensure your Ansible version meets the minimum requirements (see the collection README)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">community.openwrt.opkg</span></code> was only available until OpenWrt 24 for 25+ you have to use
-<code class="docutils literal notranslate"><span class="pre">community.openwrt.apk</span></code> instead</p></li>
+<li><p>OpenWrt 25.12.x and later use <code class="docutils literal notranslate"><span class="pre">apk</span></code> instead of <code class="docutils literal notranslate"><span class="pre">opkg</span></code>; use <code class="docutils literal notranslate"><span class="pre">community.openwrt.apk</span></code> there</p></li>
 </ul>
 </section>
 <section id="module-behavior-differences">
