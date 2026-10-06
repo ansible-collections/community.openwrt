@@ -17,3 +17,7 @@ The process to release version `x.y.z` is as follows:
 5. Wait for Zuul to complete the release. If it fails and Zuul needs to be triggered again, use `nox -e tag -- x.y.z --retag`.
 6. `nox -e github_release -- x.y.z`
 7. `nox -e bump_version -- x.y.z`
+8. Announce in [Ansible forum](https://forum.ansible.com) (optional)
+9. Announce in Ansible Bullhorn
+10. Announce in [OpenWrt forum](https://forum.openwrt.org)
+11. Update [Release History](https://github.com/ansible-collections/community.openwrt/issues/100).
