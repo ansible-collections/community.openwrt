@@ -46,9 +46,14 @@ The collection will release minor versions periodically, between major versions.
 - RMs aim to release approximately every two weeks.
 - RMs may skip a minor release if there were no user-facing features or bugfixes in the previous period.
 
+Upon releasing a minor version of community.openwrt *after a minor release of OpenWrt* itself, support is updated:
+
+- **ansible-core:** drop support for all versions that are End of Life.
+
 ### Patch versions
 
-- Patch versions `x.y.z` until the last minor release of a major release branch will only be released when necessary. The intended frequency is _never_, they are reserved for packaging failures, or fixing major breakage / security problems.
+- Patch versions (`x.y.z`) are released only when strictly necessary — the intended frequency is _never_.
+- They are reserved for packaging failures, major breakage, or security issues that cannot wait for the next minor release.
 
 ## Deprecation policy
 
