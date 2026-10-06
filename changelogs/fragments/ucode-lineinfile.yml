@@ -1,2 +1,0 @@
-bugfixes:
-  - lineinfile - no longer report a diff when nothing is removed (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).

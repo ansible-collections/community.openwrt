@@ -1,8 +1,0 @@
-bugfixes:
-  - group - change the GID of an existing group, along with the users having it as their primary group, instead of only reporting a change (https://github.com/ansible-collections/community.openwrt/pull/304).
-  - group - do not fail when the requested GID is unchanged but shared with another group (https://github.com/ansible-collections/community.openwrt/pull/304).
-  - group - do not report ``changed`` when the module fails (https://github.com/ansible-collections/community.openwrt/pull/304).
-  - group - return ``gid`` and ``system`` as documented (https://github.com/ansible-collections/community.openwrt/pull/304).
-  - group - reject ``state`` values other than ``absent`` and ``present`` (https://github.com/ansible-collections/community.openwrt/pull/304).
-  - group - require ``gid`` when ``non_unique`` is set, whatever the ``state`` (https://github.com/ansible-collections/community.openwrt/pull/304).
-  - group - reject group names that would corrupt ``/etc/group`` (https://github.com/ansible-collections/community.openwrt/pull/304).

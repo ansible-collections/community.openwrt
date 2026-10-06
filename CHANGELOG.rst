@@ -4,6 +4,83 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.9.0
+======
+
+Release Summary
+---------------
+
+Regular bugfix and feature release. This is the first release based on ucode instead of shell scripts.
+
+Minor Changes
+-------------
+
+- apk - accept a list of packages in the ``name`` option (https://github.com/ansible-collections/community.openwrt/pull/279).
+- apk - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+- apk - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+- command - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+- command - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+- command - report ``start``, ``end``, and ``delta`` with microsecond precision (https://github.com/ansible-collections/community.openwrt/pull/298).
+- copy - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/275).
+- copy - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/275).
+- file - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+- file - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+- group - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/276).
+- group - parse ``/etc/group`` and ``/etc/passwd`` as musl does, and warn about the lines ignored in ``/etc/group`` (https://github.com/ansible-collections/community.openwrt/pull/307).
+- group - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/276).
+- lineinfile - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+- lineinfile - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+- nohup - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+- nohup - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+- opkg - accept a list of packages in the ``name`` option (https://github.com/ansible-collections/community.openwrt/pull/279).
+- opkg - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+- opkg - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+- package_facts - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+- package_facts - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+- ping - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+- ping - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/272).
+- service - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+- service - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+- setup - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+- setup - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+- slurp - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+- slurp - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+- stat - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+- stat - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+- sysctl - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+- sysctl - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+- sysctl - use the result's own ``changed`` flag to decide whether to write the sysctl file and reload (https://github.com/ansible-collections/community.openwrt/pull/296).
+- tempfile - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+- tempfile - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/283).
+- uci - add ``operations`` option to run several operations in order (https://github.com/ansible-collections/community.openwrt/pull/280).
+- uci - add ``redact_keys`` option to hide values in the diff output (https://github.com/ansible-collections/community.openwrt/pull/280).
+- uci - fail when the task passes unsupported parameters (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/280).
+- uci - reimplement the module in ucode (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/280).
+- ucode_action plugin utils - report failures to transfer a module or its module utils as transfer failures (https://github.com/ansible-collections/community.openwrt/pull/295).
+
+Bugfixes
+--------
+
+- copy - pass the file path to the ``validate`` command as a single argument (https://github.com/ansible-collections/community.openwrt/pull/311).
+- file - fix ``state=touch`` with ``follow`` and hard links with a relative ``src`` (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+- group - change the GID of an existing group, along with the users having it as their primary group, instead of only reporting a change (https://github.com/ansible-collections/community.openwrt/pull/304).
+- group - do not fail when the requested GID is unchanged but shared with another group (https://github.com/ansible-collections/community.openwrt/pull/304).
+- group - do not report ``changed`` when the module fails (https://github.com/ansible-collections/community.openwrt/pull/304).
+- group - reject ``state`` values other than ``absent`` and ``present`` (https://github.com/ansible-collections/community.openwrt/pull/304).
+- group - reject group names that would corrupt ``/etc/group`` (https://github.com/ansible-collections/community.openwrt/pull/304).
+- group - require ``gid`` when ``non_unique`` is set, whatever the ``state`` (https://github.com/ansible-collections/community.openwrt/pull/304).
+- group - return ``gid`` and ``system`` as documented (https://github.com/ansible-collections/community.openwrt/pull/304).
+- lineinfile - no longer report a diff when nothing is removed (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+- slurp - fail on directories and always return ``content`` (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/284).
+- stat - honor ``follow`` and return ``dev`` (https://github.com/ansible-collections/community.openwrt/issues/261, https://github.com/ansible-collections/community.openwrt/pull/288).
+- ucode_action plugin utils - mark hosts as unreachable when the connection fails, instead of failing the task (https://github.com/ansible-collections/community.openwrt/issues/240, https://github.com/ansible-collections/community.openwrt/pull/312).
+- ucode_action plugin utils - stop leaving a remote temporary directory behind on the target after each ``community.openwrt.copy`` or ``community.openwrt.template`` task (https://github.com/ansible-collections/community.openwrt/pull/303).
+
+New Modules
+-----------
+
+- community.openwrt.ucode_wrapper - Internal wrapper module for OpenWrt ucode\-based modules.
+
 v1.8.0
 ======
 
@@ -261,11 +338,6 @@ Minor Changes
 - uci - revamp the shell wrapping mechanism (https://github.com/ansible-collections/community.openwrt/pull/14).
 - uci action plugin - revamp the shell wrapping mechanism (https://github.com/ansible-collections/community.openwrt/pull/14).
 - wrapper - revamp the shell wrapping mechanism (https://github.com/ansible-collections/community.openwrt/pull/14).
-
-New Modules
------------
-
-- community.openwrt.wrapper - Internal wrapper module for OpenWrt shell\-based modules.
 
 v0.1.0
 ======
