@@ -1,2 +1,0 @@
-minor_changes:
-  - group - parse ``/etc/group`` and ``/etc/passwd`` as musl does, and warn about the lines ignored in ``/etc/group`` (https://github.com/ansible-collections/community.openwrt/pull/307).

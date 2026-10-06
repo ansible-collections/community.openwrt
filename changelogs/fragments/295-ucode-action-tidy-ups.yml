@@ -1,2 +1,0 @@
-minor_changes:
-  - ucode_action plugin utils - report failures to transfer a module or its module utils as transfer failures (https://github.com/ansible-collections/community.openwrt/pull/295).

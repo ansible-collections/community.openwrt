@@ -1,3 +1,0 @@
-minor_changes:
-  - uci - add ``operations`` option to run several operations in order (https://github.com/ansible-collections/community.openwrt/pull/280).
-  - uci - add ``redact_keys`` option to hide values in the diff output (https://github.com/ansible-collections/community.openwrt/pull/280).
