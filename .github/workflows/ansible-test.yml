@@ -64,7 +64,7 @@ jobs:
   # need to reach Galaxy.
 
   collections:
-    name: Test collections snapshot
+    name: Download collections snapshot
     runs-on: ubuntu-latest
     permissions:
       actions: read
