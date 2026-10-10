@@ -58,9 +58,51 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  ###
+  # Snapshot of the collections in tests/requirements.yml, taken by the
+  # "Refresh test collections" workflow, so that the jobs below do not
+  # need to reach Galaxy.
+
+  collections:
+    name: Download collections snapshot
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+
+    steps:
+      - name: Find latest snapshot
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_id=$(gh run list -R "$GITHUB_REPOSITORY" -w refresh-collections.yml -b main -s success -L 1 \
+                     --json databaseId -q '.[].databaseId')
+          if [ -z "$run_id" ]; then
+            echo "::error::No successful run of refresh-collections.yml on main, trigger it manually first"
+            exit 1
+          fi
+          echo "Using snapshot from $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$run_id"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Download snapshot
+        uses: actions/download-artifact@v8
+        with:
+          name: test-collections
+          run-id: ${{ steps.find.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: collections
+
+      - name: Attach snapshot to this run
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-collections
+          path: collections/
+          if-no-files-found: error
+
   molecule-integration:
     name: Integration (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
+    needs: collections
     strategy:
       fail-fast: false
       matrix:
@@ -119,9 +161,15 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
+      - name: Download test collections snapshot
+        uses: actions/download-artifact@v8
+        with:
+          name: test-collections
+          path: ${{ runner.temp }}/collections
+
       - name: Install required Ansible collections
-        run: ansible-galaxy collection install -r tests/requirements.yml
-        working-directory: ansible_collections/community/openwrt
+        run: ansible-galaxy collection install --offline -r requirements.yml
+        working-directory: ${{ runner.temp }}/collections
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
@@ -187,6 +235,7 @@ jobs:
   molecule:
     name: Default test (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
+    needs: collections
     strategy:
       fail-fast: false
       matrix:
@@ -212,9 +261,15 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
+      - name: Download test collections snapshot
+        uses: actions/download-artifact@v8
+        with:
+          name: test-collections
+          path: ${{ runner.temp }}/collections
+
       - name: Install required Ansible collections
-        run: ansible-galaxy collection install -r tests/requirements.yml
-        working-directory: ansible_collections/community/openwrt
+        run: ansible-galaxy collection install --offline -r requirements.yml
+        working-directory: ${{ runner.temp }}/collections
 
       - name: Run molecule tests (default scenario)
         working-directory: ansible_collections/community/openwrt
@@ -227,6 +282,7 @@ jobs:
   molecule-roles:
     name: Roles (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest
+    needs: collections
     strategy:
       fail-fast: false
       matrix:
@@ -252,9 +308,15 @@ jobs:
         working-directory: ansible_collections/community/openwrt
         run: pip install -r requirements-test.txt --disable-pip-version-check
 
+      - name: Download test collections snapshot
+        uses: actions/download-artifact@v8
+        with:
+          name: test-collections
+          path: ${{ runner.temp }}/collections
+
       - name: Install required Ansible collections
-        run: ansible-galaxy collection install -r tests/requirements.yml
-        working-directory: ansible_collections/community/openwrt
+        run: ansible-galaxy collection install --offline -r requirements.yml
+        working-directory: ${{ runner.temp }}/collections
 
       - name: Run molecule for all role scenarios
         working-directory: ansible_collections/community/openwrt
@@ -291,9 +353,9 @@ jobs:
           # codecov-token: ${{ secrets.CODECOV_TOKEN }}
           # OPTIONAL If your unit tests require code
           # from other collections, install them like this
-          test-deps: >-
-            ansible.netcommon
-            ansible.utils
+          # test-deps: >-
+          #   ansible.netcommon
+          #   ansible.utils
           # OPTIONAL If set to true, will test only against changed files,
           # which should improve CI performance. See limitations on
           # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
@@ -305,6 +367,7 @@ jobs:
     if: always()
 
     needs:
+      - collections
       - nox
       - sanity
       - molecule
