@@ -229,6 +229,10 @@
           ansible.builtin.raw: "grep ^ansibullgroup3: /etc/group | cut -d: -f3"
           register: change_gid_other
 
+        - name: look for temporary files left in /etc
+          ansible.builtin.raw: "ls -a /etc | grep ansible_tmp || true"
+          register: change_gid_leftovers
+
         - name: assert change the gid of a group
           ansible.builtin.assert:
             that:
@@ -237,6 +241,7 @@
               - change_gid_actual.stdout | trim | int == 1235
               - change_gid_user.stdout | trim | int == 1235
               - change_gid_other.stdout | trim | int == 1234
+              - change_gid_leftovers.stdout | trim == ''
 
         - name: change the gid of a group (idempotent)
           community.openwrt.group:

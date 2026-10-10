@@ -86,8 +86,9 @@ A few behaviors are worth knowing before they cost you an afternoon:
 * ``math.rand()`` seeds itself from the clock with millisecond resolution, so two processes starting together
   produce the same sequence. Do not use it to make something unique.
 * ``fs.mkstemp()`` unlinks the file it creates and hands back an open handle, so there is no path to give to
-  another program. ``fs.mkdtemp()`` returns a directory path, and ``open(path, "x")`` creates a file only if
-  it does not exist yet.
+  another program. ``fs.mkdtemp()`` returns a directory path, and ``open(path, "wx")`` creates a file only if
+  nothing, not even a symlink, holds that name yet. The ``x`` flag only works alongside ``w``: on its own,
+  ``open()`` fails with ``EINVAL``.
 * There is no ``getpid()``. Reading the link ``/proc/self`` gives the process id as a string.
 
 
