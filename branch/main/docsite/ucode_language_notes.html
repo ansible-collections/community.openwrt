@@ -205,8 +205,9 @@ try {
 <li><p><code class="docutils literal notranslate"><span class="pre">math.rand()</span></code> seeds itself from the clock with millisecond resolution, so two processes starting together
 produce the same sequence. Do not use it to make something unique.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fs.mkstemp()</span></code> unlinks the file it creates and hands back an open handle, so there is no path to give to
-another program. <code class="docutils literal notranslate"><span class="pre">fs.mkdtemp()</span></code> returns a directory path, and <code class="docutils literal notranslate"><span class="pre">open(path,</span> <span class="pre">&quot;x&quot;)</span></code> creates a file only if
-it does not exist yet.</p></li>
+another program. <code class="docutils literal notranslate"><span class="pre">fs.mkdtemp()</span></code> returns a directory path, and <code class="docutils literal notranslate"><span class="pre">open(path,</span> <span class="pre">&quot;wx&quot;)</span></code> creates a file only if
+nothing, not even a symlink, holds that name yet. The <code class="docutils literal notranslate"><span class="pre">x</span></code> flag only works alongside <code class="docutils literal notranslate"><span class="pre">w</span></code>: on its own,
+<code class="docutils literal notranslate"><span class="pre">open()</span></code> fails with <code class="docutils literal notranslate"><span class="pre">EINVAL</span></code>.</p></li>
 <li><p>There is no <code class="docutils literal notranslate"><span class="pre">getpid()</span></code>. Reading the link <code class="docutils literal notranslate"><span class="pre">/proc/self</span></code> gives the process id as a string.</p></li>
 </ul>
 <div class="versionadded">
