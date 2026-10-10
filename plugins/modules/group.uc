@@ -157,7 +157,7 @@ function ensure_gid_unique(groups, gid) {
 // that name is neither followed nor overwritten.
 function write_entries(path, entries) {
     let info = stat(path);
-    let now = clock(true);
+    let now = clock(true) || clock();
     let tmp = sprintf('%s.ansible_tmp.%s.%d.%d', path, process_id(), now[0], now[1]);
     let content = join('', map(entries, (entry) => `${entry.line}\n`));
 
