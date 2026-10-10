@@ -1,0 +1,51 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Downloads the collections in tests/requirements.yml from Galaxy and keeps them
+# as a workflow artifact. The CI workflow installs from the latest successful
+# run of this workflow on main, so it does not depend on Galaxy being reachable.
+
+name: Refresh test collections
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+    paths:
+      - tests/requirements.yml
+      - .github/workflows/refresh-collections.yml
+  # Run once per week (Mondays at 05:00 UTC)
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  download:
+    name: Download collections from Galaxy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install ansible-core
+        run: pip install ansible-core --disable-pip-version-check
+
+      - name: Download collections
+        run: ansible-galaxy collection download -r tests/requirements.yml -p collections
+
+      - name: Upload collections snapshot
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-collections
+          path: collections/
+          retention-days: 30
+          if-no-files-found: error
