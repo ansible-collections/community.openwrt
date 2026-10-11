@@ -4,6 +4,7 @@
 
 import argparse
 import html
+import json
 import os
 import re
 import subprocess
@@ -313,6 +314,146 @@ def test_gather_facts(session: nox.Session):
 def integration(session: nox.Session):
     """Run molecule integration tests for all plugins (molecule_integration scenario)."""
     _run_integration(session)
+
+
+UCODE_TESTS = Path("tests/ucode")
+UTEST_FEED = "https://m00qek.github.io/packages.ucode.dev"
+# utest is only published in a third-party feed, so the package is pinned by file and checksum.
+# OpenWrt series without an entry here are skipped. Bump every entry together.
+UTEST_PACKAGES = {
+    "24.10": (
+        "24.10/ucode-utest_1.5.1-r1_all.ipk",
+        "2d77a33730dacde690042c5b846728841de31f2004c9dcf61e87164d616fa326",
+        "mkdir -p /var/lock && opkg install",
+    ),
+    "25.12": (
+        "25.12/noarch/ucode-utest-1.5.1-r1.apk",
+        "8fbd018ac964c4a1d54964fd3be5f9e95ed3a45d8e814f37922c79720ea9af08",
+        "apk add --allow-untrusted",
+    ),
+}
+
+
+def _openwrt_series(version: str) -> str:
+    return ".".join(version.split(".")[:2])
+
+
+def _utest_command(registry: str, version: str, utest_args: list[str]) -> list[str]:
+    package, sha256, install = UTEST_PACKAGES[_openwrt_series(version)]
+    pkg_file = f"/tmp/{Path(package).name}"
+    script = (
+        f"wget -q -O {pkg_file} {UTEST_FEED}/{package} && "
+        f"echo '{sha256}  {pkg_file}' | sha256sum -c -s && "
+        f"{install} {pkg_file} >/dev/null 2>&1 && "
+        'utest "$@"'
+    )
+    return [
+        "docker", "run", "--rm", "-v", f"{Path.cwd()}:/src:ro", "-w", f"/src/{UCODE_TESTS}",
+        f"{registry}/openwrt/rootfs:x86_64-{version}",
+        "sh", "-c", script, "sh", *utest_args,
+    ]  # fmt: skip
+
+
+def _utest_summary(version: str, report: dict) -> str:
+    stats = report["stats"]
+    lines = [
+        f"### ucode unit tests: OpenWrt {version}",
+        "",
+        "| Total | Passed | Failed | Errors | Fatal | Skipped |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: |",
+        f"| {stats['total']} | {stats['passed']} | {stats['failed']} | {stats['errors']} | {stats['fatals']} "
+        f"| {stats['skipped']} |",
+        "",
+    ]
+    for failure in report["failures"]:
+        test_name = " › ".join(step["name"] for step in failure.get("path", [])[1:])
+        lines += [
+            f"- **{failure.get('status', failure['event'])}** `{failure['suite']}` {test_name}".rstrip(),
+            "",
+            "  ```",
+            *(f"  {line}" for line in str(failure["error"]).splitlines()),
+            "  ```",
+            "",
+        ]
+    return "\n".join(lines) + "\n"
+
+
+def _annotation_escape(text: str, is_property: bool = False) -> str:
+    text = text.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    return text.replace(":", "%3A").replace(",", "%2C") if is_property else text
+
+
+def _test_line(test_file: Path, test_name: str) -> int | None:
+    for number, line in enumerate(test_file.read_text().splitlines(), start=1):
+        if f"'{test_name}'" in line or f'"{test_name}"' in line:
+            return number
+    return None
+
+
+def _utest_annotations(version: str, report: dict) -> list[str]:
+    annotations = []
+    for failure in report["failures"]:
+        test_file = UCODE_TESTS / failure["suite"]
+        names = [step["name"] for step in failure.get("path", [])[1:]]
+        properties = {"file": str(test_file), "title": f"OpenWrt {version}: {' › '.join(names) or failure['event']}"}
+        line = _test_line(test_file, names[-1]) if names and test_file.is_file() else None
+        if line:
+            properties["line"] = str(line)
+        props = ",".join(f"{key}={_annotation_escape(value, True)}" for key, value in properties.items())
+        annotations.append(f"::error {props}::{_annotation_escape(str(failure['error']))}")
+    return annotations
+
+
+def _run_utest_with_summary(session: nox.Session, cmd: list[str], version: str, summary_file: Path) -> bool:
+    output = session.run(*cmd, external=True, silent=True, success_codes=range(256))
+    try:
+        report = json.loads(output.strip().splitlines()[-1])
+    except (IndexError, ValueError):
+        session.error(f"utest produced no JSON report on OpenWrt {version}:\n{output}")
+    summary = _utest_summary(version, report)
+    print(summary)
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        print("\n".join(_utest_annotations(version, report)))
+    with summary_file.open("a") as f:
+        f.write(summary)
+    stats = report["stats"]
+    return not (stats["failed"] or stats["errors"] or stats["fatals"])
+
+
+@nox.session(default=False)
+def ucode_units(session: nox.Session):
+    """Run the ucode unit tests with utest in OpenWrt containers. Posargs: [--openwrt VERSION] [--summary FILE] [utest options]"""
+    parser = argparse.ArgumentParser(allow_abbrev=False)
+    parser.add_argument(
+        "--openwrt", action="append", help="OpenWrt version, repeatable (default: tests/molecule/openwrt.yml)"
+    )
+    parser.add_argument("--summary", type=Path, help="append a Markdown report to this file, e.g. $GITHUB_STEP_SUMMARY")
+    args, utest_args = parser.parse_known_args(session.posargs)
+
+    openwrt_cfg = _read_openwrt()
+    bundles = sorted({f"{p.parent.relative_to(UCODE_TESTS)}/" for p in UCODE_TESTS.glob("**/test_*.uc")})
+    if args.summary:
+        utest_args += ["-r", "json"]
+
+    failed = []
+    for version in args.openwrt or openwrt_cfg["versions"]:
+        if _openwrt_series(version) not in UTEST_PACKAGES:
+            if args.openwrt:
+                session.error(f"No utest package for OpenWrt {version}")
+            session.log(f"Skipping OpenWrt {version}: no utest package for it")
+            continue
+
+        cmd = _utest_command(openwrt_cfg["registry"], version, [*utest_args, *bundles])
+        session.log(f"OpenWrt {version}")
+        if not args.summary:
+            session.run(*cmd, external=True)
+            continue
+
+        if not _run_utest_with_summary(session, cmd, version, args.summary):
+            failed.append(version)
+
+    if failed:
+        session.error(f"ucode unit tests failed on OpenWrt {', '.join(failed)}")
 
 
 @nox.session(default=False)
