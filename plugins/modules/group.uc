@@ -237,7 +237,9 @@ function group_present(groups) {
     result.update({ gid: gid, system: params.system });
 }
 
-// MAIN ----------------------------------------------------------------------
+// END-OF-UNIT-TESTABLES
+
+// ---- main -----------------------------------------------------------------
 
 if (params.name == '' || match(params.name, /[:\n]/))
     module.fail_json(`'${params.name}' is not a valid group name`);

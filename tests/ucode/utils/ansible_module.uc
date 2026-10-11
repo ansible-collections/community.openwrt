@@ -61,9 +61,9 @@ export function reset() {
 // keyed by function name. A module's top-level functions are local to it, and
 // only exist once execution has passed their definition. So the module is
 // compiled with `return { <every top-level function> };` inserted right before
-// its `// MAIN` marker line, and run that far, with AnsibleModule() mocked out
-// so that nothing of _basic runs. Errors raised by the module's preamble are
-// ignored.
+// its `// END-OF-UNIT-TESTABLES` marker, and run that far, with AnsibleModule()
+// mocked out so that nothing of _basic runs. Errors raised by the module's
+// preamble are ignored.
 export function module_internals(path) {
     let source = readfile(path);
     if (source == null)
@@ -76,11 +76,11 @@ export function module_internals(path) {
         let found = match(lines[i], /^function ([A-Za-z_][A-Za-z0-9_]*)[ \t]*\(/);
         if (found)
             push(names, found[1]);
-        else if (match(lines[i], /\/\/ +MAIN( .*)?$/))
+        else if (match(lines[i], /\/\/ +END-OF-UNIT-TESTABLES( .*)?$/))
             insert_at = i;
     }
     if (insert_at == null)
-        die(`module ${path} has no '// MAIN' marker line`);
+        die(`module ${path} has no '// END-OF-UNIT-TESTABLES' marker line`);
     splice(lines, insert_at, 0, `return { ${join(', ', names)} };`);
     let main = loadstring(join('\n', lines));
 
