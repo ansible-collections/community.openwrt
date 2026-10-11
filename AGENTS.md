@@ -244,10 +244,11 @@ approval before committing or pushing it.
 
 ## Tests
 
-This collection combines two very different kinds of tests: standard `ansible-test` sanity/unit tests
-(Python, for action plugins and `plugin_utils`), and Molecule-based integration tests that exercise
-the ucode modules against real OpenWrt container images. See `docs/docsite/rst/testing_guide.rst` for
-the full picture; the essentials are summarized below.
+This collection combines three very different kinds of tests: standard `ansible-test` sanity/unit tests
+(Python, for action plugins and `plugin_utils`), ucode unit tests written with utest (for module_utils
+and functions inside modules), and Molecule-based integration tests that exercise the ucode modules
+against real OpenWrt container images. See `docs/docsite/rst/testing_guide.rst` for the full picture;
+the essentials are summarized below.
 
 ### Running Tests
 
@@ -257,6 +258,10 @@ the full picture; the essentials are summarized below.
 - `andebox` is a convenience wrapper around `ansible-test` that handles collection path setup;
   either tool works, e.g. `andebox test sanity -- --docker default --python 3.14 <files>` /
   `andebox test units -- --docker default --python 3.14 <test_file.py>`.
+- ucode unit tests: `nox -e ucode_units` — runs every `tests/ucode/**/test_*.uc` with utest, in a container
+  for each OpenWrt version in `tests/molecule/openwrt.yml` that has a utest package in `noxfile.py`
+  (24.10 and 25.12). `--openwrt <version>` limits it to one version; other options go to utest, e.g.
+  `-r detailed` for the full listing, `-f <regex>` to filter tests by name, `-s <seed>` to repeat a run's order.
 - Integration tests (Molecule, per-module): `nox -e test -- <target>` — runs one module's target
   under `tests/integration/targets/<target>/` against every OpenWrt version listed in
   `tests/molecule/openwrt.yml`.
@@ -272,9 +277,13 @@ the full picture; the essentials are summarized below.
 
 ## Writing unit tests
 
-Unit tests in this collection exercise Python components only — action plugins and `plugin_utils`
-(e.g. `UCodeActionBase`). There is no Python module code (`AnsibleModule`, `argument_spec`) to test,
-since modules run as ucode scripts on the target; module behavior is covered by integration tests instead.
+There are two sets of unit tests: Python ones under `tests/unit/`, and ucode ones under `tests/ucode/`.
+
+### Python
+
+The Python unit tests exercise action plugins and `plugin_utils` (e.g. `UCodeActionBase`). There is no
+Python module code (`AnsibleModule`, `argument_spec`) to test, since modules run as ucode scripts on the
+target; module behavior is covered by integration tests instead.
 
 - Prefer `pytest` idioms to write tests
   - Prefer plain functions instead of Test classes
@@ -290,6 +299,29 @@ since modules run as ucode scripts on the target; module behavior is covered by 
   - NOT assert Ansible features, e.g. if two parameters are marked in the argument spec as
     mutually exclusive, there is no need to write a test to verify that they cannot be used together.
     It is a given, and `ansible-core` has plenty of tests for those.
+
+### ucode
+
+The ucode unit tests use [utest](https://m00qek.github.io/utest/) and check module_utils, and functions
+inside modules, in isolation. They complement the integration tests, they do not replace them.
+
+- `tests/ucode/` mirrors `tests/unit/`: tests for `plugins/<type>/<name>.uc` go in
+  `tests/ucode/plugins/<type>/test_<name>.uc`, or in a `<name>/` directory of `test_<topic>.uc` files
+  when they are many (as with `_basic`).
+- `tests/ucode/utest.config.uc` puts `plugins/module_utils/` on the search path, so module_utils are
+  imported by name, e.g. `import { normalize_value } from '_uci';`.
+- `assert.match(expected, actual)`: expected value first.
+- Only modules listed under `mocks` in `utest.config.uc` can be mocked (`fs`, `_basic`). `_basic` goes
+  through the proxy in `tests/ucode/utils/basic_proxy.uc`, whose `API` list must name every export of
+  `_basic.uc`: update it when an export is added.
+- Helpers in `tests/ucode/utils/ansible_module.uc`:
+  - `ansible_module(args, opts)` builds an `AnsibleModule` and catches its `exit()`; call `reset()` in `afterEach`.
+  - `module_internals(path)` returns a module's top-level functions, keyed by name. It needs a line
+    ending in a `// END-OF-UNIT-TESTABLES` comment in the module, after its functions and before the
+    code that does the work.
+- utest runs files in random order: tests must not depend on each other, and anything written to disk
+  must be recreated in `beforeEach`.
+- Write the tests in ucode, not JavaScript: see `docs/docsite/rst/ucode_language_notes.rst`.
 
 ## Writing integration tests
 
