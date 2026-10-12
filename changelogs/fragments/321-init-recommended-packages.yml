@@ -1,0 +1,2 @@
+minor_changes:
+  - init role - stop installing ``coreutils-base64`` and ``coreutils-md5sum`` as recommended packages (https://github.com/ansible-collections/community.openwrt/pull/321).
