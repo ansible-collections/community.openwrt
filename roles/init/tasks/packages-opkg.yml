@@ -25,6 +25,9 @@
     _epoch.stdout|int - _opkg_lists.stat.mtime > 86400
   failed_when: not _opkg_lists.stat.exists and _update.failed
   changed_when: not _update.failed
+  retries: "{{ openwrt_opkg_update_retries }}"
+  delay: "{{ openwrt_opkg_update_delay }}"
+  until: _update is succeeded
 
 - name: Check for openssl
   community.openwrt.command:
