@@ -163,7 +163,7 @@ You need further requirements to be able to use this module,
 see <a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-requirements"><span class="std std-ref">Requirements</span></a> for details.</p>
 <p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">community.openwrt.wg_interface</span></code>.</p>
 </div>
-<p class="ansible-version-added">New in community.openwrt 1.9.0</p>
+<p class="ansible-version-added">New in community.openwrt 1.10.0</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
@@ -179,7 +179,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Manages WireGuard/AmneziaWG identity keys, interface UCI sections and the WAN ingress firewall rule for each interface’s listen port.</p></li>
-<li><p>The module performs the following steps in order</p></li>
+<li><p>The module performs the following steps in order:</p></li>
 <li><ol class="arabic simple">
 <li><p>Determine the protocol (<code class="docutils literal notranslate"><span class="pre">wireguard</span></code> by default) and the ubus key server from the configured interfaces.</p></li>
 </ol>
@@ -469,7 +469,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Module-wide state, used as the default for every entry in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces"><span class="std std-ref"><span class="pre">interfaces</span></span></a></strong></code> whose own <code class="docutils literal notranslate"><span class="pre">state</span></code> is not set.</p>
-<p>An explicitly-set <code class="docutils literal notranslate"><span class="pre">state</span></code> on an individual interface overrides this.</p>
+<p>An explicitly-set <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces-state"><span class="std std-ref"><span class="pre">interfaces[].state</span></span></a></strong></code> overrides this for that interface.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;present&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
