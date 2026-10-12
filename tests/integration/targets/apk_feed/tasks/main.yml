@@ -1,0 +1,329 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Initialize packaging system
+  ansible.builtin.include_role:
+    name: community.openwrt.init
+
+- name: Gather facts
+  community.openwrt.setup:
+
+- name: Run tests on OpenWrt 25.12, which the test feed is built for
+  when: ansible_distribution_version is match("25[.]12[.]")
+  vars:
+    feed_url: https://m00qek.github.io/packages.ucode.dev/25.12
+    feed_key_url: https://m00qek.github.io/packages.ucode.dev/25.12/feed.pub.pem
+    feed_file: /etc/apk/repositories.d/customfeeds.list
+    feed_key_file: /etc/apk/keys/ansible-test.pem
+    custom_file: /etc/apk/repositories.d/ansible-test.list
+  block:
+    - name: Ensure the feed and its key are absent before the test
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key_name: ansible-test.pem
+        state: absent
+
+    ##
+    ## feed
+    ##
+
+    - name: Add the feed (check mode)
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+      check_mode: true
+      register: add_check
+
+    - name: Read the feeds file after adding the feed (check mode)
+      community.openwrt.command:
+        cmd: cat {{ feed_file }}
+      register: add_check_file
+
+    - name: Assert the feed is not added in check mode
+      ansible.builtin.assert:
+        that:
+          - add_check is changed
+          - feed_url not in add_check_file.stdout_lines
+
+    - name: Add the feed
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+      register: add
+
+    - name: Read the feeds file after adding the feed
+      community.openwrt.command:
+        cmd: cat {{ feed_file }}
+      register: add_file
+
+    - name: Assert the feed is added
+      ansible.builtin.assert:
+        that:
+          - add is changed
+          - add.url == feed_url
+          - add.file == feed_file
+          - add.state == "present"
+          - add_file.stdout_lines | select("equalto", feed_url) | list | length == 1
+          - add_file.stdout_lines[0] == "# add your custom package feeds here"
+
+    - name: Add the feed again (idempotency)
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+      register: add_again
+
+    - name: Assert adding the feed again changes nothing
+      ansible.builtin.assert:
+        that:
+          - add_again is not changed
+
+    ##
+    ## tag
+    ##
+
+    - name: Tag the feed
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        tag: ucodedev
+      register: tag
+
+    - name: Tag the feed again (idempotency)
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        tag: ucodedev
+      register: tag_again
+
+    - name: Read the feeds file after tagging the feed
+      community.openwrt.command:
+        cmd: cat {{ feed_file }}
+      register: tag_file
+
+    - name: Assert the feed is tagged
+      ansible.builtin.assert:
+        that:
+          - tag is changed
+          - tag_again is not changed
+          - ("@ucodedev " ~ feed_url) in tag_file.stdout_lines
+          - feed_url not in tag_file.stdout_lines
+
+    - name: Untag the feed
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+      register: untag
+
+    - name: Read the feeds file after untagging the feed
+      community.openwrt.command:
+        cmd: cat {{ feed_file }}
+      register: untag_file
+
+    - name: Assert the feed is untagged
+      ansible.builtin.assert:
+        that:
+          - untag is changed
+          - untag_file.stdout_lines | select("search", "packages.ucode.dev") | list == [feed_url]
+
+    ##
+    ## key
+    ##
+
+    - name: Add the key from its URL (check mode)
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key_url: "{{ feed_key_url }}"
+        key_name: ansible-test.pem
+      check_mode: true
+      register: key_check
+
+    - name: Check the key file after adding the key (check mode)
+      community.openwrt.stat:
+        path: "{{ feed_key_file }}"
+      register: key_check_stat
+
+    - name: Assert the key is not added in check mode
+      ansible.builtin.assert:
+        that:
+          - key_check is changed
+          - not key_check_stat.stat.exists
+
+    - name: Add the key from its URL and update the cache
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key_url: "{{ feed_key_url }}"
+        key_name: ansible-test.pem
+        update_cache: true
+      register: key
+
+    - name: Check the key file after adding the key
+      community.openwrt.stat:
+        path: "{{ feed_key_file }}"
+      register: key_stat
+
+    - name: Assert the key is added
+      ansible.builtin.assert:
+        that:
+          - key is changed
+          - key.key_file == feed_key_file
+          - key_stat.stat.exists
+
+    - name: Add the key from its URL again (idempotency)
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key_url: "{{ feed_key_url }}"
+        key_name: ansible-test.pem
+        update_cache: true
+      register: key_again
+
+    - name: Assert adding the key again changes nothing
+      ansible.builtin.assert:
+        that:
+          - key_again is not changed
+
+    - name: Install a package signed by the feed's key
+      community.openwrt.apk:
+        name: ucode-utest
+        state: present
+      register: install_signed
+
+    - name: Assert the package is installed
+      ansible.builtin.assert:
+        that:
+          - install_signed is changed
+
+    - name: Read the key
+      community.openwrt.slurp:
+        src: "{{ feed_key_file }}"
+      register: key_slurp
+
+    - name: Add the same key given as content (idempotency)
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key: "{{ key_slurp.content | b64decode }}"
+        key_name: ansible-test.pem
+      register: key_content
+
+    - name: Assert adding the same key as content changes nothing
+      ansible.builtin.assert:
+        that:
+          - key_content is not changed
+
+    - name: Add a key that is not PEM encoded
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key: not a key
+        key_name: ansible-test.pem
+      register: key_invalid
+      ignore_errors: true
+
+    - name: Assert a key that is not PEM encoded is rejected
+      ansible.builtin.assert:
+        that:
+          - key_invalid is failed
+          - key_invalid.msg == "the key is not a PEM encoded key"
+
+    ##
+    ## removal
+    ##
+
+    - name: Remove the feed and its key (check mode)
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key_name: ansible-test.pem
+        state: absent
+      check_mode: true
+      register: remove_check
+
+    - name: Check the key file after removing the feed (check mode)
+      community.openwrt.stat:
+        path: "{{ feed_key_file }}"
+      register: remove_check_stat
+
+    - name: Assert nothing is removed in check mode
+      ansible.builtin.assert:
+        that:
+          - remove_check is changed
+          - remove_check_stat.stat.exists
+
+    - name: Remove the feed and its key
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key_name: ansible-test.pem
+        state: absent
+      register: remove
+
+    - name: Read the feeds file after removing the feed
+      community.openwrt.command:
+        cmd: cat {{ feed_file }}
+      register: remove_file
+
+    - name: Check the key file after removing the feed
+      community.openwrt.stat:
+        path: "{{ feed_key_file }}"
+      register: remove_stat
+
+    - name: Assert the feed and its key are removed
+      ansible.builtin.assert:
+        that:
+          - remove is changed
+          - remove.state == "absent"
+          - remove_file.stdout_lines | select("search", "packages.ucode.dev") | list | length == 0
+          - remove_file.stdout_lines[0] == "# add your custom package feeds here"
+          - not remove_stat.stat.exists
+
+    - name: Remove the feed and its key again (idempotency)
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key_name: ansible-test.pem
+        state: absent
+      register: remove_again
+
+    - name: Assert removing the feed again changes nothing
+      ansible.builtin.assert:
+        that:
+          - remove_again is not changed
+
+    ##
+    ## file
+    ##
+
+    - name: Remove a feed from a file that does not exist
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        file: "{{ custom_file }}"
+        state: absent
+      register: custom_remove_missing
+
+    - name: Add a tagged feed to a file of its own
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        tag: ucodedev
+        file: "{{ custom_file }}"
+      register: custom_add
+
+    - name: Read the file of its own
+      community.openwrt.command:
+        cmd: cat {{ custom_file }}
+      register: custom_file_content
+
+    - name: Assert the feed is added to a file of its own
+      ansible.builtin.assert:
+        that:
+          - custom_remove_missing is not changed
+          - custom_add is changed
+          - custom_add.file == custom_file
+          - custom_file_content.stdout_lines == ["@ucodedev " ~ feed_url]
+
+  always:
+    - name: Remove the package installed from the feed
+      community.openwrt.apk:
+        name: ucode-utest
+        state: absent
+
+    - name: Remove the feed and its key
+      community.openwrt.apk_feed:
+        url: "{{ feed_url }}"
+        key_name: ansible-test.pem
+        state: absent
+
+    - name: Remove the file of its own
+      community.openwrt.file:
+        path: "{{ custom_file }}"
+        state: absent
