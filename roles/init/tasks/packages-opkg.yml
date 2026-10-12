@@ -37,8 +37,6 @@
 - name: Install recommended packages if openssl is not available
   ansible.builtin.include_tasks: package.yml
   with_dict:
-    base64: coreutils-base64
-    md5sum: coreutils-md5sum
     sha1sum: coreutils-sha1sum
   when: _openssl.rc != 0
 

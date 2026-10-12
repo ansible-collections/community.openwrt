@@ -13,7 +13,7 @@
 
 - name: Install recommended packages if openssl is not available
   community.openwrt.apk:
-    name: coreutils-base64,coreutils-md5sum,coreutils-sha1sum
+    name: coreutils-sha1sum
   when: _openssl.rc != 0
 
 - name: Avoid re-checking of packages

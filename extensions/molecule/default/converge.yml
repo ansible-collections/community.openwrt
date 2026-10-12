@@ -56,7 +56,7 @@
 
     - name: Verify recommended packages were installed
       community.openwrt.command:
-        cmd: 'sleep 3; [ -x /bin/base64 ] && [ -x /usr/bin/sha1sum ]'
+        cmd: 'sleep 3; [ -x /usr/bin/sha1sum ]'
         uses_shell: true
       changed_when: false
 
