@@ -91,11 +91,15 @@ These variables control Ansible behavior:
         Ansible's ``remote_tmp`` (sets ``ansible_remote_tmp``) setting for OpenWrt systems.
         Setting to ``/tmp`` helps prevent flash wear on target device. (default: ``/tmp``)
 
-This variable is used when including the ``community.openwrt.init`` role:
+These variables are used when including the ``community.openwrt.init`` role:
 
     openwrt_install_recommended_packages:
         Checks for some commands and installs the corresponding packages if they are
         missing. See the item above. (default: ``true``)
+
+    openwrt_opkg_update_retries, openwrt_opkg_update_delay:
+        How many times to retry a failed ``opkg update`` (default: ``3``) and how long to wait,
+        in seconds, between attempts (default: ``5``). Only used on devices with ``opkg``.
 
 These variables are used by the handlers defined in the collection:
 
