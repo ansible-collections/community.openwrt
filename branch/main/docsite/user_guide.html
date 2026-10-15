@@ -227,11 +227,14 @@ Setting to <code class="docutils literal notranslate"><span class="pre">/tmp</sp
 </dd>
 </dl>
 </div></blockquote>
-<p>This variable is used when including the <code class="docutils literal notranslate"><span class="pre">community.openwrt.init</span></code> role:</p>
+<p>These variables are used when including the <code class="docutils literal notranslate"><span class="pre">community.openwrt.init</span></code> role:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>openwrt_install_recommended_packages:</dt><dd><p>Checks for some commands and installs the corresponding packages if they are
 missing. See the item above. (default: <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p>
+</dd>
+<dt>openwrt_opkg_update_retries, openwrt_opkg_update_delay:</dt><dd><p>How many times to retry a failed <code class="docutils literal notranslate"><span class="pre">opkg</span> <span class="pre">update</span></code> (default: <code class="docutils literal notranslate"><span class="pre">3</span></code>) and how long to wait,
+in seconds, between attempts (default: <code class="docutils literal notranslate"><span class="pre">5</span></code>). Only used on devices with <code class="docutils literal notranslate"><span class="pre">opkg</span></code>.</p>
 </dd>
 </dl>
 </div></blockquote>
