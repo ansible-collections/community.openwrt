@@ -170,6 +170,20 @@
       - peer_derived.peers == ["peer_wg0_spoke1", "peer_awg1"]
       - peer_derived_types.results | map(attribute='stdout') | list == ["wireguard_wg0", "amneziawg_awg1"]
 
+- name: Add a peer without a public key
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        section: nokey
+  register: peer_no_key
+  ignore_errors: true
+
+- name: Assert a public key is required
+  ansible.builtin.assert:
+    that:
+      - peer_no_key is failed
+      - "'public_key is required' in peer_no_key.msg"
+
 - name: Remove the peers in check mode
   community.openwrt.wg_peer:
     state: absent
