@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 sections:
+  - title: Overview
+    toctree:
+      - architecture
   - title: User Guides
     toctree:
       - user_guide
