@@ -4,7 +4,7 @@
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta content="2.27.0" name="antsibull-docs" />
+<meta content="2.28.0" name="antsibull-docs" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections &mdash; Community.OpenWrt Collection  documentation</title>
@@ -160,7 +160,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">community.openwrt</span></code>.</p>
 <p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">community.openwrt.wg_peer</span></code>.</p>
 </div>
-<p class="ansible-version-added">New in community.openwrt 1.9.0</p>
+<p class="ansible-version-added">New in community.openwrt 1.10.0</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
@@ -193,11 +193,11 @@ To check whether it is installed, run <code class="code docutils literal notrans
 </thead>
 <tbody>
 <tr class="row-even"><td><div class="ansible-option-cell">
-<div class="ansibleOptionAnchor" id="parameter-peer_id_tpl"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-parameter-peer-id-tpl"><strong>peer_id_tpl</strong></p>
-<a class="ansibleOptionLink" href="#parameter-peer_id_tpl" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+<div class="ansibleOptionAnchor" id="parameter-peer_id_template"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-parameter-peer-id-template"><strong>peer_id_template</strong></p>
+<a class="ansibleOptionLink" href="#parameter-peer_id_template" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Ucode template for the peer UCI section id.</p>
-<p>Rendered with the <code class="docutils literal notranslate"><span class="pre">iface_name</span></code>, <code class="docutils literal notranslate"><span class="pre">section</span></code> and <code class="docutils literal notranslate"><span class="pre">proto</span></code> values in scope.</p>
+<p>Rendered with these variables in scope: <code class="docutils literal notranslate"><span class="pre">iface_name</span></code> (<code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-iface"><span class="std std-ref"><span class="pre">peers[].iface</span></span></a></strong></code>), <code class="docutils literal notranslate"><span class="pre">section</span></code> (<code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-section"><span class="std std-ref"><span class="pre">peers[].section</span></span></a></strong></code>) and <code class="docutils literal notranslate"><span class="pre">proto</span></code> (<code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-proto"><span class="std std-ref"><span class="pre">peers[].proto</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code> or the interface’s <code class="docutils literal notranslate"><span class="pre">proto</span></code>).</p>
 <p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;{%</span> <span class="pre">if</span> <span class="pre">(section):</span> <span class="pre">%}peer_{{</span> <span class="pre">iface_name</span> <span class="pre">}}_{{</span> <span class="pre">section</span> <span class="pre">}}{%</span> <span class="pre">else</span> <span class="pre">%}peer_{{</span> <span class="pre">iface_name</span> <span class="pre">}}{%</span> <span class="pre">endif</span> <span class="pre">%}&quot;</span></code></p>
 </div></td>
 </tr>
@@ -263,7 +263,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <a class="ansibleOptionLink" href="#parameter-peers/proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer protocol; the peer section type becomes <code class="docutils literal notranslate"><span class="pre">&lt;proto&gt;_&lt;iface&gt;</span></code>.</p>
-<p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code>, then the interface’s <code class="docutils literal notranslate"><span class="pre">proto</span></code>, then <code class="docutils literal notranslate"><span class="pre">wireguard</span></code> when not set.</p>
+<p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code>, then the interface’s <code class="docutils literal notranslate"><span class="pre">proto</span></code>, then <code class="ansible-value docutils literal notranslate"><span class="pre">wireguard</span></code> when not set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;wireguard&quot;</span></code></p></li>
@@ -273,9 +273,10 @@ To check whether it is installed, run <code class="code docutils literal notrans
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="parameter-peers/public_key"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-parameter-peers-public-key"><strong>public_key</strong></p>
-<a class="ansibleOptionLink" href="#parameter-peers/public_key" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+<a class="ansibleOptionLink" href="#parameter-peers/public_key" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer public key.</p>
+<p>Required when the peer state is <code class="ansible-value docutils literal notranslate"><span class="pre">present</span></code>.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -290,7 +291,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <div class="ansibleOptionAnchor" id="parameter-peers/section"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-parameter-peers-section"><strong>section</strong></p>
 <a class="ansibleOptionLink" href="#parameter-peers/section" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer section suffix, available as <code class="docutils literal notranslate"><span class="pre">section</span></code> in the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peer-id-tpl"><span class="std std-ref"><span class="pre">peer_id_tpl</span></span></a></strong></code> template scope when deriving the peer section id.</p>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer section suffix, available as <code class="docutils literal notranslate"><span class="pre">section</span></code> in the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peer-id-template"><span class="std std-ref"><span class="pre">peer_id_template</span></span></a></strong></code> template scope when deriving the peer section id.</p>
 </div></td>
 </tr>
 <tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -298,7 +299,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <a class="ansibleOptionLink" href="#parameter-peers/state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the peer section should be present or absent.</p>
-<p>When <code class="docutils literal notranslate"><span class="pre">absent</span></code>, the peer section is removed.</p>
+<p>When <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code>, the peer section is removed.</p>
 <p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-state"><span class="std std-ref"><span class="pre">state</span></span></a></strong></code> when not set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
@@ -311,8 +312,8 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <div class="ansibleOptionAnchor" id="parameter-proto"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-parameter-proto"><strong>proto</strong></p>
 <a class="ansibleOptionLink" href="#parameter-proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>Module-wide protocol, used as the default for every peer whose own <code class="docutils literal notranslate"><span class="pre">proto</span></code> is not set.</p>
-<p>Falls back to the interface section’s <code class="docutils literal notranslate"><span class="pre">proto</span></code> (then <code class="docutils literal notranslate"><span class="pre">wireguard</span></code>) when the peer’s <code class="docutils literal notranslate"><span class="pre">proto</span></code> and this option are both unset.</p>
+<td><div class="ansible-option-cell"><p>Module-wide protocol, used as the default for every peer whose own <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-proto"><span class="std std-ref"><span class="pre">peers[].proto</span></span></a></strong></code> is not set.</p>
+<p>Falls back to the interface section’s <code class="docutils literal notranslate"><span class="pre">proto</span></code> (then <code class="ansible-value docutils literal notranslate"><span class="pre">wireguard</span></code>) when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-proto"><span class="std std-ref"><span class="pre">peers[].proto</span></span></a></strong></code> and this option are both unset.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;wireguard&quot;</span></code></p></li>
@@ -324,8 +325,8 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-parameter-state"><strong>state</strong></p>
 <a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>Module-wide state, used as the default for every peer whose own <code class="docutils literal notranslate"><span class="pre">state</span></code> is not set.</p>
-<p>An explicitly-set <code class="docutils literal notranslate"><span class="pre">state</span></code> on an individual peer overrides this.</p>
+<td><div class="ansible-option-cell"><p>Module-wide state, used as the default for every peer whose own <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-state"><span class="std std-ref"><span class="pre">peers[].state</span></span></a></strong></code> is not set.</p>
+<p>An explicitly-set <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-state"><span class="std std-ref"><span class="pre">peers[].state</span></span></a></strong></code> overrides this for that peer.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;present&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
@@ -379,8 +380,8 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>This module writes peer UCI sections only; it does not establish tunnels.</p></li>
-<li><p>The peer section id is rendered from <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peer-id-tpl"><span class="std std-ref"><span class="pre">peer_id_tpl</span></span></a></strong></code> and must match the id used by <a class="reference internal" href="wg_interface_module.html#ansible-collections-community-openwrt-wg-interface-module"><span class="std std-ref">community.openwrt.wg_interface</span></a> when resolving pre-shared keys.</p></li>
-<li><p>Template options (<code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peer-id-tpl"><span class="std std-ref"><span class="pre">peer_id_tpl</span></span></a></strong></code>) use ucode’s native template engine (Jinja-style <code class="docutils literal notranslate"><span class="pre">{{</span> <span class="pre">...</span> <span class="pre">}}</span></code> / <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">...</span> <span class="pre">%}</span></code>).</p></li>
+<li><p>The peer section id is rendered from <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peer-id-template"><span class="std std-ref"><span class="pre">peer_id_template</span></span></a></strong></code> and must match the id used by <a class="reference internal" href="wg_interface_module.html#ansible-collections-community-openwrt-wg-interface-module"><span class="std std-ref">community.openwrt.wg_interface</span></a> when resolving pre-shared keys.</p></li>
+<li><p>Template options (<code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peer-id-template"><span class="std std-ref"><span class="pre">peer_id_template</span></span></a></strong></code>) use ucode’s native template engine (Jinja-style <code class="docutils literal notranslate"><span class="pre">{{</span> <span class="pre">...</span> <span class="pre">}}</span></code> / <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">...</span> <span class="pre">%}</span></code>).</p></li>
 </ul>
 </div>
 </section>
@@ -447,14 +448,6 @@ To check whether it is installed, run <code class="code docutils literal notrans
 </thead>
 <tbody>
 <tr class="row-even"><td><div class="ansible-option-cell">
-<div class="ansibleOptionAnchor" id="return-diff"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-return-diff"><strong>diff</strong></p>
-<a class="ansibleOptionLink" href="#return-diff" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
-</div></td>
-<td><div class="ansible-option-cell"><p>List of before/after diffs (pre-shared keys redacted), one entry per changed peer section.</p>
-<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when diff mode and changes were detected</p>
-</div></td>
-</tr>
-<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="return-peers"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-return-peers"><strong>peers</strong></p>
 <a class="ansibleOptionLink" href="#return-peers" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
 </div></td>
@@ -462,7 +455,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
 </div></td>
 </tr>
-<tr class="row-even"><td><div class="ansible-option-cell">
+<tr class="row-odd"><td><div class="ansible-option-cell">
 <div class="ansibleOptionAnchor" id="return-removed"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-return-removed"><strong>removed</strong></p>
 <a class="ansibleOptionLink" href="#return-removed" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
 </div></td>

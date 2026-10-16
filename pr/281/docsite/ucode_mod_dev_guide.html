@@ -504,22 +504,29 @@ try {
 </section>
 <section id="testing">
 <h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
-<p>Integration tests are where a ucode module is proven. There is no unit testing for <code class="docutils literal notranslate"><span class="pre">.uc</span></code> files - unit tests
-in this collection cover the Python side - so write the integration target as you write the module.</p>
+<p>Integration tests are where a ucode module is proven, so write the integration target as you would use the module.
+Unit tests have a narrower job: they check the module utils, and the helper functions inside a module, in
+isolation.</p>
 <p>Put the target in <code class="docutils literal notranslate"><span class="pre">tests/integration/targets/&lt;name&gt;/</span></code> and run it with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--<span class="w"> </span>&lt;name&gt;
 </pre></div>
 </div>
 <p>It runs against every OpenWrt version in <code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt.yml</span></code>. Test through the module, not around
 it: give it parameters, assert what it returns and what it left on the device, run each task a second time and
-assert it reports no change, and cover check mode where the module claims to support it. The
-<a class="reference internal" href="testing_guide.html#ansible-collections-community-openwrt-docsite-testing-guide"><span class="std std-ref">Testing Guide</span></a> has the rest.</p>
+assert it reports no change, and cover check mode where the module claims to support it.</p>
+<p>ucode unit tests are written with <a class="reference external" href="https://github.com/m00qek/utest">utest</a> and live under
+<code class="docutils literal notranslate"><span class="pre">tests/ucode/</span></code>. They are worth writing for a module util, and for a helper whose cases are tedious to reach
+through the module, such as a parser of edge-case input. Run them with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>ucode_units
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="testing_guide.html#ansible-collections-community-openwrt-docsite-testing-guide"><span class="std std-ref">Testing Guide</span></a> has more details.</p>
 <p>Sanity tests reject a module whose file is not <code class="docutils literal notranslate"><span class="pre">.py</span></code> or <code class="docutils literal notranslate"><span class="pre">.ps1</span></code>, so every ucode module needs a line in each
 <code class="docutils literal notranslate"><span class="pre">tests/sanity/ignore-X.Y.txt</span></code>:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>plugins/modules/&lt;name&gt;.uc validate-modules:invalid-extension
 </pre></div>
 </div>
-<p>Run the sanity and unit tests with:</p>
+<p>Run the sanity tests, and the unit tests for the Python side, with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 <span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 </pre></div>
