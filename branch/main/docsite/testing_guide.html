@@ -92,7 +92,15 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running-all-plugin-integration-tests-at-once">Running All Plugin Integration Tests at Once</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-role-tests">Running Role Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sanity-and-unit-tests">Sanity and Unit Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ucode-unit-tests">ucode Unit Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-them">Running them</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#layout">Layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mocks">Mocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-ansiblemodule">Testing AnsibleModule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-the-functions-inside-a-module">Testing the functions inside a module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sanity-and-python-unit-tests">Sanity and Python Unit Tests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#code-quality-and-linting-nox">Code Quality and Linting (nox)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-ci-runs">What CI Runs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#further-reading">Further Reading</a></li>
@@ -166,10 +174,19 @@ collection. Read on for the full picture.</p>
 </li>
 <li><p><a class="reference internal" href="#running-all-plugin-integration-tests-at-once" id="id6">Running All Plugin Integration Tests at Once</a></p></li>
 <li><p><a class="reference internal" href="#running-role-tests" id="id7">Running Role Tests</a></p></li>
-<li><p><a class="reference internal" href="#sanity-and-unit-tests" id="id8">Sanity and Unit Tests</a></p></li>
-<li><p><a class="reference internal" href="#code-quality-and-linting-nox" id="id9">Code Quality and Linting (nox)</a></p></li>
-<li><p><a class="reference internal" href="#what-ci-runs" id="id10">What CI Runs</a></p></li>
-<li><p><a class="reference internal" href="#further-reading" id="id11">Further Reading</a></p></li>
+<li><p><a class="reference internal" href="#ucode-unit-tests" id="id8">ucode Unit Tests</a></p>
+<ul>
+<li><p><a class="reference internal" href="#running-them" id="id9">Running them</a></p></li>
+<li><p><a class="reference internal" href="#layout" id="id10">Layout</a></p></li>
+<li><p><a class="reference internal" href="#mocks" id="id11">Mocks</a></p></li>
+<li><p><a class="reference internal" href="#testing-ansiblemodule" id="id12">Testing AnsibleModule</a></p></li>
+<li><p><a class="reference internal" href="#testing-the-functions-inside-a-module" id="id13">Testing the functions inside a module</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#sanity-and-python-unit-tests" id="id14">Sanity and Python Unit Tests</a></p></li>
+<li><p><a class="reference internal" href="#code-quality-and-linting-nox" id="id15">Code Quality and Linting (nox)</a></p></li>
+<li><p><a class="reference internal" href="#what-ci-runs" id="id16">What CI Runs</a></p></li>
+<li><p><a class="reference internal" href="#further-reading" id="id17">Further Reading</a></p></li>
 </ul>
 </nav>
 <section id="quickstart">
@@ -195,7 +212,11 @@ collection. Read on for the full picture.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>roles
 </pre></div>
 </div>
-<p><strong>Sanity / unit tests:</strong></p>
+<p><strong>ucode unit tests:</strong></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>ucode_units
+</pre></div>
+</div>
+<p><strong>Sanity / Python unit tests:</strong></p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 <span class="gp">$ </span>ansible-test<span class="w"> </span>units<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 </pre></div>
@@ -231,7 +252,7 @@ iterating on a change: create once, converge many times, destroy when done.</p><
 <p>The test suite is built around Molecule, which orchestrates Docker containers running
 actual OpenWrt root filesystem images. This means your tests exercise real OpenWrt
 userspace — BusyBox shell, <code class="docutils literal notranslate"><span class="pre">uci</span></code>, <code class="docutils literal notranslate"><span class="pre">opkg</span></code>, etc. — rather than mocks.</p>
-<p>The collection tests fall into three broad categories:</p>
+<p>The collection tests fall into four broad categories:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Integration tests (modules)</dt><dd><p>Tests under <code class="docutils literal notranslate"><span class="pre">tests/integration/targets/&lt;module&gt;/</span></code> that verify each module’s
@@ -241,6 +262,10 @@ behaviour on a live OpenWrt container.</p>
 bundled Ansible roles.</p>
 </dd>
 <dt>Collection tests</dt><dd><p>Tests under <code class="docutils literal notranslate"><span class="pre">extensions/molecule</span></code> that do not fall under the previous categories.</p>
+</dd>
+<dt>ucode unit tests</dt><dd><p>Tests under <code class="docutils literal notranslate"><span class="pre">tests/ucode/</span></code> that check module utils and functions inside modules
+in isolation, written with utest. These are not Molecule-based, and may use mocks
+(see <a class="reference internal" href="#ucode-unit-tests">ucode Unit Tests</a>).</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -304,9 +329,108 @@ pass — the same thing CI does. It does <strong>not</strong> include role tests
 comment). The actual platform list is read at runtime from
 <code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt.yml</span></code> by the shared <code class="docutils literal notranslate"><span class="pre">create.yml</span></code> playbook.</p>
 </section>
-<section id="sanity-and-unit-tests">
-<h2><a class="toc-backref" href="#id8" role="doc-backlink">Sanity and Unit Tests</a><a class="headerlink" href="#sanity-and-unit-tests" title="Link to this heading"></a></h2>
-<p>These use the standard Ansible tooling and are not Molecule-based.</p>
+<section id="ucode-unit-tests">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">ucode Unit Tests</a><a class="headerlink" href="#ucode-unit-tests" title="Link to this heading"></a></h2>
+<p>Integration tests prove a module through its interface. Some code is better checked
+directly: the module utils under <code class="docutils literal notranslate"><span class="pre">plugins/module_utils/</span></code>, and the helper functions
+inside a module whose edge cases would take a playbook each to reach. Those are
+covered by unit tests written in ucode with <a class="reference external" href="https://m00qek.github.io/utest/">utest</a>.</p>
+<section id="running-them">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Running them</a><a class="headerlink" href="#running-them" title="Link to this heading"></a></h3>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>ucode_units
+</pre></div>
+</div>
+<p>The session starts a container for each OpenWrt version in <code class="docutils literal notranslate"><span class="pre">tests/molecule/openwrt.yml</span></code>,
+installs utest in it, and runs every test file under <code class="docutils literal notranslate"><span class="pre">tests/ucode/</span></code>. utest is not part of
+OpenWrt: it comes from a third-party package feed, pinned by version and checksum in
+<code class="docutils literal notranslate"><span class="pre">UTEST_PACKAGES</span></code> in <code class="docutils literal notranslate"><span class="pre">noxfile.py</span></code>. A version without a package there is skipped, which
+currently means the unit tests run on 24.10 and 25.12 only.</p>
+<p>The session takes these options of its own:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">--openwrt</span> <span class="pre">VERSION</span></code></dt><dd><p>Run against that version only. Repeatable.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--summary</span> <span class="pre">FILE</span></code></dt><dd><p>Append a Markdown report to <code class="docutils literal notranslate"><span class="pre">FILE</span></code>. This is what CI uses to write the job summary.</p>
+</dd>
+</dl>
+<p>Everything else is passed to utest. The useful ones are:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">detailed</span></code></dt><dd><p>Print every test, not just the failures. The default reporter is <code class="docutils literal notranslate"><span class="pre">compact</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">REGEX</span></code></dt><dd><p>Run only the tests whose full name matches <code class="docutils literal notranslate"><span class="pre">REGEX</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">SEED</span></code></dt><dd><p>utest runs the test files in random order. Pass the seed of a failed run to repeat it.</p>
+</dd>
+</dl>
+<p>For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nox<span class="w"> </span>-e<span class="w"> </span>ucode_units<span class="w"> </span>--<span class="w"> </span>--openwrt<span class="w"> </span><span class="m">25</span>.12<span class="w"> </span>-r<span class="w"> </span>detailed<span class="w"> </span>-f<span class="w"> </span><span class="s1">'to_id'</span>
+</pre></div>
+</div>
+</section>
+<section id="layout">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Layout</a><a class="headerlink" href="#layout" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">tests/ucode/</span></code> mirrors <code class="docutils literal notranslate"><span class="pre">tests/unit/</span></code>: the tests for <code class="docutils literal notranslate"><span class="pre">plugins/&lt;type&gt;/&lt;name&gt;.uc</span></code> go in
+<code class="docutils literal notranslate"><span class="pre">tests/ucode/plugins/&lt;type&gt;/test_&lt;name&gt;.uc</span></code>. Tests for a large file may be split into a
+directory named after it, as with <code class="docutils literal notranslate"><span class="pre">plugins/module_utils/_basic/</span></code>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>tests/ucode/
+  utest.config.uc         ← search path, reporter and mocks
+  utils/                  ← helpers shared by the tests
+  plugins/
+    module_utils/
+      _basic/
+        test_&lt;topic&gt;.uc
+      test_uci.uc
+    modules/
+      test_group.uc
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">utest.config.uc</span></code> puts <code class="docutils literal notranslate"><span class="pre">plugins/module_utils/</span></code> on the module search path, so a test
+imports a module util by its name, as a module does:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>import { describe, it, assert } from 'utest';
+import { normalize_value } from '_uci';
+
+describe('normalize_value()', () =&gt; {
+    it('turns true into "1"', () =&gt; assert.match('1', normalize_value(true)));
+});
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">assert.match()</span></code> takes the expected value first and the actual value second. utest’s own
+<a class="reference external" href="https://m00qek.github.io/utest/">documentation</a> covers the rest of its API: <code class="docutils literal notranslate"><span class="pre">describe</span></code>,
+<code class="docutils literal notranslate"><span class="pre">it</span></code>, <code class="docutils literal notranslate"><span class="pre">beforeEach</span></code>, the assertions and the mocks.</p>
+</section>
+<section id="mocks">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Mocks</a><a class="headerlink" href="#mocks" title="Link to this heading"></a></h3>
+<p>Only the modules listed under <code class="docutils literal notranslate"><span class="pre">mocks</span></code> in <code class="docutils literal notranslate"><span class="pre">utest.config.uc</span></code> can be mocked; currently those
+are <code class="docutils literal notranslate"><span class="pre">fs</span></code> and <code class="docutils literal notranslate"><span class="pre">_basic</span></code>. utest cannot look inside <code class="docutils literal notranslate"><span class="pre">_basic</span></code>, so it uses the proxy in
+<code class="docutils literal notranslate"><span class="pre">tests/ucode/utils/basic_proxy.uc</span></code> instead. That proxy lists every function <code class="docutils literal notranslate"><span class="pre">_basic.uc</span></code>
+exports, and the list has to be updated when one is added.</p>
+</section>
+<section id="testing-ansiblemodule">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Testing AnsibleModule</a><a class="headerlink" href="#testing-ansiblemodule" title="Link to this heading"></a></h3>
+<p>A module reads its arguments from a file and ends the process through <code class="docutils literal notranslate"><span class="pre">exit()</span></code>, which would
+take the test with it. <code class="docutils literal notranslate"><span class="pre">ansible_module()</span></code> in <code class="docutils literal notranslate"><span class="pre">tests/ucode/utils/ansible_module.uc</span></code> builds an
+<code class="docutils literal notranslate"><span class="pre">AnsibleModule</span></code> from a dictionary of arguments and catches the exit. It returns
+<code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">exited:</span> <span class="pre">false,</span> <span class="pre">value</span> <span class="pre">}</span></code> when the module was built, or <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">exited:</span> <span class="pre">true,</span> <span class="pre">rc,</span> <span class="pre">result</span> <span class="pre">}</span></code>
+when building it ended the module, as invalid arguments do. Call <code class="docutils literal notranslate"><span class="pre">reset()</span></code> from the same file in <code class="docutils literal notranslate"><span class="pre">afterEach</span></code>.</p>
+</section>
+<section id="testing-the-functions-inside-a-module">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Testing the functions inside a module</a><a class="headerlink" href="#testing-the-functions-inside-a-module" title="Link to this heading"></a></h3>
+<p>A module exports nothing, so its functions cannot be imported. <code class="docutils literal notranslate"><span class="pre">module_internals()</span></code>, also in
+<code class="docutils literal notranslate"><span class="pre">tests/ucode/utils/ansible_module.uc</span></code>, returns them as a dictionary keyed by name:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>import { module_internals } from 'utils.ansible_module';
+
+const to_id = module_internals('../../plugins/modules/group.uc').to_id;
+</pre></div>
+</div>
+<p>It runs the module only as far as a line ending in a <code class="docutils literal notranslate"><span class="pre">//</span> <span class="pre">END-OF-UNIT-TESTABLES</span></code> comment,
+with <code class="docutils literal notranslate"><span class="pre">AnsibleModule()</span></code> mocked. So the module needs that line, placed after its top-level
+functions and before the code that does the work. That is usually before the <em>main</em> block.
+Only functions declared at the top level, with <code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">name(</span></code> at the start of the line, are returned.</p>
+</section>
+</section>
+<section id="sanity-and-python-unit-tests">
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">Sanity and Python Unit Tests</a><a class="headerlink" href="#sanity-and-python-unit-tests" title="Link to this heading"></a></h2>
+<p>These use the standard Ansible tooling and are not Molecule-based. The unit tests here
+cover the Python side of the collection: action plugins and plugin utils.</p>
 <p>Sanity:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ansible-test<span class="w"> </span>sanity<span class="w"> </span>--docker<span class="w"> </span>default<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
 </pre></div>
@@ -321,7 +445,7 @@ comment). The actual platform list is read at runtime from
 on what the sanity checks cover.</p>
 </section>
 <section id="code-quality-and-linting-nox">
-<h2><a class="toc-backref" href="#id9" role="doc-backlink">Code Quality and Linting (nox)</a><a class="headerlink" href="#code-quality-and-linting-nox" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id15" role="doc-backlink">Code Quality and Linting (nox)</a><a class="headerlink" href="#code-quality-and-linting-nox" title="Link to this heading"></a></h2>
 <p>The collection uses <a class="reference external" href="https://nox.thea.codes/">nox</a> together with
 <a class="reference external" href="https://docs.ansible.com/projects/antsibull-nox/">antsibull-nox</a> to run linting,
 formatting, and other code-quality checks.</p>
@@ -380,7 +504,7 @@ reuse an existing one and save time on subsequent runs:</p>
 </div>
 </section>
 <section id="what-ci-runs">
-<h2><a class="toc-backref" href="#id10" role="doc-backlink">What CI Runs</a><a class="headerlink" href="#what-ci-runs" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id16" role="doc-backlink">What CI Runs</a><a class="headerlink" href="#what-ci-runs" title="Link to this heading"></a></h2>
 <p>For reference, here is what each CI job exercises:</p>
 <table class="docutils align-default">
 <colgroup>
@@ -405,19 +529,23 @@ reuse an existing one and save time on subsequent runs:</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecule-roles</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">nox</span> <span class="pre">-e</span> <span class="pre">roles</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span></code> (sanity)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ucode-units</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nox</span> <span class="pre">-e</span> <span class="pre">ucode_units</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span></code> (sanity)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span> <span class="pre">sanity</span> <span class="pre">--docker</span> <span class="pre">default</span> <span class="pre">--python</span> <span class="pre">&lt;version&gt;</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span></code> (units)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span></code> (units)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ansible-test</span> <span class="pre">units</span> <span class="pre">--docker</span> <span class="pre">default</span> <span class="pre">--python</span> <span class="pre">&lt;version&gt;</span></code></p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="further-reading">
-<h2><a class="toc-backref" href="#id11" role="doc-backlink">Further Reading</a><a class="headerlink" href="#further-reading" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id17" role="doc-backlink">Further Reading</a><a class="headerlink" href="#further-reading" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://ansible.readthedocs.io/projects/molecule/">Molecule documentation</a></p></li>
+<li><p><a class="reference external" href="https://m00qek.github.io/utest/">utest documentation</a></p></li>
 <li><p><a class="reference external" href="https://github.com/russoz/andebox">andebox documentation</a></p></li>
 <li><p><a class="reference external" href="https://github.com/openwrt/docker">OpenWrt container images</a></p></li>
 <li><p><a class="reference external" href="https://nox.thea.codes/">nox documentation</a></p></li>
