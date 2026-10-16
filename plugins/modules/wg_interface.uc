@@ -53,11 +53,11 @@ const module = AnsibleModule({
                 force_psk_rekey: { type: 'bool', default: false },
             },
         },
-        firewall_rule_id_tpl: { type: 'str', default: '{{ iface_name }}_in' },
-        firewall_rule_name_tpl: {
+        firewall_rule_id_template: { type: 'str', default: '{{ iface_name }}_in' },
+        firewall_rule_name_template: {
             type: 'str', default: 'Allow-Wan-{{ proto }}: {{ iface_name }}',
         },
-        peer_id_tpl: {
+        peer_id_template: {
             type: 'str',
             default: '{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}',
         },
@@ -142,7 +142,7 @@ function delete_interface(u, iface, proto) {
     }
 
     if (params.manage_firewall) {
-        let firewall_section = render_template(params.firewall_rule_id_tpl, {
+        let firewall_section = render_template(params.firewall_rule_id_template, {
             iface_name: iface.name, proto: proto, listen_port: iface.listen_port,
         });
         let current = u.get_all('firewall', firewall_section);
@@ -201,11 +201,11 @@ function upsert_interface(u, iface, proto) {
     if (!params.manage_firewall || iface.listen_port == null)
         return;
     let scope = { iface_name: iface.name, proto: proto, listen_port: iface.listen_port };
-    let section = render_template(params.firewall_rule_id_tpl, scope);
+    let section = render_template(params.firewall_rule_id_template, scope);
     if (section == '')
-        fail('firewall_rule_id_tpl rendered an empty section name');
+        fail('firewall_rule_id_template rendered an empty section name');
     let wanted = {
-        name: render_template(params.firewall_rule_name_tpl, scope),
+        name: render_template(params.firewall_rule_name_template, scope),
         src: 'wan', proto: 'udp', dest_port: iface.listen_port, target: 'ACCEPT',
     };
     let firewall_update = upsert_section(u, 'firewall', section, 'rule', wanted, {});
@@ -268,9 +268,9 @@ try {
 
     for (let peer in params.peers ?? []) {
         let proto = peer.proto ?? params.proto;
-        let section = peer_section(params.peer_id_tpl, peer.iface, peer.section, proto);
+        let section = peer_section(params.peer_id_template, peer.iface, peer.section, proto);
         if (section == '')
-            fail('peer_id_tpl rendered an empty section name');
+            fail('peer_id_template rendered an empty section name');
         let psk = !params.force_psk_rekey && !peer.force_psk_rekey
             ? u.get('network', section, 'preshared_key') : null;
         if (psk == null || psk == '') {

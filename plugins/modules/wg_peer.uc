@@ -28,7 +28,7 @@ const module = AnsibleModule({
                 allowed_ips: { type: 'list', elements: 'str' },
             },
         },
-        peer_id_tpl: {
+        peer_id_template: {
             type: 'str',
             default: '{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}',
         },
@@ -54,9 +54,9 @@ function peer_proto(u, peer) {
 }
 
 function section_id(peer, proto) {
-    let section = peer_section(params.peer_id_tpl, peer.iface, peer.section, proto);
+    let section = peer_section(params.peer_id_template, peer.iface, peer.section, proto);
     if (section == '')
-        fail('peer_id_tpl rendered an empty section name');
+        fail('peer_id_template rendered an empty section name');
     return section;
 }
 

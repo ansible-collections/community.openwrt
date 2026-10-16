@@ -5,7 +5,7 @@
 
 DOCUMENTATION:
   module: wg_peer
-  version_added: "1.9.0"
+  version_added: "1.10.0"
   short_description: Manage WireGuard/AmneziaWG peer UCI sections
   description:
     - Writes WireGuard/AmneziaWG peer UCI sections for an interface.
@@ -23,17 +23,17 @@ DOCUMENTATION:
   options:
     proto:
       description:
-        - Module-wide protocol, used as the default for every peer whose own C(proto)
+        - Module-wide protocol, used as the default for every peer whose own O(peers[].proto)
           is not set.
-        - Falls back to the interface section's C(proto) (then C(wireguard)) when the
-          peer's C(proto) and this option are both unset.
+        - Falls back to the interface section's C(proto) (then V(wireguard)) when
+          O(peers[].proto) and this option are both unset.
       type: str
       choices: [wireguard, amneziawg]
     state:
       description:
-        - Module-wide state, used as the default for every peer whose own C(state)
+        - Module-wide state, used as the default for every peer whose own O(peers[].state)
           is not set.
-        - An explicitly-set C(state) on an individual peer overrides this.
+        - An explicitly-set O(peers[].state) overrides this for that peer.
       type: str
       choices: [present, absent]
       default: present
@@ -52,20 +52,20 @@ DOCUMENTATION:
         state:
           description:
             - Whether the peer section should be present or absent.
-            - When C(absent), the peer section is removed.
+            - When V(absent), the peer section is removed.
             - Defaults to the module-wide O(state) when not set.
           type: str
           choices: [present, absent]
         section:
           description:
-            - Peer section suffix, available as C(section) in the O(peer_id_tpl) template
+            - Peer section suffix, available as C(section) in the O(peer_id_template) template
               scope when deriving the peer section id.
           type: str
         proto:
           description:
             - Peer protocol; the peer section type becomes C(<proto>_<iface>).
             - Defaults to the module-wide O(proto), then the interface's C(proto), then
-              C(wireguard) when not set.
+              V(wireguard) when not set.
           type: str
           choices: [wireguard, amneziawg]
         public_key:
@@ -105,17 +105,18 @@ DOCUMENTATION:
           type: list
           elements: str
           default: ['0.0.0.0/0', '::/0']
-    peer_id_tpl:
+    peer_id_template:
       description:
         - Ucode template for the peer UCI section id.
-        - Rendered with the C(iface_name), C(section) and C(proto) values in scope.
+        - "Rendered with these variables in scope: C(iface_name) (O(peers[].iface)),
+          C(section) (O(peers[].section)) and C(proto) (O(peers[].proto), O(proto) or the interface's C(proto))."
       type: str
       default: "{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}"
   notes:
     - This module writes peer UCI sections only; it does not establish tunnels.
-    - The peer section id is rendered from O(peer_id_tpl) and must match the id used by
+    - The peer section id is rendered from O(peer_id_template) and must match the id used by
       M(community.openwrt.wg_interface) when resolving pre-shared keys.
-    - Template options (O(peer_id_tpl)) use ucode's native template engine (Jinja-style
+    - Template options (O(peer_id_template)) use ucode's native template engine (Jinja-style
       C({{ ... }}) / C({% ... %})).
   extends_documentation_fragment:
     - community.openwrt.attributes
@@ -174,8 +175,3 @@ RETURN:
     returned: when any peer state is absent
     type: list
     elements: str
-  diff:
-    description: List of before/after diffs (pre-shared keys redacted), one entry per changed peer section.
-    returned: when diff mode and changes were detected
-    type: list
-    elements: dict

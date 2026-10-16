@@ -11,12 +11,12 @@ DOCUMENTATION:
     - Manages WireGuard/AmneziaWG identity keys, interface UCI sections and the WAN
       ingress firewall rule for each interface's listen port.
     - "The module performs the following steps in order:"
-    - "1. Determine the protocol (C(wireguard) by default) and the ubus key server from the configured interfaces."
-    - "2. Resolve the host identity key, reading it from every managed interface, failing on a hard mismatch (two distinct keys), otherwise reusing the single existing key or generating a fresh one via ubus, and deriving and reporting the public key."
-    - "3. Apply the identity key to every managed interface (propagating it to interfaces missing one, or a fresh key on C(force_rekey))."
-    - "4. Remove interfaces whose state is C(absent), dropping the interface section, its peer sections and its WAN ingress rule."
-    - "5. Write each interface UCI section, including AWG 3.x/3.1 options when C(proto=amneziawg), and ensure the WAN ingress ACCEPT rule for its listen port (unless C(manage_firewall=false))."
-    - "6. Resolve or generate a per-peer pre-shared key (C(genpsk)) for each peer skeleton, reusing an existing on-device PSK, and return them keyed by interface name."
+    - "1. Determine the protocol (V(wireguard) by default) and the ubus key server from the configured interfaces."
+    - "2. Resolve the host identity key, reading it from every interface in O(managed_interfaces), failing on a hard mismatch (two distinct keys), otherwise reusing the single existing key or generating a fresh one via ubus, and deriving and reporting the public key."
+    - "3. Apply the identity key to every interface in O(managed_interfaces) (propagating it to interfaces missing one, or a fresh key on O(force_rekey=true))."
+    - "4. Remove interfaces whose O(interfaces[].state) or O(state) is V(absent), dropping the interface section, its peer sections and its WAN ingress rule."
+    - "5. Write each interface UCI section, including AWG 3.x/3.1 options when O(proto=amneziawg), and ensure the WAN ingress ACCEPT rule for its listen port (unless O(manage_firewall=false))."
+    - "6. Resolve or generate a pre-shared key for each entry in O(peers), reusing an existing on-device PSK or generating one with the ubus C(genpsk) method, and return them in RV(psks), in the same order as O(peers)."
     - For the available WireGuard UCI config options see U(https://openwrt.org/docs/guide-user/services/vpn/wireguard/start).
     - "AmneziaWG support relies on the C(amneziawg) ubus key server; see U(https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg)."
   attributes:
@@ -32,25 +32,31 @@ DOCUMENTATION:
     proto:
       description:
         - Module-wide protocol, used as the default for every entry in O(interfaces)
-          and O(peers) whose own C(proto) is not set.
-        - An explicitly-set C(proto) on an individual interface or peer overrides this.
+          and O(peers) whose own O(interfaces[].proto) or O(peers[].proto) is not set.
+        - An explicitly-set O(interfaces[].proto) or O(peers[].proto) overrides this for that entry.
       type: str
       choices: [wireguard, amneziawg]
       default: wireguard
     state:
       description:
         - Module-wide state, used as the default for every entry in O(interfaces)
-          whose own C(state) is not set.
+          whose own O(interfaces[].state) is not set.
         - An explicitly-set O(interfaces[].state) overrides this for that interface.
       type: str
       choices: [present, absent]
       default: present
     managed_interfaces:
       description:
-        - List of interface names on the host, used for identity-key consistency checks.
-        - When not given, it is derived from the interfaces being kept (those whose
-          C(state) is not C(absent)). A pure-removal run therefore performs no key
-          management.
+        - Names of all the interfaces on the host that share the host identity key.
+        - The module reads the private key from each of them, fails if they hold different keys
+          (unless O(force_rekey=true)), and writes the identity key to those missing one.
+        - Use it when O(interfaces) does not list every interface of the host, for instance when
+          a play run with C(--tags) configures only one point-to-point link out of several. Listing
+          all of them here keeps that link on the same key as the others.
+        - When not given, it is derived from O(interfaces), from the entries whose state is not
+          V(absent). So when O(interfaces) already lists every interface of the host, or when each
+          interface may have its own key, this option can be omitted.
+        - A run that only removes interfaces, with this option not given, does no key management.
       type: list
       elements: str
     interfaces:
@@ -112,47 +118,54 @@ DOCUMENTATION:
         awg_tuning:
           description:
             - AmneziaWG tuning and 3.x/3.1 options (C(awg_*) keys) applied verbatim.
-            - Only meaningful when C(proto=amneziawg); ignored for C(proto=wireguard).
+            - Only meaningful when the interface protocol is V(amneziawg); ignored for V(wireguard).
           type: dict
     force_rekey:
       description:
         - Regenerate the identity key even if one exists.
+        - When V(true), the module is not idempotent and always reports a change.
       type: bool
       default: false
     force_psk_rekey:
       description:
         - Regenerate every peer PSK even if one already exists on-device.
+        - When V(true), the module is not idempotent and always reports a change.
       type: bool
       default: false
     manage_firewall:
       description:
         - Whether to (re)write the WAN ingress ACCEPT rule for each interface listen port.
-        - Set to false when firewall management is handled elsewhere.
+        - Set to V(false) when firewall management is handled elsewhere.
       type: bool
       default: true
-    firewall_rule_id_tpl:
+    firewall_rule_id_template:
       description:
         - Ucode template for the UCI section id of the WAN ingress firewall rule.
-        - Rendered with the C(iface_name), C(proto) and C(listen_port) values in scope.
+        - "Rendered with these variables in scope: C(iface_name) (O(interfaces[].name)),
+          C(proto) (O(interfaces[].proto) or O(proto)) and C(listen_port) (O(interfaces[].listen_port))."
       type: str
       default: "{{ iface_name }}_in"
-    firewall_rule_name_tpl:
+    firewall_rule_name_template:
       description:
         - Ucode template for the C(name)/description of the WAN ingress firewall rule.
-        - Rendered with the C(iface_name), C(proto) and C(listen_port) values in scope.
+        - "Rendered with these variables in scope: C(iface_name) (O(interfaces[].name)),
+          C(proto) (O(interfaces[].proto) or O(proto)) and C(listen_port) (O(interfaces[].listen_port))."
       type: str
       default: "Allow-Wan-{{ proto }}: {{ iface_name }}"
-    peer_id_tpl:
+    peer_id_template:
       description:
         - Ucode template for the peer UCI section id, used to locate a reusable on-device
           pre-shared key for idempotency.
-        - Rendered with the C(iface_name), C(section) and C(proto) values in scope.
+        - "Rendered with these variables in scope: C(iface_name) (O(peers[].iface)),
+          C(section) (O(peers[].section)) and C(proto) (O(peers[].proto) or O(proto))."
+        - Must render the same id as O(community.openwrt.wg_peer#module:peer_id_template).
       type: str
       default: "{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}"
     peers:
       description:
-        - "Optional list of peer section skeletons. For each, the module resolves (but does not store) the pre-shared key: reuses an existing on-device PSK or generates one via ubus genpsk."
-        - "Resolved keys are returned in psks keyed by interface name so the controller can distribute the shared key to both ends."
+        - "Optional list of peer section skeletons. For each, the module resolves (but does not store) the pre-shared key: it reuses an existing on-device PSK or generates one with the ubus C(genpsk) method."
+        - Resolved keys are returned in RV(psks), in the same order as this list, so the controller
+          can distribute each shared key to both ends.
       type: list
       elements: dict
       suboptions:
@@ -163,10 +176,9 @@ DOCUMENTATION:
           required: true
         section:
           description:
-            - Peer section suffix, available as C(section) in the O(peer_id_tpl) template
+            - Peer section suffix, available as C(section) in the O(peer_id_template) template
               scope when resolving the pre-shared key.
           type: str
-          default: peer
         proto:
           description:
             - Peer protocol.
@@ -179,8 +191,7 @@ DOCUMENTATION:
           type: bool
           default: false
   requirements:
-    - The C(wireguard) ubus object (provided by C(rpcd-mod-wireguard) with C(rpcd) running,
-      or the C(amneziawg) object) to generate identity keys and peer PSKs.
+    - C(rpcd-mod-wireguard), or C(rpcd-mod-amneziawg) for AmneziaWG, with C(rpcd) running.
   notes:
     - The module writes UCI configuration only; it does not bring the interface up or
       establish tunnels.
@@ -191,8 +202,9 @@ DOCUMENTATION:
       while each peer gets its own distinct pre-shared key.
       This keeps monitoring and peer mapping simple.
       The host is identified by one public key, and every peer link is identified by its unique PSK.
-    - Template options (C(*_tpl)) use ucode's native template engine (Jinja-style
+    - Template options (C(*_template)) use ucode's native template engine (Jinja-style
       C({{ ... }}) / C({% ... %})).
+    - This module is not tested on OpenWrt 23.05, which has no C(rpcd-mod-wireguard) package.
   extends_documentation_fragment:
     - community.openwrt.attributes
   author:
@@ -257,12 +269,7 @@ RETURN:
     returned: always
     type: bool
   removed_interfaces:
-    description: Names of interfaces removed because their O(interfaces[].state) was C(absent).
+    description: Names of interfaces removed because their O(interfaces[].state) was V(absent).
     returned: when any interface state is absent
     type: list
     elements: str
-  diff:
-    description: List of before/after diffs (private keys redacted), one entry per changed section.
-    returned: when diff mode and changes were detected
-    type: list
-    elements: dict
