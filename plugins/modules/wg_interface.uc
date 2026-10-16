@@ -218,6 +218,8 @@ function upsert_interface(u, iface, proto) {
     }
 }
 
+// END-OF-UNIT-TESTABLES
+
 try {
     let u = cursor();
     if (u == null)

@@ -1,0 +1,223 @@
+---
+# Copyright (c) 2026, Vladimir Ermakov (@vooon)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# wg_peer only writes UCI sections: made-up keys will do, and no ubus key server is needed.
+
+- name: Set test keys
+  ansible.builtin.set_fact:
+    peer_public_key: "AFakePeerPublicKeyAFakePeerPublicKeyAFakePe="
+    peer_psk: "AFakePeerPresharedKeyAFakePeerPresharedKeyA="
+    peer_psk_new: "ANewFakePeerPresharedKeyANewFakePeerPreshar="
+
+- name: Create the test interfaces
+  community.openwrt.command:
+    cmd: >-
+      test -e /etc/config/network || touch /etc/config/network;
+      uci set network.wg0=interface;
+      uci set network.wg0.proto=wireguard;
+      uci set network.awg1=interface;
+      uci set network.awg1.proto=amneziawg;
+      uci commit network
+    uses_shell: true
+  changed_when: false
+
+- name: Add a peer in check mode
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        public_key: "{{ peer_public_key }}"
+        preshared_key: "{{ peer_psk }}"
+  check_mode: true
+  register: peer_check
+
+- name: Read the peer after check mode
+  community.openwrt.command:
+    cmd: uci -q get network.peer_wg0
+  register: peer_after_check
+  failed_when: false
+  changed_when: false
+
+- name: Assert check mode
+  ansible.builtin.assert:
+    that:
+      - peer_check is changed
+      - peer_after_check.rc != 0
+
+- name: Add a peer
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        public_key: "{{ peer_public_key }}"
+        preshared_key: "{{ peer_psk }}"
+        endpoint_host: peer.example.com
+        endpoint_port: 51820
+        persistent_keepalive: 25
+        allowed_ips: [10.0.0.2/32]
+  diff: true
+  register: peer_add
+
+- name: Read the peer
+  community.openwrt.command:
+    cmd: uci show network.peer_wg0
+  register: peer_show
+  changed_when: false
+
+- name: Assert the peer was added
+  ansible.builtin.assert:
+    that:
+      - peer_add is changed
+      - peer_add.peers == ["peer_wg0"]
+      - "'network.peer_wg0=wireguard_wg0' in peer_show.stdout_lines"
+      - "\"network.peer_wg0.public_key='\" ~ peer_public_key ~ \"'\" in peer_show.stdout_lines"
+      - "\"network.peer_wg0.preshared_key='\" ~ peer_psk ~ \"'\" in peer_show.stdout_lines"
+      - "\"network.peer_wg0.endpoint_host='peer.example.com'\" in peer_show.stdout_lines"
+      - "\"network.peer_wg0.endpoint_port='51820'\" in peer_show.stdout_lines"
+      - "\"network.peer_wg0.allowed_ips='10.0.0.2/32'\" in peer_show.stdout_lines"
+      - peer_add.diff | length == 1
+      - peer_psk not in (peer_add.diff | to_json)
+
+- name: Add the peer again
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        public_key: "{{ peer_public_key }}"
+        preshared_key: "{{ peer_psk }}"
+        endpoint_host: peer.example.com
+        endpoint_port: 51820
+        persistent_keepalive: 25
+        allowed_ips: [10.0.0.2/32]
+  register: peer_add_again
+
+- name: Assert idempotency
+  ansible.builtin.assert:
+    that:
+      - peer_add_again is not changed
+
+- name: Replace the pre-shared key
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        public_key: "{{ peer_public_key }}"
+        preshared_key: "{{ peer_psk_new }}"
+        endpoint_host: peer.example.com
+        endpoint_port: 51820
+        persistent_keepalive: 25
+        allowed_ips: [10.0.0.2/32]
+  diff: true
+  register: peer_psk_replace
+
+- name: Read the replaced pre-shared key
+  community.openwrt.command:
+    cmd: uci get network.peer_wg0.preshared_key
+  register: peer_psk_after_replace
+  changed_when: false
+
+- name: Assert the pre-shared key was replaced
+  ansible.builtin.assert:
+    that:
+      - peer_psk_replace is changed
+      - peer_psk_after_replace.stdout == peer_psk_new
+      - peer_psk not in (peer_psk_replace.diff | to_json)
+      - peer_psk_new not in (peer_psk_replace.diff | to_json)
+
+- name: Drop the pre-shared key
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        public_key: "{{ peer_public_key }}"
+        endpoint_host: peer.example.com
+        endpoint_port: 51820
+        persistent_keepalive: 25
+        allowed_ips: [10.0.0.2/32]
+  register: peer_psk_drop
+
+- name: Read the dropped pre-shared key
+  community.openwrt.command:
+    cmd: uci -q get network.peer_wg0.preshared_key
+  register: peer_psk_after_drop
+  failed_when: false
+  changed_when: false
+
+- name: Assert the pre-shared key was dropped
+  ansible.builtin.assert:
+    that:
+      - peer_psk_drop is changed
+      - peer_psk_after_drop.rc != 0
+
+- name: Add peers with sections and protocols taken from their interfaces
+  community.openwrt.wg_peer:
+    peers:
+      - iface: wg0
+        section: spoke1
+        public_key: "{{ peer_public_key }}"
+      - iface: awg1
+        public_key: "{{ peer_public_key }}"
+  register: peer_derived
+
+- name: Read the derived peer types
+  community.openwrt.command:
+    cmd: uci get network.{{ item }}
+  loop: [peer_wg0_spoke1, peer_awg1]
+  register: peer_derived_types
+  changed_when: false
+
+- name: Assert the derived peers
+  ansible.builtin.assert:
+    that:
+      - peer_derived is changed
+      - peer_derived.peers == ["peer_wg0_spoke1", "peer_awg1"]
+      - peer_derived_types.results | map(attribute='stdout') | list == ["wireguard_wg0", "amneziawg_awg1"]
+
+- name: Remove the peers in check mode
+  community.openwrt.wg_peer:
+    state: absent
+    peers:
+      - iface: wg0
+      - iface: wg0
+        section: spoke1
+      - iface: awg1
+  check_mode: true
+  register: peer_remove_check
+
+- name: Remove the peers
+  community.openwrt.wg_peer:
+    state: absent
+    peers:
+      - iface: wg0
+      - iface: wg0
+        section: spoke1
+      - iface: awg1
+  register: peer_remove
+
+- name: Remove the peers again
+  community.openwrt.wg_peer:
+    state: absent
+    peers:
+      - iface: wg0
+      - iface: wg0
+        section: spoke1
+      - iface: awg1
+  register: peer_remove_again
+
+- name: Read the network config after removal
+  community.openwrt.command:
+    cmd: uci show network
+  register: network_after_remove
+  changed_when: false
+
+- name: Assert removal
+  ansible.builtin.assert:
+    that:
+      - peer_remove_check is changed
+      - peer_remove is changed
+      - peer_remove.removed == ["peer_wg0", "peer_wg0_spoke1", "peer_awg1"]
+      - peer_remove_again is not changed
+      - "'peer_' not in network_after_remove.stdout"
+
+- name: Remove the test interfaces
+  community.openwrt.command:
+    cmd: uci delete network.wg0; uci delete network.awg1; uci commit network
+    uses_shell: true
+  changed_when: false
