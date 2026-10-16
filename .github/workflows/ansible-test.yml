@@ -232,6 +232,25 @@ jobs:
       - name: Run nox
         run: nox
 
+  ucode-units:
+    name: Unit (ucode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Install nox
+        run: pip install -r requirements-test.txt
+
+      - name: Run ucode unit tests
+        run: nox -e ucode_units -- --summary "$GITHUB_STEP_SUMMARY"
+
   molecule:
     name: Default test (Ⓐ${{ matrix.ansible }}+py${{ matrix.python }})
     runs-on: ubuntu-latest

@@ -237,6 +237,8 @@ function group_present(groups) {
     result.update({ gid: gid, system: params.system });
 }
 
+// END-OF-UNIT-TESTABLES
+
 // ---- main -----------------------------------------------------------------
 
 if (params.name == '' || match(params.name, /[:\n]/))

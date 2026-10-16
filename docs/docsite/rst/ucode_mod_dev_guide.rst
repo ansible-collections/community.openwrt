@@ -403,8 +403,9 @@ it into a ``fail_json()``:
 Testing
 ^^^^^^^
 
-Integration tests are where a ucode module is proven. There is no unit testing for ``.uc`` files - unit tests
-in this collection cover the Python side - so write the integration target as you write the module.
+Integration tests are where a ucode module is proven, so write the integration target as you would use the module.
+Unit tests have a narrower job: they check the module utils, and the helper functions inside a module, in
+isolation.
 
 Put the target in ``tests/integration/targets/<name>/`` and run it with:
 
@@ -414,8 +415,17 @@ Put the target in ``tests/integration/targets/<name>/`` and run it with:
 
 It runs against every OpenWrt version in ``tests/molecule/openwrt.yml``. Test through the module, not around
 it: give it parameters, assert what it returns and what it left on the device, run each task a second time and
-assert it reports no change, and cover check mode where the module claims to support it. The
-:ref:`ansible_collections.community.openwrt.docsite.testing_guide` has the rest.
+assert it reports no change, and cover check mode where the module claims to support it.
+
+ucode unit tests are written with `utest <https://github.com/m00qek/utest>`_ and live under
+``tests/ucode/``. They are worth writing for a module util, and for a helper whose cases are tedious to reach
+through the module, such as a parser of edge-case input. Run them with:
+
+.. code-block:: console
+
+   $ nox -e ucode_units
+
+The :ref:`ansible_collections.community.openwrt.docsite.testing_guide` has more details.
 
 Sanity tests reject a module whose file is not ``.py`` or ``.ps1``, so every ucode module needs a line in each
 ``tests/sanity/ignore-X.Y.txt``:
@@ -424,7 +434,7 @@ Sanity tests reject a module whose file is not ``.py`` or ``.ps1``, so every uco
 
    plugins/modules/<name>.uc validate-modules:invalid-extension
 
-Run the sanity and unit tests with:
+Run the sanity tests, and the unit tests for the Python side, with:
 
 .. code-block:: console
 

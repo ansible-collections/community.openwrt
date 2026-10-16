@@ -52,7 +52,13 @@ Already familiar with Molecule and just need the commands?  Here you go.
 
    $ nox -e roles
 
-**Sanity / unit tests:**
+**ucode unit tests:**
+
+.. code-block:: console
+
+   $ nox -e ucode_units
+
+**Sanity / Python unit tests:**
 
 .. code-block:: console
 
@@ -94,7 +100,7 @@ The test suite is built around Molecule, which orchestrates Docker containers ru
 actual OpenWrt root filesystem images. This means your tests exercise real OpenWrt
 userspace — BusyBox shell, ``uci``, ``opkg``, etc. — rather than mocks.
 
-The collection tests fall into three broad categories:
+The collection tests fall into four broad categories:
 
    Integration tests (modules)
        Tests under ``tests/integration/targets/<module>/`` that verify each module's
@@ -106,6 +112,11 @@ The collection tests fall into three broad categories:
 
    Collection tests
        Tests under ``extensions/molecule`` that do not fall under the previous categories.
+
+   ucode unit tests
+       Tests under ``tests/ucode/`` that check module utils and functions inside modules
+       in isolation, written with utest. These are not Molecule-based, and may use mocks
+       (see `ucode Unit Tests`_).
 
 All categories use real OpenWrt container images. The list of tested OpenWrt versions
 is maintained in a single file: ``tests/molecule/openwrt.yml``.
@@ -189,10 +200,128 @@ comment). The actual platform list is read at runtime from
 ``tests/molecule/openwrt.yml`` by the shared ``create.yml`` playbook.
 
 
-Sanity and Unit Tests
-^^^^^^^^^^^^^^^^^^^^^
+ucode Unit Tests
+^^^^^^^^^^^^^^^^
 
-These use the standard Ansible tooling and are not Molecule-based.
+Integration tests prove a module through its interface. Some code is better checked
+directly: the module utils under ``plugins/module_utils/``, and the helper functions
+inside a module whose edge cases would take a playbook each to reach. Those are
+covered by unit tests written in ucode with `utest <https://m00qek.github.io/utest/>`_.
+
+Running them
+""""""""""""
+
+.. code-block:: console
+
+   $ nox -e ucode_units
+
+The session starts a container for each OpenWrt version in ``tests/molecule/openwrt.yml``,
+installs utest in it, and runs every test file under ``tests/ucode/``. utest is not part of
+OpenWrt: it comes from a third-party package feed, pinned by version and checksum in
+``UTEST_PACKAGES`` in ``noxfile.py``. A version without a package there is skipped, which
+currently means the unit tests run on 24.10 and 25.12 only.
+
+The session takes these options of its own:
+
+``--openwrt VERSION``
+    Run against that version only. Repeatable.
+
+``--summary FILE``
+    Append a Markdown report to ``FILE``. This is what CI uses to write the job summary.
+
+Everything else is passed to utest. The useful ones are:
+
+``-r detailed``
+    Print every test, not just the failures. The default reporter is ``compact``.
+
+``-f REGEX``
+    Run only the tests whose full name matches ``REGEX``.
+
+``-s SEED``
+    utest runs the test files in random order. Pass the seed of a failed run to repeat it.
+
+For example:
+
+.. code-block:: console
+
+   $ nox -e ucode_units -- --openwrt 25.12 -r detailed -f 'to_id'
+
+Layout
+""""""
+
+``tests/ucode/`` mirrors ``tests/unit/``: the tests for ``plugins/<type>/<name>.uc`` go in
+``tests/ucode/plugins/<type>/test_<name>.uc``. Tests for a large file may be split into a
+directory named after it, as with ``plugins/module_utils/_basic/``.
+
+.. code-block:: text
+
+   tests/ucode/
+     utest.config.uc         ← search path, reporter and mocks
+     utils/                  ← helpers shared by the tests
+     plugins/
+       module_utils/
+         _basic/
+           test_<topic>.uc
+         test_uci.uc
+       modules/
+         test_group.uc
+
+``utest.config.uc`` puts ``plugins/module_utils/`` on the module search path, so a test
+imports a module util by its name, as a module does:
+
+.. code-block:: text
+
+   import { describe, it, assert } from 'utest';
+   import { normalize_value } from '_uci';
+
+   describe('normalize_value()', () => {
+       it('turns true into "1"', () => assert.match('1', normalize_value(true)));
+   });
+
+``assert.match()`` takes the expected value first and the actual value second. utest's own
+`documentation <https://m00qek.github.io/utest/>`_ covers the rest of its API: ``describe``,
+``it``, ``beforeEach``, the assertions and the mocks.
+
+Mocks
+"""""
+
+Only the modules listed under ``mocks`` in ``utest.config.uc`` can be mocked; currently those
+are ``fs`` and ``_basic``. utest cannot look inside ``_basic``, so it uses the proxy in
+``tests/ucode/utils/basic_proxy.uc`` instead. That proxy lists every function ``_basic.uc``
+exports, and the list has to be updated when one is added.
+
+Testing AnsibleModule
+"""""""""""""""""""""
+
+A module reads its arguments from a file and ends the process through ``exit()``, which would
+take the test with it. ``ansible_module()`` in ``tests/ucode/utils/ansible_module.uc`` builds an
+``AnsibleModule`` from a dictionary of arguments and catches the exit. It returns
+``{ exited: false, value }`` when the module was built, or ``{ exited: true, rc, result }``
+when building it ended the module, as invalid arguments do. Call ``reset()`` from the same file in ``afterEach``.
+
+Testing the functions inside a module
+"""""""""""""""""""""""""""""""""""""
+
+A module exports nothing, so its functions cannot be imported. ``module_internals()``, also in
+``tests/ucode/utils/ansible_module.uc``, returns them as a dictionary keyed by name:
+
+.. code-block:: text
+
+   import { module_internals } from 'utils.ansible_module';
+
+   const to_id = module_internals('../../plugins/modules/group.uc').to_id;
+
+It runs the module only as far as a line ending in a ``// END-OF-UNIT-TESTABLES`` comment,
+with ``AnsibleModule()`` mocked. So the module needs that line, placed after its top-level
+functions and before the code that does the work. That is usually before the *main* block.
+Only functions declared at the top level, with ``function name(`` at the start of the line, are returned.
+
+
+Sanity and Python Unit Tests
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These use the standard Ansible tooling and are not Molecule-based. The unit tests here
+cover the Python side of the collection: action plugins and plugin utils.
 
 Sanity:
 
@@ -286,6 +415,8 @@ For reference, here is what each CI job exercises:
      - ``nox -e integration``
    * - ``molecule-roles``
      - ``nox -e roles``
+   * - ``ucode-units``
+     - ``nox -e ucode_units``
    * - ``ansible-test`` (sanity)
      - ``ansible-test sanity --docker default --python <version>``
    * - ``ansible-test`` (units)
@@ -296,6 +427,7 @@ Further Reading
 ^^^^^^^^^^^^^^^
 
 - `Molecule documentation <https://ansible.readthedocs.io/projects/molecule/>`_
+- `utest documentation <https://m00qek.github.io/utest/>`_
 - `andebox documentation <https://github.com/russoz/andebox>`_
 - `OpenWrt container images <https://github.com/openwrt/docker>`_
 - `nox documentation <https://nox.thea.codes/>`_
