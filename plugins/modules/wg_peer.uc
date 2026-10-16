@@ -82,6 +82,8 @@ function remove_peer(u, peer, proto) {
 
 function upsert_peer(u, peer, proto) {
     let section = section_id(peer, proto);
+    if (peer.public_key == null || peer.public_key == '')
+        fail(`public_key is required for present peer ${section}`);
     let section_type = `${proto}_${peer.iface}`;
     let suffix = peer.section ?? '';
     let wanted = {

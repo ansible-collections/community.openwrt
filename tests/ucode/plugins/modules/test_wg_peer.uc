@@ -112,6 +112,10 @@ describe('wg_peer: upsert_peer()', () => {
         assert.match([ '10.0.0.2/32' ], u.get('network', 'peer_wg1', 'allowed_ips'));
     });
 
+    it('fails without a public key', () => {
+        assert.throws(() => fn.upsert_peer(u, { iface: 'wg1' }, 'wireguard'), 'public_key is required');
+    });
+
     it('drops an existing pre-shared key when none is given', () => {
         fn.upsert_peer(u, { iface: 'wg0', public_key: 'NEW' }, 'wireguard');
         assert.match('NEW', u.get('network', 'peer_wg0', 'public_key'));
