@@ -19,13 +19,10 @@ export function render_template(source, scope) {
     }
 
     let output = '';
-    let template = loadstring(source, { raw_mode: false });
-    if (template != null) {
-        try {
-            output = sprintf('%s', render(template));
-        } catch (e) {
-            output = '';
-        }
+    try {
+        output = sprintf('%s', render(loadstring(source, { raw_mode: false })));
+    } catch (e) {
+        output = '';
     }
 
     for (let name in saved)
