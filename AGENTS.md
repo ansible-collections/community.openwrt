@@ -44,6 +44,8 @@
 - Shared ucode code lives in `plugins/module_utils/*.uc`. `_basic.uc` is always transferred and provides
   `AnsibleModule` (argument spec, check mode, result building, `run_command()`, `deprecate()`); other
   module_utils are transferred only when declared in the action plugin's `module_utils` list.
+- Why the collection is built this way, and what follows from it for users and module authors, is explained
+  in `docs/docsite/rst/architecture.rst`.
 - The full architecture and API are documented in `docs/docsite/rst/ucode_mod_dev_guide.rst`, and the
   ucode pitfalls in `docs/docsite/rst/ucode_language_notes.rst`. Read them before touching modules,
   action plugins, module_utils, or `ucode_wrapper.sh`, rather than relying on assumptions from other
