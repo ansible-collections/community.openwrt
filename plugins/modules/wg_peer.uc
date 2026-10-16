@@ -110,6 +110,8 @@ function upsert_peer(u, peer, proto) {
     push(output.peers, section);
 }
 
+// END-OF-UNIT-TESTABLES
+
 try {
     let u = cursor();
     if (u == null)

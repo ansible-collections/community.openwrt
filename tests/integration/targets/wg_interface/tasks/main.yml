@@ -7,38 +7,47 @@
   ansible.builtin.include_role:
     name: community.openwrt.init
 
-- name: Ensure WireGuard userspace and ubus key server are installed (apk)
-  when: openwrt_package_manager == "apk"
-  community.openwrt.apk:
-    name: "wireguard-tools,rpcd-mod-wireguard"
-    state: present
+- name: Gather facts
+  community.openwrt.setup:
 
-- name: Ensure WireGuard userspace is installed (opkg)
-  when: openwrt_package_manager == "opkg"
-  community.openwrt.opkg:
-    name: wireguard-tools
-    state: present
-
-- name: Start rpcd
-  community.openwrt.service:
-    name: rpcd
-    state: started
-    enabled: true
-
-- name: Check for the wireguard ubus object
-  community.openwrt.command:
-    cmd: ubus list wireguard
-  register: wg_ubus
-  ignore_errors: true
-
+# OpenWrt 23.05 has no rpcd-mod-wireguard package, so no wireguard ubus object
 - name: Record WireGuard test availability
   ansible.builtin.set_fact:
-    wg_ubus_available: "{{ wg_ubus is succeeded }}"
+    wg_ubus_available: "{{ ansible_distribution_version is version('24.10', '>=') }}"
 
 - name: Explain skipped WireGuard tests
   when: not wg_ubus_available
   ansible.builtin.debug:
-    msg: Skipping WireGuard tests because the wireguard ubus object is unavailable
+    msg: Skipping WireGuard tests because OpenWrt {{ ansible_distribution_version }} does not provide the wireguard ubus object
+
+- name: Ensure WireGuard userspace and ubus key server are installed (apk)
+  when:
+    - wg_ubus_available
+    - openwrt_package_manager == "apk"
+  community.openwrt.apk:
+    name: "wireguard-tools,rpcd-mod-wireguard"
+    state: present
+
+- name: Ensure WireGuard userspace and ubus key server are installed (opkg)
+  when:
+    - wg_ubus_available
+    - openwrt_package_manager == "opkg"
+  community.openwrt.opkg:
+    name: "wireguard-tools,rpcd-mod-wireguard"
+    state: present
+
+- name: Restart rpcd to load the wireguard ubus object
+  when: wg_ubus_available
+  community.openwrt.service:
+    name: rpcd
+    state: restarted
+    enabled: true
+
+- name: Check for the wireguard ubus object
+  when: wg_ubus_available
+  community.openwrt.command:
+    cmd: ubus list wireguard
+  changed_when: false
 
 - name: Ensure test UCI configs exist
   when: wg_ubus_available
@@ -171,6 +180,37 @@
     that:
       - wg_interface_check is changed
       - wg_port_after_check.result == "51820"
+
+- name: Regenerate the identity key
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    managed_interfaces: [wg0]
+    force_rekey: true
+    interfaces:
+      - name: wg0
+        listen_port: 51820
+        addresses: [10.0.0.1/24]
+  register: wg_interface_rekey
+
+- name: Regenerate the identity key again
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    managed_interfaces: [wg0]
+    force_rekey: true
+    interfaces:
+      - name: wg0
+        listen_port: 51820
+        addresses: [10.0.0.1/24]
+  register: wg_interface_rekey_again
+
+- name: Assert force_rekey always replaces the key
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_interface_rekey is changed
+      - wg_interface_rekey_again is changed
+      - wg_interface_rekey.public_key != wg_interface.public_key
+      - wg_interface_rekey_again.public_key != wg_interface_rekey.public_key
 
 - name: Remove the WireGuard peer
   when: wg_ubus_available

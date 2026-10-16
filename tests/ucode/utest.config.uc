@@ -8,6 +8,7 @@ return {
     lib_paths: [ '../../plugins/module_utils' ],
     mocks: {
         fs: null,
+        ubus: null,
         _basic: { proxy: 'utils/basic_proxy.uc' },
     },
 };
