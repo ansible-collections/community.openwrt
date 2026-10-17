@@ -261,7 +261,7 @@ RETURN:
   psks:
     description:
       - Resolved (not stored) peer pre-shared keys, as a list parallel to O(peers)
-        (C(psks[i]) is the key for O(peers[i])). The controller zips the two lists to
+        (O(psks[i]) is the key for O(peers[i])). The controller zips the two lists to
         distribute each shared key to both ends.
     returned: when O(peers) is given
     type: list
