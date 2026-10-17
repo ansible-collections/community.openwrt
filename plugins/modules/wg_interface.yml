@@ -191,7 +191,9 @@ DOCUMENTATION:
           type: bool
           default: false
   requirements:
-    - C(rpcd-mod-wireguard), or C(rpcd-mod-amneziawg) for AmneziaWG, with C(rpcd) running.
+    - C(rpcd) must be running (default behavior in standard OpenWrt).
+    - C(rpcd-mod-wireguard).
+    - The custom module C(rpcd-mod-amneziawg) for AmneziaWG, from U(https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg).
   notes:
     - The module writes UCI configuration only; it does not bring the interface up or
       establish tunnels.
