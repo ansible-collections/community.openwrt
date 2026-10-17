@@ -198,7 +198,7 @@ DOCUMENTATION:
     - The module writes UCI configuration only; it does not bring the interface up nor
       establish tunnels.
     - The identity key and peer PSKs are generated via ubus; the C(wireguard) object is used
-      as a fallback when the requested C(amneziawg) object is not available.
+      as a fallback whenever the call to the C(amneziawg) object fails or returns no result.
     - >-
       It is an intended design decision that all managed interfaces on a host share the same private key (and therefore the same public key),
       while each peer gets its own distinct pre-shared key.
