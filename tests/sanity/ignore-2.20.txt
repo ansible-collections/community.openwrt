@@ -17,3 +17,5 @@ plugins/modules/tempfile.uc validate-modules:invalid-extension
 plugins/modules/uci.uc validate-modules:invalid-extension
 plugins/modules/ucode_wrapper.sh shebang
 plugins/modules/ucode_wrapper.sh validate-modules:invalid-extension
+plugins/modules/wg_interface.uc validate-modules:invalid-extension
+plugins/modules/wg_peer.uc validate-modules:invalid-extension

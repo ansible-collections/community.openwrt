@@ -286,7 +286,7 @@ Mocks
 """""
 
 Only the modules listed under ``mocks`` in ``utest.config.uc`` can be mocked; currently those
-are ``fs`` and ``_basic``. utest cannot look inside ``_basic``, so it uses the proxy in
+are ``fs``, ``ubus`` and ``_basic``. utest cannot look inside ``_basic``, so it uses the proxy in
 ``tests/ucode/utils/basic_proxy.uc`` instead. That proxy lists every function ``_basic.uc``
 exports, and the list has to be updated when one is added.
 
@@ -315,6 +315,8 @@ It runs the module only as far as a line ending in a ``// END-OF-UNIT-TESTABLES`
 with ``AnsibleModule()`` mocked. So the module needs that line, placed after its top-level
 functions and before the code that does the work. That is usually before the *main* block.
 Only functions declared at the top level, with ``function name(`` at the start of the line, are returned.
+The optional second argument is the object the mocked ``AnsibleModule()`` returns, for functions
+that read ``module.params``, ``module.check_mode`` or call ``module.fail_json()``.
 
 
 Sanity and Python Unit Tests
