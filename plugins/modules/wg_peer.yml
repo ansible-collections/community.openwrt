@@ -171,7 +171,7 @@ RETURN:
     type: list
     elements: str
   removed:
-    description: Names of peer sections removed because O(peers[].state) was C(absent).
+    description: Names of peer sections removed because O(peers[].state) was V(absent).
     returned: when any peer state is absent
     type: list
     elements: str
