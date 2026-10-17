@@ -18,7 +18,7 @@ DOCUMENTATION:
     - "5. Write each interface UCI section, including AWG 3.x/3.1 options when O(proto=amneziawg), and ensure the WAN ingress ACCEPT rule for its listen port (unless O(manage_firewall=false))."
     - "6. Resolve or generate a pre-shared key for each entry in O(peers), reusing an existing on-device PSK or generating one with the ubus C(genpsk) method, and return them in RV(psks), in the same order as O(peers)."
     - For the available WireGuard UCI config options see U(https://openwrt.org/docs/guide-user/services/vpn/wireguard/start).
-    - "AmneziaWG support relies on the C(amneziawg) ubus key server; see U(https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg)."
+    - "AmneziaWG support relies on the C(amneziawg) ubus key server; see Requirements below."
   attributes:
     check_mode:
       support: full
