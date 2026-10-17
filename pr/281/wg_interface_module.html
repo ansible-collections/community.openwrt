@@ -205,7 +205,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 </ol>
 </li>
 <li><p>For the available WireGuard UCI config options see <a class="reference external" href="https://openwrt.org/docs/guide-user/services/vpn/wireguard/start">https://openwrt.org/docs/guide-user/services/vpn/wireguard/start</a>.</p></li>
-<li><p>AmneziaWG support relies on the <code class="docutils literal notranslate"><span class="pre">amneziawg</span></code> ubus key server; see <a class="reference external" href="https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg">https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg</a>.</p></li>
+<li><p>AmneziaWG support relies on the <code class="docutils literal notranslate"><span class="pre">amneziawg</span></code> ubus key server; see Requirements below.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -216,7 +216,9 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <span id="ansible-collections-community-openwrt-wg-interface-module-requirements"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink">Requirements</a><a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
 <p>The below requirements are needed on the host that executes this module.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">rpcd-mod-wireguard</span></code>, or <code class="docutils literal notranslate"><span class="pre">rpcd-mod-amneziawg</span></code> for AmneziaWG, with <code class="docutils literal notranslate"><span class="pre">rpcd</span></code> running.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rpcd</span></code> must be running (default behavior in standard OpenWrt).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rpcd-mod-wireguard</span></code>.</p></li>
+<li><p>The custom module <code class="docutils literal notranslate"><span class="pre">rpcd-mod-amneziawg</span></code> for AmneziaWG, from <a class="reference external" href="https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg">https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg</a>.</p></li>
 </ul>
 </section>
 <section id="parameters">
@@ -527,7 +529,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p>The module writes UCI configuration only; it does not bring the interface up or establish tunnels.</p></li>
+<li><p>The module writes UCI configuration only; it does not bring the interface up nor establish tunnels.</p></li>
 <li><p>The identity key and peer PSKs are generated via ubus; the <code class="docutils literal notranslate"><span class="pre">wireguard</span></code> object is used as a fallback when the requested <code class="docutils literal notranslate"><span class="pre">amneziawg</span></code> object is not available.</p></li>
 <li><p>It is an intended design decision that all managed interfaces on a host share the same private key (and therefore the same public key), while each peer gets its own distinct pre-shared key. This keeps monitoring and peer mapping simple. The host is identified by one public key, and every peer link is identified by its unique PSK.</p></li>
 <li><p>Template options (<code class="docutils literal notranslate"><span class="pre">*_template</span></code>) use ucode’s native template engine (Jinja-style <code class="docutils literal notranslate"><span class="pre">{{</span> <span class="pre">...</span> <span class="pre">}}</span></code> / <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">...</span> <span class="pre">%}</span></code>).</p></li>
