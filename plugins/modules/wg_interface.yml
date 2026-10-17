@@ -206,7 +206,7 @@ DOCUMENTATION:
       The host is identified by one public key, and every peer link is identified by its unique PSK.
     - Template options (C(*_template)) use ucode's native template engine (Jinja-style
       C({{ ... }}) / C({% ... %})).
-    - This module is not tested on OpenWrt 23.05, which has no C(rpcd-mod-wireguard) package.
+    - This module does not work on OpenWrt 23.05, which has no C(rpcd-mod-wireguard) package and therefore no C(wireguard) ubus object.
   extends_documentation_fragment:
     - community.openwrt.attributes
   author:
