@@ -272,6 +272,6 @@ RETURN:
     type: bool
   removed_interfaces:
     description: Names of interfaces removed because their O(interfaces[].state) was V(absent).
-    returned: when any interface state is absent
+    returned: always
     type: list
     elements: str
