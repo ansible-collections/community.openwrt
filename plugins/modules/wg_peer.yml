@@ -114,7 +114,7 @@ DOCUMENTATION:
       default: "{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}"
   notes:
     - This module writes peer UCI sections only; it does not establish tunnels.
-    - The peer section id is rendered from O(peer_id_template) and must match the id used by
+    - The peer section ID is rendered from O(peer_id_template) and must match the ID used by
       M(community.openwrt.wg_interface) when resolving pre-shared keys.
     - Template options (O(peer_id_template)) use ucode's native template engine (Jinja-style
       C({{ ... }}) / C({% ... %})).
