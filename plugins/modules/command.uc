@@ -42,9 +42,9 @@ function monotonic() {
 
 // The time between two [ seconds, nanoseconds ] readings, as hours, minutes and
 // seconds.
-function elapsed(from, to) {
-    let seconds = to[0] - from[0];
-    let usec = (to[1] - from[1]) / 1000;
+function elapsed(start_time, end_time) {
+    let seconds = end_time[0] - start_time[0];
+    let usec = (end_time[1] - start_time[1]) / 1000;
 
     if (usec < 0) {
         seconds--;
