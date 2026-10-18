@@ -39,6 +39,8 @@ DOCUMENTATION:
     peers:
       description:
         - List of peer configurations to write.
+        - Each suboption below sets the UCI option of the same name. When a suboption with no default is not
+          set, that option is removed from an existing peer section. Other options of the section are left alone.
       type: list
       elements: dict
       required: true
@@ -111,11 +113,14 @@ DOCUMENTATION:
       description:
         - Ucode template for the peer UCI section id.
         - "Rendered with these variables in scope: C(iface_name) (O(peers[].iface)),
-          C(section) (O(peers[].section)) and C(proto) (O(peers[].proto), O(proto) or the interface's C(proto))."
+          C(section) (O(peers[].section)) and C(proto) (O(peers[].proto), then the interface section's C(proto),
+          then O(proto))."
       type: str
       default: "{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}"
   notes:
     - This module writes peer UCI sections only; it does not establish tunnels.
+    - Set the C(no_log) task keyword on tasks passing O(peers[].preshared_key), to keep the pre-shared keys
+      out of the output and logs.
     - The peer section ID is rendered from O(peer_id_template) and must match the ID used by
       M(community.openwrt.wg_interface) when resolving pre-shared keys.
     - Template options (O(peer_id_template)) use ucode's native template engine (Jinja-style
@@ -173,7 +178,7 @@ RETURN:
     type: list
     elements: str
   removed:
-    description: Names of peer sections removed because O(peers[].state) was V(absent).
+    description: Names of peer sections removed because their O(peers[].state), or O(state), was V(absent).
     returned: always
     type: list
     elements: str

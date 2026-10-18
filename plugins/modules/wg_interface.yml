@@ -62,6 +62,9 @@ DOCUMENTATION:
     interfaces:
       description:
         - List of interface configurations to (re)write.
+        - Each suboption below sets the UCI option of the same name. When a suboption is not set, that option
+          is removed from an existing interface section, so options set by other means are lost. Other options
+          of the section are left alone.
       type: list
       elements: dict
       required: true
@@ -137,7 +140,8 @@ DOCUMENTATION:
     force_rekey:
       description:
         - Regenerate the identity key even if one exists.
-        - When V(true), the module is not idempotent and always reports a change.
+        - When V(true), the module is not idempotent. It writes a new key, and reports a change, on every run
+          where a managed interface section exists.
       type: bool
       default: false
     force_psk_rekey:
@@ -158,9 +162,10 @@ DOCUMENTATION:
         - Ucode template for the UCI section id of the WAN ingress firewall rule.
         - "Rendered with these variables in scope: C(iface_name) (O(interfaces[].name)),
           C(proto) (O(interfaces[].proto) or O(proto)) and C(listen_port) (O(interfaces[].listen_port))."
-        - Avoid using C(listen_port) here. A rule is found again by this id only, so with C(listen_port)
-          in it, the rule of a previous port is not removed when the port changes or is unset, nor
-          when the interface is removed without O(interfaces[].listen_port).
+        - Avoid using C(listen_port) or C(proto) here. A rule is found again by this id only, so with
+          C(listen_port) in it, the rule of a previous port is not removed when the port changes or is
+          unset, nor when the interface is removed without O(interfaces[].listen_port). With C(proto) in
+          it, the rule of the previous protocol is not removed when the interface switches protocols.
       type: str
       default: "{{ iface_name }}_in"
     firewall_rule_name_template:
@@ -175,7 +180,8 @@ DOCUMENTATION:
         - Ucode template for the peer UCI section id, used to locate a reusable on-device
           pre-shared key for idempotency.
         - "Rendered with these variables in scope: C(iface_name) (O(peers[].iface)),
-          C(section) (O(peers[].section)) and C(proto) (O(peers[].proto) or O(proto))."
+          C(section) (O(peers[].section)) and C(proto) (O(peers[].proto), then the interface section's C(proto),
+          then O(proto))."
         - Must render the same id as O(community.openwrt.wg_peer#module:peer_id_template).
       type: str
       default: "{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}"
@@ -229,6 +235,8 @@ DOCUMENTATION:
       O(managed_interfaces) of the other tasks: each task then resolves the key of its own interfaces only.
       The module never takes a private key as a parameter, so that private keys never leave the device.
       To set a specific private key, use M(community.openwrt.uci) on the C(private_key) option of the interface.
+    - RV(psks) holds the pre-shared keys in clear text. Set the C(no_log) task keyword on tasks with
+      O(peers) to keep them out of the output and logs.
     - Template options (C(*_template)) use ucode's native template engine (Jinja-style
       C({{ ... }}) / C({% ... %})).
     - This module does not work on OpenWrt 23.05, which has no C(rpcd-mod-wireguard) package and therefore no C(wireguard) ubus object.
@@ -348,7 +356,7 @@ RETURN:
     returned: always
     type: bool
   removed_interfaces:
-    description: Names of interfaces removed because their O(interfaces[].state) was V(absent).
+    description: Names of interfaces removed because their O(interfaces[].state), or O(state), was V(absent).
     returned: always
     type: list
     elements: str
