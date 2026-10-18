@@ -25,12 +25,17 @@ describe('render_template()', () => {
         assert.match('', render_template(42, {}));
     });
 
-    it('returns an empty string for a template that does not compile', () => {
-        assert.match('', render_template('{{ iface_name ', { iface_name: 'wg0' }));
+    it('raises the error of a template that does not compile', () => {
+        assert.throws(() => render_template('{{ iface_name ', { iface_name: 'wg0' }), 'Unterminated template block');
     });
 
-    it('returns an empty string for a template that fails to render', () => {
-        assert.match('', render_template('{{ die("boom") }}', {}));
+    it('raises the error of a template that fails to render', () => {
+        assert.throws(() => render_template('{{ die("boom") }}', {}), 'boom');
+    });
+
+    it('removes the globals it added when the template fails', () => {
+        assert.throws(() => render_template('{{ die("boom") }}', { wg_test_failed: 'scoped' }), 'boom');
+        assert.match(false, exists(global, 'wg_test_failed'));
     });
 
     it('restores a global it shadowed', () => {

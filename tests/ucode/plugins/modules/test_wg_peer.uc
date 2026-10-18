@@ -71,6 +71,11 @@ describe('wg_peer: section_id()', () => {
         assert.match('peer_wg0_spoke1', fn.section_id({ iface: 'wg0', section: 'spoke1' }, 'wireguard'));
     });
 
+    it('fails with the template error', () => {
+        params.peer_id_template = '{{ iface_name ';
+        assert.throws(() => fn.section_id({ iface: 'wg0' }, 'wireguard'), 'peer_id_template: ');
+    });
+
     it('fails when the id renders empty', () => {
         params.peer_id_template = '{{ nothing }}';
         assert.throws(() => fn.section_id({ iface: 'wg0' }, 'wireguard'), 'rendered an empty section name');
@@ -87,6 +92,11 @@ describe('wg_peer: upsert_peer()', () => {
         assert.match([ '0.0.0.0/0', '::/0' ], u.get('network', 'peer_wg1', 'allowed_ips'));
         assert.match(null, u.get('network', 'peer_wg1', 'endpoint_host'));
         assert.match(null, u.get('network', 'peer_wg1', 'preshared_key'));
+    });
+
+    it('writes route_allowed_ips as a UCI boolean', () => {
+        fn.upsert_peer(u, { iface: 'wg1', public_key: 'PUB', route_allowed_ips: true }, 'wireguard');
+        assert.match('1', u.get('network', 'peer_wg1', 'route_allowed_ips'));
     });
 
     it('describes the peer by its section', () => {

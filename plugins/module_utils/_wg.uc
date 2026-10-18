@@ -19,10 +19,11 @@ export function render_template(source, scope) {
     }
 
     let output = '';
+    let error = null;
     try {
         output = sprintf('%s', render(loadstring(source, { raw_mode: false })));
     } catch (e) {
-        output = '';
+        error = e;
     }
 
     for (let name in saved)
@@ -30,6 +31,8 @@ export function render_template(source, scope) {
     for (let name in absent)
         delete global[name];
 
+    if (error != null)
+        die(error.message);
     return output;
 };
 

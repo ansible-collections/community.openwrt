@@ -24,7 +24,7 @@ const module = AnsibleModule({
                 endpoint_host: { type: 'str' },
                 endpoint_port: { type: 'int' },
                 persistent_keepalive: { type: 'int' },
-                route_allowed_ips: { type: 'str' },
+                route_allowed_ips: { type: 'bool' },
                 allowed_ips: { type: 'list', elements: 'str' },
             },
         },
@@ -54,7 +54,12 @@ function peer_proto(u, peer) {
 }
 
 function section_id(peer, proto) {
-    let section = peer_section(params.peer_id_template, peer.iface, peer.section, proto);
+    let section;
+    try {
+        section = peer_section(params.peer_id_template, peer.iface, peer.section, proto);
+    } catch (e) {
+        fail(`peer_id_template: ${e.message}`);
+    }
     if (section == '')
         fail('peer_id_template rendered an empty section name');
     return section;
@@ -92,7 +97,7 @@ function upsert_peer(u, peer, proto) {
         endpoint_host: peer.endpoint_host ?? '',
         endpoint_port: peer.endpoint_port,
         persistent_keepalive: peer.persistent_keepalive,
-        route_allowed_ips: peer.route_allowed_ips ?? '0',
+        route_allowed_ips: peer.route_allowed_ips ?? false,
         allowed_ips: peer.allowed_ips ?? [ '0.0.0.0/0', '::/0' ],
     };
     if (peer.preshared_key != null && peer.preshared_key != '')

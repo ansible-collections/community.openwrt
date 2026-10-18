@@ -157,6 +157,47 @@
       - wg_interface_idempotent is not changed
       - wg_peer_idempotent is not changed
 
+- name: Resolve a pre-shared key for a new peer
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    managed_interfaces: [wg0]
+    interfaces:
+      - name: wg0
+        listen_port: 51820
+        addresses: [10.0.0.1/24]
+    peers:
+      - iface: wg0
+        section: extra
+  register: wg_interface_new_psk
+
+- name: Assert a generated pre-shared key is not a change
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_interface_new_psk is not changed
+      - wg_interface_new_psk.psks | length == 1
+      - wg_interface_new_psk.psks[0] != wg_interface.psks[0]
+
+- name: Configure interfaces of different protocols together
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    interfaces:
+      - name: wg0
+        listen_port: 51820
+        addresses: [10.0.0.1/24]
+      - name: awg9
+        proto: amneziawg
+        listen_port: 51909
+  register: wg_interface_mixed
+  ignore_errors: true
+
+- name: Assert mixed protocols are refused
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_interface_mixed is failed
+      - "'different protocols' in wg_interface_mixed.msg"
+
 - name: Change the listen port in check mode
   when: wg_ubus_available
   community.openwrt.wg_interface:

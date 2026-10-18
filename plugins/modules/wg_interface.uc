@@ -96,6 +96,41 @@ function ubus_call(object, method, payload) {
     }
 }
 
+// Render the template held by option `name`, failing with its error.
+function render_option(name, scope) {
+    let output;
+    try {
+        output = render_template(params[name], scope);
+    } catch (e) {
+        fail(`${name}: ${e.message}`);
+    }
+    return output;
+}
+
+function peer_id(peer, proto) {
+    let section;
+    try {
+        section = peer_section(params.peer_id_template, peer.iface, peer.section, proto);
+    } catch (e) {
+        fail(`peer_id_template: ${e.message}`);
+    }
+    if (section == '')
+        fail('peer_id_template rendered an empty section name');
+    return section;
+}
+
+// The key server protocol, taken from the interfaces being kept.
+function key_protocol() {
+    let found = {};
+    for (let iface in params.interfaces)
+        if ((iface.state ?? params.state) != 'absent')
+            found[iface.proto ?? params.proto] = true;
+    let protocols = sort(keys(found));
+    if (length(protocols) > 1)
+        fail(`interfaces being kept request different protocols (${join(', ', protocols)}); configure them in separate tasks`);
+    return protocols[0] ?? params.proto;
+}
+
 function resolve_identity(u, managed, proto) {
     let private_key = '';
     let distinct = {};
@@ -115,7 +150,6 @@ function resolve_identity(u, managed, proto) {
         if (generated == null || generated.private == null)
             fail(`failed to generate identity key via ubus ${proto}.genkey`);
         private_key = generated.private;
-        output.changed = true;
     }
 
     let public_key = ubus_call(proto, 'pubkey', { private: private_key });
@@ -127,6 +161,30 @@ function resolve_identity(u, managed, proto) {
 function add_diff(config, section, section_type, before, after, redact_keys) {
     if (module.diff_mode)
         push(diffs, diff_entry(config, section, section_type, before, after, redact_keys));
+}
+
+// The private key to write to interface `name`: its own one, unless it has none
+// or force_rekey is set.
+function wanted_key(u, name, identity) {
+    let current = u.get('network', name, 'private_key');
+    if (params.force_rekey || current == null || current == '')
+        return identity.private;
+    return current;
+}
+
+// Write the identity key to an existing interface not listed in interfaces.
+// Interfaces with no section yet are skipped: they get it once configured.
+function apply_key(u, name, private_key) {
+    let current = u.get_all('network', name);
+    if (current == null)
+        return;
+    let update = upsert_section(u, 'network', name, current['.type'], { private_key: private_key }, {});
+    if (update.error != null)
+        fail(`cannot set network.${name}.private_key: ${update.error}`);
+    if (update.changed) {
+        output.changed = true;
+        add_diff('network', name, current['.type'], update.before, update.after, [ 'private_key' ]);
+    }
 }
 
 function delete_interface(u, iface, proto) {
@@ -142,7 +200,7 @@ function delete_interface(u, iface, proto) {
     }
 
     if (params.manage_firewall) {
-        let firewall_section = render_template(params.firewall_rule_id_template, {
+        let firewall_section = render_option('firewall_rule_id_template', {
             iface_name: iface.name, proto: proto, listen_port: iface.listen_port,
         });
         let current = u.get_all('firewall', firewall_section);
@@ -187,9 +245,11 @@ function interface_options(iface, proto) {
     return wanted;
 }
 
-function upsert_interface(u, iface, proto) {
-    let update = upsert_section(u, 'network', iface.name, 'interface',
-                                interface_options(iface, proto), {});
+function upsert_interface(u, iface, proto, private_key) {
+    let wanted = interface_options(iface, proto);
+    if (private_key != null)
+        wanted.private_key = private_key;
+    let update = upsert_section(u, 'network', iface.name, 'interface', wanted, {});
     if (update.error != null)
         fail(`cannot update network.${iface.name}: ${update.error}`);
     if (update.changed) {
@@ -201,14 +261,14 @@ function upsert_interface(u, iface, proto) {
     if (!params.manage_firewall || iface.listen_port == null)
         return;
     let scope = { iface_name: iface.name, proto: proto, listen_port: iface.listen_port };
-    let section = render_template(params.firewall_rule_id_template, scope);
+    let section = render_option('firewall_rule_id_template', scope);
     if (section == '')
         fail('firewall_rule_id_template rendered an empty section name');
-    let wanted = {
-        name: render_template(params.firewall_rule_name_template, scope),
+    let rule = {
+        name: render_option('firewall_rule_name_template', scope),
         src: 'wan', proto: 'udp', dest_port: iface.listen_port, target: 'ACCEPT',
     };
-    let firewall_update = upsert_section(u, 'firewall', section, 'rule', wanted, {});
+    let firewall_update = upsert_section(u, 'firewall', section, 'rule', rule, {});
     if (firewall_update.error != null)
         fail(`cannot update firewall.${section}: ${firewall_update.error}`);
     if (firewall_update.changed) {
@@ -237,42 +297,37 @@ try {
     }
 
     let any_present = false;
-    let key_proto = params.proto;
-    for (let iface in params.interfaces) {
-        if (iface.proto != null)
-            key_proto = iface.proto;
+    for (let iface in params.interfaces)
         if ((iface.state ?? params.state) != 'absent')
             any_present = true;
-    }
+    let key_proto = key_protocol();
     let identity = null;
+    let is_managed = {};
     if (any_present || length(managed) > 0) {
         identity = resolve_identity(u, managed, key_proto);
         output.public_key = identity.public;
-        for (let name in managed) {
-            let current = u.get('network', name, 'private_key');
-            if (params.force_rekey || current == null || current == '') {
-                if (u.get_all('network', name) == null)
-                    checked(u, u.set('network', name, 'interface'), `cannot create network.${name}`);
-                checked(u, u.set('network', name, 'private_key', identity.private),
-                        `cannot set network.${name}.private_key`);
-                output.changed = true;
-            }
-        }
+        for (let name in managed)
+            is_managed[name] = true;
     }
 
+    let written = {};
     for (let iface in params.interfaces) {
         let proto = iface.proto ?? params.proto;
         if ((iface.state ?? params.state) == 'absent')
             delete_interface(u, iface, proto);
-        else
-            upsert_interface(u, iface, proto);
+        else {
+            let private_key = is_managed[iface.name] ? wanted_key(u, iface.name, identity) : null;
+            upsert_interface(u, iface, proto, private_key);
+            written[iface.name] = true;
+        }
     }
+    for (let name in managed)
+        if (is_managed[name] && !written[name])
+            apply_key(u, name, wanted_key(u, name, identity));
 
     for (let peer in params.peers ?? []) {
         let proto = peer.proto ?? params.proto;
-        let section = peer_section(params.peer_id_template, peer.iface, peer.section, proto);
-        if (section == '')
-            fail('peer_id_template rendered an empty section name');
+        let section = peer_id(peer, proto);
         let psk = !params.force_psk_rekey && !peer.force_psk_rekey
             ? u.get('network', section, 'preshared_key') : null;
         if (psk == null || psk == '') {
@@ -280,7 +335,6 @@ try {
             if (generated == null || generated.preshared == null)
                 fail(`failed to generate PSK via ubus ${proto}.genpsk`);
             psk = generated.preshared;
-            output.changed = true;
         }
         push(output.psks, psk);
     }

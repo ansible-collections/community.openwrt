@@ -50,10 +50,13 @@ function setup(network) {
 
     params = {
         proto: 'wireguard',
+        state: 'present',
+        interfaces: [],
         force_rekey: false,
         manage_firewall: true,
         firewall_rule_id_template: '{{ iface_name }}_in',
         firewall_rule_name_template: 'Allow-Wan-{{ proto }}: {{ iface_name }}',
+        peer_id_template: '{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}',
     };
     fn = module_internals(MODULE, {
         params: params,
@@ -138,6 +141,82 @@ describe('wg_interface: resolve_identity()', () => {
     });
 });
 
+describe('wg_interface: key_protocol()', () => {
+    beforeEach(() => setup(NETWORK));
+
+    it('defaults to the module-wide protocol', () => {
+        params.interfaces = [ { name: 'wg0' } ];
+        assert.match('wireguard', fn.key_protocol());
+    });
+
+    it('takes the protocol of the interfaces being kept', () => {
+        params.interfaces = [ { name: 'awg1', proto: 'amneziawg' } ];
+        assert.match('amneziawg', fn.key_protocol());
+    });
+
+    it('ignores the interfaces being removed', () => {
+        params.interfaces = [ { name: 'wg0' }, { name: 'awg1', proto: 'amneziawg', state: 'absent' } ];
+        assert.match('wireguard', fn.key_protocol());
+    });
+
+    it('fails when the interfaces being kept request different protocols', () => {
+        params.interfaces = [ { name: 'wg0' }, { name: 'awg1', proto: 'amneziawg' } ];
+        assert.throws(() => fn.key_protocol(), 'different protocols (amneziawg, wireguard)');
+    });
+});
+
+describe('wg_interface: wanted_key()', () => {
+    beforeEach(() => setup(NETWORK));
+
+    const identity = { private: 'IDENTITY', public: 'pub(IDENTITY)' };
+
+    it('keeps the key of the interface', () => assert.match('EXISTING', fn.wanted_key(u, 'wg0', identity)));
+    it('gives the identity key to an interface without one', () => assert.match('IDENTITY', fn.wanted_key(u, 'wg1', identity)));
+
+    it('gives the identity key to every interface with force_rekey', () => {
+        params.force_rekey = true;
+        assert.match('IDENTITY', fn.wanted_key(u, 'wg0', identity));
+    });
+});
+
+describe('wg_interface: apply_key()', () => {
+    beforeEach(() => setup(NETWORK));
+
+    it('writes the key to an existing interface', () => {
+        fn.apply_key(u, 'wg1', 'IDENTITY');
+        assert.match('IDENTITY', u.get('network', 'wg1', 'private_key'));
+        assert.match('wireguard', u.get('network', 'wg1', 'proto'));
+    });
+
+    it('skips an interface with no section', () => {
+        fn.apply_key(u, 'wg9', 'IDENTITY');
+        assert.match(null, u.get('network', 'wg9'));
+    });
+});
+
+describe('wg_interface: render_option()', () => {
+    beforeEach(() => setup(NETWORK));
+
+    it('fails with the option name and the template error', () => {
+        params.firewall_rule_name_template = '{{ iface_name ';
+        assert.throws(() => fn.render_option('firewall_rule_name_template', { iface_name: 'wg0' }),
+                      'firewall_rule_name_template: Unable to compile source string');
+    });
+});
+
+describe('wg_interface: peer_id()', () => {
+    beforeEach(() => setup(NETWORK));
+
+    it('renders the peer section id', () => {
+        assert.match('peer_wg0_spoke1', fn.peer_id({ iface: 'wg0', section: 'spoke1' }, 'wireguard'));
+    });
+
+    it('fails with the template error', () => {
+        params.peer_id_template = '{{ iface_name ';
+        assert.throws(() => fn.peer_id({ iface: 'wg0' }, 'wireguard'), 'peer_id_template: ');
+    });
+});
+
 describe('wg_interface: interface_options()', () => {
     beforeEach(() => setup(NETWORK));
 
@@ -170,6 +249,11 @@ describe('wg_interface: upsert_interface()', () => {
         assert.match('udp', u.get('firewall', 'wg2_in', 'proto'));
         assert.match('51822', u.get('firewall', 'wg2_in', 'dest_port'));
         assert.match('ACCEPT', u.get('firewall', 'wg2_in', 'target'));
+    });
+
+    it('writes the given private key', () => {
+        fn.upsert_interface(u, { name: 'wg2' }, 'wireguard', 'IDENTITY');
+        assert.match('IDENTITY', u.get('network', 'wg2', 'private_key'));
     });
 
     it('keeps the private key of an existing interface', () => {
