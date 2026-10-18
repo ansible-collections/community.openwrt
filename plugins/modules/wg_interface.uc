@@ -6,7 +6,7 @@ import { cursor } from 'uci';
 import { connect } from 'ubus';
 import { AnsibleModule } from '_basic';
 import { diff_entry, section_values, upsert_section } from '_uci';
-import { peer_section, render_template } from '_wg';
+import { peer_protocol, peer_section, render_template } from '_wg';
 
 const PROTOCOLS = [ 'wireguard', 'amneziawg' ];
 const AWG_OPTIONS = [
@@ -187,11 +187,31 @@ function apply_key(u, name, private_key) {
     }
 }
 
+// Delete the WAN ingress rule `section`, when there is one.
+function delete_rule(u, section) {
+    let current = u.get_all('firewall', section);
+    if (current == null)
+        return false;
+    checked(u, u.delete('firewall', section), `cannot delete firewall.${section}`);
+    add_diff('firewall', section, current['.type'], section_values(current), {}, null);
+    output.changed = true;
+    output.firewall_changed = true;
+    return true;
+}
+
 function delete_interface(u, iface, proto) {
     let removed = false;
+    // The protocol on the device wins: its peers are typed after it.
+    let current_proto = u.get('network', iface.name, 'proto');
+    if (current_proto == 'wireguard' || current_proto == 'amneziawg')
+        proto = current_proto;
+
+    let peer_types = {};
+    for (let name in PROTOCOLS)
+        peer_types[`${name}_${iface.name}`] = true;
     let network = u.get_all('network') ?? {};
     for (let section in network) {
-        if (network[section]['.type'] == `${proto}_${iface.name}`) {
+        if (peer_types[network[section]['.type']]) {
             let before = section_values(network[section]);
             checked(u, u.delete('network', section), `cannot delete network.${section}`);
             add_diff('network', section, network[section]['.type'], before, {}, [ 'preshared_key' ]);
@@ -203,14 +223,8 @@ function delete_interface(u, iface, proto) {
         let firewall_section = render_option('firewall_rule_id_template', {
             iface_name: iface.name, proto: proto, listen_port: iface.listen_port,
         });
-        let current = u.get_all('firewall', firewall_section);
-        if (current != null) {
-            checked(u, u.delete('firewall', firewall_section),
-                    `cannot delete firewall.${firewall_section}`);
-            add_diff('firewall', firewall_section, current['.type'], section_values(current), {}, null);
-            output.firewall_changed = true;
+        if (delete_rule(u, firewall_section))
             removed = true;
-        }
     }
 
     let current = u.get_all('network', iface.name);
@@ -258,12 +272,17 @@ function upsert_interface(u, iface, proto, private_key) {
     }
     push(output.interfaces, iface.name);
 
-    if (!params.manage_firewall || iface.listen_port == null)
+    if (!params.manage_firewall)
         return;
     let scope = { iface_name: iface.name, proto: proto, listen_port: iface.listen_port };
     let section = render_option('firewall_rule_id_template', scope);
     if (section == '')
         fail('firewall_rule_id_template rendered an empty section name');
+    // Without a listen port nothing is accepted from the WAN: drop the rule of a previous one.
+    if (iface.listen_port == null) {
+        delete_rule(u, section);
+        return;
+    }
     let rule = {
         name: render_option('firewall_rule_name_template', scope),
         src: 'wan', proto: 'udp', dest_port: iface.listen_port, target: 'ACCEPT',
@@ -326,7 +345,7 @@ try {
             apply_key(u, name, wanted_key(u, name, identity));
 
     for (let peer in params.peers ?? []) {
-        let proto = peer.proto ?? params.proto;
+        let proto = peer_protocol(u, peer, params.proto);
         let section = peer_id(peer, proto);
         let psk = !params.force_psk_rekey && !peer.force_psk_rekey
             ? u.get('network', section, 'preshared_key') : null;

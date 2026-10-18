@@ -5,7 +5,7 @@
 import { cursor } from 'uci';
 import { AnsibleModule } from '_basic';
 import { diff_entry, section_values, upsert_section } from '_uci';
-import { peer_section } from '_wg';
+import { peer_protocol, peer_section } from '_wg';
 
 const module = AnsibleModule({
     argument_spec: {
@@ -24,8 +24,8 @@ const module = AnsibleModule({
                 endpoint_host: { type: 'str' },
                 endpoint_port: { type: 'int' },
                 persistent_keepalive: { type: 'int' },
-                route_allowed_ips: { type: 'bool' },
-                allowed_ips: { type: 'list', elements: 'str' },
+                route_allowed_ips: { type: 'bool', default: false },
+                allowed_ips: { type: 'list', elements: 'str', default: [ '0.0.0.0/0', '::/0' ] },
             },
         },
         peer_id_template: {
@@ -44,13 +44,8 @@ function fail(msg) {
     module.fail_json({ ...output, msg: msg });
 }
 
-function interface_proto(u, iface) {
-    let section = u.get_all('network', iface);
-    return section != null && section.proto != null ? section.proto : 'wireguard';
-}
-
 function peer_proto(u, peer) {
-    return peer.proto ?? params.proto ?? interface_proto(u, peer.iface);
+    return peer_protocol(u, peer, params.proto);
 }
 
 function section_id(peer, proto) {
@@ -65,10 +60,13 @@ function section_id(peer, proto) {
     return section;
 }
 
-function add_diff(section, section_type, before, after) {
-    if (module.diff_mode)
-        push(diffs, diff_entry('network', section, section_type, before, after,
-                               [ 'preshared_key' ]));
+function add_diff(section, section_type, before, after, before_type) {
+    if (!module.diff_mode)
+        return;
+    let entry = diff_entry('network', section, section_type, before, after, [ 'preshared_key' ]);
+    if (before_type != null)
+        entry.before_header = `network.${section}=${before_type}`;
+    push(diffs, entry);
 }
 
 function remove_peer(u, peer, proto) {
@@ -97,8 +95,8 @@ function upsert_peer(u, peer, proto) {
         endpoint_host: peer.endpoint_host ?? '',
         endpoint_port: peer.endpoint_port,
         persistent_keepalive: peer.persistent_keepalive,
-        route_allowed_ips: peer.route_allowed_ips ?? false,
-        allowed_ips: peer.allowed_ips ?? [ '0.0.0.0/0', '::/0' ],
+        route_allowed_ips: peer.route_allowed_ips,
+        allowed_ips: peer.allowed_ips,
     };
     if (peer.preshared_key != null && peer.preshared_key != '')
         wanted.preshared_key = peer.preshared_key;
@@ -107,12 +105,18 @@ function upsert_peer(u, peer, proto) {
     if (peer.preshared_key == null || peer.preshared_key == '')
         dropped.preshared_key = true;
 
+    // A protocol change only changes the section type, which UCI changes in place.
+    let current_type = u.get('network', section);
+    let retyped = current_type != null && current_type != section_type;
+    if (retyped && u.set('network', section, section_type) == null)
+        fail(`cannot change the type of network.${section}: ${u.error() ?? 'UCI operation failed'}`);
+
     let update = upsert_section(u, 'network', section, section_type, wanted, dropped);
     if (update.error != null)
         fail(`cannot update network.${section}: ${update.error}`);
-    if (update.changed) {
+    if (update.changed || retyped) {
         output.changed = true;
-        add_diff(section, section_type, update.before, update.after);
+        add_diff(section, section_type, update.before, update.after, retyped ? current_type : null);
     }
     push(output.peers, section);
 }

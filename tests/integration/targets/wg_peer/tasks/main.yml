@@ -170,6 +170,43 @@
       - peer_derived.peers == ["peer_wg0_spoke1", "peer_awg1"]
       - peer_derived_types.results | map(attribute='stdout') | list == ["wireguard_wg0", "amneziawg_awg1"]
 
+- name: Switch an interface to another protocol
+  community.openwrt.command:
+    cmd: uci set network.awg1.proto=wireguard; uci commit network
+    uses_shell: true
+  changed_when: false
+
+- name: Write the peer of the switched interface
+  community.openwrt.wg_peer:
+    peers:
+      - iface: awg1
+        public_key: "{{ peer_public_key }}"
+  diff: true
+  register: peer_retype
+
+- name: Write the peer of the switched interface again
+  community.openwrt.wg_peer:
+    peers:
+      - iface: awg1
+        public_key: "{{ peer_public_key }}"
+  register: peer_retype_again
+
+- name: Read the type of the switched peer
+  community.openwrt.command:
+    cmd: uci show network.peer_awg1
+  register: peer_retype_show
+  changed_when: false
+
+- name: Assert the peer section type follows the interface protocol
+  ansible.builtin.assert:
+    that:
+      - peer_retype is changed
+      - peer_retype.diff[0].before_header == "network.peer_awg1=amneziawg_awg1"
+      - peer_retype.diff[0].after_header == "network.peer_awg1=wireguard_awg1"
+      - peer_retype_again is not changed
+      - "'network.peer_awg1=wireguard_awg1' in peer_retype_show.stdout_lines"
+      - "\"network.peer_awg1.public_key='\" ~ peer_public_key ~ \"'\" in peer_retype_show.stdout_lines"
+
 - name: Add a peer without a public key
   community.openwrt.wg_peer:
     peers:

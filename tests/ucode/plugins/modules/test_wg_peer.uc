@@ -26,6 +26,11 @@ let params;
 let fn;
 let u;
 
+// A peer as the argument spec hands it over, with its defaults.
+function peer(options) {
+    return { route_allowed_ips: false, allowed_ips: [ '0.0.0.0/0', '::/0' ], ...options };
+}
+
 beforeEach(() => {
     mkdir(SCRATCH);
     mkdir(CONFDIR);
@@ -52,13 +57,14 @@ describe('wg_peer: peer_proto()', () => {
         assert.match('amneziawg', fn.peer_proto(u, { iface: 'wg0', proto: 'amneziawg' }));
     });
 
-    it('falls back to the module-wide protocol', () => {
+    it('prefers the protocol of the interface to the module-wide one', () => {
         params.proto = 'wireguard';
-        assert.match('wireguard', fn.peer_proto(u, { iface: 'awg1' }));
+        assert.match('amneziawg', fn.peer_proto(u, { iface: 'awg1' }));
     });
 
-    it('falls back to the protocol of the interface', () => {
-        assert.match('amneziawg', fn.peer_proto(u, { iface: 'awg1' }));
+    it('falls back to the module-wide protocol without an interface section', () => {
+        params.proto = 'amneziawg';
+        assert.match('amneziawg', fn.peer_proto(u, { iface: 'wg9' }));
     });
 
     it('defaults to wireguard without an interface section', () => {
@@ -84,7 +90,7 @@ describe('wg_peer: section_id()', () => {
 
 describe('wg_peer: upsert_peer()', () => {
     it('writes a peer with the defaults', () => {
-        fn.upsert_peer(u, { iface: 'wg1', public_key: 'PUB' }, 'wireguard');
+        fn.upsert_peer(u, peer({ iface: 'wg1', public_key: 'PUB' }), 'wireguard');
         assert.match('wireguard_wg1', u.get('network', 'peer_wg1'));
         assert.match('PUB', u.get('network', 'peer_wg1', 'public_key'));
         assert.match('wg1', u.get('network', 'peer_wg1', 'description'));
@@ -95,26 +101,26 @@ describe('wg_peer: upsert_peer()', () => {
     });
 
     it('writes route_allowed_ips as a UCI boolean', () => {
-        fn.upsert_peer(u, { iface: 'wg1', public_key: 'PUB', route_allowed_ips: true }, 'wireguard');
+        fn.upsert_peer(u, peer({ iface: 'wg1', public_key: 'PUB', route_allowed_ips: true }), 'wireguard');
         assert.match('1', u.get('network', 'peer_wg1', 'route_allowed_ips'));
     });
 
     it('describes the peer by its section', () => {
-        fn.upsert_peer(u, { iface: 'wg1', section: 'spoke1', public_key: 'PUB' }, 'wireguard');
+        fn.upsert_peer(u, peer({ iface: 'wg1', section: 'spoke1', public_key: 'PUB' }), 'wireguard');
         assert.match('spoke1', u.get('network', 'peer_wg1_spoke1', 'description'));
     });
 
     it('types the section after the protocol and interface', () => {
-        fn.upsert_peer(u, { iface: 'awg1', public_key: 'PUB' }, 'amneziawg');
+        fn.upsert_peer(u, peer({ iface: 'awg1', public_key: 'PUB' }), 'amneziawg');
         assert.match('amneziawg_awg1', u.get('network', 'peer_awg1'));
     });
 
     it('writes the given options', () => {
-        fn.upsert_peer(u, {
+        fn.upsert_peer(u, peer({
             iface: 'wg1', public_key: 'PUB', preshared_key: 'PSK',
             endpoint_host: 'peer.example.com', endpoint_port: 51820, persistent_keepalive: 25,
             allowed_ips: [ '10.0.0.2/32' ],
-        }, 'wireguard');
+        }), 'wireguard');
         assert.match('PSK', u.get('network', 'peer_wg1', 'preshared_key'));
         assert.match('peer.example.com', u.get('network', 'peer_wg1', 'endpoint_host'));
         assert.match('51820', u.get('network', 'peer_wg1', 'endpoint_port'));
@@ -123,11 +129,18 @@ describe('wg_peer: upsert_peer()', () => {
     });
 
     it('fails without a public key', () => {
-        assert.throws(() => fn.upsert_peer(u, { iface: 'wg1' }, 'wireguard'), 'public_key is required');
+        assert.throws(() => fn.upsert_peer(u, peer({ iface: 'wg1' }), 'wireguard'), 'public_key is required');
+    });
+
+    it('changes the type of a section whose protocol changed', () => {
+        fn.upsert_peer(u, peer({ iface: 'wg0', public_key: 'PUB' }), 'wireguard');
+        fn.upsert_peer(u, peer({ iface: 'wg0', public_key: 'PUB' }), 'amneziawg');
+        assert.match('amneziawg_wg0', u.get('network', 'peer_wg0'));
+        assert.match('PUB', u.get('network', 'peer_wg0', 'public_key'));
     });
 
     it('drops an existing pre-shared key when none is given', () => {
-        fn.upsert_peer(u, { iface: 'wg0', public_key: 'NEW' }, 'wireguard');
+        fn.upsert_peer(u, peer({ iface: 'wg0', public_key: 'NEW' }), 'wireguard');
         assert.match('NEW', u.get('network', 'peer_wg0', 'public_key'));
         assert.match(null, u.get('network', 'peer_wg0', 'preshared_key'));
     });

@@ -2,8 +2,14 @@
 // GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { describe, it, assert } from 'utest';
-import { peer_section, render_template } from '_wg';
+import { describe, it, assert, beforeEach } from 'utest';
+import { cursor } from 'uci';
+import { mkdir, writefile } from 'fs';
+import { peer_protocol, peer_section, render_template } from '_wg';
+
+const SCRATCH = '/tmp/test_wg';
+const CONFDIR = `${SCRATCH}/config`;
+const SAVEDIR = `${SCRATCH}/delta`;
 
 const PEER_ID = '{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}';
 
@@ -63,5 +69,37 @@ describe('peer_section()', () => {
 
     it('has the protocol in scope', () => {
         assert.match('amneziawg_awg1', peer_section('{{ proto }}_{{ iface_name }}', 'awg1', null, 'amneziawg'));
+    });
+});
+
+describe('peer_protocol()', () => {
+    let u;
+
+    beforeEach(() => {
+        mkdir(SCRATCH);
+        mkdir(CONFDIR);
+        mkdir(SAVEDIR);
+        writefile(`${CONFDIR}/network`, "config interface 'awg1'\n\toption proto 'amneziawg'\n\nconfig interface 'lan'\n\toption proto 'static'\n");
+        u = cursor(CONFDIR, SAVEDIR);
+    });
+
+    it('prefers the protocol of the peer', () => {
+        assert.match('wireguard', peer_protocol(u, { iface: 'awg1', proto: 'wireguard' }, 'amneziawg'));
+    });
+
+    it('then takes the protocol of the interface section', () => {
+        assert.match('amneziawg', peer_protocol(u, { iface: 'awg1' }, 'wireguard'));
+    });
+
+    it('then falls back to the given protocol', () => {
+        assert.match('amneziawg', peer_protocol(u, { iface: 'wg9' }, 'amneziawg'));
+    });
+
+    it('ignores an interface protocol that is not a WireGuard one', () => {
+        assert.match('amneziawg', peer_protocol(u, { iface: 'lan' }, 'amneziawg'));
+    });
+
+    it('defaults to wireguard', () => {
+        assert.match('wireguard', peer_protocol(u, { iface: 'wg9' }, null));
     });
 });

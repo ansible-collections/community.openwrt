@@ -43,3 +43,15 @@ export function peer_section(template, iface, section, proto) {
         proto: proto,
     });
 };
+
+// The protocol of a peer: its own, then the one of its interface section,
+// then `fallback`, then wireguard. A peer only works in a section typed after
+// the protocol of its interface, so the interface wins over module defaults.
+export function peer_protocol(cursor, peer, fallback) {
+    if (peer.proto != null)
+        return peer.proto;
+    let proto = cursor.get('network', peer.iface, 'proto');
+    if (proto == 'wireguard' || proto == 'amneziawg')
+        return proto;
+    return fallback ?? 'wireguard';
+};

@@ -267,6 +267,12 @@ describe('wg_interface: upsert_interface()', () => {
         assert.match(null, u.get('firewall', 'wg2_in'));
     });
 
+    it('removes the rule of a listen port no longer set', () => {
+        fn.upsert_interface(u, { name: 'wg0' }, 'wireguard');
+        assert.match(null, u.get('network', 'wg0', 'listen_port'));
+        assert.match(null, u.get('firewall', 'wg0_in'));
+    });
+
     it('writes no rule when the firewall is not managed', () => {
         params.manage_firewall = false;
         fn.upsert_interface(u, { name: 'wg2', listen_port: 51822 }, 'wireguard');
@@ -296,9 +302,19 @@ describe('wg_interface: delete_interface()', () => {
         assert.match('interface', u.get('network', 'wg1'));
     });
 
-    it('removes only the peers of its protocol', () => {
+    it('removes the peers of either protocol', () => {
+        u.set('network', 'peer_wg0_awg', 'amneziawg_wg0');
+        u.set('network', 'peer_wg0_awg', 'public_key', 'PEERAWG');
+        fn.delete_interface(u, { name: 'wg0' }, 'wireguard');
+        assert.match(null, u.get('network', 'peer_wg0'));
+        assert.match(null, u.get('network', 'peer_wg0_awg'));
+    });
+
+    it('renders the rule id with the protocol of the interface on the device', () => {
+        params.firewall_rule_id_template = '{{ iface_name }}_{{ proto }}';
+        u.set('firewall', 'wg0_wireguard', 'rule');
         fn.delete_interface(u, { name: 'wg0' }, 'amneziawg');
-        assert.match('wireguard_wg0', u.get('network', 'peer_wg0'));
+        assert.match(null, u.get('firewall', 'wg0_wireguard'));
     });
 
     it('keeps the rule when the firewall is not managed', () => {
