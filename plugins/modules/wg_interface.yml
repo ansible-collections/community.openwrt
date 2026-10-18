@@ -13,8 +13,8 @@ DOCUMENTATION:
     - "The module performs the following steps in order:"
     - "1. Determine the protocol of the ubus key server from the interfaces being kept (V(wireguard) by default), failing if they request different protocols."
     - "2. Resolve the host identity key, reading it from every interface in O(managed_interfaces), failing on a hard mismatch (two distinct keys), otherwise reusing the single existing key or generating a fresh one via ubus, and deriving and reporting the public key."
-    - "3. For each entry in O(interfaces), remove it when its O(interfaces[].state) or O(state) is V(absent), dropping the interface section, its peer sections and its WAN ingress rule. Otherwise write its UCI section, with the identity key when it is in O(managed_interfaces) (a fresh key on O(force_rekey=true)) and the AWG options when its protocol is V(amneziawg), and ensure the WAN ingress ACCEPT rule for its listen port (unless O(manage_firewall=false))."
-    - "4. Write the identity key to the other interfaces in O(managed_interfaces) that miss one; names with no interface section yet are skipped."
+    - "3. For each entry in O(interfaces), remove it when its O(interfaces[].state) or O(state) is V(absent), dropping the interface section, its peer sections and its WAN ingress rule (unless O(manage_firewall=false)). Otherwise write its UCI section, with the identity key when it is in O(managed_interfaces) (a fresh key on O(force_rekey=true)) and the AWG options when its protocol is V(amneziawg), and ensure the WAN ingress ACCEPT rule for its listen port, or remove it when O(interfaces[].listen_port) is not set (unless O(manage_firewall=false))."
+    - "4. Write the identity key to the other interfaces in O(managed_interfaces) that miss one, or to all of them on O(force_rekey=true); names with no interface section yet are skipped."
     - "5. Resolve or generate a pre-shared key for each entry in O(peers), reusing an existing on-device PSK or generating one with the ubus C(genpsk) method, and return them in RV(psks), in the same order as O(peers). Generating a PSK is not reported as a change, since nothing is stored on the device."
     - For the available WireGuard UCI config options see U(https://openwrt.org/docs/guide-user/services/vpn/wireguard/start).
     - "AmneziaWG support relies on the C(amneziawg) ubus key server; see Requirements below."
@@ -74,8 +74,9 @@ DOCUMENTATION:
         state:
           description:
             - Whether the interface should be present or absent.
-            - When V(absent), the interface section, its peer sections and its WAN ingress
-              rule are removed.
+            - When V(absent), the interface section, its peer sections of either protocol and,
+              unless O(manage_firewall=false), its WAN ingress rule are removed. The protocol of the
+              interface on the device is used for the templates, when it has one.
             - Defaults to the module-wide O(state) when not set.
           type: str
           choices: [present, absent]
@@ -130,6 +131,8 @@ DOCUMENTATION:
             - Those keys that are not set are removed from the interface section. Other keys are written as given,
               so options of other AmneziaWG implementations can be set too.
             - Only meaningful when the interface protocol is V(amneziawg); ignored for V(wireguard).
+            - When an interface is switched to V(wireguard), its C(awg_*) options are left in place.
+              WireGuard ignores them.
           type: dict
     force_rekey:
       description:
@@ -145,7 +148,8 @@ DOCUMENTATION:
       default: false
     manage_firewall:
       description:
-        - Whether to (re)write the WAN ingress ACCEPT rule for each interface listen port.
+        - Whether to (re)write the WAN ingress ACCEPT rule for each interface listen port, and remove
+          it along with the interface or when O(interfaces[].listen_port) is not set.
         - Set to V(false) when firewall management is handled elsewhere.
       type: bool
       default: true
@@ -154,6 +158,9 @@ DOCUMENTATION:
         - Ucode template for the UCI section id of the WAN ingress firewall rule.
         - "Rendered with these variables in scope: C(iface_name) (O(interfaces[].name)),
           C(proto) (O(interfaces[].proto) or O(proto)) and C(listen_port) (O(interfaces[].listen_port))."
+        - Avoid using C(listen_port) here. A rule is found again by this id only, so with C(listen_port)
+          in it, the rule of a previous port is not removed when the port changes or is unset, nor
+          when the interface is removed without O(interfaces[].listen_port).
       type: str
       default: "{{ iface_name }}_in"
     firewall_rule_name_template:
@@ -192,8 +199,10 @@ DOCUMENTATION:
           type: str
         proto:
           description:
-            - Peer protocol.
-            - Defaults to the module-wide O(proto) when not set.
+            - Peer protocol, used to render O(peer_id_template) and to call the ubus key server.
+            - Defaults to the C(proto) of the interface section, as written by this task, then to the
+              module-wide O(proto). M(community.openwrt.wg_peer) resolves it the same way, so both modules
+              render the same peer section id.
           type: str
           choices: [wireguard, amneziawg]
         force_psk_rekey:
@@ -315,7 +324,9 @@ EXAMPLES: |
 
 RETURN:
   public_key:
-    description: Host identity public key.
+    description:
+      - Host identity public key.
+      - Empty when no key is managed, in a run that only removes interfaces without O(managed_interfaces).
     returned: always
     type: str
   interfaces:
@@ -328,11 +339,12 @@ RETURN:
       - Resolved (not stored) peer pre-shared keys, as a list parallel to O(peers)
         (RV(psks[i]) is the key for O(peers[i])). The controller zips the two lists to
         distribute each shared key to both ends.
-    returned: when O(peers) is given
+      - Empty when O(peers) is not given.
+    returned: always
     type: list
     elements: str
   firewall_changed:
-    description: True if any WAN ingress firewall rule was created or modified.
+    description: True if any WAN ingress firewall rule was created, modified or removed.
     returned: always
     type: bool
   removed_interfaces:

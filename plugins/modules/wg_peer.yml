@@ -23,10 +23,9 @@ DOCUMENTATION:
   options:
     proto:
       description:
-        - Module-wide protocol, used as the default for every peer whose own O(peers[].proto)
-          is not set.
-        - Falls back to the interface section's C(proto) (then V(wireguard)) when
-          O(peers[].proto) and this option are both unset.
+        - Module-wide protocol, used for every peer whose own O(peers[].proto) is not set and
+          whose interface section has no C(proto) either.
+        - V(wireguard) when not set.
       type: str
       choices: [wireguard, amneziawg]
     state:
@@ -64,8 +63,9 @@ DOCUMENTATION:
         proto:
           description:
             - Peer protocol; the peer section type becomes C(<proto>_<iface>).
-            - Defaults to the module-wide O(proto), then the interface's C(proto), then
-              V(wireguard) when not set.
+            - Defaults to the C(proto) of the interface section, then to the module-wide O(proto), then
+              to V(wireguard). M(community.openwrt.wg_interface) resolves it the same way.
+            - When the protocol of an existing peer section changes, its type is changed in place.
           type: str
           choices: [wireguard, amneziawg]
         public_key:
@@ -82,6 +82,7 @@ DOCUMENTATION:
         description:
           description:
             - Peer description/label.
+            - Defaults to O(peers[].section) when set, otherwise to O(peers[].iface).
           type: str
         endpoint_host:
           description:
