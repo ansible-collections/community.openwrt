@@ -221,6 +221,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <a class="ansibleOptionLink" href="#parameter-peers/description" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer description/label.</p>
+<p>Defaults to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-section"><span class="std std-ref"><span class="pre">peers[].section</span></span></a></strong></code> when set, otherwise to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-iface"><span class="std std-ref"><span class="pre">peers[].iface</span></span></a></strong></code>.</p>
 </div></td>
 </tr>
 <tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
@@ -264,7 +265,8 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <a class="ansibleOptionLink" href="#parameter-peers/proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Peer protocol; the peer section type becomes <code class="docutils literal notranslate"><span class="pre">&lt;proto&gt;_&lt;iface&gt;</span></code>.</p>
-<p>Defaults to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code>, then the interface’s <code class="docutils literal notranslate"><span class="pre">proto</span></code>, then <code class="ansible-value docutils literal notranslate"><span class="pre">wireguard</span></code> when not set.</p>
+<p>Defaults to the <code class="docutils literal notranslate"><span class="pre">proto</span></code> of the interface section, then to the module-wide <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-proto"><span class="std std-ref"><span class="pre">proto</span></span></a></strong></code>, then to <code class="ansible-value docutils literal notranslate"><span class="pre">wireguard</span></code>. <a class="reference internal" href="wg_interface_module.html#ansible-collections-community-openwrt-wg-interface-module"><span class="std std-ref">community.openwrt.wg_interface</span></a> resolves it the same way.</p>
+<p>When the protocol of an existing peer section changes, its type is changed in place.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;wireguard&quot;</span></code></p></li>
@@ -317,8 +319,8 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <div class="ansibleOptionAnchor" id="parameter-proto"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-peer-module-parameter-proto"><strong>proto</strong></p>
 <a class="ansibleOptionLink" href="#parameter-proto" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>Module-wide protocol, used as the default for every peer whose own <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-proto"><span class="std std-ref"><span class="pre">peers[].proto</span></span></a></strong></code> is not set.</p>
-<p>Falls back to the interface section’s <code class="docutils literal notranslate"><span class="pre">proto</span></code> (then <code class="ansible-value docutils literal notranslate"><span class="pre">wireguard</span></code>) when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-proto"><span class="std std-ref"><span class="pre">peers[].proto</span></span></a></strong></code> and this option are both unset.</p>
+<td><div class="ansible-option-cell"><p>Module-wide protocol, used for every peer whose own <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-peer-module-parameter-peers-proto"><span class="std std-ref"><span class="pre">peers[].proto</span></span></a></strong></code> is not set and whose interface section has no <code class="docutils literal notranslate"><span class="pre">proto</span></code> either.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">wireguard</span></code> when not set.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;wireguard&quot;</span></code></p></li>
