@@ -362,10 +362,71 @@
       - wg_shared_keys.stdout_lines[2] == "missing"
   no_log: true
 
-- name: Remove the interface without a key
+- name: Create another interface without a key
   when: wg_ubus_available
   community.openwrt.command:
-    cmd: uci delete network.wgx; uci commit network
+    cmd: uci set network.wgy=interface; uci set network.wgy.proto=wireguard; uci commit network
+    uses_shell: true
+  changed_when: false
+
+- name: Share the identity key without configuring any interface
+  when: wg_ubus_available
+  community.openwrt.wg_interface:
+    managed_interfaces: [wg0, wgy]
+    interfaces: []
+  register: wg_interface_key_only
+
+- name: Read the private keys after the key-only run
+  when: wg_ubus_available
+  community.openwrt.command:
+    cmd: uci -q get network.wg0.private_key; uci -q get network.wgy.private_key
+    uses_shell: true
+  register: wg_key_only_keys
+  changed_when: false
+  no_log: true
+
+- name: Assert a key-only run changes the network config only
+  when: wg_ubus_available
+  ansible.builtin.assert:
+    that:
+      - wg_interface_key_only is changed
+      - wg_interface_key_only is succeeded
+      - not wg_interface_key_only.firewall_changed
+      - wg_key_only_keys.stdout_lines | length == 2
+      - wg_key_only_keys.stdout_lines[0] == wg_key_only_keys.stdout_lines[1]
+  no_log: true
+
+- name: Configure an interface on a device without a firewall config
+  when: wg_ubus_available
+  block:
+    - name: Move the firewall config away
+      community.openwrt.command:
+        cmd: mv /etc/config/firewall /etc/config/firewall.wg-test
+      changed_when: false
+
+    - name: Configure an interface without a listen port
+      community.openwrt.wg_interface:
+        interfaces:
+          - name: wgz
+            addresses: [10.3.0.1/24]
+      register: wg_interface_no_firewall
+
+    - name: Assert the interface was configured
+      ansible.builtin.assert:
+        that:
+          - wg_interface_no_firewall is changed
+          - wg_interface_no_firewall is succeeded
+          - not wg_interface_no_firewall.firewall_changed
+  always:
+    - name: Restore the firewall config
+      community.openwrt.command:
+        cmd: mv /etc/config/firewall.wg-test /etc/config/firewall
+      changed_when: false
+
+- name: Remove the interfaces created for the key tests
+  when: wg_ubus_available
+  community.openwrt.command:
+    cmd: uci delete network.wgx; uci delete network.wgy; uci delete network.wgz; uci commit network
     uses_shell: true
   changed_when: false
 

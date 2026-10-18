@@ -71,6 +71,8 @@ let output = {
     removed_interfaces: [],
 };
 let diffs = [];
+// Only a config that changed may be saved: UCI refuses to save one it never loaded.
+let network_changed = false;
 
 function fail(msg) {
     module.fail_json({ ...output, msg: msg });
@@ -183,6 +185,7 @@ function apply_key(u, name, private_key) {
         fail(`cannot set network.${name}.private_key: ${update.error}`);
     if (update.changed) {
         output.changed = true;
+        network_changed = true;
         add_diff('network', name, current['.type'], update.before, update.after, [ 'private_key' ]);
     }
 }
@@ -215,6 +218,7 @@ function delete_interface(u, iface, proto) {
             let before = section_values(network[section]);
             checked(u, u.delete('network', section), `cannot delete network.${section}`);
             add_diff('network', section, network[section]['.type'], before, {}, [ 'preshared_key' ]);
+            network_changed = true;
             removed = true;
         }
     }
@@ -231,6 +235,7 @@ function delete_interface(u, iface, proto) {
     if (current != null) {
         checked(u, u.delete('network', iface.name), `cannot delete network.${iface.name}`);
         add_diff('network', iface.name, current['.type'], section_values(current), {}, [ 'private_key' ]);
+        network_changed = true;
         removed = true;
     }
     if (removed) {
@@ -268,6 +273,7 @@ function upsert_interface(u, iface, proto, private_key) {
         fail(`cannot update network.${iface.name}: ${update.error}`);
     if (update.changed) {
         output.changed = true;
+        network_changed = true;
         add_diff('network', iface.name, 'interface', update.before, update.after, [ 'private_key' ]);
     }
     push(output.interfaces, iface.name);
@@ -358,13 +364,13 @@ try {
         push(output.psks, psk);
     }
 
-    if (output.changed && !module.check_mode) {
+    if (network_changed && !module.check_mode) {
         checked(u, u.save('network'), 'cannot save network configuration');
         checked(u, u.commit('network'), 'cannot commit network configuration');
-        if (params.manage_firewall) {
-            checked(u, u.save('firewall'), 'cannot save firewall configuration');
-            checked(u, u.commit('firewall'), 'cannot commit firewall configuration');
-        }
+    }
+    if (output.firewall_changed && !module.check_mode) {
+        checked(u, u.save('firewall'), 'cannot save firewall configuration');
+        checked(u, u.commit('firewall'), 'cannot commit firewall configuration');
     }
     if (length(diffs) > 0)
         output.diff = diffs;
