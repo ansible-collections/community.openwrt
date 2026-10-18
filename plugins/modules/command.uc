@@ -71,10 +71,16 @@ let ts_start = clock();
 let mono_start = monotonic();
 let res;
 
-if (!params.uses_shell)
-    // Split the command into words without letting a shell interpret it, the
-    // way `echo ... | xargs sh -c 'exec "$@"' --` does.
-    res = module.run_command(`echo ${shell_quote(params.cmd)} | xargs sh -c 'exec "$@"' --`);
+if (!params.uses_shell) {
+    // Let xargs split the arguments, but execute them separately so that its
+    // status codes do not replace the command's own exit status.
+    res = module.run_command(`printf '%s\\n' ${shell_quote(params.cmd)} | xargs -r printf '%s\\0'`);
+    if (res.rc == 0) {
+        let argv = split(res.stdout, '\x00');
+        pop(argv); // Drop the empty field after the final NUL separator.
+        res = module.run_command([ 'exec', ...argv ]);
+    }
+}
 else
     res = module.run_command([ params.executable, '-c', params.cmd ]);
 
