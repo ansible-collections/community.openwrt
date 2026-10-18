@@ -13,10 +13,9 @@ DOCUMENTATION:
     - "The module performs the following steps in order:"
     - "1. Determine the protocol of the ubus key server from the interfaces being kept (V(wireguard) by default), failing if they request different protocols."
     - "2. Resolve the host identity key, reading it from every interface in O(managed_interfaces), failing on a hard mismatch (two distinct keys), otherwise reusing the single existing key or generating a fresh one via ubus, and deriving and reporting the public key."
-    - "3. Apply the identity key to every existing interface in O(managed_interfaces) (propagating it to interfaces missing one, or a fresh key on O(force_rekey=true)); names with no interface section yet are skipped."
-    - "4. Remove interfaces whose O(interfaces[].state) or O(state) is V(absent), dropping the interface section, its peer sections and its WAN ingress rule."
-    - "5. Write each interface UCI section, including AWG 3.x/3.1 options when O(proto=amneziawg), and ensure the WAN ingress ACCEPT rule for its listen port (unless O(manage_firewall=false))."
-    - "6. Resolve or generate a pre-shared key for each entry in O(peers), reusing an existing on-device PSK or generating one with the ubus C(genpsk) method, and return them in RV(psks), in the same order as O(peers). Generating a PSK is not reported as a change, since nothing is stored on the device."
+    - "3. For each entry in O(interfaces), remove it when its O(interfaces[].state) or O(state) is V(absent), dropping the interface section, its peer sections and its WAN ingress rule. Otherwise write its UCI section, with the identity key when it is in O(managed_interfaces) (a fresh key on O(force_rekey=true)) and the AWG options when its protocol is V(amneziawg), and ensure the WAN ingress ACCEPT rule for its listen port (unless O(manage_firewall=false))."
+    - "4. Write the identity key to the other interfaces in O(managed_interfaces) that miss one; names with no interface section yet are skipped."
+    - "5. Resolve or generate a pre-shared key for each entry in O(peers), reusing an existing on-device PSK or generating one with the ubus C(genpsk) method, and return them in RV(psks), in the same order as O(peers). Generating a PSK is not reported as a change, since nothing is stored on the device."
     - For the available WireGuard UCI config options see U(https://openwrt.org/docs/guide-user/services/vpn/wireguard/start).
     - "AmneziaWG support relies on the C(amneziawg) ubus key server; see Requirements below."
   attributes:
