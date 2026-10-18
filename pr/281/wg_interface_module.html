@@ -181,7 +181,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <li><p>Manages WireGuard/AmneziaWG identity keys, interface UCI sections and the WAN ingress firewall rule for each interface’s listen port.</p></li>
 <li><p>The module performs the following steps in order:</p></li>
 <li><ol class="arabic simple">
-<li><p>Determine the protocol (<code class="ansible-value docutils literal notranslate"><span class="pre">wireguard</span></code> by default) and the ubus key server from the configured interfaces.</p></li>
+<li><p>Determine the protocol of the ubus key server from the interfaces being kept (<code class="ansible-value docutils literal notranslate"><span class="pre">wireguard</span></code> by default), failing if they request different protocols.</p></li>
 </ol>
 </li>
 <li><ol class="arabic simple" start="2">
@@ -189,7 +189,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 </ol>
 </li>
 <li><ol class="arabic simple" start="3">
-<li><p>Apply the identity key to every interface in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-managed-interfaces"><span class="std std-ref"><span class="pre">managed_interfaces</span></span></a></strong></code> (propagating it to interfaces missing one, or a fresh key on <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-force-rekey"><span class="std std-ref"><span class="pre">force_rekey=true</span></span></a></code>).</p></li>
+<li><p>Apply the identity key to every existing interface in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-managed-interfaces"><span class="std std-ref"><span class="pre">managed_interfaces</span></span></a></strong></code> (propagating it to interfaces missing one, or a fresh key on <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-force-rekey"><span class="std std-ref"><span class="pre">force_rekey=true</span></span></a></code>); names with no interface section yet are skipped.</p></li>
 </ol>
 </li>
 <li><ol class="arabic simple" start="4">
@@ -201,7 +201,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 </ol>
 </li>
 <li><ol class="arabic simple" start="6">
-<li><p>Resolve or generate a pre-shared key for each entry in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers</span></span></a></strong></code>, reusing an existing on-device PSK or generating one with the ubus <code class="docutils literal notranslate"><span class="pre">genpsk</span></code> method, and return them in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-return-psks"><span class="std std-ref"><span class="pre">psks</span></span></a></code>, in the same order as <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers</span></span></a></strong></code>.</p></li>
+<li><p>Resolve or generate a pre-shared key for each entry in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers</span></span></a></strong></code>, reusing an existing on-device PSK or generating one with the ubus <code class="docutils literal notranslate"><span class="pre">genpsk</span></code> method, and return them in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-return-psks"><span class="std std-ref"><span class="pre">psks</span></span></a></code>, in the same order as <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers</span></span></a></strong></code>. Generating a PSK is not reported as a change, since nothing is stored on the device.</p></li>
 </ol>
 </li>
 <li><p>For the available WireGuard UCI config options see <a class="reference external" href="https://openwrt.org/docs/guide-user/services/vpn/wireguard/start">https://openwrt.org/docs/guide-user/services/vpn/wireguard/start</a>.</p></li>
@@ -253,7 +253,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <a class="ansibleOptionLink" href="#parameter-force_psk_rekey" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Regenerate every peer PSK even if one already exists on-device.</p>
-<p>When <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code>, the module is not idempotent and always reports a change.</p>
+<p>When <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code>, new PSKs are returned in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-return-psks"><span class="std std-ref"><span class="pre">psks</span></span></a></code> on every run. This is not reported as a change.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
 <li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
@@ -293,6 +293,10 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <a class="ansibleOptionLink" href="#parameter-interfaces/awg_tuning" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
 </div></td>
 <td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>AmneziaWG tuning and 3.x/3.1 options (<code class="docutils literal notranslate"><span class="pre">awg_*</span></code> keys) applied verbatim.</p>
+<p>Each <code class="docutils literal notranslate"><span class="pre">awg_*</span></code> key is the UCI name of an AmneziaWG parameter, for example <code class="docutils literal notranslate"><span class="pre">awg_jc</span></code> for <code class="docutils literal notranslate"><span class="pre">Jc</span></code> or <code class="docutils literal notranslate"><span class="pre">awg_header_protection_key</span></code> for <code class="docutils literal notranslate"><span class="pre">HeaderProtectionKey</span></code>, as read by the <code class="docutils literal notranslate"><span class="pre">amneziawg</span></code> protocol handler of <a class="reference external" href="https://github.com/this-username-has-been-taken/amneziawg-openwrt">https://github.com/this-username-has-been-taken/amneziawg-openwrt</a>.</p>
+<p>See <a class="reference external" href="https://docs.amnezia.org/documentation/amnezia-wg">https://docs.amnezia.org/documentation/amnezia-wg</a> for what each parameter does and the values it accepts.</p>
+<p>That handler knows these keys: integers <code class="docutils literal notranslate"><span class="pre">awg_jc</span></code>, <code class="docutils literal notranslate"><span class="pre">awg_jmin</span></code>, <code class="docutils literal notranslate"><span class="pre">awg_jmax</span></code> and <code class="docutils literal notranslate"><span class="pre">awg_s1</span></code> to <code class="docutils literal notranslate"><span class="pre">awg_s4</span></code>; strings <code class="docutils literal notranslate"><span class="pre">awg_h1</span></code> to <code class="docutils literal notranslate"><span class="pre">awg_h4</span></code>, <code class="docutils literal notranslate"><span class="pre">awg_i1</span></code> to <code class="docutils literal notranslate"><span class="pre">awg_i5</span></code>, <code class="docutils literal notranslate"><span class="pre">awg_header_protection_key</span></code>, <code class="docutils literal notranslate"><span class="pre">awg_content_padding_addition</span></code>, <code class="docutils literal notranslate"><span class="pre">awg_rekey_after_time</span></code>, <code class="docutils literal notranslate"><span class="pre">awg_rekey_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">awg_reject_after_time</span></code>, <code class="docutils literal notranslate"><span class="pre">awg_keepalive_timeout</span></code> and <code class="docutils literal notranslate"><span class="pre">awg_max_handshake_attempts</span></code>; booleans <code class="docutils literal notranslate"><span class="pre">awg_random_trailers</span></code> and <code class="docutils literal notranslate"><span class="pre">awg_disable_cookies</span></code>.</p>
+<p>Those keys that are not set are removed from the interface section. Other keys are written as given, so options of other AmneziaWG implementations can be set too.</p>
 <p>Only meaningful when the interface protocol is <code class="ansible-value docutils literal notranslate"><span class="pre">amneziawg</span></code>; ignored for <code class="ansible-value docutils literal notranslate"><span class="pre">wireguard</span></code>.</p>
 </div></td>
 </tr>
@@ -396,6 +400,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 </div></td>
 <td><div class="ansible-option-cell"><p>Names of all the interfaces on the host that share the host identity key.</p>
 <p>The module reads the private key from each of them, fails if they hold different keys (unless <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-force-rekey"><span class="std std-ref"><span class="pre">force_rekey=true</span></span></a></code>), and writes the identity key to those missing one.</p>
+<p>Names that have no interface section yet are skipped; they get the key when they are configured.</p>
 <p>Use it when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces"><span class="std std-ref"><span class="pre">interfaces</span></span></a></strong></code> does not list every interface of the host, for instance when a play run with <code class="docutils literal notranslate"><span class="pre">--tags</span></code> configures only one point-to-point link out of several. Listing all of them here keeps that link on the same key as the others.</p>
 <p>When not given, it is derived from <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces"><span class="std std-ref"><span class="pre">interfaces</span></span></a></strong></code>, from the entries whose state is not <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code>. So when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces"><span class="std std-ref"><span class="pre">interfaces</span></span></a></strong></code> already lists every interface of the host, or when each interface may have its own key, this option can be omitted.</p>
 <p>A run that only removes interfaces, with this option not given, does no key management.</p>
@@ -530,10 +535,11 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>The module writes UCI configuration only; it does not bring the interface up nor establish tunnels.</p></li>
-<li><p>The identity key and peer PSKs are generated via ubus; the <code class="docutils literal notranslate"><span class="pre">wireguard</span></code> object is used as a fallback when the requested <code class="docutils literal notranslate"><span class="pre">amneziawg</span></code> object is not available.</p></li>
+<li><p>The identity key and peer PSKs are generated via ubus; the <code class="docutils literal notranslate"><span class="pre">wireguard</span></code> object is used as a fallback whenever the call to the <code class="docutils literal notranslate"><span class="pre">amneziawg</span></code> object fails or returns no result.</p></li>
 <li><p>It is an intended design decision that all managed interfaces on a host share the same private key (and therefore the same public key), while each peer gets its own distinct pre-shared key. This keeps monitoring and peer mapping simple. The host is identified by one public key, and every peer link is identified by its unique PSK.</p></li>
+<li><p>To give some interfaces a key of their own, configure them in a separate task, without listing them in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-managed-interfaces"><span class="std std-ref"><span class="pre">managed_interfaces</span></span></a></strong></code> of the other tasks: each task then resolves the key of its own interfaces only. The module never takes a private key as a parameter, so that private keys never leave the device. To set a specific private key, use <a class="reference internal" href="uci_module.html#ansible-collections-community-openwrt-uci-module"><span class="std std-ref">community.openwrt.uci</span></a> on the <code class="docutils literal notranslate"><span class="pre">private_key</span></code> option of the interface.</p></li>
 <li><p>Template options (<code class="docutils literal notranslate"><span class="pre">*_template</span></code>) use ucode’s native template engine (Jinja-style <code class="docutils literal notranslate"><span class="pre">{{</span> <span class="pre">...</span> <span class="pre">}}</span></code> / <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">...</span> <span class="pre">%}</span></code>).</p></li>
-<li><p>This module is not tested on OpenWrt 23.05, which has no <code class="docutils literal notranslate"><span class="pre">rpcd-mod-wireguard</span></code> package.</p></li>
+<li><p>This module does not work on OpenWrt 23.05, which has no <code class="docutils literal notranslate"><span class="pre">rpcd-mod-wireguard</span></code> package and therefore no <code class="docutils literal notranslate"><span class="pre">wireguard</span></code> ubus object.</p></li>
 </ul>
 </div>
 </section>
@@ -573,6 +579,55 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <span class="w">    </span><span class="nt">peers</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">iface</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wg_l1</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">iface</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wg_l2</span>
+
+<span class="c1"># AmneziaWG hub. The tuning values below only show the syntax: generate your own,</span>
+<span class="c1"># and use the same ones on every end of the link.</span>
+<span class="c1"># See https://docs.amnezia.org/documentation/amnezia-wg</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">community.openwrt.wg_interface</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">proto</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">amneziawg</span>
+<span class="w">    </span><span class="nt">managed_interfaces</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">awg0</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">interfaces</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">awg0</span>
+<span class="w">        </span><span class="nt">listen_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">51830</span>
+<span class="w">        </span><span class="nt">addresses</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"10.11.0.1/24"</span>
+<span class="w">        </span><span class="nt">awg_tuning</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">awg_jc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="w">          </span><span class="nt">awg_jmin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40</span>
+<span class="w">          </span><span class="nt">awg_jmax</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">70</span>
+<span class="w">          </span><span class="nt">awg_s1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">52</span>
+<span class="w">          </span><span class="nt">awg_s2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span>
+<span class="w">          </span><span class="nt">awg_h1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1166528911</span>
+<span class="w">          </span><span class="nt">awg_h2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2007365624</span>
+<span class="w">          </span><span class="nt">awg_h3</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3125367892</span>
+<span class="w">          </span><span class="nt">awg_h4</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4069137714</span>
+<span class="w">    </span><span class="nt">peers</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">iface</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">awg0</span>
+<span class="w">        </span><span class="nt">section</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spoke1</span>
+
+<span class="c1"># WireGuard and AmneziaWG interfaces on one host, sharing the host identity key:</span>
+<span class="c1"># one task per protocol, both listing every interface in managed_interfaces</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">community.openwrt.wg_interface</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">proto</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wireguard</span>
+<span class="w">    </span><span class="nt">managed_interfaces</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">wg0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">awg0</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">interfaces</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wg0</span>
+<span class="w">        </span><span class="nt">listen_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">51820</span>
+<span class="w">        </span><span class="nt">addresses</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"10.8.0.1/24"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">community.openwrt.wg_interface</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">proto</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">amneziawg</span>
+<span class="w">    </span><span class="nt">managed_interfaces</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">wg0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">awg0</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">interfaces</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">awg0</span>
+<span class="w">        </span><span class="nt">listen_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">51830</span>
+<span class="w">        </span><span class="nt">addresses</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"10.11.0.1/24"</span>
+<span class="w">        </span><span class="nt">awg_tuning</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">awg_jc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="w">          </span><span class="nt">awg_jmin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40</span>
+<span class="w">          </span><span class="nt">awg_jmax</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">70</span>
 </pre></div>
 </div>
 </section>
@@ -606,7 +661,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <div class="ansibleOptionAnchor" id="return-psks"></div><p class="ansible-option-title" id="ansible-collections-community-openwrt-wg-interface-module-return-psks"><strong>psks</strong></p>
 <a class="ansibleOptionLink" href="#return-psks" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
 </div></td>
-<td><div class="ansible-option-cell"><p>Resolved (not stored) peer pre-shared keys, as a list parallel to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers</span></span></a></strong></code> (<code class="docutils literal notranslate"><span class="pre">psks[i]</span></code> is the key for <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers[i]</span></span></a></strong></code>). The controller zips the two lists to distribute each shared key to both ends.</p>
+<td><div class="ansible-option-cell"><p>Resolved (not stored) peer pre-shared keys, as a list parallel to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers</span></span></a></strong></code> (<code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-return-psks"><span class="std std-ref"><span class="pre">psks[i]</span></span></a></code> is the key for <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers[i]</span></span></a></strong></code>). The controller zips the two lists to distribute each shared key to both ends.</p>
 <p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-peers"><span class="std std-ref"><span class="pre">peers</span></span></a></strong></code> is given</p>
 </div></td>
 </tr>
@@ -623,7 +678,7 @@ see <a class="reference internal" href="#ansible-collections-community-openwrt-w
 <a class="ansibleOptionLink" href="#return-removed_interfaces" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>Names of interfaces removed because their <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-community-openwrt-wg-interface-module-parameter-interfaces-state"><span class="std std-ref"><span class="pre">interfaces[].state</span></span></a></strong></code> was <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code>.</p>
-<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when any interface state is absent</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
 </div></td>
 </tr>
 </tbody>
