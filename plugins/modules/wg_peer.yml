@@ -93,13 +93,13 @@ DOCUMENTATION:
           type: int
         persistent_keepalive:
           description:
-            - Peer persistent keepalive interval. Empty to omit the option.
+            - Peer persistent keepalive interval. The option is omitted when not set.
           type: int
         route_allowed_ips:
           description:
             - Whether to add routes for the peer's allowed IPs (OpenWrt C(route_allowed_ips)).
-          type: str
-          default: "0"
+          type: bool
+          default: false
         allowed_ips:
           description:
             - List of allowed IPs/prefixes.
