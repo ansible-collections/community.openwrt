@@ -1,0 +1,2 @@
+bugfixes:
+  - command - avoid syntax errors with older ucode interpreters (https://github.com/ansible-collections/community.openwrt/pull/325).
