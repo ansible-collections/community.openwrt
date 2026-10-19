@@ -27,6 +27,10 @@ files:
     maintainers: kbialek russoz
   $modules/apk.yml:
     maintainers: kbialek russoz
+  $modules/apk_feed.uc:
+    maintainers: russoz
+  $modules/apk_feed.yml:
+    maintainers: russoz
   $modules/command.uc:
     maintainers: $team_repo_mgrs
   $modules/command.yml:

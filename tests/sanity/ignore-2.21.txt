@@ -1,4 +1,5 @@
 plugins/modules/apk.uc validate-modules:invalid-extension
+plugins/modules/apk_feed.uc validate-modules:invalid-extension
 plugins/modules/command.uc validate-modules:invalid-extension
 plugins/modules/copy.uc validate-modules:invalid-extension
 plugins/modules/file.uc validate-modules:invalid-extension

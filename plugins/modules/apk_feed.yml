@@ -1,0 +1,120 @@
+---
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+DOCUMENTATION:
+  module: apk_feed
+  version_added: "1.10.0"
+  short_description: Manage apk package feeds
+  description:
+    - Add or remove a package feed in the repositories files read by C(apk), and optionally the key the feed is signed with.
+  options:
+    url:
+      description:
+        - URL of the feed.
+        - A feed is identified by its URL, whatever its tag.
+      type: str
+      required: true
+    tag:
+      description:
+        - Tag of the feed. C(apk) only installs packages from a tagged feed when they are requested as C(name@tag).
+        - When the feed is already present with another tag, or without one, its line is rewritten.
+      type: str
+    state:
+      description:
+        - Whether the feed should be present or not.
+      type: str
+      choices: [absent, present]
+      default: present
+    file:
+      description:
+        - Repositories file holding the feed. It is created when needed.
+        - The default file is the one OpenWrt keeps across a system upgrade.
+      type: str
+      default: /etc/apk/repositories.d/customfeeds.list
+    key:
+      description:
+        - PEM encoded public key the feed is signed with, written to O(key_name) in C(/etc/apk/keys/).
+        - Only used when O(state=present).
+        - O(key) and O(key_url) are mutually exclusive.
+      type: str
+    key_url:
+      description:
+        - URL of the PEM encoded public key the feed is signed with, downloaded by the device to O(key_name) in C(/etc/apk/keys/).
+        - The key is downloaded on every run, check mode included, to compare it with the one in place.
+        - Only used when O(state=present).
+        - O(key) and O(key_url) are mutually exclusive.
+      type: str
+    key_name:
+      description:
+        - Name of the key file in C(/etc/apk/keys/).
+        - Required when O(key) or O(key_url) is given.
+        - When O(state=absent), the key file is removed along with the feed.
+      type: str
+    update_cache:
+      description:
+        - Update the package index with C(apk update) when the module changes something.
+      type: bool
+      default: false
+  notes:
+    - This module requires C(apk), the package manager of OpenWrt 25.12 and later.
+    - Keys in C(/etc/apk/keys/) are not kept across a system upgrade unless listed in C(/etc/sysupgrade.conf).
+  seealso:
+    - module: community.openwrt.apk
+  extends_documentation_fragment:
+    - community.openwrt.attributes
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: none
+  author:
+    - Alexei Znamensky (@russoz)
+
+EXAMPLES: |
+  - name: Add a third-party feed along with its signing key
+    community.openwrt.apk_feed:
+      url: https://m00qek.github.io/packages.ucode.dev/25.12
+      key_url: https://m00qek.github.io/packages.ucode.dev/25.12/feed.pub.pem
+      key_name: packages.ucode.dev.pem
+      update_cache: true
+
+  - name: Add a tagged feed in a file of its own
+    community.openwrt.apk_feed:
+      url: https://example.com/openwrt/packages.adb
+      tag: example
+      file: /etc/apk/repositories.d/example.list
+
+  - name: Remove the feed and its signing key
+    community.openwrt.apk_feed:
+      url: https://m00qek.github.io/packages.ucode.dev/25.12
+      key_name: packages.ucode.dev.pem
+      state: absent
+
+RETURN:
+  url:
+    description: URL of the feed.
+    returned: always
+    type: str
+    sample: https://m00qek.github.io/packages.ucode.dev/25.12
+  tag:
+    description: Tag of the feed.
+    returned: always
+    type: str
+    sample: ucodedev
+  state:
+    description: Whether the feed is present or not.
+    returned: always
+    type: str
+    sample: present
+  file:
+    description: Repositories file holding the feed.
+    returned: always
+    type: str
+    sample: /etc/apk/repositories.d/customfeeds.list
+  key_file:
+    description: Path of the key file.
+    returned: When O(key_name) is given
+    type: str
+    sample: /etc/apk/keys/packages.ucode.dev.pem
