@@ -49,7 +49,7 @@ EXAMPLES = r"""
 
 RETURN = r"""
 dest:
-  description: Destination file/path, equal to the value passed to I(dest).
+  description: Destination file/path, equal to the value passed to O(dest).
   returned: success
   type: str
   sample: /path/to/file.txt

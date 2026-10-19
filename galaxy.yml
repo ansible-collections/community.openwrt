@@ -29,4 +29,3 @@ build_ignore:
   - extensions/
   - Pipfile*
   - .*
-  - AI
