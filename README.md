@@ -99,7 +99,6 @@ The process of decision making in this collection is based on discussing and fin
 
 The collection is currently tested with `ansible-core` versions:
 
-- 2.18
 - 2.19
 - 2.20
 - 2.21
