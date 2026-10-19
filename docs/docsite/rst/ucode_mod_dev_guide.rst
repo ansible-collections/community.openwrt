@@ -41,7 +41,8 @@ Skills that help
   what a module ends up driving.
 
 You are welcome to use AI to help you write modules, roles and anything else - but remember that your code will
-be your responsibility, so you MUST understand what is happening in it.
+be your responsibility, so you MUST understand what is happening in it, and you MUST comply with the
+`Ansible Community Policy for AI-Assisted Contributions <https://docs.ansible.com/projects/ansible/devel/community/ai_policy.html>`_.
 
 Target requirements
 ^^^^^^^^^^^^^^^^^^^

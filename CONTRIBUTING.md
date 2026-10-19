@@ -11,5 +11,8 @@ Refer to the [Ansible community guide](https://docs.ansible.com/ansible/devel/co
 Refer to the [Community OpenWrt ucode Module Developer Guide](https://ansible-collections.github.io/community.openwrt/branch/main/docsite/ucode_mod_dev_guide.html)
 for specific instructions for developing modules for community.openwrt.
 
+Using AI is accepted, but contributions MUST comply with the
+[Ansible Community Policy for AI-Assisted Contributions](https://docs.ansible.com/projects/ansible/devel/community/ai_policy.html).
+
 And you might also want to check the full
 [community.openwrt collection documentation site](https://ansible-collections.github.io/community.openwrt/branch/main/).
