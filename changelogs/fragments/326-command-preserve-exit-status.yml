@@ -1,0 +1,2 @@
+bugfixes:
+  - command - preserve original command exit codes and standard error output (https://github.com/ansible-collections/community.openwrt/pull/326).
