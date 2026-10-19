@@ -1,0 +1,2 @@
+minor_changes:
+  - command - refactor parameter names in function ``elapsed()`` (https://github.com/ansible-collections/community.openwrt/pull/325).
