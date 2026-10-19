@@ -7,7 +7,7 @@ galaxy_info:
   author: Alexei Znamensky, Markus Weippert
   description: Initialization for community.openwrt
   license: GPL-3.0-or-later
-  min_ansible_version: '2.18'
+  min_ansible_version: '2.19'
   platforms:
     - name: OpenWrt
   galaxy_tags:
