@@ -1,2 +1,2 @@
-bugfixes:
-  - command - avoid syntax errors with older ucode interpreters (https://github.com/ansible-collections/community.openwrt/pull/325).
+minor_changes:
+  - command - refactor parameter names in function ``elapsed()`` (https://github.com/ansible-collections/community.openwrt/pull/325).
