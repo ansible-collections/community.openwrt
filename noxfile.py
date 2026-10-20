@@ -239,10 +239,10 @@ def bump_version(session: nox.Session):
     Bump galaxy.yml to the next development version, revert pinned doc URLs,
     push directly to upstream/main, and sync origin.
 
-    Usage: nox -e version_bump -- [<next_version>]
+    Usage: nox -e bump_version -- <released_version> [<next_version>]
 
-    If <next_version> is not given, rotates the minor component
-    (e.g. 1.3.0 -> 1.4.0).
+    If <next_version> is not given, rotates the minor component of
+    <released_version> (e.g. 1.3.0 -> 1.4.0).
     """
     session.install("pyaml")
     session.run("git", "checkout", "main", external=True)
@@ -291,7 +291,7 @@ def test_default(session: nox.Session):
 
 @nox.session(default=False)
 def test_gather_facts(session: nox.Session):
-    """Run the default molecule scenario."""
+    """Run the gather_facts molecule scenario."""
     env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
     session.run("molecule", "-vvv", "test", "-s", "gather_facts", external=True, env=env)
 
