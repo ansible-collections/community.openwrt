@@ -71,18 +71,12 @@ def _write_openwrt(openwrt_cfg: dict) -> None:
         yaml.safe_dump(openwrt_cfg, f)
 
 
-def _assert_clean_workdir(session: nox.Session) -> None:
-    modified = session.run("git", "status", "--porcelain=v1", "--untracked=normal", external=True, silent=True)
-    if modified:
-        session.error("Dirty working directory. Commit, stash, or remove changes before running this session.")
-
-
 def _run_integration(session: nox.Session):
     env = {"PY_COLORS": "1", "ANSIBLE_FORCE_COLOR": "1"}
     session.run("molecule", "-vvv", "test", "--scenario-name", "molecule_integration", external=True, env=env)
 
 
-def check_no_modifications(session: nox.Session, fragment_path) -> None:
+def check_no_modifications(session: nox.Session, exclude: str | None = None) -> None:
     modified = session.run(
         "git",
         "status",
@@ -91,9 +85,11 @@ def check_no_modifications(session: nox.Session, fragment_path) -> None:
         external=True,
         silent=True,
     )
-    modified = [x for x in modified.splitlines() if fragment_path not in x]
+    modified = [x for x in modified.splitlines() if not exclude or exclude not in x]
     if modified:
-        session.error("There are modified or untracked files. Commit, restore, or remove them before running this")
+        session.error(
+            "There are modified or untracked files. Commit, restore, or remove them before running this session."
+        )
 
 
 @nox.session(default=False)
@@ -256,7 +252,7 @@ def bump_version(session: nox.Session):
     """
     session.install("pyaml")
     session.run("git", "checkout", "main", external=True)
-    check_no_modifications(session, "")
+    check_no_modifications(session)
     session.run("git", "pull", "--rebase", "upstream", "main", external=True)
 
     gv = galaxy_version()
@@ -522,7 +518,7 @@ def openwrt_version(session: nox.Session):
             session.log(v)
         return
 
-    _assert_clean_workdir(session)
+    check_no_modifications(session)
     session.run("git", "checkout", "main", external=True)
     session.run("git", "pull", "--rebase", "upstream", "main", external=True)
     versions = openwrt_test_config["versions"]
