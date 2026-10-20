@@ -67,7 +67,7 @@ if (params.creates != null && file_exists(params.creates))
 if (params.removes != null && !file_exists(params.removes))
     module.exit_json({ stdout: `skipped, since ${params.removes} does not exist` });
 
-let argv;
+let command_args;
 
 if (!params.uses_shell) {
     // Let xargs split the arguments, but execute them separately so that its
@@ -76,17 +76,19 @@ if (!params.uses_shell) {
     if (parsed.rc != 0)
         module.fail_json({ rc: null, msg: `Unable to parse command arguments: ${rtrim(parsed.stderr, '\n')}` });
 
-    argv = split(parsed.stdout, '\x00');
+    let argv = split(parsed.stdout, '\x00');
     pop(argv); // Drop the empty field after the final NUL separator.
     if (length(argv) == 0)
         module.fail_json({ rc: null, msg: 'Command is empty' });
+
+    command_args = [ 'exec', ...argv ];
 }
+else
+    command_args = [ params.executable, '-c', params.cmd ];
 
 let ts_start = clock();
 let mono_start = monotonic();
-let res = params.uses_shell
-    ? module.run_command([ params.executable, '-c', params.cmd ])
-    : module.run_command([ 'exec', ...argv ]);
+let res = module.run_command(command_args);
 
 let ts_end = clock();
 let mono_end = monotonic();
