@@ -79,7 +79,7 @@ if (!params.uses_shell) {
     argv = split(parsed.stdout, '\x00');
     pop(argv); // Drop the empty field after the final NUL separator.
     if (length(argv) == 0)
-        module.fail_json({ rc: null, msg: 'No command was given' });
+        module.fail_json({ rc: null, msg: 'Command is empty' });
 }
 
 let ts_start = clock();

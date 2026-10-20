@@ -66,9 +66,9 @@
   loop:
     - {cmd: "printf should-not-run 'unterminated", message: 'Unable to parse command arguments:'}
     - {cmd: 'printf should-not-run "unterminated', message: 'Unable to parse command arguments:'}
-    - {cmd: '', message: 'No command was given'}
-    - {cmd: '   ', message: 'No command was given'}
-    - {cmd: "''", message: 'No command was given'}
+    - {cmd: '', message: 'Command is empty'}
+    - {cmd: '   ', message: 'Command is empty'}
+    - {cmd: "''", message: 'Command is empty'}
   register: invalid_commands
   ignore_errors: true
 
