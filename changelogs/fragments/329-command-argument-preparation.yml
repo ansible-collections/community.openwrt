@@ -1,0 +1,2 @@
+bugfixes:
+  - command - report argument preparation failures without a command return code or a changed status (https://github.com/ansible-collections/community.openwrt/pull/329).
