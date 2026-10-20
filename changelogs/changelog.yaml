@@ -51,7 +51,6 @@ releases:
     fragments:
       - 0.2.0.yml
       - 14-wrapper-revamp.yml
-    modules: []
     release_date: '2025-12-14'
   0.3.0:
     changes:
@@ -418,3 +417,38 @@ releases:
         name: ucode_wrapper
         namespace: ''
     release_date: '2026-10-06'
+  1.10.0:
+    changes:
+      bugfixes:
+        - command - preserve original command exit codes and standard error output
+          (https://github.com/ansible-collections/community.openwrt/pull/326).
+        - group - do not share nor follow symlinks on the temporary file used to replace
+          ``/etc/group`` and ``/etc/passwd`` (https://github.com/ansible-collections/community.openwrt/pull/310).
+      minor_changes:
+        - command - refactor parameter names in function ``elapsed()`` (https://github.com/ansible-collections/community.openwrt/pull/325).
+        - init role - add ``openwrt_opkg_update_retries`` and ``openwrt_opkg_update_delay``
+          to retry failed ``opkg update`` runs (https://github.com/ansible-collections/community.openwrt/pull/323).
+        - init role - stop installing ``coreutils-base64`` and ``coreutils-md5sum``
+          as recommended packages (https://github.com/ansible-collections/community.openwrt/pull/321).
+      release_summary: 'Regular release with bugfixes, features, and three new modules.
+
+        This release introduces unit testing for ucode based on the utest framework.'
+    fragments:
+      - 1.10.0.yml
+      - 310-group-unique-tmp-file.yml
+      - 321-init-recommended-packages.yml
+      - 323-opkg-update-retries.yml
+      - 325-command-elapsed-parameter-names.yml
+      - 326-command-preserve-exit-status.yml
+    modules:
+      - description: Manage apk package feeds.
+        name: apk_feed
+        namespace: ''
+      - description: Manage WireGuard/AmneziaWG identity keys, interface UCI sections
+          and WAN ingress firewall rules.
+        name: wg_interface
+        namespace: ''
+      - description: Manage WireGuard/AmneziaWG peer UCI sections.
+        name: wg_peer
+        namespace: ''
+    release_date: '2026-10-20'

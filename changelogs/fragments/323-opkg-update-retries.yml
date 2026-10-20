@@ -1,2 +1,0 @@
-minor_changes:
-  - init role - add ``openwrt_opkg_update_retries`` and ``openwrt_opkg_update_delay`` to retry failed ``opkg update`` runs (https://github.com/ansible-collections/community.openwrt/pull/323).

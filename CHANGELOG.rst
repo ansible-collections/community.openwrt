@@ -4,6 +4,35 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.10.0
+=======
+
+Release Summary
+---------------
+
+Regular release with bugfixes, features, and three new modules.
+This release introduces unit testing for ucode based on the utest framework.
+
+Minor Changes
+-------------
+
+- command - refactor parameter names in function ``elapsed()`` (https://github.com/ansible-collections/community.openwrt/pull/325).
+- init role - add ``openwrt_opkg_update_retries`` and ``openwrt_opkg_update_delay`` to retry failed ``opkg update`` runs (https://github.com/ansible-collections/community.openwrt/pull/323).
+- init role - stop installing ``coreutils-base64`` and ``coreutils-md5sum`` as recommended packages (https://github.com/ansible-collections/community.openwrt/pull/321).
+
+Bugfixes
+--------
+
+- command - preserve original command exit codes and standard error output (https://github.com/ansible-collections/community.openwrt/pull/326).
+- group - do not share nor follow symlinks on the temporary file used to replace ``/etc/group`` and ``/etc/passwd`` (https://github.com/ansible-collections/community.openwrt/pull/310).
+
+New Modules
+-----------
+
+- community.openwrt.apk_feed - Manage apk package feeds.
+- community.openwrt.wg_interface - Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules.
+- community.openwrt.wg_peer - Manage WireGuard/AmneziaWG peer UCI sections.
+
 v1.9.0
 ======
 
