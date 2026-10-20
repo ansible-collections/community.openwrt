@@ -401,7 +401,10 @@ def _galaxy_has(version: str) -> bool:
 
 
 def _github_release_exists(version: str) -> bool:
-    return subprocess.run(["gh", "release", "view", version, "-R", UPSTREAM], capture_output=True).returncode == 0
+    return (
+        subprocess.run(["gh", "release", "view", version, "-R", UPSTREAM], capture_output=True, check=True).returncode
+        == 0
+    )
 
 
 def _upstream_galaxy_version(session: nox.Session) -> str:
