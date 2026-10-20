@@ -76,7 +76,7 @@ if (!params.uses_shell) {
     if (parsed.rc != 0)
         module.fail_json(`Unable to parse command arguments: ${rtrim(parsed.stderr, '\n')}`);
 
-    let argv = split(parsed.stdout, '\x00');
+    let argv = split(parsed.stdout, chr(0));
     pop(argv); // Drop the empty field after the final NUL separator.
     if (length(argv) == 0)
         module.fail_json('Command is empty');
