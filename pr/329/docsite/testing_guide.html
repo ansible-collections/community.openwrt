@@ -129,6 +129,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ucode_wrapper_module.html">community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -401,7 +403,7 @@ describe('normalize_value()', () =&gt; {
 <section id="mocks">
 <h3><a class="toc-backref" href="#id11" role="doc-backlink">Mocks</a><a class="headerlink" href="#mocks" title="Link to this heading"></a></h3>
 <p>Only the modules listed under <code class="docutils literal notranslate"><span class="pre">mocks</span></code> in <code class="docutils literal notranslate"><span class="pre">utest.config.uc</span></code> can be mocked; currently those
-are <code class="docutils literal notranslate"><span class="pre">fs</span></code> and <code class="docutils literal notranslate"><span class="pre">_basic</span></code>. utest cannot look inside <code class="docutils literal notranslate"><span class="pre">_basic</span></code>, so it uses the proxy in
+are <code class="docutils literal notranslate"><span class="pre">fs</span></code>, <code class="docutils literal notranslate"><span class="pre">ubus</span></code> and <code class="docutils literal notranslate"><span class="pre">_basic</span></code>. utest cannot look inside <code class="docutils literal notranslate"><span class="pre">_basic</span></code>, so it uses the proxy in
 <code class="docutils literal notranslate"><span class="pre">tests/ucode/utils/basic_proxy.uc</span></code> instead. That proxy lists every function <code class="docutils literal notranslate"><span class="pre">_basic.uc</span></code>
 exports, and the list has to be updated when one is added.</p>
 </section>
@@ -425,7 +427,9 @@ const to_id = module_internals('../../plugins/modules/group.uc').to_id;
 <p>It runs the module only as far as a line ending in a <code class="docutils literal notranslate"><span class="pre">//</span> <span class="pre">END-OF-UNIT-TESTABLES</span></code> comment,
 with <code class="docutils literal notranslate"><span class="pre">AnsibleModule()</span></code> mocked. So the module needs that line, placed after its top-level
 functions and before the code that does the work. That is usually before the <em>main</em> block.
-Only functions declared at the top level, with <code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">name(</span></code> at the start of the line, are returned.</p>
+Only functions declared at the top level, with <code class="docutils literal notranslate"><span class="pre">function</span> <span class="pre">name(</span></code> at the start of the line, are returned.
+The optional second argument is the object the mocked <code class="docutils literal notranslate"><span class="pre">AnsibleModule()</span></code> returns, for functions
+that read <code class="docutils literal notranslate"><span class="pre">module.params</span></code>, <code class="docutils literal notranslate"><span class="pre">module.check_mode</span></code> or call <code class="docutils literal notranslate"><span class="pre">module.fail_json()</span></code>.</p>
 </section>
 </section>
 <section id="sanity-and-python-unit-tests">

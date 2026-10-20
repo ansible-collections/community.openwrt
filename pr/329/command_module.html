@@ -119,6 +119,8 @@
 <li class="toctree-l1"><a class="reference internal" href="uci_module.html">community.openwrt.uci module – Controls OpenWrt UCI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ucode_wrapper_module.html">community.openwrt.ucode_wrapper module – Internal wrapper module for OpenWrt ucode-based modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wait_for_connection_module.html">community.openwrt.wait_for_connection module – Waits until an OpenWrt device is reachable/usable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wg_interface_module.html">community.openwrt.wg_interface module – Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wg_peer_module.html">community.openwrt.wg_peer module – Manage WireGuard/AmneziaWG peer UCI sections</a></li>
 </ul>
 <!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
 
@@ -360,7 +362,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 <a class="ansibleOptionLink" href="#return-rc" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
 </div></td>
 <td><div class="ansible-option-cell"><p>The command return code.</p>
-<p>This field is omitted if command preparation fails.</p>
+<p>This field is omitted if command is not executed.</p>
 <p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when available</p>
 <p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">0</span></code></p>
 </div></td>
