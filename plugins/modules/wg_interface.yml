@@ -1,0 +1,362 @@
+---
+# Copyright (c) 2026, Vladimir Ermakov (@vooon)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+DOCUMENTATION:
+  module: wg_interface
+  version_added: "1.10.0"
+  short_description: Manage WireGuard/AmneziaWG identity keys, interface UCI sections and WAN ingress firewall rules
+  description:
+    - Manages WireGuard/AmneziaWG identity keys, interface UCI sections and the WAN
+      ingress firewall rule for each interface's listen port.
+    - "The module performs the following steps in order:"
+    - "1. Determine the protocol of the ubus key server from the interfaces being kept (V(wireguard) by default), failing if they request different protocols."
+    - "2. Resolve the host identity key, reading it from every interface in O(managed_interfaces), failing on a hard mismatch (two distinct keys), otherwise reusing the single existing key or generating a fresh one via ubus, and deriving and reporting the public key."
+    - "3. For each entry in O(interfaces), remove it when its O(interfaces[].state) or O(state) is V(absent), dropping the interface section, its peer sections and its WAN ingress rule (unless O(manage_firewall=false)). Otherwise write its UCI section, with the identity key when it is in O(managed_interfaces) (a fresh key on O(force_rekey=true)) and the AWG options when its protocol is V(amneziawg), and ensure the WAN ingress ACCEPT rule for its listen port, or remove it when O(interfaces[].listen_port) is not set (unless O(manage_firewall=false))."
+    - "4. Write the identity key to the other interfaces in O(managed_interfaces) that miss one, or to all of them on O(force_rekey=true); names with no interface section yet are skipped."
+    - "5. Resolve or generate a pre-shared key for each entry in O(peers), reusing an existing on-device PSK or generating one with the ubus C(genpsk) method, and return them in RV(psks), in the same order as O(peers). Generating a PSK is not reported as a change, since nothing is stored on the device."
+    - For the available WireGuard UCI config options see U(https://openwrt.org/docs/guide-user/services/vpn/wireguard/start).
+    - "AmneziaWG support relies on the C(amneziawg) ubus key server; see Requirements below."
+  attributes:
+    check_mode:
+      support: full
+    diff_mode:
+      support: full
+    platform:
+      description: Target platform for this module.
+      support: full
+      platforms: OpenWrt
+  options:
+    proto:
+      description:
+        - Module-wide protocol, used as the default for every entry in O(interfaces)
+          and O(peers) whose own O(interfaces[].proto) or O(peers[].proto) is not set.
+        - An explicitly-set O(interfaces[].proto) or O(peers[].proto) overrides this for that entry.
+      type: str
+      choices: [wireguard, amneziawg]
+      default: wireguard
+    state:
+      description:
+        - Module-wide state, used as the default for every entry in O(interfaces)
+          whose own O(interfaces[].state) is not set.
+        - An explicitly-set O(interfaces[].state) overrides this for that interface.
+      type: str
+      choices: [present, absent]
+      default: present
+    managed_interfaces:
+      description:
+        - Names of all the interfaces on the host that share the host identity key.
+        - The module reads the private key from each of them, fails if they hold different keys
+          (unless O(force_rekey=true)), and writes the identity key to those missing one.
+        - Names that have no interface section yet are skipped; they get the key when they are configured.
+        - Use it when O(interfaces) does not list every interface of the host, for instance when
+          a play run with C(--tags) configures only one point-to-point link out of several. Listing
+          all of them here keeps that link on the same key as the others.
+        - When not given, it is derived from O(interfaces), from the entries whose state is not
+          V(absent). So when O(interfaces) already lists every interface of the host, or when each
+          interface may have its own key, this option can be omitted.
+        - A run that only removes interfaces, with this option not given, does no key management.
+      type: list
+      elements: str
+    interfaces:
+      description:
+        - List of interface configurations to (re)write.
+        - Each suboption below sets the UCI option of the same name. When a suboption is not set, that option
+          is removed from an existing interface section, so options set by other means are lost. Other options
+          of the section are left alone.
+      type: list
+      elements: dict
+      required: true
+      suboptions:
+        name:
+          description:
+            - Interface name.
+          type: str
+          required: true
+        state:
+          description:
+            - Whether the interface should be present or absent.
+            - When V(absent), the interface section, its peer sections of either protocol and,
+              unless O(manage_firewall=false), its WAN ingress rule are removed. The protocol of the
+              interface on the device is used for the templates, when it has one.
+            - Defaults to the module-wide O(state) when not set.
+          type: str
+          choices: [present, absent]
+        proto:
+          description:
+            - Interface protocol.
+            - Defaults to the module-wide O(proto) when not set.
+          type: str
+          choices: [wireguard, amneziawg]
+        listen_port:
+          description:
+            - Interface listen port.
+          type: int
+        addresses:
+          description:
+            - List of addresses with prefix (v4/v6).
+          type: list
+          elements: str
+        mtu:
+          description:
+            - Interface MTU.
+          type: int
+        metric:
+          description:
+            - Interface metric.
+          type: int
+        dns:
+          description:
+            - List of DNS servers advertised for the interface (OpenWrt C(dns) option).
+          type: list
+          elements: str
+        peerdns:
+          description:
+            - Whether to accept DNS servers provided by this interface (OpenWrt C(peerdns) option).
+          type: bool
+        dns_metric:
+          description:
+            - DNS metric for the interface (OpenWrt C(dns_metric) option).
+          type: int
+        awg_tuning:
+          description:
+            - AmneziaWG tuning and 3.x/3.1 options (C(awg_*) keys) applied verbatim.
+            - Each C(awg_*) key is the UCI name of an AmneziaWG parameter, for example C(awg_jc) for C(Jc) or
+              C(awg_header_protection_key) for C(HeaderProtectionKey), as read by the C(amneziawg) protocol
+              handler of U(https://github.com/this-username-has-been-taken/amneziawg-openwrt).
+            - See U(https://docs.amnezia.org/documentation/amnezia-wg) for what each parameter does and the values it accepts.
+            - "That handler knows these keys: integers C(awg_jc), C(awg_jmin), C(awg_jmax) and C(awg_s1) to C(awg_s4);
+              strings C(awg_h1) to C(awg_h4), C(awg_i1) to C(awg_i5), C(awg_header_protection_key),
+              C(awg_content_padding_addition), C(awg_rekey_after_time), C(awg_rekey_timeout), C(awg_reject_after_time),
+              C(awg_keepalive_timeout) and C(awg_max_handshake_attempts); booleans C(awg_random_trailers) and
+              C(awg_disable_cookies)."
+            - Those keys that are not set are removed from the interface section. Other keys are written as given,
+              so options of other AmneziaWG implementations can be set too.
+            - Only meaningful when the interface protocol is V(amneziawg); ignored for V(wireguard).
+            - When an interface is switched to V(wireguard), its C(awg_*) options are left in place.
+              WireGuard ignores them.
+          type: dict
+    force_rekey:
+      description:
+        - Regenerate the identity key even if one exists.
+        - When V(true), the module is not idempotent. It writes a new key, and reports a change, on every run
+          where a managed interface section exists.
+      type: bool
+      default: false
+    force_psk_rekey:
+      description:
+        - Regenerate every peer PSK even if one already exists on-device.
+        - When V(true), new PSKs are returned in RV(psks) on every run. This is not reported as a change.
+      type: bool
+      default: false
+    manage_firewall:
+      description:
+        - Whether to (re)write the WAN ingress ACCEPT rule for each interface listen port, and remove
+          it along with the interface or when O(interfaces[].listen_port) is not set.
+        - Set to V(false) when firewall management is handled elsewhere.
+      type: bool
+      default: true
+    firewall_rule_id_template:
+      description:
+        - Ucode template for the UCI section id of the WAN ingress firewall rule.
+        - "Rendered with these variables in scope: C(iface_name) (O(interfaces[].name)),
+          C(proto) (O(interfaces[].proto) or O(proto)) and C(listen_port) (O(interfaces[].listen_port))."
+        - Avoid using C(listen_port) or C(proto) here. A rule is found again by this id only, so with
+          C(listen_port) in it, the rule of a previous port is not removed when the port changes or is
+          unset, nor when the interface is removed without O(interfaces[].listen_port). With C(proto) in
+          it, the rule of the previous protocol is not removed when the interface switches protocols.
+      type: str
+      default: "{{ iface_name }}_in"
+    firewall_rule_name_template:
+      description:
+        - Ucode template for the C(name)/description of the WAN ingress firewall rule.
+        - "Rendered with these variables in scope: C(iface_name) (O(interfaces[].name)),
+          C(proto) (O(interfaces[].proto) or O(proto)) and C(listen_port) (O(interfaces[].listen_port))."
+      type: str
+      default: "Allow-Wan-{{ proto }}: {{ iface_name }}"
+    peer_id_template:
+      description:
+        - Ucode template for the peer UCI section id, used to locate a reusable on-device
+          pre-shared key for idempotency.
+        - "Rendered with these variables in scope: C(iface_name) (O(peers[].iface)),
+          C(section) (O(peers[].section)) and C(proto) (O(peers[].proto), then the interface section's C(proto),
+          then O(proto))."
+        - Must render the same id as O(community.openwrt.wg_peer#module:peer_id_template).
+      type: str
+      default: "{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}"
+    peers:
+      description:
+        - "Optional list of peer section skeletons. For each, the module resolves (but does not store) the pre-shared key: it reuses an existing on-device PSK or generates one with the ubus C(genpsk) method."
+        - Resolved keys are returned in RV(psks), in the same order as this list, so the controller
+          can distribute each shared key to both ends.
+      type: list
+      elements: dict
+      suboptions:
+        iface:
+          description:
+            - Parent interface name.
+          type: str
+          required: true
+        section:
+          description:
+            - Peer section suffix, available as C(section) in the O(peer_id_template) template
+              scope when resolving the pre-shared key.
+          type: str
+        proto:
+          description:
+            - Peer protocol, used to render O(peer_id_template) and to call the ubus key server.
+            - Defaults to the C(proto) of the interface section, as written by this task, then to the
+              module-wide O(proto). M(community.openwrt.wg_peer) resolves it the same way, so both modules
+              render the same peer section id.
+          type: str
+          choices: [wireguard, amneziawg]
+        force_psk_rekey:
+          description:
+            - Regenerate this peer PSK even if one already exists.
+          type: bool
+          default: false
+  requirements:
+    - C(rpcd) must be running (default behavior in standard OpenWrt).
+    - C(rpcd-mod-wireguard).
+    - The custom module C(rpcd-mod-amneziawg) for AmneziaWG, from U(https://github.com/vooon/wgsd-ucode/tree/main/rpcd-mod-amneziawg).
+  notes:
+    - The module writes UCI configuration only; it does not bring the interface up nor
+      establish tunnels.
+    - The identity key and peer PSKs are generated via ubus; the C(wireguard) object is used
+      as a fallback whenever the call to the C(amneziawg) object fails or returns no result.
+    - >-
+      It is an intended design decision that all managed interfaces on a host share the same private key (and therefore the same public key),
+      while each peer gets its own distinct pre-shared key.
+      This keeps monitoring and peer mapping simple.
+      The host is identified by one public key, and every peer link is identified by its unique PSK.
+    - >-
+      To give some interfaces a key of their own, configure them in a separate task, without listing them in
+      O(managed_interfaces) of the other tasks: each task then resolves the key of its own interfaces only.
+      The module never takes a private key as a parameter, so that private keys never leave the device.
+      To set a specific private key, use M(community.openwrt.uci) on the C(private_key) option of the interface.
+    - RV(psks) holds the pre-shared keys in clear text. Set the C(no_log) task keyword on tasks with
+      O(peers) to keep them out of the output and logs.
+    - Template options (C(*_template)) use ucode's native template engine (Jinja-style
+      C({{ ... }}) / C({% ... %})).
+    - This module does not work on OpenWrt 23.05, which has no C(rpcd-mod-wireguard) package and therefore no C(wireguard) ubus object.
+  extends_documentation_fragment:
+    - community.openwrt.attributes
+  author:
+    - Vladimir Ermakov (@vooon)
+
+EXAMPLES: |
+  # Hub: resolve/write the identity key and a hub interface section, then
+  # generate a per-spoke peer PSK for each of the two spokes
+  - community.openwrt.wg_interface:
+      managed_interfaces: [wg0]
+      interfaces:
+        - name: wg0
+          proto: wireguard
+          listen_port: 51820
+          addresses:
+            - "10.8.0.1/24"
+      peers:
+        - iface: wg0
+          section: spoke1
+        - iface: wg0
+          section: spoke2
+
+  # Two independent p2p links on one host: each link is its own interface with
+  # its own listen port, identity key (shared host-wide) and per-link peer PSK
+  - community.openwrt.wg_interface:
+      managed_interfaces: [wg_l1, wg_l2]
+      interfaces:
+        - name: wg_l1
+          proto: wireguard
+          listen_port: 51821
+          addresses:
+            - "10.9.0.1/30"
+        - name: wg_l2
+          proto: wireguard
+          listen_port: 51822
+          addresses:
+            - "10.10.0.1/30"
+      peers:
+        - iface: wg_l1
+        - iface: wg_l2
+
+  # AmneziaWG hub. The tuning values below only show the syntax: generate your own,
+  # and use the same ones on every end of the link.
+  # See https://docs.amnezia.org/documentation/amnezia-wg
+  - community.openwrt.wg_interface:
+      proto: amneziawg
+      managed_interfaces: [awg0]
+      interfaces:
+        - name: awg0
+          listen_port: 51830
+          addresses:
+            - "10.11.0.1/24"
+          awg_tuning:
+            awg_jc: 4
+            awg_jmin: 40
+            awg_jmax: 70
+            awg_s1: 52
+            awg_s2: 16
+            awg_h1: 1166528911
+            awg_h2: 2007365624
+            awg_h3: 3125367892
+            awg_h4: 4069137714
+      peers:
+        - iface: awg0
+          section: spoke1
+
+  # WireGuard and AmneziaWG interfaces on one host, sharing the host identity key:
+  # one task per protocol, both listing every interface in managed_interfaces
+  - community.openwrt.wg_interface:
+      proto: wireguard
+      managed_interfaces: [wg0, awg0]
+      interfaces:
+        - name: wg0
+          listen_port: 51820
+          addresses:
+            - "10.8.0.1/24"
+
+  - community.openwrt.wg_interface:
+      proto: amneziawg
+      managed_interfaces: [wg0, awg0]
+      interfaces:
+        - name: awg0
+          listen_port: 51830
+          addresses:
+            - "10.11.0.1/24"
+          awg_tuning:
+            awg_jc: 4
+            awg_jmin: 40
+            awg_jmax: 70
+
+RETURN:
+  public_key:
+    description:
+      - Host identity public key.
+      - Empty when no key is managed, in a run that only removes interfaces without O(managed_interfaces).
+    returned: always
+    type: str
+  interfaces:
+    description: Names of (re)written interface sections.
+    returned: always
+    type: list
+    elements: str
+  psks:
+    description:
+      - Resolved (not stored) peer pre-shared keys, as a list parallel to O(peers)
+        (RV(psks[i]) is the key for O(peers[i])). The controller zips the two lists to
+        distribute each shared key to both ends.
+      - Empty when O(peers) is not given.
+    returned: always
+    type: list
+    elements: str
+  firewall_changed:
+    description: True if any WAN ingress firewall rule was created, modified or removed.
+    returned: always
+    type: bool
+  removed_interfaces:
+    description: Names of interfaces removed because their O(interfaces[].state), or O(state), was V(absent).
+    returned: always
+    type: list
+    elements: str

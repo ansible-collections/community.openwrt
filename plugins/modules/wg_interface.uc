@@ -1,0 +1,381 @@
+// Copyright (c) 2026, Vladimir Ermakov (@vooon)
+// GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import { cursor } from 'uci';
+import { connect } from 'ubus';
+import { AnsibleModule } from '_basic';
+import { diff_entry, section_values, upsert_section } from '_uci';
+import { peer_protocol, peer_section, render_template } from '_wg';
+
+const PROTOCOLS = [ 'wireguard', 'amneziawg' ];
+const AWG_OPTIONS = [
+    'awg_jc', 'awg_jmin', 'awg_jmax',
+    'awg_s1', 'awg_s2', 'awg_s3', 'awg_s4',
+    'awg_h1', 'awg_h2', 'awg_h3', 'awg_h4',
+    'awg_i1', 'awg_i2', 'awg_i3', 'awg_i4', 'awg_i5',
+    'awg_header_protection_key', 'awg_content_padding_addition',
+    'awg_rekey_after_time', 'awg_rekey_timeout', 'awg_reject_after_time',
+    'awg_keepalive_timeout', 'awg_max_handshake_attempts',
+    'awg_random_trailers', 'awg_disable_cookies',
+];
+
+const module = AnsibleModule({
+    argument_spec: {
+        proto: { type: 'str', choices: PROTOCOLS, default: 'wireguard' },
+        state: { type: 'str', choices: [ 'present', 'absent' ], default: 'present' },
+        interfaces: {
+            type: 'list', elements: 'dict', required: true,
+            options: {
+                name: { type: 'str', required: true },
+                state: { type: 'str', choices: [ 'present', 'absent' ] },
+                proto: { type: 'str', choices: PROTOCOLS },
+                listen_port: { type: 'int' },
+                addresses: { type: 'list', elements: 'str' },
+                mtu: { type: 'int' },
+                metric: { type: 'int' },
+                dns: { type: 'list', elements: 'str' },
+                peerdns: { type: 'bool' },
+                dns_metric: { type: 'int' },
+                awg_tuning: { type: 'dict' },
+            },
+        },
+        managed_interfaces: { type: 'list', elements: 'str' },
+        force_rekey: { type: 'bool', default: false },
+        force_psk_rekey: { type: 'bool', default: false },
+        manage_firewall: { type: 'bool', default: true },
+        peers: {
+            type: 'list', elements: 'dict',
+            options: {
+                iface: { type: 'str', required: true },
+                proto: { type: 'str', choices: PROTOCOLS },
+                section: { type: 'str' },
+                force_psk_rekey: { type: 'bool', default: false },
+            },
+        },
+        firewall_rule_id_template: { type: 'str', default: '{{ iface_name }}_in' },
+        firewall_rule_name_template: {
+            type: 'str', default: 'Allow-Wan-{{ proto }}: {{ iface_name }}',
+        },
+        peer_id_template: {
+            type: 'str',
+            default: '{% if (section): %}peer_{{ iface_name }}_{{ section }}{% else %}peer_{{ iface_name }}{% endif %}',
+        },
+    },
+    supports_check_mode: true,
+});
+
+const params = module.params;
+let output = {
+    public_key: '', interfaces: [], psks: [], firewall_changed: false,
+    removed_interfaces: [],
+};
+let diffs = [];
+// Only a config that changed may be saved: UCI refuses to save one it never loaded.
+let network_changed = false;
+
+function fail(msg) {
+    module.fail_json({ ...output, msg: msg });
+}
+
+function checked(u, value, action) {
+    if (value == null)
+        fail(`${action}: ${u.error() ?? 'UCI operation failed'}`);
+    return value;
+}
+
+function ubus_call(object, method, payload) {
+    let connection = connect();
+    if (connection == null)
+        return null;
+    try {
+        let response = connection.call(object, method, payload ?? {});
+        if (response == null && object != 'wireguard')
+            return ubus_call('wireguard', method, payload);
+        return response;
+    } catch (e) {
+        return object == 'wireguard' ? null : ubus_call('wireguard', method, payload);
+    }
+}
+
+// Render the template held by option `name`, failing with its error.
+function render_option(name, scope) {
+    let output;
+    try {
+        output = render_template(params[name], scope);
+    } catch (e) {
+        fail(`${name}: ${e.message}`);
+    }
+    return output;
+}
+
+function peer_id(peer, proto) {
+    let section;
+    try {
+        section = peer_section(params.peer_id_template, peer.iface, peer.section, proto);
+    } catch (e) {
+        fail(`peer_id_template: ${e.message}`);
+    }
+    if (section == '')
+        fail('peer_id_template rendered an empty section name');
+    return section;
+}
+
+// The key server protocol, taken from the interfaces being kept.
+function key_protocol() {
+    let found = {};
+    for (let iface in params.interfaces)
+        if ((iface.state ?? params.state) != 'absent')
+            found[iface.proto ?? params.proto] = true;
+    let protocols = sort(keys(found));
+    if (length(protocols) > 1)
+        fail(`interfaces being kept request different protocols (${join(', ', protocols)}); configure them in separate tasks`);
+    return protocols[0] ?? params.proto;
+}
+
+function resolve_identity(u, managed, proto) {
+    let private_key = '';
+    let distinct = {};
+    for (let name in managed) {
+        let current = u.get('network', name, 'private_key');
+        if (current != null && current != '') {
+            distinct[current] = true;
+            if (private_key == '')
+                private_key = current;
+        }
+    }
+    if (!params.force_rekey && length(keys(distinct)) > 1)
+        fail(`identity key mismatch across managed interfaces: ${length(keys(distinct))} distinct keys; use force_rekey to replace`);
+
+    if (private_key == '' || params.force_rekey) {
+        let generated = ubus_call(proto, 'genkey', {});
+        if (generated == null || generated.private == null)
+            fail(`failed to generate identity key via ubus ${proto}.genkey`);
+        private_key = generated.private;
+    }
+
+    let public_key = ubus_call(proto, 'pubkey', { private: private_key });
+    if (public_key == null || public_key.public == null)
+        fail(`failed to derive public key via ubus ${proto}.pubkey`);
+    return { private: private_key, public: public_key.public };
+}
+
+function add_diff(config, section, section_type, before, after, redact_keys) {
+    if (module.diff_mode)
+        push(diffs, diff_entry(config, section, section_type, before, after, redact_keys));
+}
+
+// The private key to write to interface `name`: its own one, unless it has none
+// or force_rekey is set.
+function wanted_key(u, name, identity) {
+    let current = u.get('network', name, 'private_key');
+    if (params.force_rekey || current == null || current == '')
+        return identity.private;
+    return current;
+}
+
+// Write the identity key to an existing interface not listed in interfaces.
+// Interfaces with no section yet are skipped: they get it once configured.
+function apply_key(u, name, private_key) {
+    let current = u.get_all('network', name);
+    if (current == null)
+        return;
+    let update = upsert_section(u, 'network', name, current['.type'], { private_key: private_key }, {});
+    if (update.error != null)
+        fail(`cannot set network.${name}.private_key: ${update.error}`);
+    if (update.changed) {
+        output.changed = true;
+        network_changed = true;
+        add_diff('network', name, current['.type'], update.before, update.after, [ 'private_key' ]);
+    }
+}
+
+// Delete the WAN ingress rule `section`, when there is one.
+function delete_rule(u, section) {
+    let current = u.get_all('firewall', section);
+    if (current == null)
+        return false;
+    checked(u, u.delete('firewall', section), `cannot delete firewall.${section}`);
+    add_diff('firewall', section, current['.type'], section_values(current), {}, null);
+    output.changed = true;
+    output.firewall_changed = true;
+    return true;
+}
+
+function delete_interface(u, iface, proto) {
+    let removed = false;
+    // The protocol on the device wins: its peers are typed after it.
+    let current_proto = u.get('network', iface.name, 'proto');
+    if (current_proto == 'wireguard' || current_proto == 'amneziawg')
+        proto = current_proto;
+
+    let peer_types = {};
+    for (let name in PROTOCOLS)
+        peer_types[`${name}_${iface.name}`] = true;
+    let network = u.get_all('network') ?? {};
+    for (let section in network) {
+        if (peer_types[network[section]['.type']]) {
+            let before = section_values(network[section]);
+            checked(u, u.delete('network', section), `cannot delete network.${section}`);
+            add_diff('network', section, network[section]['.type'], before, {}, [ 'preshared_key' ]);
+            network_changed = true;
+            removed = true;
+        }
+    }
+
+    if (params.manage_firewall) {
+        let firewall_section = render_option('firewall_rule_id_template', {
+            iface_name: iface.name, proto: proto, listen_port: iface.listen_port,
+        });
+        if (delete_rule(u, firewall_section))
+            removed = true;
+    }
+
+    let current = u.get_all('network', iface.name);
+    if (current != null) {
+        checked(u, u.delete('network', iface.name), `cannot delete network.${iface.name}`);
+        add_diff('network', iface.name, current['.type'], section_values(current), {}, [ 'private_key' ]);
+        network_changed = true;
+        removed = true;
+    }
+    if (removed) {
+        output.changed = true;
+        push(output.removed_interfaces, iface.name);
+    }
+}
+
+function interface_options(iface, proto) {
+    let wanted = {
+        proto: proto,
+        listen_port: iface.listen_port,
+        addresses: iface.addresses,
+        mtu: iface.mtu,
+        metric: iface.metric,
+        dns: iface.dns,
+        peerdns: iface.peerdns,
+        dns_metric: iface.dns_metric,
+    };
+    if (proto == 'amneziawg') {
+        for (let name in AWG_OPTIONS)
+            wanted[name] = '';
+        for (let name in iface.awg_tuning ?? {})
+            wanted[name] = iface.awg_tuning[name];
+    }
+    return wanted;
+}
+
+function upsert_interface(u, iface, proto, private_key) {
+    let wanted = interface_options(iface, proto);
+    if (private_key != null)
+        wanted.private_key = private_key;
+    let update = upsert_section(u, 'network', iface.name, 'interface', wanted, {});
+    if (update.error != null)
+        fail(`cannot update network.${iface.name}: ${update.error}`);
+    if (update.changed) {
+        output.changed = true;
+        network_changed = true;
+        add_diff('network', iface.name, 'interface', update.before, update.after, [ 'private_key' ]);
+    }
+    push(output.interfaces, iface.name);
+
+    if (!params.manage_firewall)
+        return;
+    let scope = { iface_name: iface.name, proto: proto, listen_port: iface.listen_port };
+    let section = render_option('firewall_rule_id_template', scope);
+    if (section == '')
+        fail('firewall_rule_id_template rendered an empty section name');
+    // Without a listen port nothing is accepted from the WAN: drop the rule of a previous one.
+    if (iface.listen_port == null) {
+        delete_rule(u, section);
+        return;
+    }
+    let rule = {
+        name: render_option('firewall_rule_name_template', scope),
+        src: 'wan', proto: 'udp', dest_port: iface.listen_port, target: 'ACCEPT',
+    };
+    let firewall_update = upsert_section(u, 'firewall', section, 'rule', rule, {});
+    if (firewall_update.error != null)
+        fail(`cannot update firewall.${section}: ${firewall_update.error}`);
+    if (firewall_update.changed) {
+        output.changed = true;
+        output.firewall_changed = true;
+        add_diff('firewall', section, 'rule', firewall_update.before, firewall_update.after, null);
+    }
+}
+
+// END-OF-UNIT-TESTABLES
+
+try {
+    let u = cursor();
+    if (u == null)
+        fail('failed to open UCI cursor');
+
+    let managed = params.managed_interfaces ?? [];
+    if (length(managed) == 0) {
+        let seen = {};
+        for (let iface in params.interfaces) {
+            if ((iface.state ?? params.state) != 'absent' && !seen[iface.name]) {
+                push(managed, iface.name);
+                seen[iface.name] = true;
+            }
+        }
+    }
+
+    let any_present = false;
+    for (let iface in params.interfaces)
+        if ((iface.state ?? params.state) != 'absent')
+            any_present = true;
+    let key_proto = key_protocol();
+    let identity = null;
+    let is_managed = {};
+    if (any_present || length(managed) > 0) {
+        identity = resolve_identity(u, managed, key_proto);
+        output.public_key = identity.public;
+        for (let name in managed)
+            is_managed[name] = true;
+    }
+
+    let written = {};
+    for (let iface in params.interfaces) {
+        let proto = iface.proto ?? params.proto;
+        if ((iface.state ?? params.state) == 'absent')
+            delete_interface(u, iface, proto);
+        else {
+            let private_key = is_managed[iface.name] ? wanted_key(u, iface.name, identity) : null;
+            upsert_interface(u, iface, proto, private_key);
+            written[iface.name] = true;
+        }
+    }
+    for (let name in managed)
+        if (is_managed[name] && !written[name])
+            apply_key(u, name, wanted_key(u, name, identity));
+
+    for (let peer in params.peers ?? []) {
+        let proto = peer_protocol(u, peer, params.proto);
+        let section = peer_id(peer, proto);
+        let psk = !params.force_psk_rekey && !peer.force_psk_rekey
+            ? u.get('network', section, 'preshared_key') : null;
+        if (psk == null || psk == '') {
+            let generated = ubus_call(proto, 'genpsk', {});
+            if (generated == null || generated.preshared == null)
+                fail(`failed to generate PSK via ubus ${proto}.genpsk`);
+            psk = generated.preshared;
+        }
+        push(output.psks, psk);
+    }
+
+    if (network_changed && !module.check_mode) {
+        checked(u, u.save('network'), 'cannot save network configuration');
+        checked(u, u.commit('network'), 'cannot commit network configuration');
+    }
+    if (output.firewall_changed && !module.check_mode) {
+        checked(u, u.save('firewall'), 'cannot save firewall configuration');
+        checked(u, u.commit('firewall'), 'cannot commit firewall configuration');
+    }
+    if (length(diffs) > 0)
+        output.diff = diffs;
+    output.msg = 'wg interfaces configured';
+    module.exit_json(output);
+} catch (e) {
+    fail(`wg_interface error: ${e}`);
+}

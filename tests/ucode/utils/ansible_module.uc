@@ -63,8 +63,9 @@ export function reset() {
 // compiled with `return { <every top-level function> };` inserted right before
 // its `// END-OF-UNIT-TESTABLES` marker, and run that far, with AnsibleModule()
 // mocked out so that nothing of _basic runs. Errors raised by the module's
-// preamble are ignored.
-export function module_internals(path) {
+// preamble are ignored. AnsibleModule() returns `module` when given, so the
+// functions can be handed the params, check_mode or fail_json() they read.
+export function module_internals(path, module) {
     let source = readfile(path);
     if (source == null)
         die(`cannot read module ${path}`);
@@ -87,7 +88,7 @@ export function module_internals(path) {
     let internals = null;
     let error = null;
 
-    mock.global.patch('_basic', { behavior: { AnsibleModule: () => ({ params: {}, result: {} }) } });
+    mock.global.patch('_basic', { behavior: { AnsibleModule: () => module ?? { params: {}, result: {} } } });
     try {
         internals = main();
     } catch (e) {

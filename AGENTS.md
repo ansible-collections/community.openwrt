@@ -311,7 +311,7 @@ inside modules, in isolation. They complement the integration tests, they do not
 - `tests/ucode/utest.config.uc` puts `plugins/module_utils/` on the search path, so module_utils are
   imported by name, e.g. `import { normalize_value } from '_uci';`.
 - `assert.match(expected, actual)`: expected value first.
-- Only modules listed under `mocks` in `utest.config.uc` can be mocked (`fs`, `_basic`). `_basic` goes
+- Only modules listed under `mocks` in `utest.config.uc` can be mocked (`fs`, `ubus`, `_basic`). `_basic` goes
   through the proxy in `tests/ucode/utils/basic_proxy.uc`, whose `API` list must name every export of
   `_basic.uc`: update it when an export is added.
 - Helpers in `tests/ucode/utils/ansible_module.uc`:
