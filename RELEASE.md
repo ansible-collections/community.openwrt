@@ -21,3 +21,16 @@ The process to release version `x.y.z` is as follows:
 9. Announce in Ansible Bullhorn
 10. Announce in [OpenWrt forum](https://forum.openwrt.org)
 11. Update [Release History](https://github.com/ansible-collections/community.openwrt/issues/100).
+
+## Automated release
+
+`nox -e release_process -- x.y.z [<next_version>]` runs steps 1 to 7 in one go:
+
+- creates the release PR, waits for its workflows to pass and squash-merges it;
+- waits for the workflows on `main`, then tags the merge commit;
+- waits for the Zuul release job and for `x.y.z` to appear on Galaxy, retagging once if the job fails or does not finish in time;
+- creates the GitHub release and bumps the version.
+
+Steps already done are skipped, so after any stop (fragment to edit, failed workflow, timeout), fix the problem and run the same command again.
+Steps 8 to 11 remain manual; the session lists them at the end.
+Polling can be tuned with `--interval`, `--timeout` and `--zuul-timeout` (in seconds).

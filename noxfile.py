@@ -6,7 +6,12 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 import nox
@@ -30,6 +35,20 @@ DOCS_FILES = ("README.md", "galaxy.yml")
 RELEASE_NOTES = (
     "See the [CHANGELOG](https://github.com/ansible-collections/community.openwrt/blob/main/CHANGELOG.md) for details."
 )
+ZUUL_API = "https://gateway-cloud-softwarefactory.apps.ocp.cloud.ci.centos.org/zuul/api/tenant/ansible"
+ZUUL_RELEASE_JOB = "release-ansible-collection-galaxy"
+GALAXY_VERSION_URL_TPL = (
+    "https://galaxy.ansible.com/api/v3/plugin/ansible/content/published/collections/index/"
+    "community/openwrt/versions/{version}/"
+)
+RUNS_OK = {"success", "skipped", "neutral"}
+RELEASE_MANUAL_STEPS = """\
+Release {version} is out. Remaining manual steps:
+  - Announce in the Ansible forum (optional): https://forum.ansible.com
+  - Announce in Ansible Bullhorn
+  - Announce in the OpenWrt forum: https://forum.openwrt.org
+  - Update the release history: https://github.com/ansible-collections/community.openwrt/issues/100
+"""
 
 
 def rewrite_docs_urls(old: str, new: str) -> None:
@@ -165,7 +184,7 @@ def _do_release(session: nox.Session, version: str) -> None:
     )
 
 
-def _do_tag(session: nox.Session, version: str, retag: bool = False) -> None:
+def _do_tag(session: nox.Session, version: str, retag: bool = False, commit: str | None = None) -> None:
     session.run("git", "checkout", "main", external=True)
     session.run("git", "pull", "--rebase", "upstream", "main", external=True)
 
@@ -176,7 +195,7 @@ def _do_tag(session: nox.Session, version: str, retag: bool = False) -> None:
     if retag:
         session.run("git", "push", "upstream", "--delete", version, external=True)
     else:
-        session.run("git", "tag", "-a", version, "-m", f"Release {version}", external=True)
+        session.run("git", "tag", "-a", version, "-m", f"Release {version}", *filter(None, [commit]), external=True)
     session.run("git", "push", "upstream", version, external=True)
 
 
@@ -276,6 +295,179 @@ def bump_version(session: nox.Session):
     if len(session.posargs) not in (1, 2):
         session.error(f"usage: nox -e {session.name} -- released_version [<next_version>]")
     _do_bump_version(session, *session.posargs)
+
+
+def _gh_json(*args: str):
+    return json.loads(subprocess.run(["gh", *args], capture_output=True, text=True, check=True).stdout)
+
+
+def _http_json(url: str):
+    try:
+        with urllib.request.urlopen(url, timeout=60) as response:
+            return json.load(response)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return None
+        raise
+
+
+def _wait_for(session: nox.Session, what: str, probe, timeout: int, interval: int):
+    """Poll ``probe`` until it returns something other than None. Returns None on timeout."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            result = probe()
+        except (OSError, ValueError, subprocess.CalledProcessError) as e:
+            session.warn(f"{what}: {e}")
+            result = None
+        if result is not None:
+            return result
+        if time.monotonic() >= deadline:
+            return None
+        session.log(f"Waiting for {what}...")
+        time.sleep(interval)
+
+
+def _release_pr(version: str) -> dict | None:
+    prs = _gh_json(
+        "pr", "list", "-R", UPSTREAM, "--head", f"release-{version}", "--state", "all",
+        "--json", "number,state,url,headRefOid,mergeCommit",
+    )  # fmt: skip
+    prs = [pr for pr in prs if pr["state"] != "CLOSED"]
+    return prs[0] if prs else None
+
+
+def _failed_runs(runs: list[dict]) -> list[str] | None:
+    """URLs of the failed runs, or None while no run is reported or some are still running."""
+    failed = [run["url"] for run in runs if run["status"] == "completed" and run["conclusion"] not in RUNS_OK]
+    if failed:
+        return failed
+    if not runs or any(run["status"] != "completed" for run in runs):
+        return None
+    return []
+
+
+def _wait_for_runs(session: nox.Session, what: str, commit: str, event: str | None, args) -> None:
+    query = ["run", "list", "-R", UPSTREAM, "--commit", commit, "--json", "status,conclusion,url"]
+    query += ["--event", event] if event else []
+    failed = _wait_for(session, what, lambda: _failed_runs(_gh_json(*query)), args.timeout, args.interval)
+    if failed is None:
+        session.error(f"Timed out waiting for {what}")
+    if failed:
+        session.error(f"{what} failed: {' '.join(failed)}")
+
+
+def _upstream_tag_exists(version: str) -> bool:
+    cmd = ["git", "ls-remote", "--tags", "upstream", f"refs/tags/{version}"]
+    return bool(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout.strip())
+
+
+def _zuul_release_builds(version: str) -> list[dict]:
+    query = urllib.parse.urlencode({"project": UPSTREAM, "ref": f"refs/tags/{version}", "job_name": ZUUL_RELEASE_JOB})
+    return _http_json(f"{ZUUL_API}/builds?{query}") or []
+
+
+def _zuul_finished_build(version: str, ignored: set[str]) -> dict | None:
+    builds = [build for build in _zuul_release_builds(version) if build["uuid"] not in ignored]
+    if builds and builds[0]["result"] not in (None, "RETRY"):
+        return builds[0]
+    return None
+
+
+def _wait_for_zuul(session: nox.Session, version: str, args) -> None:
+    ignored: set[str] = set()
+    for attempt in range(2):
+        build = _wait_for(
+            session,
+            "the Zuul release job",
+            lambda ignored=ignored: _zuul_finished_build(version, ignored),
+            args.zuul_timeout,
+            args.interval,
+        )
+        if build and build["result"] == "SUCCESS":
+            return
+        reason = (
+            f"failed ({build['result']}): {build['log_url']}" if build else f"did not finish in {args.zuul_timeout}s"
+        )
+        if attempt:
+            session.error(f"Zuul release job {reason}")
+        session.warn(f"Zuul release job {reason}; retagging {version}")
+        ignored = {previous["uuid"] for previous in _zuul_release_builds(version)}
+        _do_tag(session, version, retag=True)
+
+
+def _galaxy_has(version: str) -> bool:
+    return _http_json(GALAXY_VERSION_URL_TPL.format(version=version)) is not None
+
+
+def _github_release_exists(version: str) -> bool:
+    return subprocess.run(["gh", "release", "view", version, "-R", UPSTREAM], capture_output=True).returncode == 0
+
+
+def _upstream_galaxy_version(session: nox.Session) -> str:
+    session.run("git", "fetch", "upstream", "main", external=True, silent=True)
+    galaxy = subprocess.run(["git", "show", "upstream/main:galaxy.yml"], capture_output=True, text=True, check=True)
+    return yaml.safe_load(galaxy.stdout)["version"]
+
+
+@nox.session(default=False)
+def release_process(session: nox.Session):
+    """
+    Run the release process in RELEASE.md from start to finish.
+
+    Usage: nox -e release_process -- <version> [<next_version>] [--interval S] [--timeout S] [--zuul-timeout S]
+
+    Steps already done are skipped, so after any stop, fix the problem and run it again.
+    """
+    parser = argparse.ArgumentParser(prog=f"nox -e {session.name} --")
+    parser.add_argument("version")
+    parser.add_argument("next_version", nargs="?", help="version to bump galaxy.yml to (default: next minor)")
+    parser.add_argument("--interval", type=int, default=60, help="seconds between polls (default: %(default)s)")
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=3600,
+        help="seconds to wait for the release PR workflows, and then for the main workflows (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--zuul-timeout",
+        type=int,
+        default=1800,
+        help="seconds to wait for the Zuul release job, and then for Galaxy (default: %(default)s)",
+    )
+    args = parser.parse_args(session.posargs)
+    version = args.version
+
+    session.install("antsibull-changelog[toml]", "pyaml")
+
+    pr = _release_pr(version)
+    if pr is None:
+        _do_release(session, version)
+        pr = _release_pr(version)
+    if pr["state"] == "OPEN":
+        _wait_for_runs(session, f"the workflows of {pr['url']}", pr["headRefOid"], None, args)
+        session.run("gh", "pr", "merge", str(pr["number"]), "-R", UPSTREAM, "--squash", external=True)
+        pr = _release_pr(version)
+    merge_commit = pr["mergeCommit"]["oid"]
+
+    if not _upstream_tag_exists(version):
+        _wait_for_runs(session, f"the workflows of {merge_commit} on main", merge_commit, "push", args)
+        _do_tag(session, version, commit=merge_commit)
+
+    if not _galaxy_has(version):
+        _wait_for_zuul(session, version, args)
+        if not _wait_for(
+            session, f"{version} on Galaxy", lambda: _galaxy_has(version) or None, args.zuul_timeout, args.interval
+        ):
+            session.error(f"{version} did not show up on Galaxy in {args.zuul_timeout}s")
+
+    if not _github_release_exists(version):
+        _do_github_release(session, version)
+
+    if _upstream_galaxy_version(session) == version:
+        _do_bump_version(session, version, args.next_version)
+
+    session.log(RELEASE_MANUAL_STEPS.format(version=version))
 
 
 @nox.session(default=False)
