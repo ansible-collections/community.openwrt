@@ -62,10 +62,10 @@ if (params.chdir != null && !chdir(params.chdir))
     module.fail_json(`cd ${params.chdir}: unable to change directory`);
 
 if (params.creates != null && file_exists(params.creates))
-    module.exit_json({ rc: 0, stdout: `skipped, since ${params.creates} exists` });
+    module.exit_json({ stdout: `skipped, since ${params.creates} exists` });
 
 if (params.removes != null && !file_exists(params.removes))
-    module.exit_json({ rc: 0, stdout: `skipped, since ${params.removes} does not exist` });
+    module.exit_json({ stdout: `skipped, since ${params.removes} does not exist` });
 
 let command_args;
 

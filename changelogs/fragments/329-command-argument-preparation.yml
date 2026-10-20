@@ -1,2 +1,2 @@
 bugfixes:
-  - command - report argument preparation failures without a command return code or a changed status (https://github.com/ansible-collections/community.openwrt/pull/329).
+  - command - report argument parsing errors and empty commands as unchanged failures without a return code, and omit the return code for directory change failures and commands skipped by ``creates`` or ``removes`` (https://github.com/ansible-collections/community.openwrt/pull/329).

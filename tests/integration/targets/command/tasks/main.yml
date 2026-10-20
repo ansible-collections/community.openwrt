@@ -103,7 +103,7 @@
     that:
       - item is not failed
       - item is not changed
-      - item.rc == 0
+      - item.rc is undefined
       - item.stdout is match('skipped, since ')
   loop: "{{ skipped_commands.results }}"
 
