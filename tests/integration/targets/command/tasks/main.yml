@@ -62,11 +62,12 @@
   community.openwrt.command:
     cmd: "printf should-not-run 'unterminated"
   register: malformed_command
-  failed_when: false
+  ignore_errors: true
 
-- name: Assert a splitting error does not execute the command
+- name: Assert a splitting error fails without executing the command
   ansible.builtin.assert:
     that:
+      - malformed_command is failed
       - malformed_command.rc != 0
       - malformed_command.stdout == ''
       - malformed_command.stderr != ''
