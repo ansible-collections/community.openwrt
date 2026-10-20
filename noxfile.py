@@ -38,7 +38,7 @@ def rewrite_docs_urls(old: str, new: str) -> None:
         p.write_text(p.read_text().replace(old, new))
 
 
-def galaxy_version() -> str:
+def get_galaxy_version() -> str:
     with open("galaxy.yml") as f:
         return yaml.safe_load(f)["version"]
 
@@ -101,12 +101,8 @@ def release(session: nox.Session):
 
     session.install("antsibull-changelog[toml]", "pyaml")
 
-    with open("galaxy.yml") as galaxy_file:
-        galaxy_file_lines = galaxy_file.readlines()
-        galaxy_version = yaml.safe_load("".join(galaxy_file_lines))["version"]
-
     if len(session.posargs) != 1:
-        session.error(f"usage: nox -e {session.name} -- <version>\n\ngalaxy.yml version is {galaxy_version}\n")
+        session.error(f"usage: nox -e {session.name} -- <version>\n\ngalaxy.yml version is {get_galaxy_version()}\n")
     version = session.posargs[0]
     fragment_path = Path(f"changelogs/fragments/{version}.yml")
     release_branch = f"release-{version}"
@@ -130,11 +126,9 @@ def release(session: nox.Session):
 
     session.run("git", "pull", "--rebase", "upstream", "main", external=True)
 
-    with open("galaxy.yml") as galaxy_file:
-        galaxy_file_lines = galaxy_file.readlines()
-        galaxy = yaml.safe_load("".join(galaxy_file_lines))
+    galaxy_version = get_galaxy_version()
     if version != galaxy_version:
-        session.error(f"Version specified ({version}) differs from version in galaxy.yml: {galaxy['version']})")
+        session.error(f"Version specified ({version}) differs from galaxy.yml ({galaxy_version})")
 
     session.run("git", "checkout", "-b", release_branch, external=True)
     session.run("antsibull-changelog", "release", "--refresh-plugins")
@@ -202,7 +196,7 @@ def tag(session: nox.Session):
     session.run("git", "checkout", "main", external=True)
     session.run("git", "pull", "--rebase", "upstream", "main", external=True)
 
-    gv = galaxy_version()
+    gv = get_galaxy_version()
     if version != gv:
         session.error(f"Version specified ({version}) differs from galaxy.yml ({gv})")
 
@@ -255,7 +249,7 @@ def bump_version(session: nox.Session):
     check_no_modifications(session)
     session.run("git", "pull", "--rebase", "upstream", "main", external=True)
 
-    gv = galaxy_version()
+    gv = get_galaxy_version()
     if len(session.posargs) == 1:
         version = session.posargs[0]
         new_version = next_minor(version)
