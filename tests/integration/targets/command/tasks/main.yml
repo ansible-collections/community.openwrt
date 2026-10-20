@@ -60,15 +60,17 @@
       - missing_command.rc == 127
       - missing_command.stdout == ''
 
-- name: Reject invalid command arguments before execution
+- name: Reject commands that cannot be prepared for execution
   community.openwrt.command:
     cmd: "{{ item.cmd }}"
+    chdir: "{{ item.chdir | default(omit) }}"
   loop:
     - {cmd: "printf should-not-run 'unterminated", message: 'Unable to parse command arguments:'}
     - {cmd: 'printf should-not-run "unterminated', message: 'Unable to parse command arguments:'}
     - {cmd: '', message: 'Command is empty'}
     - {cmd: '   ', message: 'Command is empty'}
     - {cmd: "''", message: 'Command is empty'}
+    - {cmd: 'printf should-not-run', chdir: /community-openwrt-command-does-not-exist, message: 'cd /community-openwrt-command-does-not-exist:'}
   register: invalid_commands
   ignore_errors: true
 
@@ -77,8 +79,7 @@
     that:
       - item is failed
       - item is not changed
-      # ansible-core may omit null return values from registered results.
-      - item.get('rc') is none
+      - item.rc is undefined
       - item.msg.startswith(item.item.message)
       - item.stdout == ''
       - item.stderr == ''

@@ -56,16 +56,16 @@ function elapsed(start_time, end_time) {
 
 // ---- main -----------------------------------------------------------------
 
-result.update({ cmd: params.cmd, start: '', end: '', delta: '', stdout: '', stderr: '', rc: 0 });
+result.update({ cmd: params.cmd, start: '', end: '', delta: '', stdout: '', stderr: '' });
 
 if (params.chdir != null && !chdir(params.chdir))
     module.fail_json(`cd ${params.chdir}: unable to change directory`);
 
 if (params.creates != null && file_exists(params.creates))
-    module.exit_json({ stdout: `skipped, since ${params.creates} exists` });
+    module.exit_json({ rc: 0, stdout: `skipped, since ${params.creates} exists` });
 
 if (params.removes != null && !file_exists(params.removes))
-    module.exit_json({ stdout: `skipped, since ${params.removes} does not exist` });
+    module.exit_json({ rc: 0, stdout: `skipped, since ${params.removes} does not exist` });
 
 let command_args;
 
@@ -74,12 +74,12 @@ if (!params.uses_shell) {
     // status codes do not replace the command's own exit status.
     let parsed = module.run_command(`printf '%s\\n' ${shell_quote(params.cmd)} | xargs -r printf '%s\\0'`);
     if (parsed.rc != 0)
-        module.fail_json({ rc: null, msg: `Unable to parse command arguments: ${rtrim(parsed.stderr, '\n')}` });
+        module.fail_json(`Unable to parse command arguments: ${rtrim(parsed.stderr, '\n')}`);
 
     let argv = split(parsed.stdout, '\x00');
     pop(argv); // Drop the empty field after the final NUL separator.
     if (length(argv) == 0)
-        module.fail_json({ rc: null, msg: 'Command is empty' });
+        module.fail_json('Command is empty');
 
     command_args = [ 'exec', ...argv ];
 }

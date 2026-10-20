@@ -96,7 +96,7 @@ RETURN:
   rc:
     description:
       - The command return code.
-      - No command return code is available if argument parsing fails or no command is given.
+      - This field is omitted if command preparation fails.
     returned: when available
     type: int
     sample: 0
