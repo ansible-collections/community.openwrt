@@ -541,6 +541,13 @@ export function Time(epoch, nsec) {
     };
 };
 
+// A [ seconds, nanoseconds ] reading of the monotonic clock, which is not
+// affected by adjustments of the wall clock. Falls back to the wall clock on
+// systems without a monotonic one.
+export function monotonic() {
+    return clock(true) ?? clock();
+};
+
 // ---- value comparison -----------------------------------------------------
 
 // Compare two values structurally. sprintf('%J') is not a substitute: it
@@ -611,7 +618,7 @@ let stderr_seq = 0;
 // with millisecond resolution, so processes starting together share its
 // sequence.
 function stderr_file() {
-    let now = Time(...clock(true));
+    let now = Time(...monotonic());
     stderr_seq++;
 
     return sprintf('%s/.ansible_stderr.%s.%d.%d.%d', dirname(ARGV[0]),

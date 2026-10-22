@@ -7,7 +7,7 @@
 // the shim calls the real module; while _basic is patched, calls go to the
 // behavior overrides given to mock.global.patch() and nothing else.
 
-const API = [ 'AnsibleModule', 'deep_equal', 'process_id', 'shell_quote', 'Time' ];
+const API = [ 'AnsibleModule', 'deep_equal', 'monotonic', 'process_id', 'shell_quote', 'Time' ];
 
 function forward(ctx, fn_name) {
     return function(...args) {

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { chdir, glob } from 'fs';
-import { AnsibleModule, shell_quote, Time } from '_basic';
+import { AnsibleModule, monotonic, shell_quote, Time } from '_basic';
 
 const module = AnsibleModule({
     argument_spec: {
@@ -31,13 +31,6 @@ function timestamp(when) {
     let t = localtime(when.epoch());
     return sprintf('%04d-%02d-%02d %02d:%02d:%02d.%06d',
                    t.year, t.mon, t.mday, t.hour, t.min, t.sec, when.usec());
-}
-
-// A reading of the monotonic clock, so that the duration stays right even if the
-// wall clock is adjusted while the command runs. Falls back to the wall clock on
-// systems without a monotonic one.
-function monotonic() {
-    return clock(true) ?? clock();
 }
 
 // The time between two Time readings, as hours, minutes and seconds.

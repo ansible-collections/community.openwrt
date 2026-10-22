@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { describe, it, assert } from 'utest';
-import { Time } from '_basic';
+import { monotonic, Time } from '_basic';
 
 function rejects(name, epoch, nsec, msg) {
     it(`rejects ${name}`, () => assert.throws(() => Time(epoch, nsec), msg));
@@ -108,5 +108,18 @@ describe('Time()', () => {
         rejects('a negative nsec', 1, -1, 'expects 0 <= nsec < 1000000000');
         rejects('nsec of one full second', 1, 1000000000, 'expects 0 <= nsec < 1000000000');
         rejects('a bad type before a bad range', -1, 0.5, 'expects integer epoch and nsec');
+    });
+});
+
+describe('monotonic()', () => {
+    it('returns a reading that Time() accepts', () => {
+        let t = Time(...monotonic());
+        assert.match(true, t.epoch() >= 0);
+    });
+
+    it('does not go backwards', () => {
+        let first = Time(...monotonic());
+        let second = Time(...monotonic());
+        assert.match(true, second.time() >= first.time());
     });
 });

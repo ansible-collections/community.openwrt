@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { chmod, chown, open, readfile, rename, stat, unlink } from 'fs';
-import { AnsibleModule, process_id, Time } from '_basic';
+import { AnsibleModule, monotonic, process_id, Time } from '_basic';
 
 const GROUP_FILE = '/etc/group';
 const PASSWD_FILE = '/etc/passwd';
@@ -157,7 +157,7 @@ function ensure_gid_unique(groups, gid) {
 // that name is neither followed nor overwritten.
 function write_entries(path, entries) {
     let info = stat(path);
-    let now = Time(...(clock(true) || clock()));
+    let now = Time(...monotonic());
     let tmp = sprintf('%s.ansible_tmp.%s.%d.%d', path, process_id(), now.epoch(), now.nsec());
     let content = join('', map(entries, (entry) => `${entry.line}\n`));
 

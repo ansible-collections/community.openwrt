@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { chmod, chown, open, readfile, rename, stat, unlink } from 'fs';
-import { AnsibleModule, deep_equal, process_id, Time } from '_basic';
+import { AnsibleModule, deep_equal, monotonic, process_id, Time } from '_basic';
 
 const KEYS_DIR = '/etc/apk/keys';
 
@@ -32,7 +32,7 @@ const result = module.result;
 // reads it half-written. An existing file keeps its ownership and permissions.
 function write_file(path, content) {
     let info = stat(path);
-    let now = Time(...(clock(true) || clock()));
+    let now = Time(...monotonic());
     let tmp = sprintf('%s.ansible_tmp.%s.%d.%d', path, process_id(), now.epoch(), now.nsec());
 
     let file = open(tmp, 'wx', 0644);
