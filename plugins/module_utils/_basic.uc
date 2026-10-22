@@ -610,11 +610,11 @@ let stderr_seq = 0;
 // with millisecond resolution, so processes starting together share its
 // sequence.
 function stderr_file() {
-    let now = clock(true);
+    let now = Time(...clock(true));
     stderr_seq++;
 
     return sprintf('%s/.ansible_stderr.%s.%d.%d.%d', dirname(ARGV[0]),
-                   process_id(), now[0], now[1], stderr_seq);
+                   process_id(), now.epoch(), now.nsec(), stderr_seq);
 }
 
 // ---- module object --------------------------------------------------------

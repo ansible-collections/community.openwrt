@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { chdir, glob } from 'fs';
-import { AnsibleModule, shell_quote } from '_basic';
+import { AnsibleModule, shell_quote, Time } from '_basic';
 
 const module = AnsibleModule({
     argument_spec: {
@@ -26,11 +26,11 @@ function file_exists(pattern) {
     return matches != null && length(matches) > 0;
 }
 
-// A timestamp as the module reports it, from a [ seconds, nanoseconds ] pair.
+// A timestamp as the module reports it, from a Time.
 function timestamp(when) {
-    let t = localtime(when[0]);
+    let t = localtime(when.epoch());
     return sprintf('%04d-%02d-%02d %02d:%02d:%02d.%06d',
-                   t.year, t.mon, t.mday, t.hour, t.min, t.sec, when[1] / 1000);
+                   t.year, t.mon, t.mday, t.hour, t.min, t.sec, when.nsec() / 1000);
 }
 
 // A reading of the monotonic clock, so that the duration stays right even if the
@@ -40,18 +40,11 @@ function monotonic() {
     return clock(true) ?? clock();
 }
 
-// The time between two [ seconds, nanoseconds ] readings, as hours, minutes and
-// seconds.
+// The time between two Time readings, as hours, minutes and seconds.
 function elapsed(start_time, end_time) {
-    let seconds = end_time[0] - start_time[0];
-    let usec = (end_time[1] - start_time[1]) / 1000;
+    let delta = end_time.minus(start_time);
 
-    if (usec < 0) {
-        seconds--;
-        usec += 1000000;
-    }
-
-    return sprintf('%d:%02d:%02d.%06d', seconds / 3600, seconds % 3600 / 60, seconds % 60, usec);
+    return sprintf('%d:%02d:%02d.%06d', delta.hours(), delta.minutes(), delta.seconds(), delta.nsec() / 1000);
 }
 
 // ---- main -----------------------------------------------------------------
@@ -86,12 +79,12 @@ if (!params.uses_shell) {
 else
     command_args = [ params.executable, '-c', params.cmd ];
 
-let ts_start = clock();
-let mono_start = monotonic();
+let ts_start = Time(...clock());
+let mono_start = Time(...monotonic());
 let res = module.run_command(command_args);
 
-let ts_end = clock();
-let mono_end = monotonic();
+let ts_end = Time(...clock());
+let mono_end = Time(...monotonic());
 
 result.update({
     start: timestamp(ts_start),
