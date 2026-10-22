@@ -30,7 +30,7 @@ function file_exists(pattern) {
 function timestamp(when) {
     let t = localtime(when.epoch());
     return sprintf('%04d-%02d-%02d %02d:%02d:%02d.%06d',
-                   t.year, t.mon, t.mday, t.hour, t.min, t.sec, when.nsec() / 1000);
+                   t.year, t.mon, t.mday, t.hour, t.min, t.sec, when.usec());
 }
 
 // A reading of the monotonic clock, so that the duration stays right even if the
@@ -44,7 +44,7 @@ function monotonic() {
 function elapsed(start_time, end_time) {
     let delta = end_time.minus(start_time);
 
-    return sprintf('%d:%02d:%02d.%06d', delta.hours(), delta.minutes(), delta.seconds(), delta.nsec() / 1000);
+    return sprintf('%d:%02d:%02d.%06d', delta.hours(), delta.minutes(), delta.seconds(), delta.usec());
 }
 
 // ---- main -----------------------------------------------------------------

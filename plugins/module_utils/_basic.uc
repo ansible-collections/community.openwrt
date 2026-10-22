@@ -524,6 +524,7 @@ export function Time(epoch, nsec) {
     return {
         epoch: () => epoch,
         nsec: () => nsec,
+        usec: () => nsec / 1000,
         time: () => epoch + nsec / 1000000000.0,
         hours: () => epoch / 3600,
         minutes: () => epoch % 3600 / 60,

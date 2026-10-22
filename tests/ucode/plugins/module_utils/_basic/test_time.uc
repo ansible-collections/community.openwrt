@@ -24,6 +24,14 @@ describe('Time()', () => {
             assert.match(200000000, t.nsec());
         });
 
+        it('returns nsec as microseconds, truncated', () => {
+            assert.match(200000, Time(100, 200000999).usec());
+        });
+
+        it('returns zero microseconds below one microsecond', () => {
+            assert.match(0, Time(100, 999).usec());
+        });
+
         it('returns the time as a double', () => {
             assert.match(100.2, Time(100, 200000000).time());
         });
