@@ -511,6 +511,35 @@ function Result() {
     };
 }
 
+// ---- time value -----------------------------------------------------------
+
+export function Time(epoch, nsec) {
+    if (type(epoch) != 'int' || type(nsec) != 'int')
+        die('Time() expects integer epoch and nsec');
+    if (epoch < 0)
+        die('Time() expects epoch >= 0');
+    if (nsec < 0 || nsec >= 1000000000)
+        die('Time() expects 0 <= nsec < 1000000000');
+
+    return {
+        epoch: () => epoch,
+        nsec: () => nsec,
+        time: () => epoch + nsec / 1000000000.0,
+        hours: () => epoch / 3600,
+        minutes: () => epoch % 3600 / 60,
+        seconds: () => epoch % 60,
+        minus: function (other) {
+            let ee = epoch - other.epoch();
+            let nn = nsec - other.nsec();
+            if (nn < 0) {
+                ee--;
+                nn += 1000000000;
+            }
+            return Time(ee, nn);
+        }
+    };
+};
+
 // ---- value comparison -----------------------------------------------------
 
 // Compare two values structurally. sprintf('%J') is not a substitute: it
