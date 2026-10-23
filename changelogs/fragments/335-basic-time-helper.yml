@@ -1,0 +1,4 @@
+minor_changes:
+  - apk_feed - refactor the naming of temporary files (https://github.com/ansible-collections/community.openwrt/pull/335).
+  - command - refactor the computation of the ``start``, ``end`` and ``delta`` return values (https://github.com/ansible-collections/community.openwrt/pull/335).
+  - group - refactor the naming of temporary files (https://github.com/ansible-collections/community.openwrt/pull/335).

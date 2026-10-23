@@ -511,6 +511,43 @@ function Result() {
     };
 }
 
+// ---- time value -----------------------------------------------------------
+
+export function Time(epoch, nsec) {
+    if (type(epoch) != 'int' || type(nsec) != 'int')
+        die('Time() expects integer epoch and nsec');
+    if (epoch < 0)
+        die('Time() expects epoch >= 0');
+    if (nsec < 0 || nsec >= 1000000000)
+        die('Time() expects 0 <= nsec < 1000000000');
+
+    return {
+        epoch: () => epoch,
+        nsec: () => nsec,
+        usec: () => nsec / 1000,
+        time: () => epoch + nsec / 1000000000.0,
+        hours: () => epoch / 3600,
+        minutes: () => epoch % 3600 / 60,
+        seconds: () => epoch % 60,
+        minus: function (other) {
+            let ee = epoch - other.epoch();
+            let nn = nsec - other.nsec();
+            if (nn < 0) {
+                ee--;
+                nn += 1000000000;
+            }
+            return Time(ee, nn);
+        }
+    };
+};
+
+// A [ seconds, nanoseconds ] reading of the monotonic clock, which is not
+// affected by adjustments of the wall clock. Falls back to the wall clock on
+// systems without a monotonic one.
+export function monotonic() {
+    return clock(true) ?? clock();
+};
+
 // ---- value comparison -----------------------------------------------------
 
 // Compare two values structurally. sprintf('%J') is not a substitute: it
@@ -581,11 +618,11 @@ let stderr_seq = 0;
 // with millisecond resolution, so processes starting together share its
 // sequence.
 function stderr_file() {
-    let now = clock(true);
+    let now = Time(...monotonic());
     stderr_seq++;
 
     return sprintf('%s/.ansible_stderr.%s.%d.%d.%d', dirname(ARGV[0]),
-                   process_id(), now[0], now[1], stderr_seq);
+                   process_id(), now.epoch(), now.nsec(), stderr_seq);
 }
 
 // ---- module object --------------------------------------------------------
