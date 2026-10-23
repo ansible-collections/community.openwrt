@@ -72,7 +72,10 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
   
-              <ul class="current">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Community OpenWrt Architecture</a></li>
+</ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="user_guide.html">Community OpenWrt User Guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Community OpenWrt Migration Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
@@ -210,7 +213,8 @@ intercepted tasks calling standard modules (for example <code class="docutils li
 equivalents. This allowed execution on hosts without Python.</p>
 <p>This collection does <strong>not</strong> include monkey patching. If you are migrating playbooks that utilize
 standard Ansible modules (such as <code class="docutils literal notranslate"><span class="pre">ansible.builtin.*</span></code>), you must update them to use the
-equivalent <code class="docutils literal notranslate"><span class="pre">community.openwrt.*</span></code> implementation.</p>
+equivalent <code class="docutils literal notranslate"><span class="pre">community.openwrt.*</span></code> implementation. Why, and which standard features keep working, is explained
+in the <a class="reference internal" href="architecture.html#ansible-collections-community-openwrt-docsite-architecture-standard-modules"><span class="std std-ref">architecture overview</span></a>.</p>
 <p>For example, the task on the left, written for the <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> role, <strong>does NOT work</strong> with
 <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code>: without the role’s monkey patch, <code class="docutils literal notranslate"><span class="pre">lineinfile</span></code> resolves to <code class="docutils literal notranslate"><span class="pre">ansible.builtin.lineinfile</span></code>,
 which requires Python on the device. Use the module’s fully qualified collection name (FQCN) instead:</p>

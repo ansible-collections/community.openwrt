@@ -73,6 +73,9 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
   
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Community OpenWrt Architecture</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="user_guide.html">Community OpenWrt User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="migration_guide.html">Community OpenWrt Migration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="migration_apk_guide.html">OpenWrt 25.x Package Manager changes</a></li>
@@ -172,13 +175,9 @@
 <p>This guide is about writing modules for <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code> in <a class="reference external" href="https://github.com/ucode-lang/ucode">ucode</a>.
 If you are reading it, you probably already use the collection and want to extend it: Awesome! Everyone is
 welcome to contribute!</p>
-<p>ucode is OpenWrt’s own scripting language. It looks like JavaScript, it is small enough to live on a router,
-and - the part that matters here - it speaks JSON natively. Modules written in it hold to the premise of this
-collection: the target does not need Python, and the module runs on the device rather than on the controller.</p>
-<p>Every OpenWrt release this collection supports carries <code class="docutils literal notranslate"><span class="pre">ucode</span></code> in its base image, together with the <code class="docutils literal notranslate"><span class="pre">fs</span></code>,
-<code class="docutils literal notranslate"><span class="pre">uci</span></code>, <code class="docutils literal notranslate"><span class="pre">ubus</span></code> and <code class="docutils literal notranslate"><span class="pre">math</span></code> modules, so a module can read files, drive UCI and call ubus straight away.</p>
-<p>The language gives you JSON in and out with no encoding work, arrays and dictionaries that nest and can be
-passed around, and exceptions with <code class="docutils literal notranslate"><span class="pre">try</span></code>/<code class="docutils literal notranslate"><span class="pre">catch</span></code>.</p>
+<p>ucode is OpenWrt’s own scripting language, and it is in the base image of every OpenWrt release this collection
+supports. Why the collection’s modules are written in it, and how they fit with <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>, is explained in
+<a class="reference internal" href="architecture.html#ansible-collections-community-openwrt-docsite-architecture"><span class="std std-ref">Community OpenWrt Architecture</span></a>. This guide is about writing them.</p>
 <p>One word of warning before anything else: ucode is not JavaScript. It is close enough to be readable at a
 glance and different enough to trip you up - there are no default values for function parameters, arrays are
 manipulated with global functions such as <code class="docutils literal notranslate"><span class="pre">push()</span></code> and <code class="docutils literal notranslate"><span class="pre">length()</span></code>, strings cannot be indexed with <code class="docutils literal notranslate"><span class="pre">[]</span></code>,
@@ -203,10 +202,7 @@ be your responsibility, so you MUST understand what is happening in it, and you 
 <h2>Target requirements<a class="headerlink" href="#target-requirements" title="Link to this heading"></a></h2>
 <p>A ucode module runs on the device, so everything it relies on must already be there. In practice that is a
 short list, and it is worth knowing where its edges are before writing code against it.</p>
-<p>The interpreter is not a concern. <code class="docutils literal notranslate"><span class="pre">ucode</span></code> is part of the base image of every OpenWrt release this collection
-supports, so nothing needs to be installed for a module to run: on a stock image, or on anything derived from
-one, the interpreter is simply present.</p>
-<p>A few ucode modules ship with it, and those are the ones a module may import:</p>
+<p>A few ucode modules ship with the interpreter, and those are the ones a module may import:</p>
 <ul class="simple">
 <li><p>on all supported releases: <code class="docutils literal notranslate"><span class="pre">fs</span></code>, <code class="docutils literal notranslate"><span class="pre">math</span></code>, <code class="docutils literal notranslate"><span class="pre">uci</span></code>, <code class="docutils literal notranslate"><span class="pre">ubus</span></code>, <code class="docutils literal notranslate"><span class="pre">html</span></code> and <code class="docutils literal notranslate"><span class="pre">lucihttp</span></code>;</p></li>
 <li><p>on 25.12 also <code class="docutils literal notranslate"><span class="pre">log</span></code>, <code class="docutils literal notranslate"><span class="pre">uclient</span></code> and <code class="docutils literal notranslate"><span class="pre">uloop</span></code>.</p></li>
@@ -228,11 +224,11 @@ out in a loop over a large set of items is a real cost, not a theoretical one.</
 <section id="runtime-architecture">
 <h2>Runtime architecture<a class="headerlink" href="#runtime-architecture" title="Link to this heading"></a></h2>
 <p>A ucode module is an ordinary program: it is copied to the target, run there once per host, and judged by what
-it prints. Three consequences of that shape how you write it.</p>
+it prints - the <a class="reference internal" href="architecture.html#ansible-collections-community-openwrt-docsite-architecture-task-flow"><span class="std std-ref">architecture overview</span></a>
+shows the whole path. Three consequences of that shape how you write it.</p>
 <p><strong>Getting there.</strong> Write every module as two files: the <code class="docutils literal notranslate"><span class="pre">.uc</span></code> file that runs on the device, and a companion
-action plugin that runs on the control node. The action plugin is mandatory: <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code> bundles
-<code class="docutils literal notranslate"><span class="pre">module_utils</span></code> only for Python modules, so a ucode module’s dependencies are transferred by its action
-plugin.</p>
+action plugin that runs on the control node. The action plugin is mandatory: it is what transfers the module’s
+dependencies to the target.</p>
 <p>Declare there every ucode module your module imports symbols from, apart from <code class="docutils literal notranslate"><span class="pre">_basic</span></code>, which is always
 transferred, and the ones bundled with the interpreter. Nothing else reaches the target unless it is declared,
 so an import you did not declare may not be available there and the module fails. The form of that

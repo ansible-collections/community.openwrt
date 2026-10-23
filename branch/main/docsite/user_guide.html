@@ -22,7 +22,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Community OpenWrt Migration Guide" href="migration_guide.html" />
-    <link rel="prev" title="Community.Openwrt" href="../index.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+    <link rel="prev" title="Community OpenWrt Architecture" href="architecture.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
 
 
 
@@ -72,7 +72,10 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
   
-              <ul class="current">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Community OpenWrt Architecture</a></li>
+</ul>
+<ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Community OpenWrt User Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#quickstart">Quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a><ul>
@@ -165,6 +168,8 @@ As you may well know, some devices have limitations of resources, preventing Pyt
 <p>This collection is based on the Ansible role <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> and as such it does not require Python
 installed on the OpenWrt devices. The role’s modules were plain shell scripts; starting with
 community.openwrt 1.9.0, all modules are written in ucode.
+Why the collection works this way, and what that means for your playbooks, is explained in
+<a class="reference internal" href="architecture.html#ansible-collections-community-openwrt-docsite-architecture"><span class="std std-ref">Community OpenWrt Architecture</span></a>.
 If you have been using <code class="docutils literal notranslate"><span class="pre">gekmihesg.openwrt</span></code> before and want to move to <code class="docutils literal notranslate"><span class="pre">community.openwrt</span></code>,
 please check the <a class="reference internal" href="migration_guide.html#ansible-collections-community-openwrt-docsite-migration-guide"><span class="std std-ref">Community OpenWrt Migration Guide</span></a>.</p>
 <section id="quickstart">
@@ -336,15 +341,12 @@ It is as easy as:</p>
 <code class="docutils literal notranslate"><span class="pre">gather_facts:</span> <span class="pre">true</span></code> and redirects it to <code class="docutils literal notranslate"><span class="pre">community.openwrt.setup</span></code>,
 so playbooks that rely on implicit fact gathering work without modification.</p>
 <p><strong>How it works</strong></p>
-<p>Ansible resolves the <code class="docutils literal notranslate"><span class="pre">gather_facts</span></code> action through the <code class="docutils literal notranslate"><span class="pre">ansible.legacy</span></code>
-pseudo-namespace, searching directories listed in <code class="docutils literal notranslate"><span class="pre">action_plugins</span></code> before
-falling back to <code class="docutils literal notranslate"><span class="pre">ansible.builtin</span></code>. Action plugins placed in a collection’s
-<code class="docutils literal notranslate"><span class="pre">plugins/action/</span></code> directory are only reachable as
-<code class="docutils literal notranslate"><span class="pre">&lt;namespace&gt;.&lt;collection&gt;.&lt;name&gt;</span></code> and cannot override
-<code class="docutils literal notranslate"><span class="pre">ansible.legacy.gather_facts</span></code>. The shim lives in a dedicated directory
-(<code class="docutils literal notranslate"><span class="pre">plugins/plugin_utils/_setup/</span></code>) that is added to the search path explicitly,
-so only the <code class="docutils literal notranslate"><span class="pre">gather_facts</span></code> override is exposed without shadowing any other
-built-in action plugins.</p>
+<p>A collection cannot override play-level fact gathering by itself - see the
+<a class="reference internal" href="architecture.html#ansible-collections-community-openwrt-docsite-architecture-facts"><span class="std std-ref">architecture overview</span></a>
+for why - so the shim lives in a dedicated directory
+(<code class="docutils literal notranslate"><span class="pre">plugins/plugin_utils/_setup/</span></code>) that you add to the <code class="docutils literal notranslate"><span class="pre">action_plugins</span></code> search path.
+That directory holds only the <code class="docutils literal notranslate"><span class="pre">gather_facts</span></code> override, so no other
+built-in action plugin is shadowed.</p>
 <p><strong>Required configuration</strong></p>
 <p>Add the shim directory to the <code class="docutils literal notranslate"><span class="pre">action_plugins</span></code> search path in <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code>:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[defaults]</span>
@@ -375,7 +377,7 @@ unchanged.</p>
           
 
 <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="Community.Openwrt" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="architecture.html" class="btn btn-neutral float-left" title="Community OpenWrt Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="migration_guide.html" class="btn btn-neutral float-right" title="Community OpenWrt Migration Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
