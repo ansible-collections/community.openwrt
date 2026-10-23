@@ -50,3 +50,41 @@
   ansible.builtin.assert:
     that:
       - copy_diff_noop is not changed
+
+- name: Create a binary file on controller
+  ansible.builtin.shell: printf 'icon\000\377\376' > '{{ controller_tmp_dir.path }}/binary_source_file.ico'
+  delegate_to: localhost
+  run_once: true
+  changed_when: true
+
+- name: Diff on a new binary file
+  community.openwrt.copy:
+    src: "{{ controller_tmp_dir.path }}/binary_source_file.ico"
+    dest: "{{ remote_tmp_dir }}/test_copy_diff_binary.ico"
+  diff: true
+  register: copy_diff_binary
+
+- name: Assert the binary source was left out of the diff
+  ansible.builtin.assert:
+    that:
+      - copy_diff_binary is changed
+      - copy_diff_binary.diff.src_binary == 1
+      - copy_diff_binary.diff.dst_binary is not defined
+      - copy_diff_binary.diff.before is not defined
+      - copy_diff_binary.diff.after is not defined
+
+- name: Diff on replacing a binary file with text
+  community.openwrt.copy:
+    content: "now text\n"
+    dest: "{{ remote_tmp_dir }}/test_copy_diff_binary.ico"
+  diff: true
+  register: copy_diff_from_binary
+
+- name: Assert the binary destination was left out of the diff
+  ansible.builtin.assert:
+    that:
+      - copy_diff_from_binary is changed
+      - copy_diff_from_binary.diff.dst_binary == 1
+      - copy_diff_from_binary.diff.src_binary is not defined
+      - copy_diff_from_binary.diff.before is not defined
+      - copy_diff_from_binary.diff.after is not defined

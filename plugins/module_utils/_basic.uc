@@ -27,6 +27,101 @@ const COLLECTION_NAME = 'community.openwrt';
 
 // ---- result output --------------------------------------------------------
 
+// Any byte from 0x80 up. A string without one is ASCII, valid UTF-8 as it is.
+// The class is built with chr(): a "\x80" escape does not stand for the raw
+// byte on every ucode release.
+const HIGH_BYTE = regexp(`[${chr(0x80)}-${chr(0xff)}]`);
+
+// Length of the UTF-8 sequence starting at byte `i` of `s`, or 0 when the bytes
+// there do not form a valid one (RFC 3629: no overlong forms, no surrogates,
+// nothing above U+10FFFF).
+function utf8_sequence_length(s, i) {
+    let first = ord(s, i);
+    if (first < 0x80)
+        return 1;
+
+    let size = 0;
+    let low = 0x80;
+    let high = 0xbf;
+
+    if (first >= 0xc2 && first <= 0xdf) {
+        size = 2;
+    } else if (first >= 0xe0 && first <= 0xef) {
+        size = 3;
+        if (first == 0xe0)
+            low = 0xa0;
+        else if (first == 0xed)
+            high = 0x9f;
+    } else if (first >= 0xf0 && first <= 0xf4) {
+        size = 4;
+        if (first == 0xf0)
+            low = 0x90;
+        else if (first == 0xf4)
+            high = 0x8f;
+    } else {
+        return 0;
+    }
+
+    for (let k = 1; k < size; k++) {
+        let byte = ord(s, i + k);
+        if (byte == null || byte < low || byte > high)
+            return 0;
+        low = 0x80;
+        high = 0xbf;
+    }
+
+    return size;
+}
+
+// Replace each byte of `s` that is not part of valid UTF-8 with U+FFFD.
+function utf8_text(s) {
+    if (match(s, HIGH_BYTE) == null)
+        return s;
+
+    let parts = [];
+    let start = 0;
+    let len = length(s);
+
+    for (let i = 0; i < len;) {
+        let size = utf8_sequence_length(s, i);
+        if (size > 0) {
+            i += size;
+            continue;
+        }
+
+        push(parts, substr(s, start, i - start), '�');
+        start = ++i;
+    }
+
+    if (length(parts) == 0)
+        return s;
+
+    push(parts, substr(s, start));
+    return join('', parts);
+}
+
+// Copy of a result value with every string made valid UTF-8: ansible-core
+// refuses a module result that is not, so a command's binary output or a
+// file's contents would otherwise break the task.
+function utf8_value(value) {
+    let kind = type(value);
+
+    if (kind == 'string')
+        return utf8_text(value);
+
+    if (kind == 'array')
+        return map(value, (item) => utf8_value(item));
+
+    if (kind == 'object') {
+        let copy = {};
+        for (let key, item in value)
+            copy[utf8_text(key)] = utf8_value(item);
+        return copy;
+    }
+
+    return value;
+}
+
 // Print a result object as JSON and terminate the module, exiting non-zero
 // when the result says the module failed. A result without a `failed` status
 // is a bug in the caller, and dies loudly rather than assuming success.
@@ -37,7 +132,7 @@ function emit(result) {
     // The leading newline keeps the result on a line of its own: ansible-core
     // looks for the first line starting with '{', and anything sharing that
     // line makes the result unparseable.
-    printf('\n%J\n', result);
+    printf('\n%J\n', utf8_value(result));
     exit(result.failed ? 1 : 0);
 }
 

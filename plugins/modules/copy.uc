@@ -45,8 +45,14 @@ function set_dest(value) {
     result.update({ dest: dest });
 }
 
+// Like ansible-core, a file holding a NUL byte is taken as binary.
+function is_binary(content) {
+    return index(content, chr(0)) >= 0;
+}
+
 // Show what the copy does to the destination. A file too large on either side
-// is reported as skipped rather than read into memory.
+// is reported as skipped rather than read into memory, and the contents of a
+// binary file are left out.
 function report_diff() {
     let limit = params._diff_max_bytes;
     let before = '';
@@ -60,6 +66,17 @@ function report_diff() {
             before = readfile(dest);
 
         after = readfile(src);
+
+        let binary = {};
+        if (is_binary(before))
+            binary.dst_binary = 1;
+        if (is_binary(after))
+            binary.src_binary = 1;
+
+        if (length(binary) > 0) {
+            result.update({ diff: { ...binary, before_header: dest, after_header: dest } });
+            return;
+        }
     }
 
     result.update({

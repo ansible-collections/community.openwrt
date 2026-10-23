@@ -126,6 +126,16 @@
       - shell_error.start != ''
       - shell_error.end != ''
 
+- name: Run a command whose output is not valid UTF-8
+  community.openwrt.command:
+    cmd: "printf 'a\\377b\\303\\251'"
+  register: binary_output
+
+- name: Assert the invalid bytes were replaced and the valid ones kept
+  ansible.builtin.assert:
+    that:
+      - "binary_output.stdout == 'a�bé'"
+
 - name: Include check-mode tasks
   ansible.builtin.include_tasks:
     file: check-mode.yml

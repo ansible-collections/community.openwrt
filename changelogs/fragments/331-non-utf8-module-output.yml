@@ -1,0 +1,2 @@
+bugfixes:
+  - copy - a binary source or destination file no longer makes the task fail in diff mode (https://github.com/ansible-collections/community.openwrt/issues/330, https://github.com/ansible-collections/community.openwrt/pull/331).
