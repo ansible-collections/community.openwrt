@@ -94,8 +94,10 @@ RETURN:
     type: str
     sample: ""
   rc:
-    description: The command return code.
-    returned: always
+    description:
+      - The command return code.
+      - This field is omitted if command is not executed.
+    returned: when available
     type: int
     sample: 0
   start:

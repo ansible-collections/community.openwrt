@@ -21,13 +21,14 @@
 - name: Run commands with distinct nonzero exit codes
   community.openwrt.command:
     cmd: "/bin/sh -c 'printf command-out; printf command-err >&2; exit {{ item }}'"
-  loop: [1, 2, 7, 255]
+  loop: [1, 2, 7, 126, 127, 255]
   register: exit_codes
-  failed_when: false
+  ignore_errors: true
 
 - name: Assert original exit codes and output streams are preserved
   ansible.builtin.assert:
     that:
+      - item is failed
       - item.rc == item.item
       - item.stdout == 'command-out'
       - item.stderr == 'command-err'
@@ -50,26 +51,80 @@
   community.openwrt.command:
     cmd: community-openwrt-command-does-not-exist
   register: missing_command
-  failed_when: false
+  ignore_errors: true
 
 - name: Assert command-not-found status is preserved
   ansible.builtin.assert:
     that:
+      - missing_command is failed
       - missing_command.rc == 127
       - missing_command.stdout == ''
 
-- name: Reject unmatched quoting before running the command
+- name: Reject commands that cannot be prepared for execution
   community.openwrt.command:
-    cmd: "printf should-not-run 'unterminated"
-  register: malformed_command
-  failed_when: false
+    cmd: "{{ item.cmd }}"
+    chdir: "{{ item.chdir | default(omit) }}"
+  loop:
+    - {cmd: "printf should-not-run 'unterminated", message: 'Unable to parse command arguments:'}
+    - {cmd: 'printf should-not-run "unterminated', message: 'Unable to parse command arguments:'}
+    - {cmd: '', message: 'Command is empty'}
+    - {cmd: '   ', message: 'Command is empty'}
+    - {cmd: "''", message: 'Command is empty'}
+    - {cmd: 'printf should-not-run', chdir: /community-openwrt-command-does-not-exist, message: 'cd /community-openwrt-command-does-not-exist:'}
+  register: invalid_commands
+  ignore_errors: true
 
-- name: Assert a splitting error does not execute the command
+- name: Assert preparation errors are distinct from command results
   ansible.builtin.assert:
     that:
-      - malformed_command.rc != 0
-      - malformed_command.stdout == ''
-      - malformed_command.stderr != ''
+      - item is failed
+      - item is not changed
+      - item.rc is undefined
+      - item.msg.startswith(item.item.message)
+      - item.stdout == ''
+      - item.stderr == ''
+      - item.start == ''
+      - item.end == ''
+      - item.delta == ''
+  loop: "{{ invalid_commands.results }}"
+
+- name: Skip argument preparation when file conditions prevent execution
+  community.openwrt.command:
+    cmd: "printf should-not-run 'unterminated"
+    creates: "{{ item.creates | default(omit) }}"
+    removes: "{{ item.removes | default(omit) }}"
+  loop:
+    - {creates: /etc/passwd}
+    - {removes: /community-openwrt-command-does-not-exist}
+  register: skipped_commands
+
+- name: Assert file conditions take precedence over argument preparation
+  ansible.builtin.assert:
+    that:
+      - item is not failed
+      - item is not changed
+      - item.rc is undefined
+      - item.stdout is match('skipped, since ')
+  loop: "{{ skipped_commands.results }}"
+
+- name: Let the shell report its own syntax errors
+  community.openwrt.command:
+    cmd: "printf should-not-run 'unterminated"
+    uses_shell: true
+  register: shell_error
+  ignore_errors: true
+
+- name: Assert shell errors are execution results
+  ansible.builtin.assert:
+    that:
+      - shell_error is failed
+      - shell_error is changed
+      - shell_error.rc is not none
+      - shell_error.rc != 0
+      - shell_error.stdout == ''
+      - shell_error.stderr != ''
+      - shell_error.start != ''
+      - shell_error.end != ''
 
 - name: Include check-mode tasks
   ansible.builtin.include_tasks:

@@ -56,7 +56,7 @@ function elapsed(start_time, end_time) {
 
 // ---- main -----------------------------------------------------------------
 
-result.update({ cmd: params.cmd, start: '', end: '', delta: '', stdout: '', stderr: '', rc: 0 });
+result.update({ cmd: params.cmd, start: '', end: '', delta: '', stdout: '', stderr: '' });
 
 if (params.chdir != null && !chdir(params.chdir))
     module.fail_json(`cd ${params.chdir}: unable to change directory`);
@@ -67,22 +67,28 @@ if (params.creates != null && file_exists(params.creates))
 if (params.removes != null && !file_exists(params.removes))
     module.exit_json({ stdout: `skipped, since ${params.removes} does not exist` });
 
-let ts_start = clock();
-let mono_start = monotonic();
-let res;
+let command_args;
 
 if (!params.uses_shell) {
     // Let xargs split the arguments, but execute them separately so that its
     // status codes do not replace the command's own exit status.
-    res = module.run_command(`printf '%s\\n' ${shell_quote(params.cmd)} | xargs -r printf '%s\\0'`);
-    if (res.rc == 0) {
-        let argv = split(res.stdout, '\x00');
-        pop(argv); // Drop the empty field after the final NUL separator.
-        res = module.run_command([ 'exec', ...argv ]);
-    }
+    let parsed = module.run_command(`printf '%s\\n' ${shell_quote(params.cmd)} | xargs -r printf '%s\\0'`);
+    if (parsed.rc != 0)
+        module.fail_json(`Unable to parse command arguments: ${rtrim(parsed.stderr, '\n')}`);
+
+    let argv = split(parsed.stdout, chr(0));
+    pop(argv); // Drop the empty field after the final NUL separator.
+    if (length(argv) == 0)
+        module.fail_json('Command is empty');
+
+    command_args = [ 'exec', ...argv ];
 }
 else
-    res = module.run_command([ params.executable, '-c', params.cmd ]);
+    command_args = [ params.executable, '-c', params.cmd ];
+
+let ts_start = clock();
+let mono_start = monotonic();
+let res = module.run_command(command_args);
 
 let ts_end = clock();
 let mono_end = monotonic();
