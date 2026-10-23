@@ -118,6 +118,8 @@ files:
   $plugin_utils/ucode_action.py:
     maintainers: $team_repo_mgrs
   #########################
+  docs/docsite/rst/architecture.rst:
+    maintainers: $team_repo_mgrs
   docs/docsite/rst/migration_guide.rst:
     maintainers: $team_repo_mgrs
   docs/docsite/rst/mod_dev_guide.rst:

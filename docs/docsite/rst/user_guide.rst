@@ -16,6 +16,8 @@ As you may well know, some devices have limitations of resources, preventing Pyt
 This collection is based on the Ansible role ``gekmihesg.openwrt`` and as such it does not require Python
 installed on the OpenWrt devices. The role's modules were plain shell scripts; starting with
 community.openwrt 1.9.0, all modules are written in ucode.
+Why the collection works this way, and what that means for your playbooks, is explained in
+:ref:`ansible_collections.community.openwrt.docsite.architecture`.
 If you have been using ``gekmihesg.openwrt`` before and want to move to ``community.openwrt``,
 please check the :ref:`ansible_collections.community.openwrt.docsite.migration_guide`.
 
@@ -215,15 +217,12 @@ so playbooks that rely on implicit fact gathering work without modification.
 
 **How it works**
 
-Ansible resolves the ``gather_facts`` action through the ``ansible.legacy``
-pseudo-namespace, searching directories listed in ``action_plugins`` before
-falling back to ``ansible.builtin``. Action plugins placed in a collection's
-``plugins/action/`` directory are only reachable as
-``<namespace>.<collection>.<name>`` and cannot override
-``ansible.legacy.gather_facts``. The shim lives in a dedicated directory
-(``plugins/plugin_utils/_setup/``) that is added to the search path explicitly,
-so only the ``gather_facts`` override is exposed without shadowing any other
-built-in action plugins.
+A collection cannot override play-level fact gathering by itself - see the
+:ref:`architecture overview <ansible_collections.community.openwrt.docsite.architecture.facts>`
+for why - so the shim lives in a dedicated directory
+(``plugins/plugin_utils/_setup/``) that you add to the ``action_plugins`` search path.
+That directory holds only the ``gather_facts`` override, so no other
+built-in action plugin is shadowed.
 
 **Required configuration**
 

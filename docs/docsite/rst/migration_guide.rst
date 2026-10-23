@@ -62,7 +62,8 @@ equivalents. This allowed execution on hosts without Python.
 
 This collection does **not** include monkey patching. If you are migrating playbooks that utilize
 standard Ansible modules (such as ``ansible.builtin.*``), you must update them to use the
-equivalent ``community.openwrt.*`` implementation.
+equivalent ``community.openwrt.*`` implementation. Why, and which standard features keep working, is explained
+in the :ref:`architecture overview <ansible_collections.community.openwrt.docsite.architecture.standard_modules>`.
 
 For example, the task on the left, written for the ``gekmihesg.openwrt`` role, **does NOT work** with
 ``community.openwrt``: without the role's monkey patch, ``lineinfile`` resolves to ``ansible.builtin.lineinfile``,

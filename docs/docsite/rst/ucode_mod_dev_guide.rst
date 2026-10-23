@@ -13,15 +13,9 @@ This guide is about writing modules for ``community.openwrt`` in `ucode <https:/
 If you are reading it, you probably already use the collection and want to extend it: Awesome! Everyone is
 welcome to contribute!
 
-ucode is OpenWrt's own scripting language. It looks like JavaScript, it is small enough to live on a router,
-and - the part that matters here - it speaks JSON natively. Modules written in it hold to the premise of this
-collection: the target does not need Python, and the module runs on the device rather than on the controller.
-
-Every OpenWrt release this collection supports carries ``ucode`` in its base image, together with the ``fs``,
-``uci``, ``ubus`` and ``math`` modules, so a module can read files, drive UCI and call ubus straight away.
-
-The language gives you JSON in and out with no encoding work, arrays and dictionaries that nest and can be
-passed around, and exceptions with ``try``/``catch``.
+ucode is OpenWrt's own scripting language, and it is in the base image of every OpenWrt release this collection
+supports. Why the collection's modules are written in it, and how they fit with ``ansible-core``, is explained in
+:ref:`ansible_collections.community.openwrt.docsite.architecture`. This guide is about writing them.
 
 One word of warning before anything else: ucode is not JavaScript. It is close enough to be readable at a
 glance and different enough to trip you up - there are no default values for function parameters, arrays are
@@ -50,11 +44,7 @@ Target requirements
 A ucode module runs on the device, so everything it relies on must already be there. In practice that is a
 short list, and it is worth knowing where its edges are before writing code against it.
 
-The interpreter is not a concern. ``ucode`` is part of the base image of every OpenWrt release this collection
-supports, so nothing needs to be installed for a module to run: on a stock image, or on anything derived from
-one, the interpreter is simply present.
-
-A few ucode modules ship with it, and those are the ones a module may import:
+A few ucode modules ship with the interpreter, and those are the ones a module may import:
 
 * on all supported releases: ``fs``, ``math``, ``uci``, ``ubus``, ``html`` and ``lucihttp``;
 * on 25.12 also ``log``, ``uclient`` and ``uloop``.
@@ -78,12 +68,12 @@ Runtime architecture
 ^^^^^^^^^^^^^^^^^^^^
 
 A ucode module is an ordinary program: it is copied to the target, run there once per host, and judged by what
-it prints. Three consequences of that shape how you write it.
+it prints - the :ref:`architecture overview <ansible_collections.community.openwrt.docsite.architecture.task_flow>`
+shows the whole path. Three consequences of that shape how you write it.
 
 **Getting there.** Write every module as two files: the ``.uc`` file that runs on the device, and a companion
-action plugin that runs on the control node. The action plugin is mandatory: ``ansible-core`` bundles
-``module_utils`` only for Python modules, so a ucode module's dependencies are transferred by its action
-plugin.
+action plugin that runs on the control node. The action plugin is mandatory: it is what transfers the module's
+dependencies to the target.
 
 Declare there every ucode module your module imports symbols from, apart from ``_basic``, which is always
 transferred, and the ones bundled with the interpreter. Nothing else reaches the target unless it is declared,
