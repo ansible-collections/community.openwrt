@@ -348,7 +348,6 @@ jobs:
 
     name: Units (Ⓐ${{ matrix.ansible }})
     strategy:
-      # As soon as the first unit test fails, cancel the others to free up the CI queue
       fail-fast: false
       matrix:
         ansible: *ansible-versions
