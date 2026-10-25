@@ -68,8 +68,6 @@ class UCodeActionBase(ActionBase):
         )
 
     def _low_level_execute_command(self, cmd, *args, encoding_errors="replace", **kwargs):
-        # ucode prints strings byte for byte, and ansible-core refuses a module result
-        # holding invalid UTF-8: replace those bytes when decoding the output instead.
         return super()._low_level_execute_command(cmd, *args, encoding_errors=encoding_errors, **kwargs)
 
     def _find_module_file(self, module_name):
