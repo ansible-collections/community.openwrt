@@ -67,6 +67,9 @@ class UCodeActionBase(ActionBase):
             task_vars=task_vars,
         )
 
+    def _low_level_execute_command(self, cmd, *args, encoding_errors="replace", **kwargs):
+        return super()._low_level_execute_command(cmd, *args, encoding_errors=encoding_errors, **kwargs)
+
     def _find_module_file(self, module_name):
         """Find the module's .uc file in the collection."""
         module_path = Path(__file__).parent.parent / "modules" / f"{module_name}.uc"

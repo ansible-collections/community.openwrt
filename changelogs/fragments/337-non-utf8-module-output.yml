@@ -1,0 +1,2 @@
+bugfixes:
+  - ucode_action plugin utils - a module result that is not valid UTF-8 no longer makes the task fail (https://github.com/ansible-collections/community.openwrt/issues/330, https://github.com/ansible-collections/community.openwrt/pull/337).
