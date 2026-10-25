@@ -5,13 +5,13 @@
 
 // _file.uc — helpers for modules managing filesystem objects. It covers the
 // attributes such a module sets on what it writes, the directories it creates,
-// the backup it takes before writing, the digests it compares and the diff it
-// reports:
+// the backup it takes before writing, the files it replaces, the digests it
+// compares and the diff it reports:
 //
-//   import { FILE_COMMON_ARGS, backup_local, digest, is_link, set_file_attributes } from '_file';
+//   import { FILE_COMMON_ARGS, backup_local, digest, is_link, replace_file, set_file_attributes } from '_file';
 
-import { error, lsdir, lstat, mkdir, stat } from 'fs';
-import { process_id } from '_basic';
+import { chmod, chown, error, lsdir, lstat, mkdir, open, rename, stat, unlink } from 'fs';
+import { monotonic, process_id, Time } from '_basic';
 
 // The parameters every module setting attributes on a file accepts. Spread it
 // into the module's argument_spec:
@@ -73,6 +73,27 @@ export function backup_local(module, path) {
     module.run_command([ 'cp', '-a', '--', path, backup ], { check_rc: true });
 
     return backup;
+};
+
+// ---- replacing ------------------------------------------------------------
+
+export function replace_file(path, content) {
+    let info = stat(path);
+    let now = Time(...monotonic());
+    let tmp = sprintf('%s.ansible_tmp.%s.%d.%d', path, process_id(), now.epoch(), now.nsec());
+
+    let file = open(tmp, 'wx', 0600);
+    if (file == null)
+        die(`cannot write ${path}`);
+
+    let written = file.write(content) != null;
+    if (!file.close() || !written ||
+        (info != null && (!chmod(tmp, info.mode) || !chown(tmp, info.uid, info.gid))) ||
+        (info == null && !chmod(tmp, 0644)) ||
+        !rename(tmp, path)) {
+        unlink(tmp);
+        die(`cannot write ${path}`);
+    }
 };
 
 // ---- attributes -----------------------------------------------------------

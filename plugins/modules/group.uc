@@ -3,8 +3,9 @@
 // GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { chmod, chown, open, readfile, rename, stat, unlink } from 'fs';
-import { AnsibleModule, monotonic, process_id, Time } from '_basic';
+import { readfile } from 'fs';
+import { AnsibleModule } from '_basic';
+import { replace_file } from '_file';
 
 const GROUP_FILE = '/etc/group';
 const PASSWD_FILE = '/etc/passwd';
@@ -149,28 +150,11 @@ function ensure_gid_unique(groups, gid) {
         module.fail_json(`GID '${gid}' already exists with group '${join(', ', clashing)}'`);
 }
 
-// Replace a database file, through a temporary file renamed over it so that the
-// file is never seen half-written, keeping its ownership and permissions. The
-// temporary file sits next to the database, as rename() cannot cross filesystems,
-// under a name unique per process and per moment so that concurrent runs never
-// share it. It is created exclusively: a file, or a symlink, already holding
-// that name is neither followed nor overwritten.
 function write_entries(path, entries) {
-    let info = stat(path);
-    let now = Time(...monotonic());
-    let tmp = sprintf('%s.ansible_tmp.%s.%d.%d', path, process_id(), now.epoch(), now.nsec());
-    let content = join('', map(entries, (entry) => `${entry.line}\n`));
-
-    let file = open(tmp, 'wx', 0600);
-    if (file == null)
-        module.fail_json(`cannot write ${path}`);
-
-    let written = file.write(content) != null;
-    if (!file.close() || !written ||
-        !chmod(tmp, info.mode) || !chown(tmp, info.uid, info.gid) ||
-        !rename(tmp, path)) {
-        unlink(tmp);
-        module.fail_json(`cannot write ${path}`);
+    try {
+        replace_file(path, join('', map(entries, (entry) => `${entry.line}\n`)));
+    } catch (e) {
+        module.fail_json(e.message);
     }
 }
 

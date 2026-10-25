@@ -2,8 +2,9 @@
 // GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { chmod, chown, open, readfile, rename, stat, unlink } from 'fs';
-import { AnsibleModule, deep_equal, monotonic, process_id, Time } from '_basic';
+import { readfile, stat, unlink } from 'fs';
+import { AnsibleModule, deep_equal } from '_basic';
+import { replace_file } from '_file';
 
 const KEYS_DIR = '/etc/apk/keys';
 
@@ -28,23 +29,11 @@ const result = module.result;
 
 // ---- files ----------------------------------------------------------------
 
-// Replace a file through a temporary file renamed over it, so that apk never
-// reads it half-written. An existing file keeps its ownership and permissions.
 function write_file(path, content) {
-    let info = stat(path);
-    let now = Time(...monotonic());
-    let tmp = sprintf('%s.ansible_tmp.%s.%d.%d', path, process_id(), now.epoch(), now.nsec());
-
-    let file = open(tmp, 'wx', 0644);
-    if (file == null)
-        module.fail_json(`cannot write ${path}`);
-
-    let written = file.write(content) != null;
-    if (!file.close() || !written ||
-        (info != null && (!chmod(tmp, info.mode) || !chown(tmp, info.uid, info.gid))) ||
-        !rename(tmp, path)) {
-        unlink(tmp);
-        module.fail_json(`cannot write ${path}`);
+    try {
+        replace_file(path, content);
+    } catch (e) {
+        module.fail_json(e.message);
     }
 }
 
