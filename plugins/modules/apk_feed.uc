@@ -65,7 +65,7 @@ function same_url(line, url) {
 // The lines of the repositories file once the feed is in place: the first line
 // holding its URL is rewritten as wanted, any further one dropped, and the feed
 // appended when no line holds it.
-function lines_present(lines, url, tag) {
+function lines_with_feed(lines, url, tag) {
     let wanted = feed_line(url, tag);
     let found = false;
     let out = [];
@@ -84,7 +84,7 @@ function lines_present(lines, url, tag) {
     return out;
 }
 
-function lines_absent(lines, url) {
+function lines_without_feed(lines, url) {
     return filter(lines, (line) => !same_url(line, url));
 }
 
@@ -111,7 +111,7 @@ function manage_feed() {
         lines = [];
     }
 
-    let wanted = params.state == 'present' ? lines_present(lines, url, params.tag) : lines_absent(lines, url);
+    let wanted = params.state == 'present' ? lines_with_feed(lines, url, params.tag) : lines_without_feed(lines, url);
     if (deep_equal(wanted, lines))
         return;
 
