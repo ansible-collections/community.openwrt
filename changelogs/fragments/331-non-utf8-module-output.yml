@@ -1,0 +1,2 @@
+bugfixes:
+  - copy - in diff mode, a binary source or destination file is now reported as binary instead of having its contents included in the diff (https://github.com/ansible-collections/community.openwrt/issues/330, https://github.com/ansible-collections/community.openwrt/pull/331).
