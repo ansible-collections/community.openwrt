@@ -9,7 +9,7 @@ const module = AnsibleModule({
     argument_spec: {
         name:         { type: 'list', elements: 'str', required: true, aliases: [ 'pkg' ] },
         state:        { type: 'str', default: 'present',
-                        choices: [ 'absent', 'installed', 'present', 'removed' ] },
+                        choices: [ 'absent', 'installed', 'latest', 'present', 'removed' ] },
         force:        { type: 'str',
                         choices: [ 'depends', 'maintainer', 'reinstall', 'overwrite', 'downgrade',
                                    'space', 'postinstall', 'remove', 'checksum',
@@ -56,9 +56,23 @@ function common_opts() {
     return opts;
 }
 
-function install_packages(pkgs) {
+// The installed packages that have a newer version available, as a set. `opkg list-upgradable`
+// ignores package arguments and prints one `name - installed - available` line for each of them.
+function upgradable_packages() {
+    let pkgs = {};
+    for (let line in split(try_run([ 'opkg', ...conf_opt(), 'list-upgradable' ]).stdout, '\n')) {
+        let m = match(line, /^([^ ]+) - /);
+        if (m)
+            pkgs[m[1]] = true;
+    }
+    return pkgs;
+}
+
+// `opkg install` upgrades a package that is already installed, so the packages in `upgradable`
+// are installed again rather than skipped.
+function install_packages(pkgs, upgradable) {
     for (let pkg in pkgs) {
-        if (is_installed(pkg))
+        if (is_installed(pkg) && !upgradable[pkg])
             continue;
 
         if (!module.check_mode) {
@@ -103,8 +117,10 @@ if (params.update_cache && !module.check_mode)
 
 let packages = requested_packages();
 
-if (params.state in [ 'present', 'installed' ])
-    install_packages(packages);
+if (params.state == 'latest')
+    install_packages(packages, upgradable_packages());
+else if (params.state in [ 'present', 'installed' ])
+    install_packages(packages, {});
 else
     remove_packages(packages);
 
