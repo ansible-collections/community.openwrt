@@ -33,10 +33,15 @@ DOCUMENTATION:
     state:
       description:
         - Whether the package should be installed or removed.
+        - V(latest) installs the package, or upgrades it when a newer version is available.
+          Set O(update_cache=true) for the newest versions in the package feeds to be known.
+          In check mode, the package cache is not updated.
+        - V(latest) was added in community.openwrt 1.11.0.
       type: str
       choices:
         - absent
         - installed
+        - latest
         - present
         - removed
       default: present
@@ -81,6 +86,14 @@ EXAMPLES: |
         - curl
         - wget
       state: present
+      update_cache: true
+
+  - name: Update cache and upgrade packages to their latest versions
+    community.openwrt.apk:
+      name:
+        - curl
+        - wget
+      state: latest
       update_cache: true
 
   - name: Install package without using local cache

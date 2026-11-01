@@ -96,6 +96,78 @@
           - apk_remove_list is changed
           - apk_remove_csv is not changed
 
+    - name: Test state=latest
+      block:
+        - name: Install a missing package with state=latest
+          community.openwrt.apk:
+            name: "htop"
+            state: latest
+            update_cache: true
+          register: apk_latest_install
+
+        - name: Install the same package with state=latest again (idempotency)
+          community.openwrt.apk:
+            name: "htop"
+            state: latest
+          register: apk_latest_idempotent
+
+        - name: Assert state=latest results for a missing package
+          ansible.builtin.assert:
+            that:
+              - apk_latest_install is changed
+              - apk_latest_idempotent is not changed
+
+        # apk cannot be made to see an installed package as outdated, so this relies on the
+        # image lagging behind the package feeds, which it usually does for the LuCI packages.
+        - name: Look for an upgradable LuCI package
+          community.openwrt.command:
+            cmd: "apk query --upgradable --fields name 'luci-*'"
+          register: apk_upgradable
+
+        - name: Test upgrading a package
+          when: "apk_upgradable.stdout_lines | select('match', '^Name: ') | length > 0"
+          vars:
+            apk_upgrade_pkg: "{{ (apk_upgradable.stdout_lines | select('match', '^Name: ') | first)[6:] }}"
+          block:
+            - name: Upgrade the package in check mode
+              community.openwrt.apk:
+                name: "{{ apk_upgrade_pkg }}"
+                state: latest
+              check_mode: true
+              register: apk_latest_upgrade_check
+
+            - name: Upgrade the package
+              community.openwrt.apk:
+                name: "{{ apk_upgrade_pkg }}"
+                state: latest
+              register: apk_latest_upgrade
+
+            - name: Upgrade the package again (idempotency)
+              community.openwrt.apk:
+                name: "{{ apk_upgrade_pkg }}"
+                state: latest
+              register: apk_latest_upgrade_idempotent
+
+            - name: Look for upgrades of the package
+              community.openwrt.command:
+                cmd: "apk list --upgradable {{ apk_upgrade_pkg }}"
+              register: apk_latest_upgradable
+
+            - name: Assert state=latest results for an outdated package
+              ansible.builtin.assert:
+                that:
+                  - apk_latest_upgrade_check is changed
+                  - apk_latest_upgrade is changed
+                  - apk_latest_upgrade_idempotent is not changed
+                  - apk_latest_upgradable.stdout == ""
+
+      always:
+        - name: Remove package installed during state=latest tests
+          community.openwrt.apk:
+            name: "htop"
+            state: absent
+          ignore_errors: true
+
     - name: Test --allow-untrusted
       block:
         - name: Download a test package
