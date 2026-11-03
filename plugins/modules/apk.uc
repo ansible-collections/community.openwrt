@@ -10,7 +10,7 @@ const module = AnsibleModule({
     argument_spec: {
         name:               { type: 'list', elements: 'str', required: true, aliases: [ 'pkg' ] },
         state:              { type: 'str', default: 'present',
-                              choices: [ 'absent', 'installed', 'present', 'removed' ] },
+                              choices: [ 'absent', 'installed', 'latest', 'present', 'removed' ] },
         update_cache:       { type: 'bool', default: false },
         no_cache:           { type: 'bool', default: false },
         force_broken_world: { type: 'bool', default: false },
@@ -36,6 +36,15 @@ function record(res) {
 // `apk info -e` exits 0 when the package is installed, non-zero otherwise.
 function is_installed(pkg) {
     return module.run_command([ 'apk', 'info', '-e', pkg ]).rc == 0;
+}
+
+// `apk list --upgradable` prints the package only when a newer version is available.
+function is_upgradable(pkg) {
+    let cmd = [ 'apk' ];
+    if (params.no_cache)
+        push(cmd, '--no-cache');
+    push(cmd, 'list', '--upgradable', pkg);
+    return trim(module.run_command(cmd).stdout) != '';
 }
 
 // The packages to act upon.
@@ -65,10 +74,10 @@ function installed_name(pkg) {
 
 // ---- operations -----------------------------------------------------------
 
-function install_packages(pkgs) {
+function install_packages(pkgs, upgrade) {
     let to_install = [];
     for (let pkg in pkgs) {
-        if (!is_installed(pkg))
+        if (!is_installed(pkg) || (upgrade && is_upgradable(pkg)))
             push(to_install, pkg);
     }
 
@@ -77,7 +86,7 @@ function install_packages(pkgs) {
 
     if (!module.check_mode) {
         let cmd = [ 'apk' ];
-        if (params.update_cache)
+        if (params.update_cache && !upgrade)
             push(cmd, '--update-cache');
         if (params.no_cache)
             push(cmd, '--no-cache');
@@ -85,7 +94,10 @@ function install_packages(pkgs) {
             push(cmd, '--force-broken-world');
         if (params.allow_untrusted)
             push(cmd, '--allow-untrusted');
-        push(cmd, 'add', ...to_install);
+        push(cmd, 'add');
+        if (upgrade)
+            push(cmd, '--upgrade');
+        push(cmd, ...to_install);
 
         let res = record(module.run_command(cmd));
 
@@ -129,10 +141,19 @@ function remove_packages(pkgs) {
 
 result.update({ rc: 0, stdout: '', stderr: '' });
 
+// `apk list` does not refresh the cache, so it is updated before looking for upgrades.
+if (params.state == 'latest' && params.update_cache && !module.check_mode) {
+    let res = module.run_command([ 'apk', 'update' ]);
+    if (res.rc != 0)
+        module.fail_json(`failed to update the package cache: ${trim(res.stdout + res.stderr)}`);
+}
+
 let packages = requested_packages();
 
-if (params.state in ['present', 'installed'])
-    install_packages(packages);
+if (params.state == 'latest')
+    install_packages(packages, true);
+else if (params.state in ['present', 'installed'])
+    install_packages(packages, false);
 else
     remove_packages(packages);
 

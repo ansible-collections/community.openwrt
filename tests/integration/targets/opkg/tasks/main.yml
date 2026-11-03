@@ -92,6 +92,65 @@
           - opkg_remove_list is changed
           - opkg_remove_csv is not changed
 
+    - name: Test state=latest
+      block:
+        - name: Install a missing package with state=latest
+          community.openwrt.opkg:
+            name: "htop"
+            state: latest
+          register: opkg_latest_install
+
+        - name: Install the same package with state=latest again (idempotency)
+          community.openwrt.opkg:
+            name: "htop"
+            state: latest
+          register: opkg_latest_idempotent
+
+        - name: Make the installed package look outdated
+          community.openwrt.command:
+            cmd: "sed -i '/^Package: htop$/,/^$/s/^Version: .*/Version: 0.1-r1/' /usr/lib/opkg/status"
+
+        - name: Upgrade the outdated package in check mode
+          community.openwrt.opkg:
+            name: "htop"
+            state: latest
+          check_mode: true
+          register: opkg_latest_upgrade_check
+
+        - name: Upgrade the outdated package
+          community.openwrt.opkg:
+            name: "htop"
+            state: latest
+          register: opkg_latest_upgrade
+
+        - name: Upgrade the package again (idempotency)
+          community.openwrt.opkg:
+            name: "htop"
+            state: latest
+          register: opkg_latest_upgrade_idempotent
+
+        - name: Read the status of the upgraded package
+          community.openwrt.command:
+            cmd: opkg status htop
+          register: opkg_latest_status
+
+        - name: Assert state=latest results
+          ansible.builtin.assert:
+            that:
+              - opkg_latest_install is changed
+              - opkg_latest_idempotent is not changed
+              - opkg_latest_upgrade_check is changed
+              - opkg_latest_upgrade is changed
+              - opkg_latest_upgrade_idempotent is not changed
+              - "'Version: 0.1-r1' not in opkg_latest_status.stdout"
+
+      always:
+        - name: Remove package installed during state=latest tests
+          community.openwrt.opkg:
+            name: "htop"
+            state: absent
+          ignore_errors: true
+
     - name: Test conf_file parameter (custom opkg configuration)
       vars:
         custom_opkg_conf: /tmp/opkg-custom.conf
