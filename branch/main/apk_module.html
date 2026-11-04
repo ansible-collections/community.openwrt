@@ -247,6 +247,7 @@ To check whether it is installed, run <code class="code docutils literal notrans
 </div></td>
 <td><div class="ansible-option-cell"><p>Whether the package should be installed or removed.</p>
 <p><code class="ansible-value docutils literal notranslate"><span class="pre">latest</span></code> installs the package, or upgrades it when a newer version is available. Set <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-community-openwrt-apk-module-parameter-update-cache"><span class="std std-ref"><span class="pre">update_cache=true</span></span></a></code> for the newest versions in the package feeds to be known. In check mode, the package cache is not updated.</p>
+<p>Warning: Upgrading packages included in the OpenWrt firmware is strongly discouraged. This can lead to package incompatibilities and an unstable or broken system. See <a class="reference external" href="https://openwrt.org/meta/infobox/upgrade_packages_warning">https://openwrt.org/meta/infobox/upgrade_packages_warning</a> for details.</p>
 <p><code class="ansible-value docutils literal notranslate"><span class="pre">latest</span></code> was added in community.openwrt 1.11.0.</p>
 <p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
 <ul class="simple">
