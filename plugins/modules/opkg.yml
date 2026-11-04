@@ -34,6 +34,9 @@ DOCUMENTATION:
         - V(latest) installs the package, or upgrades it when a newer version is available.
           Set O(update_cache=true) for the newest versions in the package feeds to be known.
           In check mode, the package cache is not updated.
+        - "Warning: Upgrading packages included in the OpenWrt firmware is strongly discouraged.
+          This can lead to package incompatibilities and an unstable or broken system.
+          See U(https://openwrt.org/meta/infobox/upgrade_packages_warning) for details."
         - V(latest) was added in community.openwrt 1.11.0.
       type: str
       choices:
