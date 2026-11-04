@@ -36,12 +36,12 @@ attributes:
 
 EXAMPLES = r"""
 - name: Template a file to /etc/file.conf
-  ansible.builtin.template:
+  ansible.openwrt.template:
     src: /mytemplates/foo.j2
     dest: /etc/file.conf
 
 - name: Copy a new sudoers file into place, after passing validation with visudo
-  ansible.builtin.template:
+  ansible.openwrt.template:
     src: /mine/sudoers
     dest: /etc/sudoers
     validate: /usr/sbin/visudo -cf %s
