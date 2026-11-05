@@ -1,3 +1,0 @@
-minor_changes:
-  - apk_feed - refactor the replacement of files (https://github.com/ansible-collections/community.openwrt/pull/339).
-  - group - refactor the replacement of files (https://github.com/ansible-collections/community.openwrt/pull/339).

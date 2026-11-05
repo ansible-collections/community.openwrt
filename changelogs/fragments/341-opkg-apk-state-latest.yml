@@ -1,3 +1,0 @@
-minor_changes:
-  - opkg - add ``latest`` to ``state`` to upgrade packages to their newest version (https://github.com/ansible-collections/community.openwrt/issues/340, https://github.com/ansible-collections/community.openwrt/pull/341).
-  - apk - add ``latest`` to ``state`` to upgrade packages to their newest version (https://github.com/ansible-collections/community.openwrt/issues/340, https://github.com/ansible-collections/community.openwrt/pull/341).
