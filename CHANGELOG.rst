@@ -4,6 +4,32 @@ Community OpenWrt Release Notes
 
 .. contents:: Topics
 
+v1.11.0
+=======
+
+Release Summary
+---------------
+
+This is a regular release, with improvements and bugfixes. This release adds support for ansible-core 2.22.0.
+
+Minor Changes
+-------------
+
+- apk - add ``latest`` to ``state`` to upgrade packages to their newest version (https://github.com/ansible-collections/community.openwrt/issues/340, https://github.com/ansible-collections/community.openwrt/pull/341).
+- apk_feed - refactor the naming of temporary files (https://github.com/ansible-collections/community.openwrt/pull/335).
+- apk_feed - refactor the replacement of files (https://github.com/ansible-collections/community.openwrt/pull/339).
+- command - refactor the computation of the ``start``, ``end`` and ``delta`` return values (https://github.com/ansible-collections/community.openwrt/pull/335).
+- group - refactor the naming of temporary files (https://github.com/ansible-collections/community.openwrt/pull/335).
+- group - refactor the replacement of files (https://github.com/ansible-collections/community.openwrt/pull/339).
+- opkg - add ``latest`` to ``state`` to upgrade packages to their newest version (https://github.com/ansible-collections/community.openwrt/issues/340, https://github.com/ansible-collections/community.openwrt/pull/341).
+
+Bugfixes
+--------
+
+- command - report argument parsing errors and empty commands as unchanged failures without a return code, and omit the return code for directory change failures and commands skipped by ``creates`` or ``removes`` (https://github.com/ansible-collections/community.openwrt/pull/329).
+- copy - in diff mode, a binary source or destination file is now reported as binary instead of having its contents included in the diff (https://github.com/ansible-collections/community.openwrt/issues/330, https://github.com/ansible-collections/community.openwrt/pull/331).
+- ucode_action plugin utils - a module result that is not valid UTF-8 no longer makes the task fail (https://github.com/ansible-collections/community.openwrt/issues/330, https://github.com/ansible-collections/community.openwrt/pull/337).
+
 v1.10.0
 =======
 
