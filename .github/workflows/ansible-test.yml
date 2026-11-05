@@ -121,6 +121,7 @@ jobs:
           - stable-2.19
           - stable-2.20
           - stable-2.21
+          - stable-2.22
           - devel
           # - milestone
         python: &python-versions
@@ -135,6 +136,10 @@ jobs:
             python: "3.11"
           - ansible: stable-2.21
             python: "3.11"
+          - ansible: stable-2.22
+            python: "3.11"
+          - ansible: stable-2.22
+            python: "3.12"
           - ansible: devel
             python: "3.11"
           - ansible: devel
