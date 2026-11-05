@@ -12,6 +12,8 @@ files:
   $actions:
     labels: action
     maintainers: $team_repo_mgrs
+  $actions/find.py:
+    maintainers: russoz
   $actions/wg_interface.py:
     maintainers: vooon
   $actions/wg_peer.py:
@@ -49,6 +51,10 @@ files:
     maintainers: $team_repo_mgrs
   $modules/file.yml:
     maintainers: $team_repo_mgrs
+  $modules/find.uc:
+    maintainers: russoz
+  $modules/find.yml:
+    maintainers: russoz
   $modules/group.uc:
     maintainers: s-hamann $team_repo_mgrs
   $modules/group.yml:

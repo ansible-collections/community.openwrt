@@ -3,6 +3,7 @@ plugins/modules/apk_feed.uc validate-modules:invalid-extension
 plugins/modules/command.uc validate-modules:invalid-extension
 plugins/modules/copy.uc validate-modules:invalid-extension
 plugins/modules/file.uc validate-modules:invalid-extension
+plugins/modules/find.uc validate-modules:invalid-extension
 plugins/modules/group.uc validate-modules:invalid-extension
 plugins/modules/lineinfile.uc validate-modules:invalid-extension
 plugins/modules/nohup.uc validate-modules:invalid-extension

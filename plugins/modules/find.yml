@@ -1,0 +1,257 @@
+---
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+DOCUMENTATION:
+  module: find
+  short_description: Return a list of files based on specific criteria on OpenWrt targets
+  version_added: 1.12.0
+  description:
+    - Return a list of files based on specific criteria. Multiple criteria are AND'd together.
+    - This module loosely mimics M(ansible.builtin.find). It reads the filesystem directly and does not use the C(find)
+      command.
+  author: Alexei Znamensky (@russoz)
+  extends_documentation_fragment:
+    - community.openwrt.attributes
+    - community.openwrt.attributes.info_module
+  options:
+    paths:
+      description:
+        - List of paths of directories to search. All paths must be absolute.
+      type: list
+      elements: str
+      required: true
+      aliases: [name, path]
+    patterns:
+      description:
+        - One or more shell or regex patterns, which type is controlled by O(use_regex).
+        - The patterns restrict the list of files to be returned to those whose basenames match at least one of the
+          patterns specified.
+        - The pattern is matched against the file base name, excluding the directory.
+        - When using regular expressions, the pattern must match the entire file name, not just parts of it.
+        - This parameter expects a list, which can be either comma separated or YAML. If any of the patterns contain a
+          comma, make sure to put them in a list to avoid splitting the patterns in undesirable ways.
+        - When empty, all names are selected.
+      type: list
+      elements: str
+      default: []
+      aliases: [pattern]
+    excludes:
+      description:
+        - One or more shell or regex patterns, which type is controlled by O(use_regex).
+        - Items whose basenames match an O(excludes) pattern are culled from O(patterns) matches.
+      type: list
+      elements: str
+      default: []
+      aliases: [exclude]
+    use_regex:
+      description:
+        - If V(false), the patterns are shell globs.
+        - If V(true), they are POSIX extended regular expressions. Note that these are not Python regular expressions,
+          so constructs such as non-greedy quantifiers or C(\d) are not available.
+      type: bool
+      default: false
+    file_type:
+      description:
+        - Type of file to select.
+      type: str
+      choices: [any, directory, file, link, block, char, socket, pipe]
+      default: file
+    recurse:
+      description:
+        - If V(true), recursively descend into the directories looking for files.
+      type: bool
+      default: false
+    depth:
+      description:
+        - Set the maximum number of levels to descend into.
+        - Setting O(recurse=false) overrides this value, which is effectively depth 1.
+        - Default is unlimited depth.
+      type: int
+    hidden:
+      description:
+        - Set this to V(true) to include hidden files, otherwise they are ignored.
+        - When V(false), hidden directories are not descended into either.
+      type: bool
+      default: false
+    follow:
+      description:
+        - Set this to V(true) to follow symlinks found while searching.
+        - The paths in O(paths) are always followed when they are symlinks to directories.
+      type: bool
+      default: false
+    age:
+      description:
+        - Select files whose age is equal to or greater than the specified time.
+        - Use a negative age to find files equal to or less than the specified time.
+        - You can choose seconds, minutes, hours, days, or weeks by specifying the first letter of any of those words,
+          for example V(1w). Unqualified values are in seconds.
+      type: str
+    age_stamp:
+      description:
+        - Choose the file property against which to compare O(age).
+      type: str
+      choices: [atime, ctime, mtime]
+      default: mtime
+    size:
+      description:
+        - Select files whose size is equal to or greater than the specified size.
+        - Use a negative size to find files equal to or less than the specified size.
+        - Unqualified values are in bytes but V(b), V(k), V(m), V(g), and V(t) can be appended to specify bytes,
+          kibibytes, mebibytes, gibibytes, and tebibytes, respectively.
+        - Size is only evaluated for regular files.
+      type: str
+    mode:
+      description:
+        - Choose objects matching a specified permission, as an octal string such as V("0644").
+        - Symbolic modes are not supported.
+      type: str
+    exact_mode:
+      description:
+        - Restrict mode matching to exact matches only, and not as a minimum set of permissions to match.
+      type: bool
+      default: true
+    limit:
+      description:
+        - Limit the maximum number of matching paths returned. After finding this many, the module stops looking.
+        - Default is unlimited.
+      type: int
+  seealso:
+    - module: ansible.builtin.find
+    - module: community.openwrt.stat
+
+EXAMPLES: |
+  - name: Recursively find /tmp files older than 2 days
+    community.openwrt.find:
+      paths: /tmp
+      age: 2d
+      recurse: true
+
+  - name: Recursively find /tmp files older than 4 weeks and equal or greater than 1 megabyte
+    community.openwrt.find:
+      paths: /tmp
+      age: 4w
+      size: 1m
+      recurse: true
+
+  - name: Recursively find /tmp files with last access time greater than 3600 seconds
+    community.openwrt.find:
+      paths: /tmp
+      age: 3600
+      age_stamp: atime
+      recurse: true
+
+  - name: Find /etc/config files ending with .bak or -opkg
+    community.openwrt.find:
+      paths: /etc/config
+      patterns: '*.bak,*-opkg'
+
+  - name: Find the same files with a regular expression
+    community.openwrt.find:
+      paths: /etc/config
+      patterns: '.*(\.bak|-opkg)'
+      use_regex: true
+
+  - name: Find all directories in /etc, excluding init.d and rc.d
+    community.openwrt.find:
+      paths: /etc
+      file_type: directory
+      excludes: 'init.d,rc.d'
+
+  - name: Find executable scripts, stopping at the first one
+    community.openwrt.find:
+      paths: /usr/sbin
+      mode: "0755"
+      limit: 1
+
+RETURN:
+  files:
+    description: All matches found with the specified criteria.
+    returned: success
+    type: list
+    elements: dict
+    contains:
+      path:
+        description: The full path to the file.
+        type: str
+        sample: /etc/config/network
+      mode:
+        description: Unix permissions of the file in octal.
+        type: str
+        sample: "0644"
+      size:
+        description: Size of the file in bytes.
+        type: int
+        sample: 1024
+      uid:
+        description: Numeric user ID of the owner.
+        type: int
+        sample: 0
+      gid:
+        description: Numeric group ID of the owner.
+        type: int
+        sample: 0
+      atime:
+        description: Last access time in seconds since epoch.
+        type: int
+        sample: 1701788400
+      mtime:
+        description: Last modification time in seconds since epoch.
+        type: int
+        sample: 1701788400
+      ctime:
+        description: Last change time in seconds since epoch.
+        type: int
+        sample: 1701788400
+      inode:
+        description: Inode number of the file.
+        type: int
+        sample: 12345
+      nlink:
+        description: Number of hard links to the file.
+        type: int
+        sample: 1
+      isdir:
+        description: Whether the path is a directory.
+        type: bool
+        sample: false
+      isreg:
+        description: Whether the path is a regular file.
+        type: bool
+        sample: true
+      islnk:
+        description: Whether the path is a symbolic link.
+        type: bool
+        sample: false
+      issock:
+        description: Whether the path is a socket.
+        type: bool
+        sample: false
+      isblk:
+        description: Whether the path is a block device.
+        type: bool
+        sample: false
+      ischr:
+        description: Whether the path is a character device.
+        type: bool
+        sample: false
+      isfifo:
+        description: Whether the path is a FIFO.
+        type: bool
+        sample: false
+  matched:
+    description: Number of matches.
+    returned: success
+    type: int
+    sample: 14
+  examined:
+    description: Number of filesystem objects looked at.
+    returned: success
+    type: int
+    sample: 34
+  skipped_paths:
+    description: Skipped paths and reasons they were skipped.
+    returned: success
+    type: dict
+    sample: {"/laskdfj": "'/laskdfj' is not a directory"}
