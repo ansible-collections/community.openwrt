@@ -21,6 +21,7 @@ The process to release version `x.y.z` is as follows:
 9. Announce in Ansible Bullhorn
 10. Announce in [OpenWrt forum](https://forum.openwrt.org)
 11. Update [Release History](https://github.com/ansible-collections/community.openwrt/issues/100).
+    Use "Ansible collection community.openwrt" in that context. See the [comments in the 1.9.0 announcement](https://forum.openwrt.org/t/release-announcement-ansible-collection-community-openwrt-1-9-0-powered-by-ucode/254234).
 
 ## Automated release
 
