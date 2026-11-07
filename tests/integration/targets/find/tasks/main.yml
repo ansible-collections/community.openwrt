@@ -1,0 +1,338 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Set the test directory
+  ansible.builtin.set_fact:
+    find_dir: /tmp/test_find
+
+- name: Create the tree to search
+  community.openwrt.command:
+    cmd: |
+      rm -rf {{ find_dir }}
+      mkdir -p {{ find_dir }}/sub/deeper {{ find_dir }}/.hiddendir
+      echo a > {{ find_dir }}/a.txt
+      echo b > {{ find_dir }}/b.log
+      echo h > {{ find_dir }}/.hidden.txt
+      echo c > {{ find_dir }}/sub/c.txt
+      echo d > {{ find_dir }}/sub/deeper/d.txt
+      echo e > {{ find_dir }}/.hiddendir/e.txt
+      head -c 2048 /dev/zero > {{ find_dir }}/big.bin
+      printf '#!/bin/sh\n' > {{ find_dir }}/run.sh
+      chmod 0644 {{ find_dir }}/a.txt {{ find_dir }}/b.log {{ find_dir }}/big.bin
+      chmod 0755 {{ find_dir }}/run.sh
+      ln -s a.txt {{ find_dir }}/link.txt
+      ln -s sub {{ find_dir }}/linkdir
+    uses_shell: true
+
+- name: Find regular files at the top level
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+  register: top
+
+- name: Find regular files at the top level again
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+  register: top_again
+
+- name: Assert top level files, without hidden ones and not changed
+  ansible.builtin.assert:
+    that:
+      - top is not changed
+      - top_again is not changed
+      - top.files | map(attribute='path') | list == expected
+      - top.matched == 4
+      - top_again.files == top.files
+      - top.skipped_paths == {}
+  vars:
+    expected:
+      - "{{ find_dir }}/a.txt"
+      - "{{ find_dir }}/b.log"
+      - "{{ find_dir }}/big.bin"
+      - "{{ find_dir }}/run.sh"
+
+- name: Find with a glob pattern, recursing
+  community.openwrt.find:
+    paths: "{{ find_dir }}/"
+    patterns: "*.txt"
+    recurse: true
+  register: glob
+
+- name: Assert glob matches, hidden directories not descended into
+  ansible.builtin.assert:
+    that:
+      - glob.files | map(attribute='path') | sort == expected | sort
+  vars:
+    expected:
+      - "{{ find_dir }}/a.txt"
+      - "{{ find_dir }}/sub/c.txt"
+      - "{{ find_dir }}/sub/deeper/d.txt"
+
+- name: Find with a glob pattern, recursing, with hidden files
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    patterns: "*.txt"
+    recurse: true
+    hidden: true
+  register: glob_hidden
+
+- name: Assert hidden files and directories are included
+  ansible.builtin.assert:
+    that:
+      - glob_hidden.files | map(attribute='path') | sort == expected | sort
+  vars:
+    expected:
+      - "{{ find_dir }}/.hidden.txt"
+      - "{{ find_dir }}/.hiddendir/e.txt"
+      - "{{ find_dir }}/a.txt"
+      - "{{ find_dir }}/sub/c.txt"
+      - "{{ find_dir }}/sub/deeper/d.txt"
+
+- name: Find with depth limit
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    patterns: "*.txt"
+    recurse: true
+    depth: 2
+  register: depth
+
+- name: Assert depth limit is honored
+  ansible.builtin.assert:
+    that:
+      - depth.files | map(attribute='path') | sort == expected | sort
+  vars:
+    expected:
+      - "{{ find_dir }}/a.txt"
+      - "{{ find_dir }}/sub/c.txt"
+
+- name: Find with a regex and excludes
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    patterns: '.*\.(txt|log|bin)'
+    excludes: 'big.*'
+    use_regex: true
+  register: regex
+
+- name: Assert regex matches whole names and excludes are applied
+  ansible.builtin.assert:
+    that:
+      - regex.files | map(attribute='path') | list == expected
+  vars:
+    expected:
+      - "{{ find_dir }}/a.txt"
+      - "{{ find_dir }}/b.log"
+
+- name: Find a regex matching only part of a name
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    patterns: 'txt'
+    use_regex: true
+  register: partial
+
+- name: Assert partial regex matches nothing
+  ansible.builtin.assert:
+    that:
+      - partial.matched == 0
+
+- name: Find directories
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    file_type: directory
+    recurse: true
+  register: dirs
+
+- name: Assert directories are found
+  ansible.builtin.assert:
+    that:
+      - dirs.files | map(attribute='path') | sort == expected | sort
+      - dirs.files | map(attribute='isdir') | unique == [true]
+  vars:
+    expected:
+      - "{{ find_dir }}/sub"
+      - "{{ find_dir }}/sub/deeper"
+
+- name: Find links
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    file_type: link
+  register: links
+
+- name: Assert links are found
+  ansible.builtin.assert:
+    that:
+      - links.files | map(attribute='path') | list == expected
+      - links.files | map(attribute='islnk') | unique == [true]
+  vars:
+    expected:
+      - "{{ find_dir }}/link.txt"
+      - "{{ find_dir }}/linkdir"
+
+- name: Find files following links
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    patterns: "*.txt"
+    recurse: true
+    follow: true
+  register: followed
+
+- name: Assert links are followed
+  ansible.builtin.assert:
+    that:
+      - followed.files | map(attribute='path') | sort == expected | sort
+  vars:
+    expected:
+      - "{{ find_dir }}/a.txt"
+      - "{{ find_dir }}/link.txt"
+      - "{{ find_dir }}/linkdir/c.txt"
+      - "{{ find_dir }}/linkdir/deeper/d.txt"
+      - "{{ find_dir }}/sub/c.txt"
+      - "{{ find_dir }}/sub/deeper/d.txt"
+
+- name: Create a link back to the top of the tree
+  community.openwrt.file:
+    src: "{{ find_dir }}"
+    dest: "{{ find_dir }}/sub/loop"
+    state: link
+
+- name: Find files following a link loop
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    patterns: "*.txt"
+    recurse: true
+    follow: true
+  register: looped
+
+- name: Assert the loop is not followed
+  ansible.builtin.assert:
+    that:
+      - looped is succeeded
+      - looped.matched == followed.matched
+      - (find_dir ~ '/sub/loop') in looped.skipped_paths
+
+- name: Remove the link loop
+  community.openwrt.file:
+    path: "{{ find_dir }}/sub/loop"
+    state: absent
+
+- name: Find by size
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    size: 1k
+  register: big
+
+- name: Find by negative size
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    size: -100
+  register: small
+
+- name: Assert size selection
+  ansible.builtin.assert:
+    that:
+      - big.files | map(attribute='path') | list == [find_dir ~ '/big.bin']
+      - big.files[0].size == 2048
+      - small.matched == 3
+
+- name: Find by age
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    age: 1h
+  register: old
+
+- name: Find by negative age
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    age: -1h
+  register: recent
+
+- name: Assert age selection
+  ansible.builtin.assert:
+    that:
+      - old.matched == 0
+      - recent.matched == 4
+
+- name: Find by exact mode
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    mode: "0755"
+  register: exact
+
+- name: Find by minimum mode
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    mode: "0644"
+    exact_mode: false
+  register: minimum
+
+- name: Assert mode selection
+  ansible.builtin.assert:
+    that:
+      - exact.files | map(attribute='path') | list == [find_dir ~ '/run.sh']
+      - exact.files[0].mode == '0755'
+      - minimum.matched == 4
+
+- name: Find with a limit
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    limit: 2
+  register: limited
+
+- name: Assert limit
+  ansible.builtin.assert:
+    that:
+      - limited.matched == 2
+
+- name: Find in check mode
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+  check_mode: true
+  register: checked
+
+- name: Assert check mode returns the same files
+  ansible.builtin.assert:
+    that:
+      - checked is not changed
+      - checked.files == top.files
+
+- name: Find in paths that are missing or not directories
+  community.openwrt.find:
+    paths:
+      - /tmp/test_find_does_not_exist
+      - "{{ find_dir }}/a.txt"
+      - "{{ find_dir }}"
+  register: skipped
+
+- name: Assert bad paths are skipped
+  ansible.builtin.assert:
+    that:
+      - skipped is succeeded
+      - skipped.matched == 4
+      - skipped.skipped_paths | length == 2
+      - "'/tmp/test_find_does_not_exist' in skipped.skipped_paths"
+
+- name: Find with an invalid size
+  community.openwrt.find:
+    paths: "{{ find_dir }}"
+    size: lots
+  register: bad_size
+  ignore_errors: true
+
+- name: Find with a relative path
+  community.openwrt.find:
+    paths: tmp
+  register: relative
+  ignore_errors: true
+
+- name: Assert invalid parameters fail
+  ansible.builtin.assert:
+    that:
+      - bad_size is failed
+      - "'invalid size' in bad_size.msg"
+      - relative is failed
+      - "'not an absolute path' in relative.msg"
+
+- name: Clean up
+  community.openwrt.file:
+    path: "{{ find_dir }}"
+    state: absent
