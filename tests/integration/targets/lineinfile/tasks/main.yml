@@ -68,3 +68,6 @@
   ansible.builtin.assert:
     that:
       - lineinfile_remove is changed
+
+- name: "Test how the file is replaced"
+  ansible.builtin.include_tasks: replace.yml

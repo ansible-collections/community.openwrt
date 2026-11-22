@@ -20,6 +20,12 @@ DOCUMENTATION:
       support: full
     diff_mode:
       support: full
+    safe_file_operations:
+      description: Uses Ansible's strict file operation functions to ensure proper permissions and avoid data corruption.
+      support: full
+      details:
+        - The changed file is written to a temporary file that then atomically replaces it, so a failed write leaves
+          the original file untouched.
   options:
     path:
       description:

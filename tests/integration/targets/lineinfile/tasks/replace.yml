@@ -1,0 +1,104 @@
+# Copyright (c) 2026, Alexei Znamensky (@russoz)
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: "Create the directories for the tests"
+  community.openwrt.file:
+    path: "{{ remote_tmp_dir }}/replace/{{ item }}"
+    state: directory
+  loop:
+    - ""
+    - failed
+
+- name: "Create a file with restricted permissions"
+  community.openwrt.copy:
+    content: |
+      line1
+    dest: "{{ remote_tmp_dir }}/replace/restricted.txt"
+    mode: "0600"
+
+- name: "Change the file with restricted permissions"
+  community.openwrt.lineinfile:
+    path: "{{ remote_tmp_dir }}/replace/restricted.txt"
+    line: "line2"
+  register: lineinfile_restricted
+
+- name: "Stat the file with restricted permissions"
+  community.openwrt.stat:
+    path: "{{ remote_tmp_dir }}/replace/restricted.txt"
+  register: restricted_stat
+
+- name: Assert the permissions were kept
+  ansible.builtin.assert:
+    that:
+      - lineinfile_restricted is changed
+      - restricted_stat.stat.mode == "0600"
+
+- name: "Create the file a symbolic link points at"
+  community.openwrt.copy:
+    content: |
+      line1
+    dest: "{{ remote_tmp_dir }}/replace/target.txt"
+
+- name: "Create a symbolic link to the file"
+  community.openwrt.file:
+    src: "{{ remote_tmp_dir }}/replace/target.txt"
+    dest: "{{ remote_tmp_dir }}/replace/link.txt"
+    state: link
+
+- name: "Change the file through the symbolic link"
+  community.openwrt.lineinfile:
+    path: "{{ remote_tmp_dir }}/replace/link.txt"
+    line: "line2"
+  register: lineinfile_link
+
+- name: "Stat the symbolic link"
+  community.openwrt.stat:
+    path: "{{ remote_tmp_dir }}/replace/link.txt"
+  register: link_stat
+
+- name: "Read the file the symbolic link points at"
+  community.openwrt.slurp:
+    src: "{{ remote_tmp_dir }}/replace/target.txt"
+  register: target_content
+
+- name: Assert the file was changed through the symbolic link, which was kept
+  ansible.builtin.assert:
+    that:
+      - lineinfile_link is changed
+      - link_stat.stat.islnk
+      - target_content.content | b64decode == "line1\nline2\n"
+
+# The temporary file is named after the file it replaces, with a suffix, so a
+# file whose name is close to the length limit cannot get one: the write fails.
+- name: "Create a file whose name leaves no room for a temporary file"
+  community.openwrt.copy:
+    content: |
+      line1
+    dest: "{{ remote_tmp_dir }}/replace/failed/{{ 'a' * 240 }}"
+
+- name: "Fail to change the file"
+  community.openwrt.lineinfile:
+    path: "{{ remote_tmp_dir }}/replace/failed/{{ 'a' * 240 }}"
+    line: "line2"
+  register: lineinfile_failed
+  ignore_errors: true
+
+- name: "Read the file that could not be changed"
+  community.openwrt.slurp:
+    src: "{{ remote_tmp_dir }}/replace/failed/{{ 'a' * 240 }}"
+  register: failed_content
+
+- name: "List what is in the directory of the file"
+  community.openwrt.find:
+    paths: "{{ remote_tmp_dir }}/replace/failed"
+    file_type: any
+    hidden: true
+  register: failed_dir
+
+- name: Assert the failed write left the file untouched and nothing else behind
+  ansible.builtin.assert:
+    that:
+      - lineinfile_failed is failed
+      - failed_content.content | b64decode == "line1\n"
+      - failed_dir.files | map(attribute='path') | list == [remote_tmp_dir ~ '/replace/failed/' ~ 'a' * 240]

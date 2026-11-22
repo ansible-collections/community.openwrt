@@ -1,0 +1,2 @@
+minor_changes:
+  - lineinfile - replace the file atomically, so a failed write leaves the original file untouched (https://github.com/ansible-collections/community.openwrt/issues/349, https://github.com/ansible-collections/community.openwrt/pull/351).

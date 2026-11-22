@@ -3,9 +3,9 @@
 // GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { dirname, readfile, stat, writefile } from 'fs';
+import { dirname, readfile, realpath, stat } from 'fs';
 import { AnsibleModule } from '_basic';
-import { FILE_COMMON_ARGS, diff_side, is_dir, make_dirs, set_file_attributes } from '_file';
+import { FILE_COMMON_ARGS, diff_side, is_dir, make_dirs, replace_file, set_file_attributes } from '_file';
 
 const module = AnsibleModule({
     argument_spec: {
@@ -171,8 +171,12 @@ if (after != null) {
         if (!exists)
             make_dirs(module, dirname(path), { owner: null, group: null, mode: null });
 
-        if (writefile(path, text_of(after)) == null)
+        // A symbolic link is written through, to the file it points at.
+        try {
+            replace_file(realpath(path) ?? path, text_of(after));
+        } catch (e) {
             module.fail_json(`path ${path} not writeable`);
+        }
     }
 
     result.changed();
